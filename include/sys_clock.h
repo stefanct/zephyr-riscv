@@ -78,6 +78,12 @@ extern int sys_clock_hw_cycles_per_tick;
 	(((u64_t)(X) * sys_clock_us_per_tick * NSEC_PER_USEC) / \
 	 sys_clock_hw_cycles_per_tick)
 
+/* SYS_CLOCK_HW_CYCLES_TO_NS32 converts CPU clock cycles to nanoseconds
+   WARNING: DEV VERSION, NOT TESTED _dev_timo */
+#define SYS_CLOCK_HW_CYCLES_TO_NS32(X) \
+	(((u32_t)(X) * sys_clock_us_per_tick * NSEC_PER_USEC) / \
+	 sys_clock_hw_cycles_per_tick)
+
 /*
  * SYS_CLOCK_HW_CYCLES_TO_NS_AVG converts CPU clock cycles to nanoseconds
  * and calculates the average cycle time
@@ -101,7 +107,7 @@ extern int sys_clock_hw_cycles_per_tick;
  *
  * @return Duration in nanoseconds.
  */
-#define SYS_CLOCK_HW_CYCLES_TO_NS(X) (u32_t)(SYS_CLOCK_HW_CYCLES_TO_NS64(X))
+#define SYS_CLOCK_HW_CYCLES_TO_NS(X) (u32_t)(SYS_CLOCK_HW_CYCLES_TO_NS32(X))
 
 /**
  * @} end defgroup clock_apis

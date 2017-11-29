@@ -6,7 +6,7 @@ config SOC_SERIES
 
 config SYS_CLOCK_HW_CYCLES_PER_SEC
 	int
-	default 32768
+	default 65000000
 
 config RISCV_SOC_INTERRUPT_INIT
 	bool
@@ -22,7 +22,7 @@ config RISCV_HAS_PLIC
 
 config NUM_IRQS
 	int
-	default 64
+	default 65
 
 config XIP
 	bool
