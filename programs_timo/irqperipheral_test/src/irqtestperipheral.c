@@ -5,7 +5,7 @@
 #include "irqtestperipheral.h"
 #include <soc.h>
 #include <misc/printk.h> // debug only, 
-#define SYS_LOG_DOMAIN "IrqTestPeripheral"  // todo: fix not working atm
+#define SYS_LOG_DOMAIN "IrqTestPeripheral"  
 #define SYS_LOG_LEVEL SYS_LOG_LEVEL_DEBUG
 #include <logging/sys_log.h>
 #include <atomic.h>
@@ -49,23 +49,11 @@ struct irqtester_fe310_config {
 // atomic flags used for sync, reffering to _data.flags
 enum flags{
 	IRQT_QUEUE_RX_ENABLED,
+	IRQT_FIFO_RX_ENABLED,
+	IRQT_SEMARR_RX_ENABLED,
+	IRQT_VALFLAGS_RX_ENABLED,
+	_IRQT_NUM_FLAGS // must be last
 };
-
-// data tied to a instance of the driver
-struct irqtester_fe310_data {
-	/* callback function 
-	 * atm simple void to void function	
-	 */
-	void (*cb)(void);
-	atomic_t flags;
-	// use internally only
-	struct device * _drv_handle; 
-	struct k_msgq * _queue_rx;
-	bool _queue_enabled;
-};
-
-static struct irqtester_fe310_data irqtester_fe310_data0;  // empty data init
-
 
 // Internal helper macros to get handles
 #define DEV_CFG(dev)						\
@@ -76,8 +64,10 @@ static struct irqtester_fe310_data irqtester_fe310_data0;  // empty data init
 	((struct irqtester_fe310_data *)(dev)->driver_data)
 #define DEV()	\
 	irqtester_fe310_data0._drv_handle	// call after init only
-#define LEN_ARRAY(arr) \
-	((sizeof arr) / (sizeof *arr))		// call only on arrays defined in scope
+#define LEN_ARRAY(x) \
+	((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
+	// call only on arrays defined in scope
+	// credits: https://stackoverflow.com/questions/1598773/is-there-a-standard-function-in-c-that-would-return-the-length-of-an-array/1598827#1598827
 
 
 /*
@@ -90,26 +80,59 @@ static struct irqtester_fe310_data irqtester_fe310_data0;  // empty data init
  */
 
 
+// data pool for uint like data
+static struct DrvValue_uint _values_uint[] = {
+	{.base.id_name = VAL_IRQ_0_PERVAL},
+	{.base.id_name = VAL_IRQ_0_VALUE},
+};
+
 // data pool for int like data
 static struct DrvValue_int _values_int[] = {
-	{.base.id_name = VAL_IRQ_0_PERVAL},
+	
 };
 
 // data pool for bool like data
-static struct DrvValue_int _values_bool[] = {
+static struct DrvValue_bool _values_bool[] = {
 	{.base.id_name = VAL_IRQ_0_ENABLE},
 };
 
+#define NUM_VALS() \
+	(LEN_ARRAY(_values_uint) + LEN_ARRAY(_values_int) +  LEN_ARRAY(_values_bool))
 
+
+// data tied to a instance of the driver
+struct irqtester_fe310_data {
+	/* callback function 
+	 * atm simple void to void function	
+	 */
+	void (*cb)(void);
+	atomic_t flags; // 32 single bit flags
+
+	// for upward data passing
+	// use internally only
+	struct device * _drv_handle; 
+	struct k_msgq * _queue_rx;
+	struct k_fifo * _fifo_rx;
+	ATOMIC_DEFINE(_valflags_rx, NUM_VALS());
+	// semaphore and shared array for up passing 
+	struct k_sem * _sem_rx;
+	struct DrvEvent * _evt_arr_rx;
+	int _evt_count_rx;
+};
+
+static struct irqtester_fe310_data irqtester_fe310_data0;  // empty data init
+
+
+// forward declare static, internal helper functions
+static irqt_val_type_t id_2_type(irqt_val_id_t id);
+static int id_2_index(irqt_val_id_t id);
 
 /*
  * IRQ Handler registered to the kernel, just calls a callback.
  * 
  * @param arg: When kernel calls, this is a handle to the device.
  */
-
 static void irqtester_fe310_irq_handler(void *arg){
-	//printk("IRQTester interrupt triggered\n");
 
 	// get handles
 	struct device *dev = (struct device *)arg;
@@ -126,22 +149,55 @@ static void irqtester_fe310_irq_handler(void *arg){
  * -----------------------------------------------------
  */
 
-static void _send_event_2_queue_rx(struct device * dev, struct DrvEvent * evt){
+// note: only one kernel object at a time can be enabled
+// to send events upwards.
+static void _send_event_rx(struct device * dev, struct DrvEvent * evt){
 	struct irqtester_fe310_data * data = DEV_DATA(dev);
 	bool send_fail = false;
-	if(atomic_test_bit( &(data->flags), IRQT_QUEUE_RX_ENABLED )){
 
+	if(atomic_test_bit( &(data->flags), IRQT_QUEUE_RX_ENABLED )){
 		if(0 != k_msgq_put(data->_queue_rx, evt, K_NO_WAIT))
 			send_fail = true;
+		else
+			return; // success, so get out of here fast
+	}
+	else if(atomic_test_bit( &(data->flags), IRQT_FIFO_RX_ENABLED )){
+		//SYS_LOG_DBG("Sending event %i to fifo", evt->id_name);
+		k_fifo_put(data->_fifo_rx, evt);
 		return; // success, so get out of here fast
 	}
-	if(send_fail){
-		SYS_LOG_WRN("Couldn't send event with id %i to busy, full or disabled queue", evt->id_name);
+	else if(atomic_test_bit( &(data->flags), IRQT_SEMARR_RX_ENABLED )){
+		// sem count indicates array position that are filled with
+		// valid DrvEvents
+		//SYS_LOG_DBG("Sending semaphore for event %i", evt->id_name);
+		int count = k_sem_count_get(data->_sem_rx);
+		k_sem_give(data->_sem_rx);			// -> count++
+		data->_evt_arr_rx[count] = *evt;	// write event into array
+		//SYS_LOG_DBG("Event in array with id %i, type %i", data->_evt_arr_rx[count].id_name, data->_evt_arr_rx[count].val_type);
+		//SYS_LOG_DBG("Count %i -> %i", count, k_sem_count_get(data->_sem_rx));
+		return; // success, so get out of here fast
 	}
+	else if(atomic_test_bit( &(data->flags), IRQT_VALFLAGS_RX_ENABLED) ){
+		atomic_set_bit(data->_valflags_rx, evt->id_name);
+		return;
+	}
+	else{
+		send_fail = true; // neither queue nor fifo enabled
+	}
+
+	if(send_fail)
+		SYS_LOG_WRN("Couldn't send event with id %i to busy, full or disabled kernel object", evt->id_name);
 }
 
-// handler for very block with irq
-static void _irq_0_handler(void){
+// handlers for every block with irq
+// note: in zephyr all ISRs have same priority by default
+// -> ISR can't be preempted by other ISR
+void _irq_0_handler(void){
+
+	/* todo: for new hardware revision: 
+	 * - delayed fire / hw timers
+	 * - signal irq cleared to hw
+	 */ 
 	/* generic part */
 	struct device * dev = DEV();
 	if(dev == NULL)
@@ -160,8 +216,8 @@ static void _irq_0_handler(void){
 
 	// write into internal data pools 
 	u32_t now_ns = SYS_CLOCK_HW_CYCLES_TO_NS(k_cycle_get_32());
-	_values_int[id_2_index(VAL_IRQ_0_PERVAL)].payload = perval;
-	_values_int[id_2_index(VAL_IRQ_0_PERVAL)].base.time_ns = now_ns; 
+	_values_uint[id_2_index(VAL_IRQ_0_PERVAL)].payload = perval;
+	_values_uint[id_2_index(VAL_IRQ_0_PERVAL)].base.time_ns = now_ns; 
 
 	_values_bool[id_2_index(VAL_IRQ_0_ENABLE)].payload = enable;
 	_values_bool[id_2_index(VAL_IRQ_0_ENABLE)].base.time_ns = now_ns;
@@ -169,9 +225,92 @@ static void _irq_0_handler(void){
 	// issue events to queue
 	struct DrvEvent evt_perval = {.id_name=VAL_IRQ_0_PERVAL, .val_type=DRV_INT, .event_type=VAL_UPDATE};
 	struct DrvEvent evt_enable = {.id_name=VAL_IRQ_0_ENABLE, .val_type=DRV_BOOL, .event_type=VAL_UPDATE};
-	_send_event_2_queue_rx(dev, &evt_perval);
-	_send_event_2_queue_rx(dev, &evt_enable);
 
+	// todo: when using fifo, could be faster to send as list
+	_send_event_rx(dev, &evt_perval);
+	_send_event_rx(dev, &evt_enable);
+	
+}
+
+// uses generic getters
+// arround 15 cycles slower than direct getters (84 vs 67)
+void _irq_0_handler_2(void){
+
+	// todo: for new hardware revision: signal irq cleared to hw
+
+	/* generic part */
+	struct device * dev = DEV();
+	if(dev == NULL)
+		return;	// safety first
+
+
+
+	/* own implementation 
+	 * read values from hardware registers and send up DrvEvents
+	 */
+	struct DrvValue_uint perval;
+	struct DrvValue_bool enable;
+	irqtester_fe310_get_reg(dev, VAL_IRQ_0_PERVAL, &perval);
+	irqtester_fe310_get_reg(dev, VAL_IRQ_0_ENABLE, &enable);
+	
+
+	// write into internal data pools 
+	u32_t now_ns = SYS_CLOCK_HW_CYCLES_TO_NS(k_cycle_get_32());
+	_values_uint[id_2_index(VAL_IRQ_0_PERVAL)].payload = perval.payload;
+	_values_uint[id_2_index(VAL_IRQ_0_PERVAL)].base.time_ns = now_ns; 
+
+	_values_bool[id_2_index(VAL_IRQ_0_ENABLE)].payload = enable.payload;
+	_values_bool[id_2_index(VAL_IRQ_0_ENABLE)].base.time_ns = now_ns;
+
+	// issue events to queue
+	struct DrvEvent evt_perval = {.id_name=VAL_IRQ_0_PERVAL, .val_type=DRV_INT, .event_type=VAL_UPDATE};
+	struct DrvEvent evt_enable = {.id_name=VAL_IRQ_0_ENABLE, .val_type=DRV_BOOL, .event_type=VAL_UPDATE};
+
+	// todo: when using fifo, could be faster to send as list
+	_send_event_rx(dev, &evt_perval);
+	_send_event_rx(dev, &evt_enable);
+	
+}
+
+// don't copy into memory pools, just notify
+void _irq_0_handler_3(void){
+
+	// todo: for new hardware revision: signal irq cleared to hw
+
+	/* generic part */
+	struct device * dev = DEV();
+	if(dev == NULL)
+		return;	// safety first
+
+
+
+	/* own implementation 
+	 * read values from hardware registers and send up DrvEvents
+	 */
+	struct DrvValue_uint perval;
+	struct DrvValue_bool enable;
+	irqtester_fe310_get_reg(dev, VAL_IRQ_0_PERVAL, &perval);
+	irqtester_fe310_get_reg(dev, VAL_IRQ_0_ENABLE, &enable);
+	
+
+	/* write into internal data pools */
+	u32_t now_ns = SYS_CLOCK_HW_CYCLES_TO_NS(k_cycle_get_32()); // might be written into event
+	/*
+	_values_uint[id_2_index(VAL_IRQ_0_PERVAL)].payload = perval.payload;
+	_values_uint[id_2_index(VAL_IRQ_0_PERVAL)].base.time_ns = now_ns; 
+
+	_values_bool[id_2_index(VAL_IRQ_0_ENABLE)].payload = enable.payload;
+	_values_bool[id_2_index(VAL_IRQ_0_ENABLE)].base.time_ns = now_ns;
+	*/
+
+	// issue events to queue
+	struct DrvEvent evt_perval = {.id_name=VAL_IRQ_0_PERVAL, .val_type=DRV_INT, .event_type=VAL_UPDATE};
+	struct DrvEvent evt_enable = {.id_name=VAL_IRQ_0_ENABLE, .val_type=DRV_BOOL, .event_type=VAL_UPDATE};
+
+	// todo: when using fifo, could be faster to send as list
+	_send_event_rx(dev, &evt_perval);
+	_send_event_rx(dev, &evt_enable);
+	
 }
 
 
@@ -182,44 +321,156 @@ static void _irq_0_handler(void){
 
 // todo: public functions should probably have a device param to differentiate between instances
 
-// thread safe getter
-// warning: be sure that res is a pointer to a DrvValue_ struct
-// of correct type. We cast unsafely here.
-int irqtester_fe310_get_val(irqt_val_t id, void * res){
-	// todo: obtain semaphore to be thread safe
+/* thread safe generic getter for values from driver memory pools.
+ * Doesn't read from registers; an irq is needed to load regs into driver mem.
+ * @param id: id of value to get
+ * @param res_value: pointer to a DrvValue_X struct of correct type. 
+ */ 
+int irqtester_fe310_get_val(irqt_val_id_t id, void * res_value){
+	
+	// we only read data -> thread safe without synchronization
 
-	short mode = 0;
-	int n_int = LEN_ARRAY(_values_int);
-	int m_bool = LEN_ARRAY(_values_bool);
-	if(id < n_int)
-		mode = 1; // int
-	else if(id >= n_int && id < (n_int + m_bool))
-		mode = 2; // bool
-	else{
-		SYS_LOG_WRN("Tried to get value with unknown id %i", id);
-		return 1;
-	}
+	irqt_val_type_t type = id_2_type(id);
+
+	SYS_LOG_DBG("Getting value for id %i, type %i", id, type);
+
 	/* enter CRITICAL SECTION
-	 * interrupts write to internal value pools
+	 * ISRs write to internal value pools
 	 * we must not be interrupted while reading these 
 	 */ 
 	unsigned int lock_key = irq_lock();
 
-	if (mode == 1){
-		((struct DrvValue_int *) res)->base.id_name = id;
-		((struct DrvValue_int *) res)->payload = _values_int[id_2_index(id)].payload;
-		((struct DrvValue_int *) res)->base.time_ns = _values_int[id_2_index(id)].base.time_ns;
-	}
-	if (mode == 2){
-		((struct DrvValue_bool *) res)->base.id_name = id;
-		((struct DrvValue_bool *) res)->payload = _values_bool[id_2_index(id)].payload;
-		((struct DrvValue_bool *) res)->base.time_ns = _values_bool[id_2_index(id)].base.time_ns;
-	}
+	switch(type){
+		case DRV_UINT:;
+			//struct DrvValue_uint * dbg = ((struct DrvValue_uint *) res_value);
+			((struct DrvValue_uint *) res_value)->base.id_name = id;
+			((struct DrvValue_uint *) res_value)->payload = _values_uint[id_2_index(id)].payload;
+			((struct DrvValue_uint *) res_value)->base.time_ns = _values_uint[id_2_index(id)].base.time_ns;
+			//SYS_LOG_DBG("at %p payload %i, time %i", dbg, dbg->payload, dbg->base.time_ns);
+			break;
+		case DRV_INT:
+			((struct DrvValue_int *) res_value)->base.id_name = id;
+			((struct DrvValue_int *) res_value)->payload = _values_int[id_2_index(id)].payload;
+			((struct DrvValue_int *) res_value)->base.time_ns = _values_int[id_2_index(id)].base.time_ns;
+			break;
+		case DRV_BOOL:
+			((struct DrvValue_bool *) res_value)->base.id_name = id;
+			((struct DrvValue_bool *) res_value)->payload = _values_bool[id_2_index(id)].payload;
+			((struct DrvValue_bool *) res_value)->base.time_ns = _values_bool[id_2_index(id)].base.time_ns;
+			break;
+		default:
+			SYS_LOG_ERR("Unknown type %i", type);
+	}	
 
 	irq_unlock(lock_key);
 
 	return 0;
 		 
+}
+
+/* thread safe generic setter for device registers
+ * must not be called by an ISR (mutex).
+ * @param id: id of value to set
+ * @param set_value: pointer to a DrvValue_X struct of correct type. 
+ */ 
+int irqtester_fe310_set_reg(struct device * dev, irqt_val_id_t id, void * set_val){
+	
+	// only one thread at a time can write to reg
+	// todo: test mutex lock
+	static struct k_mutex lock;
+	k_mutex_init(&lock);
+
+	irqt_val_type_t type = id_2_type(id);
+
+	if (k_mutex_lock(&lock, K_MSEC(1)) != 0) {
+		SYS_LOG_WRN("Couldn't obtain lock to set registers with id %i", id);
+		return 1;
+	}
+
+	/* enter CRITICAL SECTION
+	 * we must not be interrupted while setting these 
+	 */ 
+
+	unsigned int lock_key = irq_lock();
+
+	// cast the given value container depending on 
+	// its type to set the value in corresponding memory pool
+	switch(type){
+		case DRV_UINT: 
+			*(_values_uint[id_2_index(id)].base_addr) = \
+				((struct DrvValue_uint *)set_val)->payload;
+			break;
+		case DRV_INT: 
+			*(_values_int[id_2_index(id)].base_addr) = \
+				((struct DrvValue_int *)set_val)->payload;
+			break;
+		case DRV_BOOL: 
+			*(_values_bool[id_2_index(id)].base_addr) = \
+				((struct DrvValue_bool *)set_val)->payload;
+			break;
+		default:
+			SYS_LOG_ERR("Unknown type %i", type);
+	}
+	
+	irq_unlock(lock_key);
+	k_mutex_unlock(&lock);
+
+
+	return 0;
+}
+
+/* non-thread safe, generic getter for device registers
+ * might be called from an ISR
+ * @param id: id of value to set
+ * @param set_value: pointer to a DrvValue_X struct of correct type. 
+ */ 
+int irqtester_fe310_get_reg(struct device * dev, irqt_val_id_t id, void * res_val){
+	
+	irqt_val_type_t type = id_2_type(id);
+	u32_t now_ns = SYS_CLOCK_HW_CYCLES_TO_NS(k_cycle_get_32());
+
+	/* enter CRITICAL SECTION
+	 * we must not be interrupted while getting these 
+	 */ 
+	
+	unsigned int lock_key = irq_lock();
+	
+	// cast the given value container depending on its type 
+	switch(type){
+		case DRV_UINT:
+			((struct DrvValue_uint *) res_val)->base.id_name = id;
+			((struct DrvValue_uint *) res_val)->payload = *(_values_uint[id_2_index(id)].base_addr);
+			((struct DrvValue_uint *) res_val)->base.time_ns = now_ns;
+			break;
+		case DRV_INT:
+			((struct DrvValue_int *) res_val)->base.id_name = id;
+			((struct DrvValue_int *) res_val)->payload = *(_values_int[id_2_index(id)].base_addr);
+			((struct DrvValue_int *) res_val)->base.time_ns = now_ns;
+			break;
+		case DRV_BOOL:
+			((struct DrvValue_bool *) res_val)->base.id_name = id;
+			((struct DrvValue_bool *) res_val)->payload = *(_values_bool[id_2_index(id)].base_addr);
+			((struct DrvValue_bool *) res_val)->base.time_ns = now_ns;
+			break;
+		default:
+			SYS_LOG_ERR("Unknown type %i", type);
+	}
+	
+	irq_unlock(lock_key);
+
+
+	return 0;
+
+}
+
+bool irqtester_fe310_test_valflag(struct device *dev, irqt_val_id_t id){
+	struct irqtester_fe310_data *data = DEV_DATA(dev);
+	return atomic_test_bit(data->_valflags_rx, id);
+}
+
+void irqtester_fe310_clear_all_valflags(struct device *dev){
+	struct irqtester_fe310_data *data = DEV_DATA(dev);
+	atomic_clear(data->_valflags_rx);
 }
 
 /*
@@ -238,6 +489,53 @@ int irqtester_fe310_register_queue_rx(struct device * dev, struct k_msgq * queue
 	return 0;
 }
 
+/*
+ * Provide a handle to a fifo to receive msgs from the driver there.
+ * Remember to enable_fifo_rx() and to empty it in the consuming thread. 
+ */
+int irqtester_fe310_register_fifo_rx(struct device * dev, struct k_fifo * queue){
+	struct irqtester_fe310_data *data = DEV_DATA(dev);
+
+	if(data->_fifo_rx == NULL) 
+		data->_fifo_rx = queue;
+	else{
+		SYS_LOG_WRN("Can't register more than one rx fifo");
+		return 1;
+	}
+	return 0;
+}
+
+int irqtester_fe310_register_sem_arr_rx(struct device * dev, 
+						struct k_sem * sem, struct DrvEvent evt_arr[], int len){
+	
+	struct irqtester_fe310_data *data = DEV_DATA(dev);
+
+	if(data->_sem_rx == NULL){
+		data->_sem_rx = sem;
+		data->_evt_arr_rx = evt_arr;
+		data->_evt_count_rx = len;
+	}
+	else{
+		SYS_LOG_WRN("Can't register more than one rx semaphore plus array combination");
+		return 1;
+	}
+	return 0;
+}
+
+// helper, 
+static bool test_any_flag(struct device * dev){
+	
+	struct irqtester_fe310_data *data = DEV_DATA(dev);
+	bool any = false;
+
+	for(int i=0; i < _IRQT_NUM_FLAGS; i++){
+		any = atomic_test_bit(&(data->flags), i);
+		if(any)
+			return true;
+	}
+	return any;
+}
+
 int irqtester_fe310_enable_queue_rx(struct device * dev){
 	struct irqtester_fe310_data *data = DEV_DATA(dev);
 
@@ -245,14 +543,124 @@ int irqtester_fe310_enable_queue_rx(struct device * dev){
 		SYS_LOG_WRN("No queue to enable");
 		return 1;
 	}
+
+
+	if(test_any_flag(dev)){
+		SYS_LOG_WRN("Purging rx to enable queue exclusively.");
+		irqtester_fe310_purge_rx(dev);
+	}
+
 	atomic_set_bit(&(data->flags), IRQT_QUEUE_RX_ENABLED);
 
 	return 0;
 }
 
+int irqtester_fe310_enable_fifo_rx(struct device * dev){
+	struct irqtester_fe310_data *data = DEV_DATA(dev);
+
+	if(data->_fifo_rx == NULL){
+		SYS_LOG_WRN("No fifo to enable");
+		return 1;
+	}
+
+
+	if(test_any_flag(dev)){
+		SYS_LOG_WRN("Purging rx to enable fifo exclusively.");
+		irqtester_fe310_purge_rx(dev);
+	}
+
+	atomic_set_bit(&(data->flags), IRQT_FIFO_RX_ENABLED);
+
+	return 0;
+}
+
+int irqtester_fe310_enable_sem_arr_rx(struct device * dev){
+	struct irqtester_fe310_data *data = DEV_DATA(dev);
+
+	if(data->_sem_rx == NULL){
+		SYS_LOG_WRN("No semaphore plus array to enable");
+		return 1;
+	}
+
+	if(test_any_flag(dev)){
+		SYS_LOG_WRN("Purging rx to enable semaphore plus array exclusively.");
+		irqtester_fe310_purge_rx(dev);
+	}
+
+	atomic_set_bit(&(data->flags), IRQT_SEMARR_RX_ENABLED);
+
+	return 0;
+}
+
+int irqtester_fe310_enable_valflags_rx(struct device * dev){
+	struct irqtester_fe310_data *data = DEV_DATA(dev);
+
+	if(test_any_flag(dev)){
+		SYS_LOG_WRN("Purging rx to enable value flags exclusively.");
+		irqtester_fe310_purge_rx(dev);
+	}
+
+	atomic_set_bit(&(data->flags), IRQT_VALFLAGS_RX_ENABLED);
+
+	return 0;
+}
+
+
+// this should be called from one thread only
+// todo: document usage of sem + arr
+int irqtester_fe310_receive_evt_from_arr(struct device * dev, struct DrvEvent * res, s32_t timeout){
+	
+	struct irqtester_fe310_data *data = DEV_DATA(dev);
+
+	if (data->_sem_rx == NULL || !atomic_test_bit(&(data->flags), IRQT_SEMARR_RX_ENABLED)){
+		SYS_LOG_ERR("Semaphore not ready. Correctly set up?");
+		return 2;
+	}
+
+	if(k_sem_take(data->_sem_rx, timeout) != 0){
+		//SYS_LOG_WRN("Semaphore busy or timed out.");
+		return 1;	
+	}
+	int count = k_sem_count_get(data->_sem_rx);
+
+	data = DEV_DATA(dev);
+	/* Enter CRITICAL 
+	 * ISRs write to this shared memory array, we must not be interrupted reading.
+	 */
+	unsigned int lockkey = irq_lock();
+	*res = data->_evt_arr_rx[count];
+	irq_unlock(lockkey);
+	
+	if(res->cleared != 0)
+		SYS_LOG_WRN("Event with id %i at count %i shouln't be cleared yet!", res->id_name, count);
+	else
+		data->_evt_arr_rx[count].cleared++;
+
+	return 0;
+}
+
+int irqtester_fe310_purge_rx(struct device * dev){
+	struct irqtester_fe310_data *data = DEV_DATA(dev);
+
+	data->_queue_rx = NULL;
+	data->_fifo_rx = NULL;
+	data->_sem_rx = NULL;
+	data->_evt_arr_rx = NULL;
+	data->_evt_count_rx = 0;
+	atomic_clear(data->_valflags_rx);
+
+	atomic_clear_bit(&(data->flags), IRQT_QUEUE_RX_ENABLED);
+	atomic_clear_bit(&(data->flags), IRQT_FIFO_RX_ENABLED);
+	atomic_clear_bit(&(data->flags), IRQT_SEMARR_RX_ENABLED);
+	atomic_clear_bit(&(data->flags), IRQT_VALFLAGS_RX_ENABLED);
+
+	return 0;
+}
+
+
 void irqtester_fe310_dbgprint_event(struct device * dev, struct DrvEvent * evt){
 
-	irqt_val_t id = evt->id_name;
+	irqt_val_id_t id = evt->id_name;
 
 	SYS_LOG_DBG("Driver event [type / value type]: %i, %i", evt->event_type, evt->val_type);
 	// todo: check whether (implicit) casting like this is save!
@@ -261,13 +669,18 @@ void irqtester_fe310_dbgprint_event(struct device * dev, struct DrvEvent * evt){
 		irqtester_fe310_get_val(id, &val);
 		SYS_LOG_DBG("Value (id: %i): %i updated at %u ns", val.base.id_name, val.payload, val.base.time_ns);
 	} 
+	else if(evt->val_type == DRV_UINT){
+		struct DrvValue_uint val;
+		irqtester_fe310_get_val(id, &val);
+		SYS_LOG_DBG("Value (id: %i): %u updated at %u ns", val.base.id_name, val.payload, val.base.time_ns);
+	} 
 	else if(evt->val_type == DRV_BOOL){
 		struct DrvValue_bool val;
 		irqtester_fe310_get_val(id, &val);
 		SYS_LOG_DBG("Value (id: %i): %i updated at %u ns", val.base.id_name, val.payload, val.base.time_ns);
 	}
 	else
-		SYS_LOG_WRN("Can't print event of with unknown value type %i", evt->val_type);
+		SYS_LOG_WRN("Can't print event of unknown value type %i", evt->val_type);
 }
 
 /*
@@ -278,24 +691,83 @@ void irqtester_fe310_dbgprint_event(struct device * dev, struct DrvEvent * evt){
 
 // TODO: encapsulate hardware reads, make functions static
 
-int id_2_index(irqt_val_t id){
+// calc (enum) type from value id 
+static irqt_val_type_t id_2_type(irqt_val_id_t id){
 
-	int n_int = LEN_ARRAY(_values_int);
-	int m_bool = LEN_ARRAY(_values_bool);
-	if(id < n_int)
-		return id; // int
-	else if(id >= n_int && id < (n_int + m_bool))
-		return id - n_int; // bool
+	int n_uint = LEN_ARRAY(_values_uint);
+	int m_int = LEN_ARRAY(_values_int);
+	int k_bool = LEN_ARRAY(_values_bool);
+
+	if(id < n_uint){
+		//SYS_LOG_DBG("Returning type %i", DRV_UINT);
+		return DRV_UINT;
+	} 
+	else if(id >= n_uint && id < (n_uint + m_int)){
+		//SYS_LOG_DBG("Returning type %i", DRV_INT);
+		return DRV_INT;
+	}
+	else if(id >= (n_uint + m_int)  && id < (n_uint + m_int + k_bool)){
+		//SYS_LOG_DBG("Returning type %i", DRV_BOOL);
+		return DRV_BOOL;
+	}
 	else{
-		SYS_LOG_ERR("Tried to get index for unknown id %i", id);
+		SYS_LOG_ERR("Tried to get type for unknown id %i", id);
 		return -1;
 	}
 }
 
+// calc index to access the _values_ arrays from value id
+// order of _values_id must match .h::irqt_val_id_t
+static int id_2_index(irqt_val_id_t id){
+
+	int n_uint = LEN_ARRAY(_values_uint);
+	int m_int = LEN_ARRAY(_values_int);
+	//int k_bool = LEN_ARRAY(_values_bool);
+
+	irqt_val_type_t type = id_2_type(id);
+
+	switch(type){
+		case DRV_UINT:
+			//SYS_LOG_DBG("Returning idx %i", id);
+			return id; // uint
+		case DRV_INT:
+			//SYS_LOG_DBG("Returning idx %i", id - n_uint);
+			return id - n_uint; // int
+		case DRV_BOOL:
+			//SYS_LOG_DBG("Returning idx %i", id - n_uint - m_int);
+			return id - n_uint - m_int; // bool
+		default:
+			SYS_LOG_ERR("Tried to get index for unknown id %i", id);
+			return -1;
+	}
+}
+
+
+static int _store_reg_addr(irqt_val_id_t id, volatile void * addr){
+	
+	irqt_val_type_t type = id_2_type(id);
+	SYS_LOG_DBG("Saving addr for value id %i: %p", id, addr);
+
+	switch(type){
+		case DRV_UINT:
+			_values_uint[id_2_index(id)].base_addr = (u32_t *)addr;
+			break;
+		case DRV_INT:
+			_values_int[id_2_index(id)].base_addr = (int *)addr;
+			break;
+		case DRV_BOOL:
+			_values_bool[id_2_index(id)].base_addr = (bool *)addr;
+			break;
+		default:
+			SYS_LOG_ERR("Unknown type %i", type);
+			return 1;
+	}
+	
+	return 0;
+}
 
 /**
  * @brief Initialize 
-
  * @param dev IRQTester device struct
  *
  * @return 0
@@ -304,6 +776,7 @@ static int irqtester_fe310_init(struct device *dev)
 {
 	volatile struct irqtester_fe310_t *irqt = DEV_REGS(dev);
 	const struct irqtester_fe310_config *cfg = DEV_CFG(dev);
+	struct irqtester_fe310_data *data = DEV_DATA(dev);
 
 	SYS_LOG_DBG("Init iqrtester driver with hw at mem address %p", irqt);
 
@@ -313,6 +786,10 @@ static int irqtester_fe310_init(struct device *dev)
 	irqt->perval	= 0;
 	irqt->status	= 0;
 	irqt->fire   	= 0;
+	// store addr of registers to allow set/get by id_name
+	_store_reg_addr(VAL_IRQ_0_ENABLE, 	&(irqt->enable)	);
+	_store_reg_addr(VAL_IRQ_0_VALUE, 	&(irqt->value)	);
+	_store_reg_addr(VAL_IRQ_0_PERVAL, 	&(irqt->perval)	);
 
 	/* Setup IRQ handler  */
 	// Strange that not done by kernel...
@@ -321,11 +798,11 @@ static int irqtester_fe310_init(struct device *dev)
 	irqtester_fe310_register_callback(dev, _irq_0_handler);
 
 	// store handle to driver in data for internal calls
-	struct irqtester_fe310_data *data = DEV_DATA(dev);
 	data->_drv_handle = dev;
 
 	return 0;
 }
+
 
 int irqtester_fe310_register_callback(struct device *dev, void (*cb)(void))
 {	
@@ -351,6 +828,12 @@ int irqtester_fe310_unregister_callback(struct device *dev)
 
 	return 0;
 }
+
+/*
+ * Non generic, non thread-safe setters for registers.
+ * Avoid to call from application code.
+ * --------------------------------------------------------------
+ */
 
 int irqtester_fe310_set_value(struct device *dev, unsigned int val)
 {	
@@ -387,7 +870,6 @@ int irqtester_fe310_get_perval(struct device *dev, unsigned int * res)
 	volatile struct irqtester_fe310_t *irqt = DEV_REGS(dev);
 
 	*res = irqt->perval;
-	//printk("Getting perval %i from %p \n", *res, &(irqt->perval));
 
 	return 0;
 }
@@ -397,7 +879,15 @@ int irqtester_fe310_get_status(struct device *dev, unsigned int * res)
 	volatile struct irqtester_fe310_t *irqt = DEV_REGS(dev);
 
 	*res = irqt->status;
-	//printk("Getting perval %i from %p \n", *res, &(irqt->perval));
+
+	return 0;
+}
+
+int irqtester_fe310_set_enable(struct device *dev, bool val)
+{	
+	volatile struct irqtester_fe310_t *irqt = DEV_REGS(dev);
+
+	irqt->enable = val;
 
 	return 0;
 }
@@ -407,8 +897,7 @@ int irqtester_fe310_enable(struct device *dev)
 	volatile struct irqtester_fe310_t *irqt = DEV_REGS(dev);
 
 	irqt->enable = 1;
-	//printk("Enabling by writing 1 to %p \n", &(irqt->enable));
-    //printk("enable: %i \n", irqt->enable);
+
 	return 0;
 }
 
@@ -471,6 +960,7 @@ static const struct irqtester_fe310_config irqtester_fe310_config0 = {
 
 struct irqtester_driver_api{
 	// dummy, we implement no api. But needed to properly init.
+	// todo: implement api
 };
 
 static const struct irqtester_driver_api irqtester_fe310_driver = {

@@ -40,11 +40,80 @@ void main(void)
 	}
 
 	irqtester_fe310_enable(dev);
-	int NUM_RUNS = 100;
+	int NUM_RUNS = 20;
+	int verbosity = 0;
+	
+	printk("Now running irq timing test \n");
+	irqtester_fe310_register_callback(dev, &irq_handler_mes_time);
+	test_interrupt_timing(dev, NUM_RUNS, verbosity);
 
-	test_queue_rx_timing(dev, NUM_RUNS);
-	test_interrupt_timing(dev, NUM_RUNS);
+	printk("Now running timing test with queues and direct reg getters \n");
+	irqtester_fe310_register_callback(dev, _irq_0_handler);
+	test_rx_timing(dev, NUM_RUNS, 0, verbosity);
+	printk("Now running timing test with queues and generic reg getters \n");
+	irqtester_fe310_register_callback(dev, _irq_0_handler_2);
+	test_rx_timing(dev, NUM_RUNS, 0, verbosity);
+		
+	printk("Now running timing test with fifos and direct reg getters \n");
+	irqtester_fe310_register_callback(dev, _irq_0_handler);
+	test_rx_timing(dev, NUM_RUNS, 1, verbosity);
+	printk("Now running timing test with fifos and generic reg getters \n");
+	irqtester_fe310_register_callback(dev, _irq_0_handler_2);
+	test_rx_timing(dev, NUM_RUNS, 1, verbosity);
 
+	printk("Now running timing test with semArr and direct reg getters \n");
+	irqtester_fe310_register_callback(dev, _irq_0_handler);
+	test_rx_timing(dev, NUM_RUNS, 2, verbosity);
+	printk("Now running timing test with semArr and generic reg getters \n");
+	irqtester_fe310_register_callback(dev, _irq_0_handler_2);
+	test_rx_timing(dev, NUM_RUNS, 2, verbosity);
+	
+	printk("Now running timing test with valflags and direct reg getters \n");
+	irqtester_fe310_register_callback(dev, _irq_0_handler);
+	test_rx_timing(dev, NUM_RUNS, 3, verbosity);
+	printk("Now running timing test with valflags and generic reg getters \n");
+	irqtester_fe310_register_callback(dev, _irq_0_handler_2);
+	test_rx_timing(dev, NUM_RUNS, 3, verbosity);
+	
+	printk("Now running timing test with noload, queue and direct reg getters \n");
+	irqtester_fe310_register_callback(dev, _irq_0_handler_3);
+	test_rx_timing(dev, NUM_RUNS, 0, verbosity);
+	printk("Now running timing test with noload, fifos and direct reg getters \n");
+	irqtester_fe310_register_callback(dev, _irq_0_handler_3);
+	test_rx_timing(dev, NUM_RUNS, 1, verbosity);
+	printk("Now running timing test with noload, semArr and direct reg getters \n");
+	irqtester_fe310_register_callback(dev, _irq_0_handler_3);
+	test_rx_timing(dev, NUM_RUNS, 2, verbosity);
+	printk("Now running timing test with noload, valflags and direct reg getters \n");
+	irqtester_fe310_register_callback(dev, _irq_0_handler_3);
+	test_rx_timing(dev, NUM_RUNS, 3, verbosity);
+	
+
+	/* test generic setters 
+	struct DrvValue_uint val = {.payload=7}; 
+	irqtester_fe310_set_reg(dev, VAL_IRQ_0_VALUE, &val);
+	struct DrvValue_int test;
+	// firing loads register into driver values
+	irqtester_fe310_fire(dev);
+	irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &test);
+	printk("get_perval: %i \n", test.payload);
+
+
+	val.payload=42; 
+	irqtester_fe310_set_reg(dev, VAL_IRQ_0_VALUE, &val);
+	// firing loads register into driver values
+	irqtester_fe310_fire(dev);
+	irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &test);
+	printk("get_perval: %i \n", test.payload);
+
+	// disabling won't fire the interrupt, so nothing loaded
+	struct DrvValue_bool enable = {.payload=false}; 
+	irqtester_fe310_set_reg(dev, VAL_IRQ_0_ENABLE, &enable);
+	irqtester_fe310_fire(dev);
+	irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &test);
+	printk("get_perval: %i \n", test.payload);
+
+	*/
 
 	/* working _values array for data passing
 	printk("Testing getter. Set perval: 42 \n");
@@ -103,5 +172,7 @@ void main(void)
 	printk("returned %i, device status %i \n", test, status);
 	*/
 
+	printk("Total uptime %u ms \n", k_uptime_get_32());// not working
+	printk("***** I'm done here... Goodbye! *****");
 }
 
