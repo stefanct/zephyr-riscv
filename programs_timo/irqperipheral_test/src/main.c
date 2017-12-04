@@ -11,6 +11,7 @@
 #include "irqtestperipheral.h"
 
 #include "tests.c"
+#include "utils.c"
 
 #define IRQTESTER_DRV_NAME "irqtester0"
 
@@ -28,7 +29,11 @@ void isr_on_irq(void){
 
 void main(void)
 {
-	printk("Starting irqtester test on %s\n", CONFIG_ARCH);
+	printk("Starting irqtester test on arch: %s\n", CONFIG_ARCH);
+	// todo: 
+	// - nice prints (see tests/benchmark/latency)
+	// - error count
+
 
 	struct device *dev;
 	dev = device_get_binding(IRQTESTER_DRV_NAME);
@@ -40,54 +45,91 @@ void main(void)
 	}
 
 	irqtester_fe310_enable(dev);
-	int NUM_RUNS = 20;
-	int verbosity = 0;
+	#define NUM_RUNS 20
+	int verbosity = 1;
+	int timing_detailed_cyc[NUM_RUNS];
 	
-	printk("Now running irq timing test \n");
+
+	PRINT_BANNER();
+	PRINT_TIME_BANNER();
+
+	printk("Now running raw irq to isr timing test \n");
 	irqtester_fe310_register_callback(dev, &irq_handler_mes_time);
-	test_interrupt_timing(dev, NUM_RUNS, verbosity);
+	test_interrupt_timing(dev, timing_detailed_cyc, NUM_RUNS, verbosity);
+	print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
+	print_dash_line();
 
 	printk("Now running timing test with queues and direct reg getters \n");
 	irqtester_fe310_register_callback(dev, _irq_0_handler);
-	test_rx_timing(dev, NUM_RUNS, 0, verbosity);
+	test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 0, verbosity);
+	print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
 	printk("Now running timing test with queues and generic reg getters \n");
 	irqtester_fe310_register_callback(dev, _irq_0_handler_2);
-	test_rx_timing(dev, NUM_RUNS, 0, verbosity);
+	test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 0, verbosity);
+	print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
+	print_dash_line();
 		
 	printk("Now running timing test with fifos and direct reg getters \n");
 	irqtester_fe310_register_callback(dev, _irq_0_handler);
-	test_rx_timing(dev, NUM_RUNS, 1, verbosity);
+	test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 1, verbosity);
+	print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
 	printk("Now running timing test with fifos and generic reg getters \n");
 	irqtester_fe310_register_callback(dev, _irq_0_handler_2);
-	test_rx_timing(dev, NUM_RUNS, 1, verbosity);
+	test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 1, verbosity);
+	print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
+	print_dash_line();
 
 	printk("Now running timing test with semArr and direct reg getters \n");
 	irqtester_fe310_register_callback(dev, _irq_0_handler);
-	test_rx_timing(dev, NUM_RUNS, 2, verbosity);
+	test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 2, verbosity);
+	print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
 	printk("Now running timing test with semArr and generic reg getters \n");
 	irqtester_fe310_register_callback(dev, _irq_0_handler_2);
-	test_rx_timing(dev, NUM_RUNS, 2, verbosity);
-	
+	test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 2, verbosity);
+	print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
+	print_dash_line();
+
 	printk("Now running timing test with valflags and direct reg getters \n");
 	irqtester_fe310_register_callback(dev, _irq_0_handler);
-	test_rx_timing(dev, NUM_RUNS, 3, verbosity);
+	test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 3, verbosity);
+	print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
 	printk("Now running timing test with valflags and generic reg getters \n");
 	irqtester_fe310_register_callback(dev, _irq_0_handler_2);
-	test_rx_timing(dev, NUM_RUNS, 3, verbosity);
-	
+	test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 3, verbosity);
+	print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
+	print_dash_line();
+
+	// tests don't load values, so don't count errors here
+	// -> reset error counter
+	int errors_sofar = error_stamp;
+	printk("INFO: Ignore the following error warnings for tests without load \n");
 	printk("Now running timing test with noload, queue and direct reg getters \n");
 	irqtester_fe310_register_callback(dev, _irq_0_handler_3);
-	test_rx_timing(dev, NUM_RUNS, 0, verbosity);
+	test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 0, verbosity);
+	print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
 	printk("Now running timing test with noload, fifos and direct reg getters \n");
 	irqtester_fe310_register_callback(dev, _irq_0_handler_3);
-	test_rx_timing(dev, NUM_RUNS, 1, verbosity);
+	test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 1, verbosity);
+	print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
 	printk("Now running timing test with noload, semArr and direct reg getters \n");
 	irqtester_fe310_register_callback(dev, _irq_0_handler_3);
-	test_rx_timing(dev, NUM_RUNS, 2, verbosity);
+	test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 2, verbosity);
+	print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
 	printk("Now running timing test with noload, valflags and direct reg getters \n");
 	irqtester_fe310_register_callback(dev, _irq_0_handler_3);
-	test_rx_timing(dev, NUM_RUNS, 3, verbosity);
-	
+	test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 3, verbosity);
+	print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
+	print_dash_line();
+
+	printk("Now running timing test with minimal, valflags\n");
+	irqtester_fe310_register_callback(dev, _irq_0_handler_4);
+	test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 3, verbosity);
+	print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
+	print_dash_line();
+	// reset counter
+	error_count = errors_sofar;
+
+	print_report(error_count); // global var from tests.c
 
 	/* test generic setters 
 	struct DrvValue_uint val = {.payload=7}; 

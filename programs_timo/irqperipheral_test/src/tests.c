@@ -1,4 +1,23 @@
+#include "utils.c"
 
+
+// ugly globals
+int error_count = 0;
+int error_stamp = 0; // save between single tests
+
+void test_assert(bool expression){
+	if(!expression)
+		error_count++;
+}
+
+static void warn_on_new_error(void){
+	if(error_count > error_stamp){
+		printk("WARNING: Test failed with %i errors. \n", error_count - error_stamp);
+		error_stamp = error_count;
+	}
+}
+
+// running average
 // warning: only integer division right now, inprecise
 int getAvg (int x, bool reset){
     static int sum, n;
@@ -15,14 +34,16 @@ int getAvg (int x, bool reset){
 }
 
 K_SEM_DEFINE(wait_sem, 0, 1);
+static u32_t isr_perval;
 static u32_t time_isr;
 static struct device * dev_cp;
 
 void irq_handler_mes_time(void){
-	int res_perval;
+	u32_t res_perval;
 	bool res_enable;
 	irqtester_fe310_get_perval(dev_cp, &res_perval);
 	irqtester_fe310_get_enable(dev_cp, &res_enable);
+	isr_perval = res_perval;
 
 	time_isr =  k_cycle_get_32();
 	k_sem_give(&wait_sem);
@@ -30,22 +51,16 @@ void irq_handler_mes_time(void){
 	//	res_perval, res_enable);
 }
 
-void test_interrupt_timing(struct device * dev, int num_runs, int verbose){
+// warning, can't test whether value in ISR is correct
+void test_interrupt_timing(struct device * dev, int timing_res[], int num_runs, int verbose){
 
 	dev_cp = dev; // store to static var to have access
 
 	printk("Make sure that non-default irq handler is installed to driver! \n");
 
-	// to measure reaction time in ticks
-	int delta_min = 0;
-	int delta_max = 0;
-	int delta_avg = 0;
-	int delta_cyc = 0;
-	delta_avg = getAvg(0, true); // init static vars of average helper
+	u32_t delta_cyc;
 
-	if(verbose>0)
-		printk("Detailed timing in cycles: \n");
-	for(int i=0; i<num_runs; i++){
+	for(u32_t i=0; i<num_runs; i++){
 
 		u32_t start_cyc = k_cycle_get_32();
 		irqtester_fe310_set_value(dev, i);
@@ -56,35 +71,25 @@ void test_interrupt_timing(struct device * dev, int num_runs, int verbose){
 		// messages takes some time - and we don't want to measure this
 		if (k_sem_take(&wait_sem, 100) != 0) {
         	printk("Warning: Failed to take semaphore \n");
+			test_assert(0);
     	} else {
-
+			// check value
+			test_assert(isr_perval == i);
+			// save timing
 			delta_cyc = time_isr - start_cyc;
-			
+			timing_res[i] = delta_cyc;
 			// catch timer overflow
 			if(delta_cyc < 0){
 				printk("Time overflow detected, discarding value");
+				timing_res[i] = -1;
 				continue; // ignores value
 			}
-			if(delta_cyc < delta_min || delta_min == 0)
-				delta_min = delta_cyc;
-			if(delta_cyc > delta_max)
-				delta_max = delta_cyc;
-			delta_avg = getAvg(delta_cyc, false);
-			if(verbose>0)
-				printk("%i, ", delta_cyc);
 		}
 
 	}
-	if(verbose>0)
-		printk("\n");
-	
-	printk("Reaction out of %i runs in cycles [avg/min/max]: %i/%i/%i \n",
-		 num_runs, delta_avg, delta_min, delta_max);
-	printk("Reaction out of %i runs in ns [avg/min/max]: %i/%i/%i \n",
-		 num_runs, SYS_CLOCK_HW_CYCLES_TO_NS(delta_avg), 
-		 SYS_CLOCK_HW_CYCLES_TO_NS(delta_min),
-		 SYS_CLOCK_HW_CYCLES_TO_NS(delta_max));
-	
+
+	warn_on_new_error();
+
 }
 
 /*
@@ -95,7 +100,7 @@ K_MSGQ_DEFINE(drv_q_rx, sizeof(struct DrvEvent), 10, 4);
 K_FIFO_DEFINE(drv_fifo_rx);
 K_SEM_DEFINE(drv_sem_rx, 0, 10);
 struct DrvEvent drv_evt_arr_rx[10];
-void test_rx_timing(struct device * dev, int num_runs, int mode, int verbose){
+void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mode, int verbose){
 
    	
 	bool use_queue = false;
@@ -112,6 +117,7 @@ void test_rx_timing(struct device * dev, int num_runs, int mode, int verbose){
 		case 3: use_valflag = true;
 			break;
 		default: printk("Error: unknown mode %i", mode);
+		 	test_assert(0);
 			return;
 	}
 	
@@ -135,17 +141,10 @@ void test_rx_timing(struct device * dev, int num_runs, int mode, int verbose){
 	if(use_valflag){
 		irqtester_fe310_enable_valflags_rx(dev);
 	}
-	// to measure reaction time in hw cycles
-	int delta_min = 0;
-	int delta_max = 0;
-	int delta_avg = 0;
-	int delta_cyc = 0;
-	delta_avg = getAvg(0, true); // init static vars of average helper
 
-	if(verbose>0)
-		printk("Detailed timing in cycles: \n");
+	u32_t delta_cyc;
 
-	for(int i=0; i<num_runs; i++){
+	for(u32_t i=0; i<num_runs; i++){
 		irqtester_fe310_set_value(dev, i);
 
 		if(use_fifo){
@@ -158,6 +157,7 @@ void test_rx_timing(struct device * dev, int num_runs, int mode, int verbose){
 			evt = *p_evt;
 			if(NULL == p_evt){
 				printk("Message got lost");
+				test_assert(0);
 				continue;
 			}
 			delta_cyc = k_cycle_get_32() - start_cyc;
@@ -286,31 +286,96 @@ void test_rx_timing(struct device * dev, int num_runs, int mode, int verbose){
 			}
 		}
 
+		// check value
+		struct DrvValue_uint val;
+		irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &val);
+		test_assert(val.payload == i);
+
 		// catch timer overflow
 		if(delta_cyc < 0){
 			printk("Time overflow detected, discarding value");
+			timing_res[i] = -1;
 			continue; // ignores value
 		}
-		if(delta_cyc < delta_min || delta_min == 0)
-			delta_min = delta_cyc;
-		if(delta_cyc > delta_max)
-			delta_max = delta_cyc;
-		delta_avg = getAvg(delta_cyc, false);
-		if(verbose>0)
-			printk("%i, ", delta_cyc);
+		// save timing val
+		timing_res[i] = delta_cyc;
 		
 	}
-	if(verbose>0)
-		printk("\n");
 
-	
-	printk("Reaction out of %i runs in cycles [avg/min/max]: %i/%i/%i \n",
-		 num_runs, delta_avg, delta_min, delta_max);
-	printk("Reaction out of %i runs in ns [avg/min/max]: %i/%i/%i \n",
-		 num_runs, SYS_CLOCK_HW_CYCLES_TO_NS(delta_avg), 
-		 SYS_CLOCK_HW_CYCLES_TO_NS(delta_min),
-		 SYS_CLOCK_HW_CYCLES_TO_NS(delta_max));
+	warn_on_new_error();
 	
 }
 
+
+
+int find_min_in_arr(int arr[], int len, int * pos){
+	int min = arr[0];
+	*pos = 0;
+
+    for(int i=0; i < len; i++){
+        if (arr[i] < min){
+           min = arr[i];
+           *pos = i;
+        }
+    } 
+
+	return min;
+}
+
+
+int find_max_in_arr(int arr[], int len, int * pos){
+	int max = arr[0];
+	*pos = 0;
+
+    for(int i=0; i < len; i++){
+        if (arr[i] > max){
+           max = arr[i];
+           *pos = i;
+        }
+    } 
+
+	return max;
+}
+
+// warning: integer division, might be inprecise
+int calc_avg_arr(int arr[], int len, bool disc_negative){
+
+	int sum = 0;
+
+	if (len == 0)	// catch zero div
+		return 0;
+
+	for(int i=0; i < len; i++){
+		if(disc_negative){
+			if(arr[i] < 0)
+				continue;
+		}
+		sum += arr[i]; 
+    } 
+
+	return sum / len;
+}
+
+
+void print_analyze_timing(int timing[], int len, int verbosity){
+	
+	int delta_min = find_min_in_arr(timing, len, 0);
+	int delta_max = find_max_in_arr(timing, len, 0);
+	int delta_avg = calc_avg_arr(timing, len, true); // ignore timer overflow vals
+
+	printk("Reaction out of %i runs in cycles [avg/min/max]: %i/%i/%i \n",
+		 len, delta_avg, delta_min, delta_max);
+	printk("Reaction out of %i runs in ns [avg/min/max]: %i/%i/%i \n",
+		 len, SYS_CLOCK_HW_CYCLES_TO_NS(delta_avg), 
+		 SYS_CLOCK_HW_CYCLES_TO_NS(delta_min),
+		 SYS_CLOCK_HW_CYCLES_TO_NS(delta_max));
+	if(verbosity > 0){
+		printk("Detailed reaction in cycles: \n");
+		for(int i=0; i < len; i++){
+			printk("%i, ", timing[i]);
+		}
+		printk("\n");
+	}
+
+}
 
