@@ -4,30 +4,45 @@
 #include <device.h>
 
 
-/* lists all available values with naming convention
+// todo: refine naming convention
+// st. values and functions visibale to the outside
+// are unique in namespace and share leading identifier eg. IRQT_tet
+
+/** List all available values with naming convention
  * VAL_<ORIGIN_BLOCK>_<NAME>
  */
 typedef enum{
     // order must match .c _values_ arrays!
-	// uints
-    VAL_IRQ_0_PERVAL,   // 0 
+    _NIL_VAL            /// not a value, must be first
+	,
+    /// start uints
+    VAL_IRQ_0_PERVAL, // 0 
     VAL_IRQ_0_VALUE,    // 1
-    // bools
+    /// start bools
     VAL_IRQ_0_ENABLE,   // 2 fake, actually input
+    _NUM_VALS           /// must be last
 }irqt_val_id_t;
 
+/** 
+ * List all available event types when receiving a DrvEvent
+ */
 typedef enum{
     VAL_UPDATE,   
 	IRQ    
 }irqt_event_type_t;
 
+/**
+ *  List all available value types when receiving a DrvValue
+ */
 typedef enum{
     DRV_UINT,
     DRV_INT,   
     DRV_BOOL,
 }irqt_val_type_t;
 
-
+/**
+ *  Driver Event
+ */
 struct DrvEvent{
     void * _reserved;   // for sending through fifo
     short cleared; // how often read
@@ -36,7 +51,10 @@ struct DrvEvent{
     irqt_event_type_t event_type;
 };
 
-// for casting any specific DrvValue
+/** Driver Value. Generic parent struct to be casted to 
+ *  correct subtype. This can be inferred by .val_type in 
+ *  a DrvEvent.
+ */
 struct DrvValue_gen{
     irqt_val_id_t id_name;
     u32_t time_ns; // make sure SYS_CLOCK_HW_CYCLES_PER_SEC is correct
@@ -44,17 +62,17 @@ struct DrvValue_gen{
 
 // "inherits" from generic DrvValue_gen
 struct DrvValue_int{
-    struct DrvValue_gen base;   //todo rename
+    struct DrvValue_gen _super;   //todo rename
     volatile int * base_addr;
     int payload;
 };
 struct DrvValue_uint{
-    struct DrvValue_gen base;
+    struct DrvValue_gen _super;
     volatile u32_t * base_addr;
     u32_t payload;
 };
 struct DrvValue_bool{
-    struct DrvValue_gen base;
+    struct DrvValue_gen _super;
     volatile bool * base_addr;
     bool payload;
 };
@@ -101,9 +119,11 @@ int irqtester_fe310_get_status(struct device *dev, unsigned int * res);
 int irqtester_fe310_get_enable(struct device *dev, bool * res);
 
 
+// for tests only, todo: make static inline
 void _irq_0_handler(void);
 void _irq_0_handler_2(void);
 void _irq_0_handler_3(void);
+void _irq_0_handler_4(void);
 
 
 #endif

@@ -282,7 +282,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 			if(verbose>1){
 				struct DrvValue_uint val;
 				irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &val);
-				printk("Polled value (id: %i): %i updated at %u ns \n", val.base.id_name, val.payload, val.base.time_ns);
+				printk("Polled value (id: %i): %i updated at %u ns \n", val._super.id_name, val.payload, val._super.time_ns);
 			}
 		}
 
@@ -356,11 +356,13 @@ int calc_avg_arr(int arr[], int len, bool disc_negative){
 	return sum / len;
 }
 
-
+int global_max_cyc;
 void print_analyze_timing(int timing[], int len, int verbosity){
 	
 	int delta_min = find_min_in_arr(timing, len, 0);
 	int delta_max = find_max_in_arr(timing, len, 0);
+	if(delta_max > global_max_cyc)
+		global_max_cyc = delta_max;
 	int delta_avg = calc_avg_arr(timing, len, true); // ignore timer overflow vals
 
 	printk("Reaction out of %i runs in cycles [avg/min/max]: %i/%i/%i \n",
@@ -370,12 +372,30 @@ void print_analyze_timing(int timing[], int len, int verbosity){
 		 SYS_CLOCK_HW_CYCLES_TO_NS(delta_min),
 		 SYS_CLOCK_HW_CYCLES_TO_NS(delta_max));
 	if(verbosity > 0){
-		printk("Detailed reaction in cycles: \n");
+		printk("Detailed reaction in cycles: \n {[");
 		for(int i=0; i < len; i++){
 			printk("%i, ", timing[i]);
 		}
-		printk("\n");
+		printk("]} \n");
 	}
-
 }
+
+void print_continous(int timing[], int len, int verbosity){
+	/*
+	int delta_min = find_min_in_arr(timing, len, 0);
+	int delta_max = find_max_in_arr(timing, len, 0);
+	if(delta_max > global_max_cyc)
+		global_max_cyc = delta_max;
+	int delta_avg = calc_avg_arr(timing, len, true); // ignore timer overflow vals
+	*/
+	if(verbosity > 0){
+		printk("{[");
+		for(int i=0; i < len; i++){
+			printk("%i, ", timing[i]);
+		}
+		printk("]} \n");
+	}
+}
+
+
 
