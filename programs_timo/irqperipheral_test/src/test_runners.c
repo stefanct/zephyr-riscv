@@ -34,7 +34,6 @@ void run_test_timing_rx(struct device * dev){
     print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
     print_dash_line();
     
-    
     printk("Now running timing test with fifos and direct reg getters \n");
     irqtester_fe310_register_callback(dev, _irq_0_handler);
     test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 1, verbosity);
@@ -64,6 +63,11 @@ void run_test_timing_rx(struct device * dev){
     test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 3, verbosity);
     print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
     print_dash_line();
+
+    printk("Now running timing test with hand-optimized valflag plus queue \n");
+    irqtester_fe310_register_callback(dev, _irq_0_handler_5);
+    test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 4, verbosity);
+    print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
     
     // tests don't load values, so don't count errors here
     // -> reset error counter

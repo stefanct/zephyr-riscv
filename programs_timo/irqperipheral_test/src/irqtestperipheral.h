@@ -139,6 +139,7 @@ void _irq_0_handler(void);
 void _irq_0_handler_2(void);
 void _irq_0_handler_3(void);
 void _irq_0_handler_4(void);
+void _irq_0_handler_5(void);
 
 
 #endif

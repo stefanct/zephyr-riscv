@@ -274,17 +274,16 @@ void _irq_0_handler(void){
 	struct DrvEvent evt_irq0   = {.val_id=_NIL_VAL, .event_type=IRQ, .irq_id=IRQ_0};
 
 	// inefficient to test bit here, but this is a default ISR for testing only
-	if(test_any_send_flag(dev))
+	if(test_any_send_flag(dev)){
 		send_event_rx(dev, &evt_irq0);
-	
+		send_event_rx(dev, &evt_perval);
+		send_event_rx(dev, &evt_enable);
+	}
 	if(test_flag(dev, IRQT_VALFLAGS_RX_ENABLED)){
 		flag_event_rx(dev, &evt_perval);
 		flag_event_rx(dev, &evt_enable);	
 	}
-	else{
-		send_event_rx(dev, &evt_perval);
-		send_event_rx(dev, &evt_enable);
-	}
+
 	
 }
 
@@ -324,13 +323,13 @@ void _irq_0_handler_2(void){
 	struct DrvEvent evt_enable = {.val_id=VAL_IRQ_0_ENABLE, .val_type=DRV_BOOL, .event_type=VAL_UPDATE};
 
 	// inefficient to test bit here, but this is a default ISR for testing only
+	if(test_any_send_flag(dev)){
+		send_event_rx(dev, &evt_perval);
+		send_event_rx(dev, &evt_enable);
+	}
 	if(test_flag(dev, IRQT_VALFLAGS_RX_ENABLED)){
 		flag_event_rx(dev, &evt_perval);
 		flag_event_rx(dev, &evt_enable);	
-	}
-	else{
-		send_event_rx(dev, &evt_perval);
-		send_event_rx(dev, &evt_enable);
 	}
 	
 }
@@ -371,15 +370,14 @@ void _irq_0_handler_3(void){
 	struct DrvEvent evt_enable = {.val_id=VAL_IRQ_0_ENABLE, .val_type=DRV_BOOL, .event_type=VAL_UPDATE};
 
 	// inefficient to test bit here, but this is a default ISR for testing only
+	if(test_any_send_flag(dev)){
+		send_event_rx(dev, &evt_perval);
+		send_event_rx(dev, &evt_enable);
+	}
 	if(test_flag(dev, IRQT_VALFLAGS_RX_ENABLED)){
 		flag_event_rx(dev, &evt_perval);
 		flag_event_rx(dev, &evt_enable);	
 	}
-	else{
-		send_event_rx(dev, &evt_perval);
-		send_event_rx(dev, &evt_enable);
-	}
-	
 }
 
 // minimal handler, just set flag
@@ -389,6 +387,31 @@ void _irq_0_handler_4(void){
 
 	atomic_set_bit(data->_valflags_rx, VAL_IRQ_0_PERVAL);
 }
+
+
+// hand optimized handler, flag + queue
+void _irq_0_handler_5(void){
+
+	struct device * dev = DEV();
+	struct irqtester_fe310_data * data = DEV_DATA(dev);
+
+	/* own implementation 
+	 * read values from hardware registers and send up DrvEvents
+	 */
+	int perval;
+	irqtester_fe310_get_perval(dev, &perval);
+	
+	// write into internal data pools 
+	// no timing support
+	_values_uint[VAL_IRQ_0_PERVAL - 1].payload = perval; // only works for uint type values
+	struct DrvEvent evt_irq0   = {.val_id=_NIL_VAL, .event_type=IRQ, .irq_id=IRQ_0};
+
+	// manually inlining send, flag functions
+	k_msgq_put(data->_queue_rx, &evt_irq0, K_NO_WAIT);
+	atomic_set_bit(data->_valflags_rx, VAL_IRQ_0_PERVAL);
+
+}
+
 
 
 /*
@@ -789,24 +812,26 @@ void irqtester_fe310_dbgprint_event(struct device * dev, struct DrvEvent * evt){
 	irqt_val_id_t id = evt->val_id;
 
 	SYS_LOG_DBG("Driver event [type / value type]: %i, %i", evt->event_type, evt->val_type);
-	// todo: check whether (implicit) casting like this is save!
-	if(evt->val_type == DRV_INT){
-		struct DrvValue_int val;
-		irqtester_fe310_get_val(id, &val);
-		SYS_LOG_DBG("Value (id: %i): %i updated at %u ns", val._super.id_name, val.payload, val._super.time_ns);
-	} 
-	else if(evt->val_type == DRV_UINT){
-		struct DrvValue_uint val;
-		irqtester_fe310_get_val(id, &val);
-		SYS_LOG_DBG("Value (id: %i): %u updated at %u ns", val._super.id_name, val.payload, val._super.time_ns);
-	} 
-	else if(evt->val_type == DRV_BOOL){
-		struct DrvValue_bool val;
-		irqtester_fe310_get_val(id, &val);
-		SYS_LOG_DBG("Value (id: %i): %i updated at %u ns", val._super.id_name, val.payload, val._super.time_ns);
+	
+	if(evt->event_type == VAL_UPDATE){
+		if(evt->val_type == DRV_INT){
+			struct DrvValue_int val;
+			irqtester_fe310_get_val(id, &val);
+			SYS_LOG_DBG("Value (id: %i): %i updated at %u ns", val._super.id_name, val.payload, val._super.time_ns);
+		} 
+		else if(evt->val_type == DRV_UINT){
+			struct DrvValue_uint val;
+			irqtester_fe310_get_val(id, &val);
+			SYS_LOG_DBG("Value (id: %i): %u updated at %u ns", val._super.id_name, val.payload, val._super.time_ns);
+		} 
+		else if(evt->val_type == DRV_BOOL){
+			struct DrvValue_bool val;
+			irqtester_fe310_get_val(id, &val);
+			SYS_LOG_DBG("Value (id: %i): %i updated at %u ns", val._super.id_name, val.payload, val._super.time_ns);
+		}
+		else
+			SYS_LOG_WRN("Can't print event of unknown value type %i", evt->val_type);
 	}
-	else
-		SYS_LOG_WRN("Can't print event of unknown value type %i", evt->val_type);
 }
 
 /*
