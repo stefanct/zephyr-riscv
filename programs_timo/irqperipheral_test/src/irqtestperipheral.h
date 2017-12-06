@@ -4,9 +4,12 @@
 #include <device.h>
 
 
-// todo: refine naming convention
-// st. values and functions visibale to the outside
-// are unique in namespace and share leading identifier eg. IRQT_tet
+// todo: 
+// - refine naming convention for all global namespace items
+//   st. values and functions visibale to the outside
+//   are unique in namespace and share leading identifier eg. IRQT_tet
+// - introduce irq ids
+
 
 /** List all available values with naming convention
  * VAL_<ORIGIN_BLOCK>_<NAME>
@@ -16,10 +19,10 @@ typedef enum{
     _NIL_VAL            /// not a value, must be first
 	,
     /// start uints
-    VAL_IRQ_0_PERVAL, // 0 
-    VAL_IRQ_0_VALUE,    // 1
+    VAL_IRQ_0_PERVAL,   // 1 
+    VAL_IRQ_0_VALUE,    // 2
     /// start bools
-    VAL_IRQ_0_ENABLE,   // 2 fake, actually input
+    VAL_IRQ_0_ENABLE,   // 3 fake, actually input
     _NUM_VALS           /// must be last
 }irqt_val_id_t;
 
@@ -41,14 +44,23 @@ typedef enum{
 }irqt_val_type_t;
 
 /**
+ *  List all IRQ sources when receiving a DrvValue
+ */
+typedef enum{
+    IRQ_0,
+}irqt_irq_id_t;
+
+
+/**
  *  Driver Event
  */
 struct DrvEvent{
     void * _reserved;   // for sending through fifo
-    short cleared; // how often read
-    irqt_val_id_t id_name;
+    short cleared;      // how often read, necesary for sem + arr
+    irqt_val_id_t val_id; 
     irqt_val_type_t val_type;
     irqt_event_type_t event_type;
+    irqt_irq_id_t irq_id;
 };
 
 /** Driver Value. Generic parent struct to be casted to 
@@ -85,11 +97,14 @@ int irqtester_fe310_get_reg(struct device * dev, irqt_val_id_t id, void * res_va
 int irqtester_fe310_set_reg(struct device * dev, irqt_val_id_t id, void * set_value);
 
 int irqtester_fe310_register_queue_rx(struct device * dev, struct k_msgq * queue);
-int irqtester_fe310_enable_queue_rx(struct device * dev);
 int irqtester_fe310_register_fifo_rx(struct device * dev, struct k_fifo * queue);
-int irqtester_fe310_enable_fifo_rx(struct device * dev);
 int irqtester_fe310_register_sem_arr_rx(struct device * dev, struct k_sem * sem, struct DrvEvent evt_arr[], int len);
+
+int irqtester_fe310_enable_queue_rx(struct device * dev);
+int irqtester_fe310_enable_valflags_rx(struct device * dev);
+int irqtester_fe310_enable_fifo_rx(struct device * dev);
 int irqtester_fe310_enable_sem_arr_rx(struct device * dev);
+
 int irqtester_fe310_receive_evt_from_arr(struct device * dev, struct DrvEvent * res, s32_t timeout);
 
 int irqtester_fe310_purge_rx(struct device * dev);
