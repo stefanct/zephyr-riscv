@@ -18,7 +18,11 @@ void print_dash_line(void);
 void print_report(int err_count);
 void print_banner(void);				
 void print_end_banner(void);						
-void print_time_banner(void);				
+void print_time_banner(void);	
+
+void printk_centered(const char *string, ...);
+void printk_framed(const char *string, ...);
+
 
 #endif	
 
