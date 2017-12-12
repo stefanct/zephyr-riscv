@@ -1,8 +1,12 @@
-#ifndef TEST_MINIMAL
+
+#ifdef TEST_MINIMAL
+#warning "Building test_minimal.c"
+
+// stripped down copy of tests
+// uses same header!
 
 #include "../utils.h"
 #include "../irqtestperipheral.h"
-#include "../state_manager.h"
 #include "tests.h"
 
 // ugly globals
@@ -102,9 +106,7 @@ void test_interrupt_timing(struct device * dev, int timing_res[], int num_runs, 
  * Performance will deteriorate if flooded with interrupts and events.
  */
 K_MSGQ_DEFINE(drv_q_rx, sizeof(struct DrvEvent), 10, 4);
-K_FIFO_DEFINE(drv_fifo_rx);
-K_SEM_DEFINE(drv_sem_rx, 0, 10);
-struct DrvEvent drv_evt_arr_rx[10];
+
 void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mode, int verbose){
 
    	
@@ -116,9 +118,9 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 	switch(mode){
 		case 0: use_queue = true;
 			break;
-		case 1: use_fifo = true;
+		case 1: 
 			break;
-		case 2: use_semArr = true;
+		case 2: 
 			break;
 		case 3: use_valflag = true;
 			break;
@@ -137,17 +139,10 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 		return;
 	}
 	irqtester_fe310_purge_rx(dev);
-	if(use_fifo){
-		irqtester_fe310_register_fifo_rx(dev, &drv_fifo_rx);
-		irqtester_fe310_enable_fifo_rx(dev);
-	}
+
 	if(use_queue){
 		irqtester_fe310_register_queue_rx(dev, &drv_q_rx);
 		irqtester_fe310_enable_queue_rx(dev);
-	}
-	if(use_semArr){
-		irqtester_fe310_register_sem_arr_rx(dev, &drv_sem_rx, drv_evt_arr_rx, 10);
-		irqtester_fe310_enable_sem_arr_rx(dev);
 	}
 	if(use_valflag){
 		irqtester_fe310_enable_valflags_rx(dev);
@@ -162,94 +157,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 
 	for(u32_t i=0; i<num_runs; i++){
 		irqtester_fe310_set_value(dev, i);
-
-		if(use_fifo){
-			u32_t start_cyc = k_cycle_get_32();
-			irqtester_fe310_fire(dev);
-
-			struct DrvEvent * p_evt;
-			struct DrvEvent evt;
-			p_evt = k_fifo_get(&drv_fifo_rx, 100);
-			evt = *p_evt;	// copy into container to avoid loosing scope
-
-			if(NULL == p_evt){
-				printk("Message got lost");
-				test_assert(0);
-				continue;
-			}
-			delta_cyc = k_cycle_get_32() - start_cyc;
-
-			if(verbose>1)
-				irqtester_fe310_dbgprint_event(dev, p_evt);
-
-			// purge fifo, since only interessted in reaction till first msg
-			// workaround for broken fifo
-			int i = 0;	
-			int i_limit = 10;		
-			while(1){
-				p_evt = k_fifo_get(&drv_fifo_rx, K_NO_WAIT);
-				if(p_evt == NULL || i == i_limit)
-					break;
-				evt = *p_evt;
-				if(verbose>1){
-					printk("Discarding fifo element %p. Event [cleared, val_id, val_type, event_type, irq_id]: %i, %i, %i, %i, %i \n" \
-						,evt._reserved, evt.cleared, evt.val_id, evt.val_type, evt.event_type, evt.irq_id);
-				}
-				i++;
-				; //  actually, nothing to do here
-			}
-			if(i == i_limit){
-				test_assert(0);
-				printk("ERROR: Aborted reading fifo, seems hung. \n");
-			}
-
-		}
-		if(use_semArr){
-			u32_t start_cyc = k_cycle_get_32();
-			irqtester_fe310_fire(dev);
-
-			struct DrvEvent evt;
-			
-			// short version, only first msg
-			if(0 != irqtester_fe310_receive_evt_from_arr(dev, &evt, K_MSEC(100)) ){
-				printk("Message got lost");
-				continue;
-			}
-			delta_cyc = k_cycle_get_32() - start_cyc;
-			if(verbose>1)
-				irqtester_fe310_dbgprint_event(dev, &evt);
-
-			// purge array since only interessted in reaction till first msg
-			while(0 != irqtester_fe310_receive_evt_from_arr(dev, &evt, K_NO_WAIT)){
-				; // nothing to do here
-			}
-			/*
-			k_sem_take(&(data->_sem_rx), timeout)){		
-			k_sem_give(&(data->_sem_rx));
-			while(k_sem_count_get(&drv_sem_rx) != 0){
-				if(k_sem_take(&drv_sem_rx, K_MSEC(100)) != 0){
-					printk("Message got lost");
-					continue;
-				}
-
-				int count = k_sem_count_get(&drv_sem_rx);
-				// todo: is this critical?
-				struct DrvEvent evt = drv_evt_arr_rx[count];
-				// measure time only for first msg, purge rest
-				if(i==0)
-					delta_cyc = k_cycle_get_32() - start_cyc;
-
-				if(evt.cleared != 0)
-					printk("Event with id %i at count %i shouln't be cleared yet!", evt.id_name, count);
-				else{
-					drv_evt_arr_rx[count].cleared++;
-					if(verbose>1)
-						irqtester_fe310_dbgprint_event(dev, &evt);
-				}
-				i++;
-			}
-			*/	
-		}
+	
 		if(use_queue){			
 			u32_t start_cyc = k_cycle_get_32();
 			irqtester_fe310_fire(dev);
@@ -265,23 +173,6 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 				irqtester_fe310_dbgprint_event(dev, &evt);
 			k_msgq_purge(&drv_q_rx);  // throw away all but first msg
 
-			/* long version, dbgprint all events in queue
-			// wait for new queue element
-			int num_msgs = k_msgq_num_used_get(&drv_q_rx);
-			for(int i=0; i<num_msgs; i++){			
-				if(0 != k_msgq_get(&drv_q_rx, &evt, 100))
-					printk("Message got lost");
-				else{
-					// measure time since fire
-					// do only for first message, because handling the first
-					// messages takes some time - and we don't want to measure this
-					if(i==0){
-						delta_cyc = k_cycle_get_32() - start_cyc;
-					}
-					//irqtester_fe310_dbgprint_event(dev, &evt);
-				}
-			}
-			*/
 		}
 
 		if(use_valflag){
@@ -359,40 +250,26 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 		irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &val_check);
 		test_assert(val_check.payload == i);
 
+		int t_res = delta_cyc;;
+
 		// catch timer overflow
 		if(delta_cyc < 0){
 			printk("Time overflow detected, discarding value");
-			timing_res[i] = -1;
-			continue; // ignores value
+			t_res = -1;
 		}
-		// save timing val
-		timing_res[i] = delta_cyc;
+
+		// save or only print timing val
+		if(timing_res != NULL){
+			timing_res[i] = delta_cyc;
+		}
+		else if(verbose > 0)
+			printk("%i, ", t_res);
 		
 	}
 
 	warn_on_new_error();
 	
 }
-
-void test_uint_overflow(){
-	print_dash_line();
-	printk_framed("Now checking uint (timer) overrroll behaviour ");
-    print_dash_line();
-
-	printk("1: (non overroll) UINT_MAX - (UINT_MAX-1) \n2: (overroll) UINT_MAX + 10 - (UINT_MAX-1) \n");
-	printk("Expect (1) + 10 == (2) \n");
-	u32_t high_normal = UINT_MAX;
-	u32_t high_ov = UINT_MAX + 10;
-	u32_t low = UINT_MAX -1 ;
-
-	u32_t dif_normal = high_normal - low;
-	u32_t dif_ov = high_ov - low;
-
-	test_assert(dif_normal + 10 == dif_ov );
-	printk("dif normal: %u, overroll: %u \n", dif_normal, dif_ov);
-	print_report(error_count);
-}
-
 
 
 
@@ -447,7 +324,10 @@ int calc_avg_arr(int arr[], int len, bool disc_negative){
 
 extern int global_max_cyc;
 void print_analyze_timing(int timing[], int len, int verbosity){
-	
+	if(timing == NULL){
+		printk("WARNING: No array to analyze");
+		return;
+	}
 	int delta_min = find_min_in_arr(timing, len, 0);
 	int delta_max = find_max_in_arr(timing, len, 0);
 	if(delta_max > global_max_cyc)
@@ -485,7 +365,6 @@ void print_continous(int timing[], int len, int verbosity){
 		printk("]} \n");
 	}
 }
-
 
 
 #endif

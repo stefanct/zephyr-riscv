@@ -12,6 +12,7 @@
 #include "test_runners.h"
 
 #include "state_manager.h"
+#include <string.h>
 
 #define IRQTESTER_DRV_NAME "irqtester0"
 
@@ -19,20 +20,47 @@
 int global_max_cyc;
 
 // thread data
-char __noinit __stack my_stack_area[1024];
-struct k_thread my_thread_data;
+//char __noinit __stack my_stack_area[1024];
+//struct k_thread my_thread_data;
+
+
+// copy of disabled function in devices.c
+extern struct device __device_init_end[];
+extern struct device __device_init_start[];
+void device_list_get(struct device **device_list, int *device_count)
+{
+
+	*device_list = __device_init_start;
+	*device_count = __device_init_end - __device_init_start;
+}
+
+// attention: uses "heavy" strcmp
+void print_device_drivers(){
+	#ifndef TEST_MINIMAL
+	struct device *dev_list_buf;
+	int len;
+
+	device_list_get(&dev_list_buf, &len);
+
+	printk("Found %i device drivers: \n", len);
+	for(int i=0; i<len; i++){
+		char * name = dev_list_buf[i].config->name;
+		printk("%s @ %p, ", (strcmp("", name) == 0 ? "<unnamed>" : name), dev_list_buf[i].config->config_info);
+	}
+	printk("\n");
+	#endif
+}
+
+
 
 void main(void)
-{
+{	
+	print_device_drivers();
 	printk("Starting irqtester test on arch: %s\n", CONFIG_ARCH);
-	// todo: 
-	// - nice prints (see tests/benchmark/latency)
-	// - error count
 
-
+	// get driver handles
 	struct device *dev;
 	dev = device_get_binding(IRQTESTER_DRV_NAME);
-	
 
 	if (!dev) {
 		printk("Cannot find %s!\n", IRQTESTER_DRV_NAME);
@@ -41,28 +69,19 @@ void main(void)
 
 	irqtester_fe310_enable(dev);
 	
-
-	state_mng_init(dev);
-	// start the thread immediatly
-	/*
-	k_tid_t my_tid = k_thread_create(&my_thread_data, my_stack_area,
-                                 1024, state_mng_run,
-                                 NULL, NULL, NULL,
-                                 5, 0, K_NO_WAIT);
-	*/
-	
-
+	test_uint_overflow();
+		
 	int i=0;
-	while(1){
+	bool abort = false;
+	while(!abort){
 		i++;
 		printk("Entering cycle %i. Global max %i \n", i, global_max_cyc);
-		// for state manager test
-		//k_sleep(100);
-		//irqtester_fe310_fire(dev);
+
 		
 		// timing
-		run_test_timing_rx(dev);
-		
+		//run_test_timing_rx(dev);
+		//run_test_min_timing_rx(dev);
+		run_test_state_mng_1(dev);
 
 	}
 	/* test generic setters 

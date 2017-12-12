@@ -37,10 +37,10 @@ void print_dash_line(void){
 void print_report(int err_count){
 	print_dash_line();
     if(err_count == 0){
-        printk_framed("All tests PASSED \n");
+        printk_framed("All tests PASSED");
     }
     else{
-        printk_framed("Tests FAILED with %i errors \n", err_count);
+        printk_framed("Tests FAILED with %i errors", err_count);
     }
     print_dash_line();
 }
@@ -102,7 +102,6 @@ void print_framed(const char *string){
  * 
  * Automatically adds \n identifier for end of line.
  * Uses standard width value of 80 for console.
- * Todo: make variadic function to support passing values to print
  */
 void printk_centered(const char *fmt, ...){
 

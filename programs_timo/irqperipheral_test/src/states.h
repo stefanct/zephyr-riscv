@@ -5,6 +5,7 @@
 #include "irqtestperipheral.h"
 
 #define STATES_REQ_VALS_MAX _NUM_VALS    // might need adjustment if many vals
+#define STATES_CBS_PER_ACTION_MAX  5     
 
 /**
  * @file
@@ -33,12 +34,16 @@ struct State{
     u32_t timing_goal_start; // in cycles
     u32_t timing_goal_end;
     irqt_val_id_t val_ids_req[STATES_REQ_VALS_MAX];  // holds the irqt vals requested by state
-    void (*action)(void);  // method called when switched to this state 
+    void (*action)(cycle_state_id_t);  // method called when switched to this state , note that usually _default_action()
 };
 
 
-void states_configure(struct State * states, cycle_state_id_t * transition_table);
- 
+void states_configure_auto(struct State * states, cycle_state_id_t * transition_table, void * action);
+void states_configure_custom(struct State * states, cycle_state_id_t * transition_table, void * action, \
+                                struct State cust_states[], cycle_state_id_t cust_tt[], int len_states, int len_events);
 
+// for testing only
+void action_print_state();
+void action_print_start_state();
 
 #endif

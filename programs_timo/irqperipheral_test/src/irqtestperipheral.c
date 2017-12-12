@@ -1,8 +1,13 @@
-/* 
+/** 
  *  @file
- *  @class
+ *  Driver for IrqTestPeripheral hw revision 1.
+ *  Singleton, only register one instance with kernel!
  *  Based on gpio_fe310 driver by Jean-Paul Etienne <fractalclone@gmail.com>
  */
+
+// todo: 
+// - public functions should probably have a device param to differentiate between instances
+// - decide whether pure singleton or move static vars to data
 
 #include "irqtestperipheral.h"
 #include <soc.h>
@@ -23,10 +28,13 @@
 #define FE310_IRQTESTER_0_ENABLE_OFFSET		0x0D
 */
 // below should actually be set by kconfig and end up in auoconf.h
+// todo: move to kconfig system
 #define CONFIG_IRQTESTER_FE310_0_PRIORITY 	1
 #define CONFIG_IRQTESTER_FE310_NAME 		"irqtester0"
 
-
+#ifdef TEST_MINIMAL
+#warning "Building minimal version of driver"
+#endif
 
 /*
  * Enums and macros internal to the driver 
@@ -61,10 +69,12 @@ enum flags{
 /*
  * Definition of internal memory pools to store and manage values.
  * Use get_value() to access!
+ * - Outside of irqtester_fe310_data. Inside can't be initialized, 
+ *   size of array would need to be hard coded.
  * - WARNING: Implementing as static variable means the driver must
- * be instantiated only once! Move to driver_data if needed.
+ *   be instantiated only once! Move to irqtester_fe310_data if needed.
  * - Auto-generated. Take care when manually adding values to keep
- * val_name enum from header in sync with _values_<..> arrays.
+ *   val_name enum from header in sync with _values_<..> arrays.
  * ----------------------------------------------------------------------------
  */
 
@@ -169,9 +179,10 @@ static void irqtester_fe310_irq_handler(void *arg){
 
 // note: only one kernel object at a time can be enabled
 // to send events upwards.
-// todo: handle valflags and queue simultanoulsy
 // todo: decide for method and strip away unnecesary parts. Its inside an ISR!
 static inline void send_event_rx(struct device * dev, struct DrvEvent * evt){
+	#ifndef TEST_MINIMAL
+
 	struct irqtester_fe310_data * data = DEV_DATA(dev);
 	bool send_fail = false;
 
@@ -181,6 +192,7 @@ static inline void send_event_rx(struct device * dev, struct DrvEvent * evt){
 		else
 			return; // success, so get out of here fast
 	}
+
 	else if(atomic_test_bit( &(data->flags), IRQT_FIFO_RX_ENABLED )){
 		//SYS_LOG_DBG("Sending event %i to fifo", evt->val_id);
 		k_fifo_put(data->_fifo_rx, evt);
@@ -201,9 +213,11 @@ static inline void send_event_rx(struct device * dev, struct DrvEvent * evt){
 	else{
 		send_fail = true; // neither queue nor fifo enabled
 	}
-
+	
 	if(send_fail)
 		SYS_LOG_WRN("Couldn't send event with id %i to busy, full or disabled kernel object", evt->val_id);
+	
+	#endif
 }
 
 /**
@@ -249,7 +263,7 @@ void _irq_0_handler(void){
 	if(dev == NULL)
 		return;	// safety first
 
-
+	
 
 	/* own implementation 
 	 * read values from hardware registers and send up DrvEvents
@@ -283,6 +297,7 @@ void _irq_0_handler(void){
 		flag_event_rx(dev, &evt_perval);
 		flag_event_rx(dev, &evt_enable);	
 	}
+	
 
 	
 }
@@ -299,7 +314,7 @@ void _irq_0_handler_2(void){
 	if(dev == NULL)
 		return;	// safety first
 
-
+	#ifndef TEST_MINIMAL
 
 	/* own implementation 
 	 * read values from hardware registers and send up DrvEvents
@@ -331,7 +346,7 @@ void _irq_0_handler_2(void){
 		flag_event_rx(dev, &evt_perval);
 		flag_event_rx(dev, &evt_enable);	
 	}
-	
+	#endif
 }
 
 // don't copy into memory pools, just notify
@@ -344,8 +359,7 @@ void _irq_0_handler_3(void){
 	if(dev == NULL)
 		return;	// safety first
 
-
-
+	#ifndef TEST_MINIMAL 
 	/* own implementation 
 	 * read values from hardware registers and send up DrvEvents
 	 */
@@ -378,6 +392,7 @@ void _irq_0_handler_3(void){
 		flag_event_rx(dev, &evt_perval);
 		flag_event_rx(dev, &evt_enable);	
 	}
+	#endif
 }
 
 // minimal handler, just set flag
@@ -408,9 +423,9 @@ void _irq_0_handler_5(void){
 
 	// manually inlining send, flag functions
 	k_msgq_put(data->_queue_rx, &evt_irq0, K_NO_WAIT);
-	atomic_set_bit(data->_valflags_rx, VAL_IRQ_0_PERVAL);
-
+	//atomic_set_bit(data->_valflags_rx, VAL_IRQ_0_PERVAL);
 }
+
 
 
 
@@ -418,8 +433,6 @@ void _irq_0_handler_5(void){
  * Public function available to applications. 
  * ----------------------------------------------------------------------------
  */
-
-// todo: public functions should probably have a device param to differentiate between instances
 
 /**
  * @brief Thread safe generic (by id) getter for values from driver memory pools.
@@ -575,6 +588,10 @@ int irqtester_fe310_get_reg(struct device * dev, irqt_val_id_t id, void * res_va
  */
 bool irqtester_fe310_test_valflag(struct device *dev, irqt_val_id_t id){
 	struct irqtester_fe310_data *data = DEV_DATA(dev);
+	if(id > _NUM_VALS){
+		SYS_LOG_WRN("Requesting to test flag for invalid value id %i", id);
+		return false;
+	}
 	return atomic_test_bit(data->_valflags_rx, id);
 }
 
@@ -789,17 +806,20 @@ int irqtester_fe310_receive_evt_from_arr(struct device * dev, struct DrvEvent * 
 int irqtester_fe310_purge_rx(struct device * dev){
 	struct irqtester_fe310_data *data = DEV_DATA(dev);
 
-	data->_queue_rx = NULL;
-	data->_fifo_rx = NULL;
-	data->_sem_rx = NULL;
-	data->_evt_arr_rx = NULL;
-	data->_evt_count_rx = 0;
+	// clear first to not access NULL pointers in ISRs
 	atomic_clear(data->_valflags_rx);
 
 	atomic_clear_bit(&(data->flags), IRQT_QUEUE_RX_ENABLED);
 	atomic_clear_bit(&(data->flags), IRQT_FIFO_RX_ENABLED);
 	atomic_clear_bit(&(data->flags), IRQT_SEMARR_RX_ENABLED);
 	atomic_clear_bit(&(data->flags), IRQT_VALFLAGS_RX_ENABLED);
+
+	data->_queue_rx = NULL;
+	data->_fifo_rx = NULL;
+	data->_sem_rx = NULL;
+	data->_evt_arr_rx = NULL;
+	data->_evt_count_rx = 0;
+
 
 	return 0;
 }
@@ -957,8 +977,11 @@ static int irqtester_fe310_init(struct device *dev)
 	// Strange that not done by kernel...
 	cfg->irqtester_cfg_func();
 	// default handler 
+	#ifndef TEST_MINIMAL
 	irqtester_fe310_register_callback(dev, _irq_0_handler);
-
+	#else
+	irqtester_fe310_register_callback(dev, _irq_0_handler_5);
+	#endif
 	// store handle to driver in data for internal calls
 	data->_drv_handle = dev;
 
@@ -1027,7 +1050,7 @@ int irqtester_fe310_get_enable(struct device *dev, bool * res)
 	return 0;
 }
 
-int irqtester_fe310_get_perval(struct device *dev, unsigned int * res)
+inline int irqtester_fe310_get_perval(struct device *dev, unsigned int * res)
 {	
 	volatile struct irqtester_fe310_t *irqt = DEV_REGS(dev);
 
