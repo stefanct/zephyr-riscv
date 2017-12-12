@@ -393,6 +393,29 @@ void test_uint_overflow(){
 	print_report(error_count);
 }
 
+void test_state_mng_1(struct device * dev){
+
+	// calc expected state_sum for automatic config states.c
+	int sum_expect = 0;
+	for(int j=0; j<_NUM_CYCLE_STATES; j++){
+		sum_expect += j;
+	}
+	irqtester_fe310_fire(dev);
+	// have to wait, if prio of this thread is higher than state_manager
+	k_yield();
+
+	// after firing, this thread should gain control again when 
+	// state machine returns to IDLE
+	// registered action writes state_sum to perval
+	struct DrvValue_uint res_perval;
+	irqtester_fe310_get_reg(dev, VAL_IRQ_0_VALUE, &res_perval);
+	test_assert(res_perval.payload == sum_expect);
+	printk("DEBUG: Finshed state machine cycle. State_sum %i \n", res_perval.payload);
+
+	
+	warn_on_new_error();
+	
+}
 
 
 

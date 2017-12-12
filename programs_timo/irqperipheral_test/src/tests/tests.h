@@ -10,10 +10,13 @@ extern int error_stamp; // save between single tests
 
 void test_interrupt_timing(struct device * dev, int timing_res[], int num_runs, int verbose);
 void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mode, int verbose);
-
+void test_state_mng_1(struct device * dev);
+void test_uint_overflow();
 
 void print_analyze_timing(int timing[], int len, int verbosity);
 
 void irq_handler_mes_time(void);
+
+
 
 #endif

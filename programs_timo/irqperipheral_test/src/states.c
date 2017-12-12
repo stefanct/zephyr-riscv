@@ -79,6 +79,9 @@ void states_configure_auto(struct State * states, cycle_state_id_t * transition_
  * Registers a default action handler to every state, which is a function
  * that is responsible to fire all registered callbacks. 
  * 
+ * @param states:           Pointer to state_manager state array.
+ * @param transition_table: Pointer to state_manager transition_table.
+ * @param action:           Function pointer (void-2-void) to default action, usually state manager action dispatcher.
  * @param cust_states[]:    All states to be configured to state machine. 
  * @param cust_tt[]:        Transition table to be configure to state machine.
  */

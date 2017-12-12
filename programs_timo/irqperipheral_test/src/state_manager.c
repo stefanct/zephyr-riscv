@@ -68,7 +68,19 @@ static u32_t timestamp_reset;
 
 
 // forward declare
+static void _default_action_dispatcher(cycle_state_id_t state);
+// forward declare helpers
 static struct State * id_2_state(cycle_state_id_t id_name);
+void print_state(struct State * state);
+void print_arr(irqt_val_id_t arr[], int len);
+static bool is_val_in_array(irqt_val_id_t val, irqt_val_id_t *arr, int len);
+// forward devlare internal functions
+static struct State * switch_state(struct State * current, struct Event * evt);
+static struct State * id_2_state(cycle_state_id_t id_name);
+static int check_vals_ready(struct State * state);
+static int gather_events(struct Event * res_evt);
+static void wait(u32_t t_cyc);
+static int check_time_goal(struct State * state, int mode, u32_t * t_left);
 
 // PROBLEM: ZEPHYR SW TIMERS ON MS SCALE
 // -> so far: no intrinsic hardware timers
@@ -79,15 +91,16 @@ static struct State * id_2_state(cycle_state_id_t id_name);
  // todo: check all functions that write or read _cb_funcs, _states, transition_table
 
 
-// forward declare
-static void _default_action(cycle_state_id_t state);
+
 /**
  * @brief: Either use default config of states and transition table or set custom one.
  * 
  * If you choose to use custom config, make sure that all your data is properly init!
  * Call first state_mng_configure(), then state_mng_register_action() and state_mng_init().
- * @param: cust_states: Custom state array. Set NULL to use auto.
- * @param: cust_tt:     Custom transition table. Set NULL to use auto.
+ * @param: cust_states: Custom 1d state array. Set NULL to use auto.
+ * @param: cust_tt:     Custom 2d transition table. Set NULL to use auto.
+ * @param: len_state:   Number of elements in cust_states.
+ * @paramL len_events:  Number of configured events in cust_tt (second dimension)
  */ 
 void state_mng_configure(struct State cust_states[], cycle_state_id_t cust_tt[], int len_states, int len_events){
     if(init_done){
@@ -97,24 +110,29 @@ void state_mng_configure(struct State cust_states[], cycle_state_id_t cust_tt[],
 
     // also: set default action for all states, which just fires all registered actions
     if(cust_states == NULL && cust_tt == NULL)
-        states_configure_auto(_states, (cycle_state_id_t *)transition_table, _default_action);
+        states_configure_auto(_states, (cycle_state_id_t *)transition_table, _default_action_dispatcher);
     else if(cust_states != NULL && cust_tt != NULL){
         // just passing arguments to function
-        states_configure_custom(_states, (cycle_state_id_t *)transition_table, _default_action, cust_states, cust_tt, len_states, len_events);
+        states_configure_custom(_states, (cycle_state_id_t *)transition_table, _default_action_dispatcher, cust_states, cust_tt, len_states, len_events);
     }
     else
         SYS_LOG_WRN("Illegal param combination. Set both or none.");
-
-    SYS_LOG_DBG("After Config: CYCLE_STATE_IDLE");
+    /*
+    printk("States after config()");
+    SYS_LOG_DBG("CYCLE_STATE_IDLE");
     print_state(id_2_state(CYCLE_STATE_IDLE));
-    SYS_LOG_DBG("After Config: CYCLE_STATE_START");
+    SYS_LOG_DBG("CYCLE_STATE_START");
     print_state(id_2_state(CYCLE_STATE_START));
-    SYS_LOG_DBG("After Config: CYCLE_STATE_END");
+    SYS_LOG_DBG("CYCLE_STATE_END");
     print_state(id_2_state(CYCLE_STATE_END));
+    */
 }
 
-
-
+/**
+ * @brief: Initialize. Mainly set up irqt driver. 
+ * 
+ * Call only after .configure(). Running is possible after init was done.
+ */
 void state_mng_init(struct device * dev){
     if(init_done){
         SYS_LOG_WRN("Can't re-init after init.");
@@ -130,33 +148,45 @@ void state_mng_init(struct device * dev){
     else
         SYS_LOG_WRN("Can't set NULL as device");
 
-    /* testing only, register state actions
-    irqt_val_id_t reqvals[] = {1,2,3};
-    irqt_val_id_t reqvals2[] = {1,2,3,4,5,6};
-    state_mng_register_action(CYCLE_STATE_START, action_print_start_state, NULL, 0);
-    state_mng_register_action(CYCLE_STATE_END, action_print_state, NULL, 0);
-
-    state_mng_register_action(CYCLE_STATE_START, action_print_start_state, reqvals, 3);
-    state_mng_register_action(CYCLE_STATE_END, action_print_state, reqvals2, 6);
-    state_mng_register_action(CYCLE_STATE_START, action_print_start_state, reqvals2, 6);
-    */
     init_done = true;
+
+    /*
+    printk("States after init()");
+    SYS_LOG_DBG("CYCLE_STATE_IDLE");
+    print_state(id_2_state(CYCLE_STATE_IDLE));
+    SYS_LOG_DBG("CYCLE_STATE_START");
+    print_state(id_2_state(CYCLE_STATE_START));
+    SYS_LOG_DBG("CYCLE_STATE_END");
+    print_state(id_2_state(CYCLE_STATE_END));
+    */
 }
 
+/**
+ * @brief: Thread-safe getter whether state machine thread is running.
+ */ 
 bool state_mng_is_running(){
     return atomic_test_bit(&flags, THREAD_RUNNING);
 }
 
+/**
+ * @brief: Thread-safe getter of current state.
+ * @return: id of current state.
+ */ 
 cycle_state_id_t state_mng_get_current(){
     return atomic_get(&state_cur);
 }
 
+/**
+ * @brief: Send signal to abort state machine state.
+ */ 
 void state_mng_abort(){
     atomic_set_bit(&flags, ABORT_LOOP);
     SYS_LOG_DBG("Received abort. Expect state manager to stop momentarily...");
+    // send dummy event to driver queue to continue if waiting in IDLE
+    k_msgq_put(&queue_rx_driver, NULL, K_NO_WAIT);
 
     int timeout = 100; // ms
-    while(state_mng_is_running() && timeout > 0){
+    while(state_mng_is_running() && timeout >= 0){
         k_sleep(10);    // switch to state_manager thread
         timeout -= 10;
     }
@@ -164,11 +194,16 @@ void state_mng_abort(){
         SYS_LOG_WRN("Didn't shut down in time.");
 }
 
-/// clear callback array and reqvalue arrays
+
+/**
+ * @brief: Clear callback array and reqvalue arrays for a state.
+ * @param: id of state to clear
+ * @return: 0 on success, != 0 otherwise.
+ */ 
 int state_mng_purge_registered_actions(cycle_state_id_t state_id){
     // todo: make threadsafe or prevent while running
     if(init_done){
-        SYS_LOG_WRN("Can't modify state machine after init");
+        SYS_LOG_WRN("Can't modify state machine after init. Call .abort() first.");
         return 1;
     }
     // purge callbacks
@@ -184,175 +219,24 @@ int state_mng_purge_registered_actions(cycle_state_id_t state_id){
     return 0;
 }
 
-
-static struct State * switch_state(struct State * current, struct Event * evt){
-    cycle_state_id_t next_id;
-    cycle_event_id_t evt_id;
-
-    if(evt == NULL)
-        evt_id = _CYCLE_DEFAULT_EVT; // = 0: get first element of row
-    else
-        evt_id = evt->id_name;
-    
-    if(evt_id >= _NUM_CYCLE_EVENTS || current->id_name >= _NUM_CYCLE_STATES){
-        SYS_LOG_ERR("Invalid event id %i or current state id %i", current->id_name, evt_id);
-        return NULL;
-    }
-    next_id = transition_table[current->id_name][evt_id];
-    atomic_set(&state_cur, next_id); // to make avalable outside
-
-    return id_2_state(next_id);
-} 
-
-static struct State * id_2_state(cycle_state_id_t id_name){
-    if(id_name > _NUM_CYCLE_STATES){
-        SYS_LOG_ERR("Requested invalid state_id: %i", id_name);
-        return NULL;
-    }
-    return &(_states[id_name]);
-}
-
 /**
- * @brief Get priority of a DrvEvent
- * 
- * @return: priority, high positive values indicate high priority. -1: Error. Higher negative values: reserved.
- * 
- */
-static short get_event_prio(struct DrvEvent * evt){
-    switch(evt->irq_id){
-        case IRQ_0:
-            return 0;
-        default:
-            SYS_LOG_WRN("Event with unknown irq_id %i", evt->irq_id);
-    }
-    return -1;
-}
-
-/**
- *  @brief Get all events in queue and decide which one is highest priority.
- * 
- *  In case of event with same priority, the one later received (higher index in queue) wins.
- */
-static int gather_events(struct Event * res_evt){
-    struct DrvEvent drv_evt;
-
-    bool haveRx = false;
-    short irq_high_prio = 0;
-    short irq_cur_prio = 0;
-
-    // listen to driver queue
-    while(0 == k_msgq_get(&queue_rx_driver, &drv_evt, K_NO_WAIT)){
-
-        // filter all wanted IRQs
-        if(drv_evt.event_type == IRQ){
-            // only return highest prio event
-            // currently indicated by highest int value irqt_event_type_t, todo
-            irq_cur_prio = get_event_prio(&drv_evt);
-            if(irq_cur_prio >= irq_high_prio){
-                res_evt->id_name = CYCLE_EVENT_RESET_IRQ;
-                irq_high_prio = irq_cur_prio;
-            }
-        }
-        haveRx = true;
-        // SYS_LOG_DBG("Received event of type %i from driver", evt.event_type);    
-    }
-    if(!haveRx){
-        res_evt->id_name = _CYCLE_DEFAULT_EVT;
-        return 1;
-    }
-    SYS_LOG_DBG("Chosen relevant state event id %i", res_evt->id_name);    
-    
-    return 0;
-
-}
-
-
-static int check_vals_ready(struct State * state){
-    
-    bool val_i_ready = false;
-    bool all_ready = true;
-    
-    for(int i=0; i<STATES_REQ_VALS_MAX; i++){
-        // empty array entry means no more vals to check
-        if(state->val_ids_req[i] == _NIL_VAL)
-            break;
-        val_i_ready = irqtester_fe310_test_valflag(irqt_dev, state->val_ids_req[i]);
-
-        if(!val_i_ready){
-            SYS_LOG_WRN("Flag for requesting value %i from driver unready", state->val_ids_req[i]);
-            all_ready = false;
-        }
-    }
-
-    return all_ready;
-}
-
-/** 
- *   @brief: Calcs the time since start state.
- *   
- *   Warning: requires that delta to start state can never > 2^32 cycles. 
- *   @return: delta in cycles
+ * @brief: Clear callback array and reqvalue arrays for all states.
+ * @return: 0 on success, != 0 otherwise.
  */ 
-static u32_t get_time_delta(struct State * state){
- 
-    return (k_cycle_get_32() - timestamp_reset);    
+int state_mng_purge_registered_actions_all(){
+    int res = 0;
+    for(int i=0; i<_NUM_CYCLE_STATES; i++){
+        int res_cur = state_mng_purge_registered_actions(i);
+        if(res_cur != 0)    // safe if error return code
+            res = res_cur;
+    }
+    return res;
 }
+
 
 /**
- * @brief: Wait for at least t_cyc cycles.
- * 
- * No upper limit of waiting time guaranteed!
- * Busy waiting currently, since no hw timers implemented yet.
- * 
+ * @brief: Entry function for state machine loop. Should be invoked as thread.
  */ 
-
-static void wait(u32_t t_cyc){
-    u32_t start = k_cycle_get_32();
-    u32_t now = start;
-    
-    while(t_cyc < (now - start)){
-        now = k_cycle_get_32();
-    }
-
-}
-
-/** 
- * @param t_left:   if goal met: cycles still left to goal, else 0   
- * @param mode:     0: check start goad, 1:end goal
- * @return:         0: goal met
- */
-static int check_time_goal(struct State * state, int mode, u32_t * t_left){
-
-    *t_left = 0;
-
-    if(state->id_name == CYCLE_STATE_IDLE){
-        return 0;
-    }
-
-    if(state->id_name == CYCLE_STATE_START && (mode == 0)){
-         // implicitly sets timer at beginning of start state (before .action)
-        timestamp_reset = k_cycle_get_32();  
-    }
-
-    u32_t delta_cyc;
-    u32_t goal;
-    goal = (mode == 0) ? (state->timing_goal_start) : (state->timing_goal_end);
-    delta_cyc = get_time_delta(state);
-
-
-    // attention: delta and goal are both time differences since timestamp_reset 
-    if(delta_cyc > goal){
-        SYS_LOG_WRN("Timing goal %i = %i cyc missed for state %i, now: %i", \
-                    mode, goal, state->id_name, delta_cyc);
-        return 1;
-    }
-
-    *t_left = goal - delta_cyc;
-
-    return 0;
-}
-
-// should be invoked as thread
 void state_mng_run(void){
     
     if(!init_done){
@@ -367,7 +251,7 @@ void state_mng_run(void){
     irqtester_fe310_enable_queue_rx(irqt_dev);
     irqtester_fe310_enable_valflags_rx(irqt_dev);
 
-    struct Event event; // empty event container
+    struct Event event = {.id_name=_CYCLE_DEFAULT_EVT}; // empty event container
     bool vals_ready = false; 
     u32_t time_left_cyc = 0;
 
@@ -381,11 +265,10 @@ void state_mng_run(void){
     while(!atomic_test_bit(&flags, ABORT_LOOP)){
         // check other thread signals?
         
-        if(_state_cur->id_name == CYCLE_STATE_IDLE){
-            u32_t start_yield = k_cycle_get_32();
-            k_yield();
-            //SYS_LOG_DBG("Yielded in IDLE state for %i cycles.", k_cycle_get_32() - start_yield);
-            //k_sleep(100);
+        if(state_mng_get_current() == CYCLE_STATE_IDLE){
+            //"waiting" is now done in gather_events()
+            //u32_t start_yield = k_cycle_get_32();
+            //k_yield(); 
         }
         
         vals_ready = false; 
@@ -411,23 +294,32 @@ void state_mng_run(void){
         _state_cur = switch_state(_state_cur, &event);
     }
 
-    atomic_clear_bit(&flags, THREAD_RUNNING);
-    atomic_clear_bit(&flags, ABORT_LOOP);
-
-    // clean up... todo: also state manager internals?
-    irqtester_fe310_purge_rx(irqt_dev);
-    init_done = false; // have to, just purged our queueu
+    // clean up
+    // todo: state manager clean enough?
     // like this: should be possible to re-init without re-registering actions
+    k_msgq_purge(&queue_rx_driver);
+    irqtester_fe310_purge_rx(irqt_dev);
+    init_done = false; // have to, just purged our driver queue
 
     SYS_LOG_DBG("Stoped running.");
+
+    atomic_clear_bit(&flags, THREAD_RUNNING);
+    atomic_clear_bit(&flags, ABORT_LOOP);
     
 }
 
 /**
+ * @brief: Register an action to be executed in a certain state.
+ *         Specify values this action will request from irqt driver.
  * 
+ * Currently, it is checked and warned if requested values haven't been flagged
+ * ready by the driver.
+ * 
+ * @param state_id: target state of action
+ * @param func:     callback function pointer of action
+ * @param arr_vals: array of value ids to request from driver.
+ * @param len:      number of elements in arr_vals.
  */
-// forward declare helper
-static bool is_val_in_array(irqt_val_id_t val, irqt_val_id_t *arr, int len);
 int state_mng_register_action(cycle_state_id_t state_id, void (*func)(void), irqt_val_id_t arr_vals[], int len){
     // todo: make threadsafe
     
@@ -516,6 +408,186 @@ int state_mng_register_action(cycle_state_id_t state_id, void (*func)(void), irq
     return 0;
 }
 
+
+static struct State * switch_state(struct State * current, struct Event * evt){
+    cycle_state_id_t next_id;
+    cycle_event_id_t evt_id;
+
+    if(evt == NULL)
+        evt_id = _CYCLE_DEFAULT_EVT; // = 0: get first element of row
+    else
+        evt_id = evt->id_name;
+    
+    if(evt_id >= _NUM_CYCLE_EVENTS || current->id_name >= _NUM_CYCLE_STATES){
+        SYS_LOG_ERR("Invalid event id %i or current state id %i", current->id_name, evt_id);
+        return NULL;
+    }
+    next_id = transition_table[current->id_name][evt_id];
+    atomic_set(&state_cur, next_id); // to make avalable outside
+
+    return id_2_state(next_id);
+} 
+
+static struct State * id_2_state(cycle_state_id_t id_name){
+    if(id_name > _NUM_CYCLE_STATES){
+        SYS_LOG_ERR("Requested invalid state_id: %i", id_name);
+        return NULL;
+    }
+    return &(_states[id_name]);
+}
+
+/**
+ * @brief Get priority of a DrvEvent
+ * 
+ * @param evt:  event to get priority from.
+ * @return:     priority, high positive values indicate high priority.
+ *              -1: Error. Higher negative values: reserved.
+ */
+static short get_event_prio(struct DrvEvent * evt){
+    switch(evt->irq_id){
+        case IRQ_0:
+            return 0;
+        default:
+            SYS_LOG_WRN("Event with unknown irq_id %i", evt->irq_id);
+    }
+    return -1;
+}
+
+/**
+ *  @brief Read all events in driver queue and get the one of highest priority.
+ * 
+ *  If in STATE_IDLE, wait here FOREVER for first drv event.
+ *  In case of event with same priority, the one later received (higher index in queue) wins.
+ *
+ *  @param res_evt: Pointer to state manager event to write result.
+ */
+static int gather_events(struct Event * res_evt){
+    struct DrvEvent drv_evt;
+
+    bool haveRx = false;
+    short irq_high_prio = 0;
+    short irq_cur_prio = 0;
+
+    // reduces latency of spinning through NULL-event
+    int k_wait = K_NO_WAIT;
+    if(state_mng_get_current() == CYCLE_STATE_IDLE){
+        k_wait = K_FOREVER;
+        SYS_LOG_DBG("Going to block in STATE_IDLE, waiting for queue events...");
+    }
+
+    // listen to driver queue
+    while(0 == k_msgq_get(&queue_rx_driver, &drv_evt, k_wait)){
+        // after receiving first queue element (in STATE IDLE), we stop blocking
+        k_wait = K_NO_WAIT;
+        // filter all wanted IRQs
+        if(drv_evt.event_type == EVT_T_IRQ){
+            // only return highest prio event
+            // currently indicated by highest int value irqt_event_type_t, todo
+            irq_cur_prio = get_event_prio(&drv_evt);
+            if(irq_cur_prio >= irq_high_prio){
+                res_evt->id_name = CYCLE_EVENT_RESET_IRQ;
+                irq_high_prio = irq_cur_prio;
+            }
+        }
+        haveRx = true;
+        //SYS_LOG_DBG("Received event of type %i from driver", drv_evt.event_type);    
+    }
+    if(!haveRx){
+        res_evt->id_name = _CYCLE_DEFAULT_EVT;
+        return 1;
+    }
+    SYS_LOG_DBG("Chosen relevant state event id %i", res_evt->id_name);    
+    
+    return 0;
+
+}
+
+
+static int check_vals_ready(struct State * state){
+    
+    bool val_i_ready = false;
+    bool all_ready = true;
+    
+    for(int i=0; i<STATES_REQ_VALS_MAX; i++){
+        // empty array entry means no more vals to check
+        if(state->val_ids_req[i] == _NIL_VAL)
+            break;
+        val_i_ready = irqtester_fe310_test_valflag(irqt_dev, state->val_ids_req[i]);
+
+        if(!val_i_ready){
+            SYS_LOG_WRN("Flag for requesting value %i from driver unready", state->val_ids_req[i]);
+            all_ready = false;
+        }
+    }
+
+    return all_ready;
+}
+
+/** 
+ *   @brief: Calcs the time since start state.
+ *   
+ *   Warning: requires that delta to start state can never > 2^32 cycles. 
+ *   @return: delta in cycles
+ */ 
+static u32_t get_time_delta(struct State * state){
+ 
+    return (k_cycle_get_32() - timestamp_reset);    
+}
+
+/**
+ * @brief: Wait for at least t_cyc cycles.
+ * 
+ * No upper limit of waiting time guaranteed!
+ * Busy waiting currently, since no hw timers implemented yet.
+ */ 
+
+static void wait(u32_t t_cyc){
+    u32_t start = k_cycle_get_32();
+    u32_t now = start;
+    
+    while(t_cyc < (now - start)){
+        now = k_cycle_get_32();
+    }
+
+}
+
+/** 
+ * @param t_left:   if goal met: cycles still left to goal, else 0   
+ * @param mode:     0: check start goad, 1:end goal
+ * @return:         0: goal met
+ */
+static int check_time_goal(struct State * state, int mode, u32_t * t_left){
+
+    *t_left = 0;
+
+    if(state->id_name == CYCLE_STATE_IDLE){
+        return 0;
+    }
+
+    if(state->id_name == CYCLE_STATE_START && (mode == 0)){
+         // implicitly sets timer at beginning of start state (before .action)
+        timestamp_reset = k_cycle_get_32();  
+    }
+
+    u32_t delta_cyc;
+    u32_t goal;
+    goal = (mode == 0) ? (state->timing_goal_start) : (state->timing_goal_end);
+    delta_cyc = get_time_delta(state);
+
+
+    // attention: delta and goal are both time differences since timestamp_reset 
+    if(delta_cyc > goal){
+        SYS_LOG_WRN("Timing goal %i = %i cyc missed for state %i, now: %i", \
+                    mode, goal, state->id_name, delta_cyc);
+        return 1;
+    }
+
+    *t_left = goal - delta_cyc;
+
+    return 0;
+}
+
+
 // helper
 static bool is_val_in_array(irqt_val_id_t val, irqt_val_id_t *arr, int len){
     int i;
@@ -550,7 +622,7 @@ void print_state(struct State * state){
  * 
  *  Use state_manager::register_action() and ::purge_registered_action() to access.
  */
-static void _default_action(cycle_state_id_t state){
+static void _default_action_dispatcher(cycle_state_id_t state){
     for(int i=0; i<STATES_CBS_PER_ACTION_MAX; i++){
         void (*cb)(void) = _cb_funcs[state][i];
         if(cb != NULL){

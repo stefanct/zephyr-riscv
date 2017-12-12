@@ -17,10 +17,9 @@
 typedef enum{
     // order must match .c _values_ arrays!
     _NIL_VAL            /// not a value, must be first
-	,
     /// start uints
-    VAL_IRQ_0_PERVAL,   // 1 
-    VAL_IRQ_0_VALUE,    // 2
+    ,VAL_IRQ_0_PERVAL, 
+    VAL_IRQ_0_VALUE,   
     /// start bools
     VAL_IRQ_0_ENABLE,   // 3 fake, actually input
     _NUM_VALS           /// must be last
@@ -30,17 +29,17 @@ typedef enum{
  * List all available event types when receiving a DrvEvent
  */
 typedef enum{
-    VAL_UPDATE,   
-	IRQ    
+    EVT_T_VAL_UPDATE,   
+	EVT_T_IRQ    
 }irqt_event_type_t;
 
 /**
  *  List all available value types when receiving a DrvValue
  */
 typedef enum{
-    DRV_UINT,
-    DRV_INT,   
-    DRV_BOOL,
+    VAL_T_UINT,
+    VAL_T_INT,   
+    VAL_T_BOOL,
 }irqt_val_type_t;
 
 /**
@@ -49,7 +48,6 @@ typedef enum{
 typedef enum{
     IRQ_0,
 }irqt_irq_id_t;
-
 
 /**
  *  Driver Event

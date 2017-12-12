@@ -154,18 +154,51 @@ void run_test_min_timing_rx(struct device * dev){
 
 }
 
+
+// set value register to sum of states since START
+// so while testing, after every fire() when returning back to IDLE
+// state_sum is the sum of state_ids collected when running through the cycle
+// we cann assert on this
+static struct device * dev_testscope;
+void action_test_mng_1(void){
+    static int state_sum;
+    cycle_state_id_t state = state_mng_get_current();
+
+    if(state == CYCLE_STATE_START){
+        state_sum = 0;
+    }
+    state_sum += state;
+
+    printk("Test action fired in state %i, state_sum: %i \n", state, state_sum);
+
+    struct DrvValue_uint setval = {.payload=state_sum};
+
+    irqtester_fe310_set_reg(dev_testscope, VAL_IRQ_0_VALUE, &setval);
+
+}
+
 K_THREAD_STACK_DEFINE(thread_mng_run_1_stack, 2048);
 struct k_thread thread_mng_run_1_data;
 void run_test_state_mng_1(struct device * dev){
 
     int NUM_RUNS = 10;	
+    dev_testscope = dev;
 
     print_dash_line();
     printk_framed("Now running state manager test 1");
     print_dash_line();
 
+    // auto config, todo: make custom config for this test
+    // in order to reduce coupling to states::auto implementation
     state_mng_configure(NULL, NULL, 0, 0);
 
+    printk("ATTENTION: Requesting value %i, expect load warnings in STATE_START. Something is wrong if none! \n", VAL_IRQ_0_VALUE);
+    irqt_val_id_t reqvals[] = {VAL_IRQ_0_VALUE};   // input, this flag will never be set!
+    state_mng_register_action(CYCLE_STATE_IDLE, action_test_mng_1, NULL, 0);
+    state_mng_register_action(CYCLE_STATE_START, action_test_mng_1, reqvals, 1);
+    state_mng_register_action(CYCLE_STATE_END, action_test_mng_1, NULL, 0);
+
+    /* old
     irqt_val_id_t reqvals[] = {1,2,3};
     irqt_val_id_t reqvals2[] = {1,2,3,4,5,6};
     state_mng_register_action(CYCLE_STATE_START, action_print_start_state, NULL, 0);
@@ -174,6 +207,7 @@ void run_test_state_mng_1(struct device * dev){
     state_mng_register_action(CYCLE_STATE_START, action_print_start_state, reqvals, 3);
     state_mng_register_action(CYCLE_STATE_END, action_print_state, reqvals2, 6);
     state_mng_register_action(CYCLE_STATE_START, action_print_start_state, reqvals2, 6);
+    */
 
     state_mng_init(dev);
 
@@ -184,14 +218,14 @@ void run_test_state_mng_1(struct device * dev){
                                  0, 0, K_NO_WAIT);
 
     for(int i=0; i<NUM_RUNS; i++){
-        // for state manager test
-        k_sleep(1000); //ms
-        irqtester_fe310_fire(dev);
-
+        // fire (and run a state achine cycle) only every 100ms 
+        k_sleep(100); //ms
+        test_state_mng_1(dev);
     }
 
-    // todo: do some test_asserts
-
     state_mng_abort();
+    state_mng_purge_registered_actions_all();
+    
+    print_report(error_count);
     
 }

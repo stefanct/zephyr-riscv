@@ -8,6 +8,7 @@
 // todo: 
 // - public functions should probably have a device param to differentiate between instances
 // - decide whether pure singleton or move static vars to data
+// - driver verbosity for debugging
 
 #include "irqtestperipheral.h"
 #include <soc.h>
@@ -189,8 +190,12 @@ static inline void send_event_rx(struct device * dev, struct DrvEvent * evt){
 	if(atomic_test_bit( &(data->flags), IRQT_QUEUE_RX_ENABLED )){
 		if(0 != k_msgq_put(data->_queue_rx, evt, K_NO_WAIT))
 			send_fail = true;
-		else
-			return; // success, so get out of here fast
+		else{
+			//int num_used = k_msgq_num_used_get(data->_queue_rx);
+			//int num_free = k_msgq_num_free_get(data->_queue_rx);
+			//SYS_LOG_DBG("Sending event %i to queue [%i/%i]", evt->val_id, num_used, num_free + num_used);
+			return;
+		}
 	}
 
 	else if(atomic_test_bit( &(data->flags), IRQT_FIFO_RX_ENABLED )){
@@ -283,9 +288,9 @@ void _irq_0_handler(void){
 	_values_bool[id_2_index(VAL_IRQ_0_ENABLE)]._super.time_ns = now_ns;
 
 	// issue events to queue
-	struct DrvEvent evt_perval = {.val_id=VAL_IRQ_0_PERVAL, .val_type=DRV_INT, .event_type=VAL_UPDATE, .irq_id=IRQ_0};
-	struct DrvEvent evt_enable = {.val_id=VAL_IRQ_0_ENABLE, .val_type=DRV_BOOL, .event_type=VAL_UPDATE, .irq_id=IRQ_0};
-	struct DrvEvent evt_irq0   = {.val_id=_NIL_VAL, .event_type=IRQ, .irq_id=IRQ_0};
+	struct DrvEvent evt_perval = {.val_id=VAL_IRQ_0_PERVAL, .val_type=VAL_T_INT, .event_type=EVT_T_VAL_UPDATE, .irq_id=IRQ_0};
+	struct DrvEvent evt_enable = {.val_id=VAL_IRQ_0_ENABLE, .val_type=VAL_T_BOOL, .event_type=EVT_T_VAL_UPDATE, .irq_id=IRQ_0};
+	struct DrvEvent evt_irq0   = {.val_id=_NIL_VAL, .event_type=EVT_T_IRQ, .irq_id=IRQ_0};
 
 	// inefficient to test bit here, but this is a default ISR for testing only
 	if(test_any_send_flag(dev)){
@@ -334,8 +339,8 @@ void _irq_0_handler_2(void){
 	_values_bool[id_2_index(VAL_IRQ_0_ENABLE)]._super.time_ns = now_ns;
 
 	// issue events to queue
-	struct DrvEvent evt_perval = {.val_id=VAL_IRQ_0_PERVAL, .val_type=DRV_INT, .event_type=VAL_UPDATE};
-	struct DrvEvent evt_enable = {.val_id=VAL_IRQ_0_ENABLE, .val_type=DRV_BOOL, .event_type=VAL_UPDATE};
+	struct DrvEvent evt_perval = {.val_id=VAL_IRQ_0_PERVAL, .val_type=VAL_T_INT, .event_type=EVT_T_VAL_UPDATE};
+	struct DrvEvent evt_enable = {.val_id=VAL_IRQ_0_ENABLE, .val_type=VAL_T_BOOL, .event_type=EVT_T_VAL_UPDATE};
 
 	// inefficient to test bit here, but this is a default ISR for testing only
 	if(test_any_send_flag(dev)){
@@ -380,8 +385,8 @@ void _irq_0_handler_3(void){
 	*/
 
 	// issue events to queue
-	struct DrvEvent evt_perval = {.val_id=VAL_IRQ_0_PERVAL, .val_type=DRV_INT, .event_type=VAL_UPDATE};
-	struct DrvEvent evt_enable = {.val_id=VAL_IRQ_0_ENABLE, .val_type=DRV_BOOL, .event_type=VAL_UPDATE};
+	struct DrvEvent evt_perval = {.val_id=VAL_IRQ_0_PERVAL, .val_type=VAL_T_INT, .event_type=EVT_T_VAL_UPDATE};
+	struct DrvEvent evt_enable = {.val_id=VAL_IRQ_0_ENABLE, .val_type=VAL_T_BOOL, .event_type=EVT_T_VAL_UPDATE};
 
 	// inefficient to test bit here, but this is a default ISR for testing only
 	if(test_any_send_flag(dev)){
@@ -419,7 +424,7 @@ void _irq_0_handler_5(void){
 	// write into internal data pools 
 	// no timing support
 	_values_uint[VAL_IRQ_0_PERVAL - 1].payload = perval; // only works for uint type values
-	struct DrvEvent evt_irq0   = {.val_id=_NIL_VAL, .event_type=IRQ, .irq_id=IRQ_0};
+	struct DrvEvent evt_irq0   = {.val_id=_NIL_VAL, .event_type=EVT_T_IRQ, .irq_id=IRQ_0};
 
 	// manually inlining send, flag functions
 	k_msgq_put(data->_queue_rx, &evt_irq0, K_NO_WAIT);
@@ -457,19 +462,19 @@ int irqtester_fe310_get_val(irqt_val_id_t id, void * res_value){
 	unsigned int lock_key = irq_lock();
 
 	switch(type){
-		case DRV_UINT:;
+		case VAL_T_UINT:;
 			//struct DrvValue_uint * dbg = ((struct DrvValue_uint *) res_value);
 			((struct DrvValue_uint *) res_value)->_super.id_name = id;
 			((struct DrvValue_uint *) res_value)->payload = _values_uint[id_2_index(id)].payload;
 			((struct DrvValue_uint *) res_value)->_super.time_ns = _values_uint[id_2_index(id)]._super.time_ns;
 			//SYS_LOG_DBG("at %p payload %i, time %i", dbg, dbg->payload, dbg->_super.time_ns);
 			break;
-		case DRV_INT:
+		case VAL_T_INT:
 			((struct DrvValue_int *) res_value)->_super.id_name = id;
 			((struct DrvValue_int *) res_value)->payload = _values_int[id_2_index(id)].payload;
 			((struct DrvValue_int *) res_value)->_super.time_ns = _values_int[id_2_index(id)]._super.time_ns;
 			break;
-		case DRV_BOOL:
+		case VAL_T_BOOL:
 			((struct DrvValue_bool *) res_value)->_super.id_name = id;
 			((struct DrvValue_bool *) res_value)->payload = _values_bool[id_2_index(id)].payload;
 			((struct DrvValue_bool *) res_value)->_super.time_ns = _values_bool[id_2_index(id)]._super.time_ns;
@@ -513,15 +518,15 @@ int irqtester_fe310_set_reg(struct device * dev, irqt_val_id_t id, void * set_va
 	// cast the given value container depending on 
 	// its type to set the value in corresponding memory pool
 	switch(type){
-		case DRV_UINT: 
+		case VAL_T_UINT: 
 			*(_values_uint[id_2_index(id)].base_addr) = \
 				((struct DrvValue_uint *)set_val)->payload;
 			break;
-		case DRV_INT: 
+		case VAL_T_INT: 
 			*(_values_int[id_2_index(id)].base_addr) = \
 				((struct DrvValue_int *)set_val)->payload;
 			break;
-		case DRV_BOOL: 
+		case VAL_T_BOOL: 
 			*(_values_bool[id_2_index(id)].base_addr) = \
 				((struct DrvValue_bool *)set_val)->payload;
 			break;
@@ -556,17 +561,17 @@ int irqtester_fe310_get_reg(struct device * dev, irqt_val_id_t id, void * res_va
 	
 	// cast the given value container depending on its type 
 	switch(type){
-		case DRV_UINT:
+		case VAL_T_UINT:
 			((struct DrvValue_uint *) res_val)->_super.id_name = id;
 			((struct DrvValue_uint *) res_val)->payload = *(_values_uint[id_2_index(id)].base_addr);
 			((struct DrvValue_uint *) res_val)->_super.time_ns = now_ns;
 			break;
-		case DRV_INT:
+		case VAL_T_INT:
 			((struct DrvValue_int *) res_val)->_super.id_name = id;
 			((struct DrvValue_int *) res_val)->payload = *(_values_int[id_2_index(id)].base_addr);
 			((struct DrvValue_int *) res_val)->_super.time_ns = now_ns;
 			break;
-		case DRV_BOOL:
+		case VAL_T_BOOL:
 			((struct DrvValue_bool *) res_val)->_super.id_name = id;
 			((struct DrvValue_bool *) res_val)->payload = *(_values_bool[id_2_index(id)].base_addr);
 			((struct DrvValue_bool *) res_val)->_super.time_ns = now_ns;
@@ -699,6 +704,8 @@ int irqtester_fe310_enable_queue_rx(struct device * dev){
 	}
 
 	atomic_set_bit(&(data->flags), IRQT_QUEUE_RX_ENABLED);
+
+	SYS_LOG_DBG("Enabled driver queue rx @%p", data->_queue_rx);
 
 	return 0;
 }
@@ -833,18 +840,18 @@ void irqtester_fe310_dbgprint_event(struct device * dev, struct DrvEvent * evt){
 
 	SYS_LOG_DBG("Driver event [type / value type]: %i, %i", evt->event_type, evt->val_type);
 	
-	if(evt->event_type == VAL_UPDATE){
-		if(evt->val_type == DRV_INT){
+	if(evt->event_type == EVT_T_VAL_UPDATE){
+		if(evt->val_type == VAL_T_INT){
 			struct DrvValue_int val;
 			irqtester_fe310_get_val(id, &val);
 			SYS_LOG_DBG("Value (id: %i): %i updated at %u ns", val._super.id_name, val.payload, val._super.time_ns);
 		} 
-		else if(evt->val_type == DRV_UINT){
+		else if(evt->val_type == VAL_T_UINT){
 			struct DrvValue_uint val;
 			irqtester_fe310_get_val(id, &val);
 			SYS_LOG_DBG("Value (id: %i): %u updated at %u ns", val._super.id_name, val.payload, val._super.time_ns);
 		} 
-		else if(evt->val_type == DRV_BOOL){
+		else if(evt->val_type == VAL_T_BOOL){
 			struct DrvValue_bool val;
 			irqtester_fe310_get_val(id, &val);
 			SYS_LOG_DBG("Value (id: %i): %i updated at %u ns", val._super.id_name, val.payload, val._super.time_ns);
@@ -871,16 +878,16 @@ static inline irqt_val_type_t id_2_type(irqt_val_id_t id){
 	int k_bool = LEN_ARRAY(_values_bool);
 
 	if(id > 0 && (id < n_uint + 1)){	// +1 -> id 0=_NIL_VAL
-		//SYS_LOG_DBG("Returning type %i", DRV_UINT);
-		return DRV_UINT;
+		//SYS_LOG_DBG("Returning type %i", VAL_T_UINT);
+		return VAL_T_UINT;
 	} 
 	else if(id >= n_uint + 1 && id < (n_uint + m_int + 1)){
-		//SYS_LOG_DBG("Returning type %i", DRV_INT);
-		return DRV_INT;
+		//SYS_LOG_DBG("Returning type %i", VAL_T_INT);
+		return VAL_T_INT;
 	}
 	else if(id >= (n_uint + m_int + 1)  && id < (n_uint + m_int + k_bool + 1)){
-		//SYS_LOG_DBG("Returning type %i", DRV_BOOL);
-		return DRV_BOOL;
+		//SYS_LOG_DBG("Returning type %i", VAL_T_BOOL);
+		return VAL_T_BOOL;
 	}
 	else{
 		SYS_LOG_ERR("Tried to get type for unknown id %i", id);
@@ -903,13 +910,13 @@ static inline int id_2_index(irqt_val_id_t id){
 
 	switch(type){
 		// +1 -> id 0=_NIL_VAL
-		case DRV_UINT:	
+		case VAL_T_UINT:	
 			//SYS_LOG_DBG("Returning idx %i", id);
 			return id - 1; // uint
-		case DRV_INT:
+		case VAL_T_INT:
 			//SYS_LOG_DBG("Returning idx %i", id - n_uint);
 			return id - n_uint - 1; // int
-		case DRV_BOOL:
+		case VAL_T_BOOL:
 			//SYS_LOG_DBG("Returning idx %i", id - n_uint - m_int);
 			return id - n_uint - m_int - 1; // bool
 		default:
@@ -931,13 +938,13 @@ static int _store_reg_addr(irqt_val_id_t id, volatile void * addr){
 	SYS_LOG_DBG("Saving addr for value id %i: %p", id, addr);
 
 	switch(type){
-		case DRV_UINT:
+		case VAL_T_UINT:
 			_values_uint[id_2_index(id)].base_addr = (u32_t *)addr;
 			break;
-		case DRV_INT:
+		case VAL_T_INT:
 			_values_int[id_2_index(id)].base_addr = (int *)addr;
 			break;
-		case DRV_BOOL:
+		case VAL_T_BOOL:
 			_values_bool[id_2_index(id)].base_addr = (bool *)addr;
 			break;
 		default:

@@ -15,6 +15,6 @@ void state_mng_run(void);
 
 int state_mng_register_action(cycle_state_id_t state_id, void (*func)(void), irqt_val_id_t arr_vals[], int len);
 int state_mng_purge_registered_actions(cycle_state_id_t state_id);
-
+int state_mng_purge_registered_actions_all();
 
 #endif
