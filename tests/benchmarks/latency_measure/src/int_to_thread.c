@@ -56,6 +56,7 @@ static void make_int(void)
 	} else {
 		timestamp = TIME_STAMP_DELTA_GET(timestamp);
 	}
+	//PRINT_FORMAT("DEBUG: Done with timestamp %i \n", timestamp);
 }
 
 /**

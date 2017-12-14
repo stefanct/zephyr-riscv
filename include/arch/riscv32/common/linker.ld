@@ -22,10 +22,23 @@
 #include <linker/linker-defs.h>
 #include <linker/linker-tool.h>
 
+// currently, doesn't show an obvious effect in disassembly
+// also consider CONFIG_XIP = 0
+//#define FLASH_ONLY
+#ifdef FLASH_ONLY
+#warning "Modified linking: All to Flash"
+// redefine macro, so nothing is copied to RAM on startup
+// warning: breaks build!
+//#define GROUP_DATA_LINK_IN(vregion, lregion) > lregion
+#endif
+
 #ifdef CONFIG_XIP
-#define ROMABLE_REGION              ROM
+/* _t_debug: changed to write all into slow SPI Flash 
+ *			 ROM: aka Flash, RAM: aka DTIM
+ */
+#define ROMABLE_REGION              ROM	
 #else
-#define ROMABLE_REGION              RAM
+#define ROMABLE_REGION              RAM 
 #endif
 #define RAMABLE_REGION              RAM
 
@@ -34,9 +47,13 @@
 #define _RESET_SECTION_NAME         reset
 
 MEMORY
-{
-    ROM (rx)  : ORIGIN = CONFIG_RISCV_ROM_BASE_ADDR, LENGTH = CONFIG_RISCV_ROM_SIZE
-    RAM (rwx) : ORIGIN = CONFIG_RISCV_RAM_BASE_ADDR, LENGTH = RISCV_RAM_SIZE
+{	// ROM(rx)
+    #ifdef FLASH_ONLY
+	ROM (rwx)  : ORIGIN = CONFIG_RISCV_ROM_BASE_ADDR, LENGTH = CONFIG_RISCV_ROM_SIZE
+    #else
+	ROM (rx)  : ORIGIN = CONFIG_RISCV_ROM_BASE_ADDR, LENGTH = CONFIG_RISCV_ROM_SIZE
+	#endif
+	RAM (rwx) : ORIGIN = CONFIG_RISCV_RAM_BASE_ADDR, LENGTH = RISCV_RAM_SIZE
     /* Used by and documented in include/linker/intlist.ld */
     IDT_LIST  (wx)      : ORIGIN = 0xFFFFF7FF, LENGTH = 2K
 }
@@ -98,9 +115,10 @@ SECTIONS
     _image_rom_end = .;
     __data_rom_start = .;
 
-    GROUP_END(ROMABLE_REGION)
-
+	#ifndef FLASH_ONLY
+	GROUP_END(ROMABLE_REGION)
     GROUP_START(RAMABLE_REGION)
+	#endif
 
     SECTION_DATA_PROLOGUE(_DATA_SECTION_NAME,,)
 	{
@@ -156,6 +174,9 @@ SECTIONS
 #ifdef CONFIG_GEN_ISR_TABLES
 #include <linker/intlist.ld>
 #endif
-
-     GROUP_END(RAMABLE_REGION)
+	#ifdef FLASH_ONLY
+	GROUP_END(ROMABLE_REGION)
+    #else
+	GROUP_END(RAMABLE_REGION)
+	#endif
 }

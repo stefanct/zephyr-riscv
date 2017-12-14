@@ -34,13 +34,13 @@ void test_thread(void *arg1, void *arg2, void *arg3)
 
 	int_to_thread();
 	print_dash_line();
-
+	
 	int_to_thread_evt();
 	print_dash_line();
-
+	
 	sema_lock_unlock();
 	print_dash_line();
-
+	
 	mutex_lock_unlock();
 	print_dash_line();
 
@@ -49,7 +49,7 @@ void test_thread(void *arg1, void *arg2, void *arg3)
 
 	coop_ctx_switch();
 	print_dash_line();
-
+	
 	TC_END_REPORT(error_count);
 }
 

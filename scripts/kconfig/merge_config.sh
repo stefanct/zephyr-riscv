@@ -98,6 +98,7 @@ if [ ! -r "$INITFILE" ]; then
 fi
 
 MERGE_LIST=$*
+echo ${MERGE_LIST}
 SED_CONFIG_EXP="s/^\(# \)\{0,1\}\(CONFIG_[a-zA-Z0-9_]*\)[= ].*/\2/p"
 TMP_FILE=$(mktemp ./.tmp.config.XXXXXXXXXX)
 

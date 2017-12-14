@@ -1,5 +1,5 @@
 /**
- *  @brief:
+ *  @brief
  *  @author:
  *  
  * Currently:
@@ -93,7 +93,7 @@ static int check_time_goal(struct State * state, int mode, u32_t * t_left);
 
 
 /**
- * @brief: Either use default config of states and transition table or set custom one.
+ * @brief Either use default config of states and transition table or set custom one.
  * 
  * If you choose to use custom config, make sure that all your data is properly init!
  * Call first state_mng_configure(), then state_mng_register_action() and state_mng_init().
@@ -129,7 +129,7 @@ void state_mng_configure(struct State cust_states[], cycle_state_id_t cust_tt[],
 }
 
 /**
- * @brief: Initialize. Mainly set up irqt driver. 
+ * @brief Initialize. Mainly set up irqt driver. 
  * 
  * Call only after .configure(). Running is possible after init was done.
  */
@@ -162,14 +162,14 @@ void state_mng_init(struct device * dev){
 }
 
 /**
- * @brief: Thread-safe getter whether state machine thread is running.
+ * @brief Thread-safe getter whether state machine thread is running.
  */ 
 bool state_mng_is_running(){
     return atomic_test_bit(&flags, THREAD_RUNNING);
 }
 
 /**
- * @brief: Thread-safe getter of current state.
+ * @brief Thread-safe getter of current state.
  * @return: id of current state.
  */ 
 cycle_state_id_t state_mng_get_current(){
@@ -177,9 +177,9 @@ cycle_state_id_t state_mng_get_current(){
 }
 
 /**
- * @brief: Send signal to abort state machine state.
+ * @brief Send signal to abort running state machine.
  */ 
-void state_mng_abort(){
+int state_mng_abort(){
     atomic_set_bit(&flags, ABORT_LOOP);
     SYS_LOG_DBG("Received abort. Expect state manager to stop momentarily...");
     // send dummy event to driver queue to continue if waiting in IDLE
@@ -190,13 +190,17 @@ void state_mng_abort(){
         k_sleep(10);    // switch to state_manager thread
         timeout -= 10;
     }
-    if(timeout < 0)
+
+    if(timeout < 0){
         SYS_LOG_WRN("Didn't shut down in time.");
+        return 1;
+    }
+    return 0;
 }
 
 
 /**
- * @brief: Clear callback array and reqvalue arrays for a state.
+ * @brief Clear callback array and reqvalue arrays for a state.
  * @param: id of state to clear
  * @return: 0 on success, != 0 otherwise.
  */ 
@@ -220,7 +224,7 @@ int state_mng_purge_registered_actions(cycle_state_id_t state_id){
 }
 
 /**
- * @brief: Clear callback array and reqvalue arrays for all states.
+ * @brief Clear callback array and reqvalue arrays for all states.
  * @return: 0 on success, != 0 otherwise.
  */ 
 int state_mng_purge_registered_actions_all(){
@@ -235,7 +239,7 @@ int state_mng_purge_registered_actions_all(){
 
 
 /**
- * @brief: Entry function for state machine loop. Should be invoked as thread.
+ * @brief Entry function for state machine loop. Should be invoked as thread.
  */ 
 void state_mng_run(void){
     
@@ -309,7 +313,7 @@ void state_mng_run(void){
 }
 
 /**
- * @brief: Register an action to be executed in a certain state.
+ * @brief Register an action to be executed in a certain state.
  *         Specify values this action will request from irqt driver.
  * 
  * Currently, it is checked and warned if requested values haven't been flagged
@@ -524,7 +528,7 @@ static int check_vals_ready(struct State * state){
 }
 
 /** 
- *   @brief: Calcs the time since start state.
+ *   @brief Calcs the time since start state.
  *   
  *   Warning: requires that delta to start state can never > 2^32 cycles. 
  *   @return: delta in cycles
@@ -535,7 +539,7 @@ static u32_t get_time_delta(struct State * state){
 }
 
 /**
- * @brief: Wait for at least t_cyc cycles.
+ * @brief Wait for at least t_cyc cycles.
  * 
  * No upper limit of waiting time guaranteed!
  * Busy waiting currently, since no hw timers implemented yet.
@@ -632,4 +636,4 @@ static void _default_action_dispatcher(cycle_state_id_t state){
     }
 }
 
-#endif
+#endif // TEST_MINIMAL

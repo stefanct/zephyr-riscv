@@ -36,7 +36,7 @@ static inline u32_t TIME_STAMP_DELTA_GET(u32_t ts)
 	u32_t t;
 
 	/* serialize so OS_GET_TIME() is not reordered */
-	timestamp_serialize();
+	//timestamp_serialize(); // _t_debug not supported on riscv32
 
 	t = OS_GET_TIME();
 	u32_t res = (t >= ts) ? (t - ts) : (ULONG_MAX - ts + t);
@@ -105,7 +105,8 @@ static inline int high_timer_overflow(void)
 	/* Check if the time elapsed in msec is sufficient to trigger an
 	 *  overflow of the high precision timer
 	 */
-	if (tCheck >= (SYS_CLOCK_HW_CYCLES_TO_NS64(UINT_MAX) /
+	// _t_debug originally non working NS64 macro
+	if (tCheck >= (SYS_CLOCK_HW_CYCLES_TO_NS(UINT_MAX) /
 				(NSEC_PER_USEC * USEC_PER_MSEC))) {
 		return -1;
 	}

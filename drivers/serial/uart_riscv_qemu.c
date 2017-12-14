@@ -44,7 +44,7 @@ static const struct uart_device_config uart_riscv_qemu_dev_cfg_0 = {
 	.regs = RISCV_QEMU_UART_BASE,
 };
 
-DEVICE_AND_API_INIT(uart_riscv_qemu_0, "uart0",
+DEVICE_AND_API_INIT(uart_riscv_qemu_0, CONFIG_UART_RISCV_0_NAME,
 		    uart_riscv_qemu_init, NULL,
 		    &uart_riscv_qemu_dev_cfg_0,
 		    PRE_KERNEL_1, CONFIG_KERNEL_INIT_PRIORITY_DEVICE,

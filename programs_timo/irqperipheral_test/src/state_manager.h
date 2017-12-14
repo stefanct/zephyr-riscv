@@ -9,7 +9,7 @@
 cycle_state_id_t state_mng_get_current();
 void state_mng_configure(struct State cust_states[], cycle_state_id_t cust_tt[], int len_states, int len_events);
 void state_mng_init(struct device * dev);
-void state_mng_abort();
+int state_mng_abort();
 bool state_mng_is_running();
 void state_mng_run(void);
 

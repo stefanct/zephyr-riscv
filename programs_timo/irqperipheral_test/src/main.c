@@ -15,6 +15,7 @@
 #include <string.h>
 
 #define IRQTESTER_DRV_NAME "irqtester0"
+#define IRQTESTER_HW_REV "1"
 
 
 int global_max_cyc;
@@ -56,7 +57,7 @@ void print_device_drivers(){
 void main(void)
 {	
 	print_device_drivers();
-	printk("Starting irqtester test on arch: %s\n", CONFIG_ARCH);
+	printk("Starting irqtester test for hw rev. %i on arch: %s\n", IRQTESTER_HW_REV, CONFIG_ARCH);
 
 	// get driver handles
 	struct device *dev;
@@ -69,7 +70,7 @@ void main(void)
 
 	irqtester_fe310_enable(dev);
 	
-	test_uint_overflow();
+	//test_uint_overflow();
 		
 	int i=0;
 	bool abort = false;
@@ -80,8 +81,8 @@ void main(void)
 		
 		// timing
 		//run_test_timing_rx(dev);
-		//run_test_min_timing_rx(dev);
-		run_test_state_mng_1(dev);
+		run_test_min_timing_rx(dev);
+		//run_test_state_mng_1(dev);
 
 	}
 	/* test generic setters 

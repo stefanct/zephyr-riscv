@@ -331,7 +331,7 @@ void k_sleep(s32_t duration)
 	 */
 	volatile s32_t ticks;
 	unsigned int key;
-
+	
 	__ASSERT(!_is_in_isr(), "");
 	__ASSERT(duration != K_FOREVER, "");
 
@@ -350,6 +350,7 @@ void k_sleep(s32_t duration)
 	_add_thread_timeout(_current, NULL, ticks);
 
 	_Swap(key);
+
 #endif
 }
 

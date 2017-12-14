@@ -1112,7 +1112,7 @@ int irqtester_fe310_fire(struct device *dev)
 	// to indicate that fired once and blocked after
 	irqt->fire = 1;
 	int timeout = 100; //cpu cycles
-	while(irqt->status != FE310_IRQTESTER_0_STATUS_BLOCKED || timeout < 0){
+	while(irqt->status == FE310_IRQTESTER_0_STATUS_BLOCKED && timeout >= 0){
 		// we (probably) can't k_wait() here, because may be called outside a thread
 		timeout -= 1;
 	}
@@ -1126,7 +1126,7 @@ int irqtester_fe310_fire(struct device *dev)
 	}
 
 	timeout = 100;
-	while(irqt->status != 0 || timeout < 0){
+	while(irqt->status != 0 && timeout >= 0){
 		timeout -= 1;
 	}
 

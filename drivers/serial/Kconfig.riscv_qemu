@@ -12,3 +12,7 @@ menuconfig UART_RISCV_QEMU
 	select SERIAL_HAS_DRIVER
 	help
 	Enable the riscv-qemu UART driver.
+
+config UART_RISCV_0_NAME
+	string "Driver name"
+	default "uart0"

@@ -79,7 +79,7 @@ extern int sys_clock_hw_cycles_per_tick;
 	 sys_clock_hw_cycles_per_tick)
 
 /* SYS_CLOCK_HW_CYCLES_TO_NS32 converts CPU clock cycles to nanoseconds
-   WARNING: DEV VERSION, NOT TESTED _dev_timo */
+   WARNING: DEV VERSION, FIXES, BUT UNCLEAR SIDE EFFECTS _dev_timo */
 #define SYS_CLOCK_HW_CYCLES_TO_NS32(X) \
 	(((u32_t)(X) * sys_clock_us_per_tick * NSEC_PER_USEC) / \
 	 sys_clock_hw_cycles_per_tick)
@@ -87,9 +87,10 @@ extern int sys_clock_hw_cycles_per_tick;
 /*
  * SYS_CLOCK_HW_CYCLES_TO_NS_AVG converts CPU clock cycles to nanoseconds
  * and calculates the average cycle time
+ * WARNING: DEV VERSION, FIXES, BUT UNCLEAR SIDE EFFECTS _dev_timo 
  */
 #define SYS_CLOCK_HW_CYCLES_TO_NS_AVG(X, NCYCLES) \
-	(u32_t)(SYS_CLOCK_HW_CYCLES_TO_NS64(X) / NCYCLES)
+	(u32_t)(SYS_CLOCK_HW_CYCLES_TO_NS32(X) / NCYCLES)
 
 /**
  * @defgroup clock_apis Kernel Clock APIs

@@ -1,3 +1,12 @@
+	
+	//#define FLASH_ONLY
+	#ifdef FLASH_ONLY
+	#warning "Modified linking: All to Flash"
+	// redefine macro, so nothing is copied to RAM on startup
+	//#define GROUP_DATA_LINK_IN(vregion, lregion) > lregion
+	#endif
+	// _t_debug rest of file untouched	
+	
 	SECTION_DATA_PROLOGUE(initlevel, (OPTIONAL),)
 	{
 		DEVICE_INIT_SECTIONS()

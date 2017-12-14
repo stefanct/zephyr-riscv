@@ -36,7 +36,8 @@ static inline void timestamp_serialize(void)
 #elif defined(CONFIG_CPU_ARCV2)
 #define timestamp_serialize()
 #else
-#error implementation of timestamp_serialize() not provided for your CPU target
+//warning: not working _t_debug
+//#error implementation of timestamp_serialize() not provided for your CPU target
 #endif
 
 #endif /* _TEST_ASM_INLINE_GCC_H */

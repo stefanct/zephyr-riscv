@@ -6,3 +6,4 @@ obj-y += test_runners.o
 obj-y += utils.o
 obj-y += tests/tests.o
 obj-y += tests/tests_minimal.o
+
