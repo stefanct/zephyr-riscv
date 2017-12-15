@@ -8,7 +8,7 @@
  * 
  */
 
-
+#ifndef TEST_MINIMAL
 #include "irqtestperipheral.h"
 
 #define SYS_LOG_DOMAIN "StateManager"  
@@ -16,7 +16,7 @@
 #include <logging/sys_log.h>
 #include "states.h"
 
-#ifndef TEST_MINIMAL
+
 
 #define STATE_MNG_QUEUE_RX_DEPTH 10
 

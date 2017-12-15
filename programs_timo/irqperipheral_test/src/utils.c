@@ -43,6 +43,7 @@ void print_report(int err_count){
         printk_framed("Tests FAILED with %i errors", err_count);
     }
     print_dash_line();
+
 }
 
 void print_end_banner()	{								

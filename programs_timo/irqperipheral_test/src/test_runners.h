@@ -3,6 +3,7 @@
 
 #include <device.h>
 
+void run_test_hw_basic_1(struct device * dev);
 void run_test_timing_rx(struct device * dev);
 void run_test_min_timing_rx(struct device * dev);
 

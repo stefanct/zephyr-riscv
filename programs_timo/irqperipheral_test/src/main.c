@@ -10,12 +10,15 @@
 
 #include "irqtestperipheral.h"
 #include "test_runners.h"
+#include "tests/tests.h"
 
 #include "state_manager.h"
+#ifndef TEST_MINIMAL
 #include <string.h>
+#endif
 
 #define IRQTESTER_DRV_NAME "irqtester0"
-#define IRQTESTER_HW_REV "1"
+#define IRQTESTER_HW_REV 1
 
 
 int global_max_cyc;
@@ -71,10 +74,11 @@ void main(void)
 	irqtester_fe310_enable(dev);
 	
 	//test_uint_overflow();
-		
+	//run_test_hw_basic_1(dev);
+
 	int i=0;
 	bool abort = false;
-	while(!abort){
+	do{
 		i++;
 		printk("Entering cycle %i. Global max %i \n", i, global_max_cyc);
 
@@ -84,89 +88,8 @@ void main(void)
 		run_test_min_timing_rx(dev);
 		//run_test_state_mng_1(dev);
 
-	}
-	/* test generic setters 
-	struct DrvValue_uint val = {.payload=7}; 
-	irqtester_fe310_set_reg(dev, VAL_IRQ_0_VALUE, &val);
-	struct DrvValue_int test;
-	// firing loads register into driver values
-	irqtester_fe310_fire(dev);
-	irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &test);
-	printk("get_perval: %i \n", test.payload);
-
-
-	val.payload=42; 
-	irqtester_fe310_set_reg(dev, VAL_IRQ_0_VALUE, &val);
-	// firing loads register into driver values
-	irqtester_fe310_fire(dev);
-	irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &test);
-	printk("get_perval: %i \n", test.payload);
-
-	// disabling won't fire the interrupt, so nothing loaded
-	struct DrvValue_bool enable = {.payload=false}; 
-	irqtester_fe310_set_reg(dev, VAL_IRQ_0_ENABLE, &enable);
-	irqtester_fe310_fire(dev);
-	irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &test);
-	printk("get_perval: %i \n", test.payload);
-
-	*/
-
-	/* working _values array for data passing
-	printk("Testing getter. Set perval: 42 \n");
-	irqtester_fe310_enable(dev);
-	irqtester_fe310_set_value(dev, 42);
-
-
-	printk("Without firing irq, expect 0 from getter \n");
-	struct DrvValue_int test;
-	irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &test);
-	printk("get_perval: %i \n", test.payload);
-
-	printk("Firing irq to load data, expect 42 from getter \n");
-	irqtester_fe310_fire(dev);
-	irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &test);
-	printk("get_perval: %i \n", test.payload);
-
-	printk("Trying to get invalid value. Please don't crash.. \n");
-	irqtester_fe310_get_val(3, &test);
-	printk("get_perval: %i \n", test.payload);
-	*/
-
-
-	/* first working example
-	struct device *dev;
-	dev = device_get_binding(IRQTESTER_DRV_NAME);
-	dev_global = dev;
-
-	if (!dev) {
-		printk("Cannot find %s!\n", IRQTESTER_DRV_NAME);
-		return;
-	}
-
-	printk("irqtester device found, trying to register irq handler \n");
-	irqtester_fe310_register_callback(dev, msg_on_irq);
-
-
-	printk("trying to write to value mem. Expect value/perval: 42/0 \n");
-	irqtester_fe310_set_value(dev, 42);
-	unsigned int test;
-	irqtester_fe310_get_perval(dev, &test);
-	printk("perval %i \n", test);
-	irqtester_fe310_get_value(dev, &test);
-	printk("value %i \n", test);
-
-	printk("enabling outputs. perval Expect 42 \n");
-	irqtester_fe310_enable(dev);
-	irqtester_fe310_set_value(dev, 42);
-	irqtester_fe310_get_perval(dev, &test);
-	printk("perval %i \n", test);
-
-	printk("trying to fire interrupt... \n");
-	test = irqtester_fe310_fire(dev);
-	int status = -1;
-	irqtester_fe310_get_status(dev_global, &status);
-	printk("returned %i, device status %i \n", test, status);
-	*/
+	}while(!abort);
+	
 
 	printk("Total uptime %u ms \n", k_uptime_get_32());// not working
 	printk("***** I'm done here... Goodbye! *****");

@@ -37,6 +37,60 @@ int getAvg (int x, bool reset){
     return (((int)sum)/++n);
 }
 
+// tests functionality of hw rev 1
+// compatible with hw revs: 1,2,3
+void test_hw_rev_1_basic_1(struct device * dev){
+	// test generic reg setters and getters, driver mem getter
+	struct DrvValue_uint val = {.payload=42}; 
+	irqtester_fe310_set_reg(dev, VAL_IRQ_0_VALUE, &val);
+	struct DrvValue_uint test;
+
+	// without load to driver, value should be 0 
+	irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &test);
+	printk("get_reg perval: %i \n", test.payload);
+	test_assert(test.payload == (u32_t)0);
+
+	// firing loads register into driver values
+	irqtester_fe310_fire(dev);
+	irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &test);
+	printk("get_val perval: %i \n", test.payload);
+	test_assert(test.payload == (u32_t)42);
+	irqtester_fe310_get_reg(dev, VAL_IRQ_0_STATUS, &test);
+	printk("get_reg status: %i \n", test.payload);
+	test_assert(test.payload == (u32_t)0); // no error code status
+
+	// disabling won't fire the interrupt, so nothing loaded
+	struct DrvValue_bool enable = {.payload=false}; 
+	irqtester_fe310_set_reg(dev, VAL_IRQ_0_ENABLE, &enable);
+	struct DrvValue_uint val2 = {.payload=7}; 
+	irqtester_fe310_set_reg(dev, VAL_IRQ_0_VALUE, &val2);
+	irqtester_fe310_fire(dev);
+	// load from memory value
+	irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &test);
+	printk("get_val perval: %i \n", test.payload);
+	test_assert(test.payload == (u32_t)42);
+	
+	// load from register should still work after re-enabling
+	enable.payload=true; 
+	irqtester_fe310_set_reg(dev, VAL_IRQ_0_ENABLE, &enable);
+	irqtester_fe310_get_reg(dev, VAL_IRQ_0_PERVAL, &test);
+	test_assert(test.payload == (u32_t)7);
+	printk("get_reg perval: %i \n", test.payload);
+
+	printk("Trying to get invalid value. Expect and ignore error. \n");
+	int ret = irqtester_fe310_get_val((u32_t)-1, &test);
+	test_assert(ret != 0);
+	
+	
+}
+
+// test new DPS blocks 
+// compatible with hw revs: 2,3
+void test_hw_rev_2_basic_1(struct device * dev){
+
+}
+
+
 K_SEM_DEFINE(wait_sem, 0, 1);
 static u32_t isr_perval;
 static u32_t time_isr;
@@ -213,6 +267,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 			// short version, only first msg
 			if(0 != irqtester_fe310_receive_evt_from_arr(dev, &evt, K_MSEC(100)) ){
 				printk("Message got lost");
+				test_assert(0);
 				continue;
 			}
 			delta_cyc = k_cycle_get_32() - start_cyc;
@@ -258,6 +313,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 			// short version, just measure delay till first message received
 			if(0 != k_msgq_get(&drv_q_rx, &evt, 100)){
 				printk("Message got lost");
+				test_assert(0);
 				continue;
 			}
 			delta_cyc = k_cycle_get_32() - start_cyc;
@@ -302,6 +358,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 			delta_cyc = k_cycle_get_32() - start_cyc;
 			if(timeout <= 0){
 				printk("Message got lost \n");
+				test_assert(0);
 				continue;
 			}
 			
@@ -328,6 +385,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 
 			if(0 != k_msgq_get(&drv_q_rx, &evt, 100)){
 				printk("Queue message got lost");
+				test_assert(0);
 				continue;
 			}
 
@@ -337,6 +395,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 			delta_cyc = k_cycle_get_32() - start_cyc;
 
 			if(timeout <= 0){
+				test_assert(0);
 				printk("Valflag message got lost \n");
 			}
 			if(verbose>1)

@@ -6,9 +6,24 @@
 
 
 
+void run_test_hw_basic_1(struct device * dev){
+    print_banner();
+    print_time_banner();
+
+    printk_framed("Now running basic hw test");
+    print_dash_line();
+
+    test_hw_rev_1_basic_1(dev);
+
+    print_dash_line();
+    print_report(error_count); // global var from tests.c
+}
+
 
 void run_test_timing_rx(struct device * dev){    
-    
+    #ifndef TEST_MINIMAL 
+    // currently, fifo functionality broken
+
     int NUM_RUNS = 10;		// warning high values may overflow stack
 	int verbosity = 1;
 	int timing_detailed_cyc[NUM_RUNS];
@@ -115,9 +130,13 @@ void run_test_timing_rx(struct device * dev){
     printk("INFO: End of noload. Resetting error count to %i \n", error_count);
     print_dash_line();
 
-    print_report(error_count); // global var from tests.c
+    // restore default handler
+    irqtester_fe310_register_callback(dev, _irq_0_handler);
 
+    print_report(error_count); // global var from tests.c
+    #endif // TEST_MINIMAL
 }
+
 
 void run_test_min_timing_rx(struct device * dev){    
     
@@ -130,16 +149,14 @@ void run_test_min_timing_rx(struct device * dev){
     error_count = 0;
     error_stamp = 0;
 
-    print_banner();
-    print_time_banner();
 
     printk_framed("Now running timing test with hand-optimized valflag plus queue");
     print_dash_line();
     // note: defining TEST_MINIMAL in driver sets callback in init function
     // might help compiler to optimize
     irqtester_fe310_register_callback(dev, _irq_0_handler_5);
-    //test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 4, verbosity);
-    test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 0, verbosity);
+    test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 4, verbosity);
+    //test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 0, verbosity);
     print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
     print_dash_line();
     //
@@ -225,7 +242,7 @@ void run_test_state_mng_1(struct device * dev){
 
     state_mng_abort();
     state_mng_purge_registered_actions_all();
-    
+
     print_report(error_count);
     
 }

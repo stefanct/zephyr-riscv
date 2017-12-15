@@ -1,3 +1,4 @@
+#ifndef TEST_MINIMAL
 #include "states.h"
 #include "state_manager.h"
 
@@ -138,3 +139,4 @@ void action_print_start_state(){
     printk("Received start event, state is %i \n", state_mng_get_current());
 }
 
+#endif // TEST_MINIMAL

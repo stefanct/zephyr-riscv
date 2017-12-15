@@ -19,9 +19,10 @@ typedef enum{
     _NIL_VAL            /// not a value, must be first
     /// start uints
     ,VAL_IRQ_0_PERVAL, 
-    VAL_IRQ_0_VALUE,   
+    VAL_IRQ_0_VALUE, 
+    VAL_IRQ_0_STATUS,  
     /// start bools
-    VAL_IRQ_0_ENABLE,   // 3 fake, actually input
+    VAL_IRQ_0_ENABLE,   // fake, actually input
     _NUM_VALS           /// must be last
 }irqt_val_id_t;
 
