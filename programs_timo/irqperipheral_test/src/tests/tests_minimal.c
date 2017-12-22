@@ -8,6 +8,7 @@
 #include "../utils.h"
 #include "../irqtestperipheral.h"
 #include "tests.h"
+#include "cycles.h"
 
 // ugly globals
 int error_count = 0;
@@ -87,7 +88,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 		irqtester_fe310_set_value(dev, i);
 	
 		if(use_queue){			
-			u32_t start_cyc = k_cycle_get_32();
+			u32_t start_cyc = get_cycle_32();
 			irqtester_fe310_fire(dev);
 			
 			struct DrvEvent evt;			
@@ -97,7 +98,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 				test_assert(0);
 				continue;
 			}
-			delta_cyc = k_cycle_get_32() - start_cyc;
+			delta_cyc = get_cycle_32() - start_cyc;
 			if(verbose>1)
 				irqtester_fe310_dbgprint_event(dev, &evt);
 			k_msgq_purge(&drv_q_rx);  // throw away all but first msg
@@ -107,7 +108,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 		if(use_valflag){
 			// not event driven
 			// just checks whether a specified value was loaded into driver mem
-			u32_t start_cyc = k_cycle_get_32();
+			u32_t start_cyc = get_cycle_32();
 			int timeout = 10; // shouldn't occur
 
 			//printk_("DEBUG Flags: [enable | perval]: %i|%i\n", 
@@ -119,7 +120,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 			while(timeout > 0 && (0 == irqtester_fe310_test_valflag(dev, VAL_IRQ_0_PERVAL))){
 				timeout--; // high precision busy wait
 			}
-			delta_cyc = k_cycle_get_32() - start_cyc;
+			delta_cyc = get_cycle_32() - start_cyc;
 			if(timeout <= 0){
 				printk_("Message got lost \n");
 				test_assert(0);
@@ -142,7 +143,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 
 		if(use_valflag_plus_queue){
 			int timeout = 10; // shouldn't occur
-			u32_t start_cyc = k_cycle_get_32();
+			u32_t start_cyc = get_cycle_32();
 		
 			irqtester_fe310_fire(dev);
 			struct DrvEvent evt;			
@@ -156,7 +157,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 			while(timeout > 0 && (0 == irqtester_fe310_test_valflag(dev, VAL_IRQ_0_PERVAL))){
 				timeout--; // high precision busy wait
 			}
-			delta_cyc = k_cycle_get_32() - start_cyc;
+			delta_cyc = get_cycle_32() - start_cyc;
 
 			if(timeout <= 0){
 				printk_("Valflag message got lost \n");

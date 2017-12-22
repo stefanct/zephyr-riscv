@@ -186,3 +186,28 @@ void printk_framed(const char *fmt, ...){
     }
 	printk("|\n");
 }
+
+
+void print_arr_int(int arr[], int len){
+    int i;
+    for (i=0; i < len; i++) {
+        if(i == len-1)
+            printk("%i", (int)arr[i]);
+        else
+            printk("%i, ", (int)arr[i]);
+    }
+    printk("\n");
+}
+
+void print_arr_uint(u32_t arr[], int len){
+    int i;
+    for (i=0; i < len; i++) {
+        if(i == len-1)
+            printk("%u", (int)arr[i]);
+        else
+            printk("%u, ", (int)arr[i]);
+    }
+    printk("\n");
+}
+
+

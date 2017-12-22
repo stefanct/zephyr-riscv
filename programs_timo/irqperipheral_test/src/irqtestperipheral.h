@@ -19,10 +19,18 @@ typedef enum{
     _NIL_VAL            /// not a value, must be first
     /// start uints
     ,VAL_IRQ_0_PERVAL, 
-    VAL_IRQ_0_VALUE, 
+    VAL_IRQ_0_VALUE,    // input
     VAL_IRQ_0_STATUS,  
+    VAL_IRQ_1_STATUS,
+    VAL_IRQ_1_PERIOD,   // input
+    VAL_IRQ_1_NUM_REP,  // input
+    VAL_IRQ_2_STATUS, 
+    VAL_IRQ_2_PERIOD,   // input
+    VAL_IRQ_2_NUM_REP,  // input
     /// start bools
-    VAL_IRQ_0_ENABLE,   // fake, actually input
+    VAL_IRQ_0_ENABLE,   // input
+    VAL_IRQ_1_CLEAR,    // input
+    VAL_IRQ_2_CLEAR,    // input
     _NUM_VALS           /// must be last
 }irqt_val_id_t;
 
@@ -48,6 +56,9 @@ typedef enum{
  */
 typedef enum{
     IRQ_0,
+    IRQ_1,
+    IRQ_2,
+    _NUM_IRQS   /// must be last
 }irqt_irq_id_t;
 
 /**
@@ -114,10 +125,12 @@ void irqtester_fe310_clear_all_valflags(struct device *dev);
 void irqtester_fe310_dbgprint_event(struct device * dev, struct DrvEvent * evt);
 
 int irqtester_fe310_fire(struct device *dev);
+int irqtester_fe310_fire_1(struct device *dev);
+int irqtester_fe310_fire_2(struct device *dev);
 
 // semi private
-int irqtester_fe310_register_callback(struct device *dev, void (*cb)(void));
-int irqtester_fe310_unregister_callback(struct device *dev);
+int irqtester_fe310_register_callback(struct device *dev, irqt_irq_id_t irq_id, void (*cb)(void));
+int irqtester_fe310_unregister_callback(struct device *dev, irqt_irq_id_t irq_id);
 
 
 
@@ -134,11 +147,20 @@ int irqtester_fe310_get_enable(struct device *dev, bool * res);
 
 
 // for tests only, todo: make static inline
-void _irq_0_handler(void);
+void _irq_gen_handler(void);
+
+void _irq_0_handler_1(void);
 void _irq_0_handler_2(void);
 void _irq_0_handler_3(void);
 void _irq_0_handler_4(void);
 void _irq_0_handler_5(void);
+void _irq_0_handler_6(void);
+
+void _irq_1_handler_0(void);
+void _irq_1_handler_1(void);
+
+void _irq_2_handler_0(void);
+void _irq_2_handler_1(void);
 
 
 #endif

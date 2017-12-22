@@ -83,11 +83,11 @@ void states_configure_auto(struct State * states, cycle_state_id_t * transition_
  * @param states:           Pointer to state_manager state array.
  * @param transition_table: Pointer to state_manager transition_table.
  * @param action:           Function pointer (void-2-void) to default action, usually state manager action dispatcher.
- * @param cust_states[]:    All states to be configured to state machine. 
- * @param cust_tt[]:        Transition table to be configure to state machine.
+ * @param cust_states[]:    All states to be configured to state machine. Must be static var.
+ * @param cust_tt[]:        Transition table to be configure to state machine. Must be static var.
  */
 void states_configure_custom(struct State * states, cycle_state_id_t * transition_table, void * action, \
-                                struct State cust_states[], cycle_state_id_t cust_tt[], int len_states, int len_events){
+                                struct State cust_states[], cycle_state_id_t * cust_tt, int len_states, int len_events){
     // non thread safe, never call if running
     // cast to pointers to array with correct dimensions
     struct State (*states_p)[_NUM_CYCLE_STATES]  = (struct State (*)[_NUM_CYCLE_STATES])states;
@@ -99,16 +99,16 @@ void states_configure_custom(struct State * states, cycle_state_id_t * transitio
         return;
     }
     if(_NUM_CYCLE_EVENTS != len_events){
-        SYS_LOG_WRN("Provided transition table must have dimension 1 ==  _NUM_EVENTS_STATES.");
+        SYS_LOG_WRN("Provided transition table must have dimension 1 == _NUM_EVENTS_STATES.");
         return;
     }
 
     for(int i=0; i<len_states; i++){
-        struct State state_cust_cur = cust_states[i];
         // set (usually default) action handler, argument is casted to correct function type 
-        state_cust_cur.action = (void (*)(cycle_state_id_t))action;
+        cust_states[i].action = (void (*)(cycle_state_id_t))action;
         // copy into states array
         (*states_p)[i] = cust_states[i];
+
     }
     for(int i=0; i<len_states; i++){
         for(int j=0; j<len_events; j++){ 

@@ -15,6 +15,8 @@
 #define SYS_LOG_LEVEL SYS_LOG_LEVEL_DEBUG
 #include <logging/sys_log.h>
 #include "states.h"
+#include "utils.h"
+#include "cycles.h"
 
 
 
@@ -34,6 +36,7 @@
 enum{
     ABORT_LOOP,
     THREAD_RUNNING,
+    THREAD_START,
     _NUM_FLAGS
 };
 
@@ -102,7 +105,7 @@ static int check_time_goal(struct State * state, int mode, u32_t * t_left);
  * @param: len_state:   Number of elements in cust_states.
  * @paramL len_events:  Number of configured events in cust_tt (second dimension)
  */ 
-void state_mng_configure(struct State cust_states[], cycle_state_id_t cust_tt[], int len_states, int len_events){
+void state_mng_configure(struct State cust_states[], cycle_state_id_t * cust_tt, int len_states, int len_events){
     if(init_done){
         SYS_LOG_WRN("Can't re-configure after init.");
         return;
@@ -237,12 +240,19 @@ int state_mng_purge_registered_actions_all(){
     return res;
 }
 
+void state_mng_start(){
+    atomic_set_bit(&flags, THREAD_START);
+}
+
 
 /**
  * @brief Entry function for state machine loop. Should be invoked as thread.
  */ 
 void state_mng_run(void){
     
+    // block here before start()
+    while(!atomic_test_bit(&flags, THREAD_START)){k_yield();}
+
     if(!init_done){
         SYS_LOG_WRN("Can't start state machine before .init().");
         return;
@@ -271,7 +281,7 @@ void state_mng_run(void){
         
         if(state_mng_get_current() == CYCLE_STATE_IDLE){
             //"waiting" is now done in gather_events()
-            //u32_t start_yield = k_cycle_get_32();
+            //u32_t start_yield = get_cycle_32();
             //k_yield(); 
         }
         
@@ -308,6 +318,7 @@ void state_mng_run(void){
     SYS_LOG_DBG("Stoped running.");
 
     atomic_clear_bit(&flags, THREAD_RUNNING);
+    atomic_clear_bit(&flags, THREAD_START);
     atomic_clear_bit(&flags, ABORT_LOOP);
     
 }
@@ -399,15 +410,21 @@ int state_mng_register_action(cycle_state_id_t state_id, void (*func)(void), irq
         }
     }
 
-
-    //SYS_LOG_DBG("Printing for state %i .val_ids_req array:", state_id);
-    //print_arr(id_2_state(state_id)->val_ids_req, STATES_REQ_VALS_MAX);
-
     if(j<num_vals_to_add){
         SYS_LOG_WRN("Couldn't save all requested values for action, full array: Increase STATES_REQ_VALS_MAX?");
-        print_arr(id_2_state(state_id)->val_ids_req, STATES_REQ_VALS_MAX);
+        print_arr_uint(id_2_state(state_id)->val_ids_req, STATES_REQ_VALS_MAX);
         return 2;
     }
+
+    SYS_LOG_DBG("Successfully registered action %p for state %i", func, state_id);
+    SYS_LOG_DBG("Now actions:");
+    for(int i=0; i<STATES_CBS_PER_ACTION_MAX; i++){
+        printk("%p, ", _cb_funcs[state_id][i]);
+    }
+    printk("\n");
+    SYS_LOG_DBG("Now requested values:");
+    print_arr_uint(id_2_state(state_id)->val_ids_req, STATES_REQ_VALS_MAX);
+
 
     return 0;
 }
@@ -429,6 +446,7 @@ static struct State * switch_state(struct State * current, struct Event * evt){
     next_id = transition_table[current->id_name][evt_id];
     atomic_set(&state_cur, next_id); // to make avalable outside
 
+    //SYS_LOG_DBG("Switchting to state %i @ %p", next_id, id_2_state(next_id));
     return id_2_state(next_id);
 } 
 
@@ -451,6 +469,8 @@ static short get_event_prio(struct DrvEvent * evt){
     switch(evt->irq_id){
         case IRQ_0:
             return 0;
+        case IRQ_1: // used as IRQ_Reset_SM
+            return 1;
         default:
             SYS_LOG_WRN("Event with unknown irq_id %i", evt->irq_id);
     }
@@ -467,6 +487,7 @@ static short get_event_prio(struct DrvEvent * evt){
  */
 static int gather_events(struct Event * res_evt){
     struct DrvEvent drv_evt;
+    res_evt->id_name = _CYCLE_DEFAULT_EVT;
 
     bool haveRx = false;
     short irq_high_prio = 0;
@@ -476,7 +497,7 @@ static int gather_events(struct Event * res_evt){
     int k_wait = K_NO_WAIT;
     if(state_mng_get_current() == CYCLE_STATE_IDLE){
         k_wait = K_FOREVER;
-        SYS_LOG_DBG("Going to block in STATE_IDLE, waiting for queue events...");
+        //SYS_LOG_DBG("Going to block in STATE_IDLE, waiting for queue events...");
     }
 
     // listen to driver queue
@@ -489,7 +510,12 @@ static int gather_events(struct Event * res_evt){
             // currently indicated by highest int value irqt_event_type_t, todo
             irq_cur_prio = get_event_prio(&drv_evt);
             if(irq_cur_prio >= irq_high_prio){
-                res_evt->id_name = CYCLE_EVENT_RESET_IRQ;
+                // transtale driver event to sm event
+                // currently only sm event: reset on IRQ1
+                if(drv_evt.irq_id == IRQ_1)
+                    res_evt->id_name = CYCLE_EVENT_RESET_IRQ;
+                else
+                    res_evt->id_name = _CYCLE_DEFAULT_EVT;
                 irq_high_prio = irq_cur_prio;
             }
         }
@@ -500,7 +526,7 @@ static int gather_events(struct Event * res_evt){
         res_evt->id_name = _CYCLE_DEFAULT_EVT;
         return 1;
     }
-    SYS_LOG_DBG("Chosen relevant state event id %i", res_evt->id_name);    
+    //SYS_LOG_DBG("Chosen relevant state event id %i", res_evt->id_name);    
     
     return 0;
 
@@ -531,26 +557,29 @@ static int check_vals_ready(struct State * state){
  *   @brief Calcs the time since start state.
  *   
  *   Warning: requires that delta to start state can never > 2^32 cycles. 
- *   @return: delta in cycles
+ *   @return: delta in cpu cycles
  */ 
-static u32_t get_time_delta(struct State * state){
+u32_t state_mng_get_time_delta(){
  
-    return (k_cycle_get_32() - timestamp_reset);    
+    return (get_cycle_32() - timestamp_reset);    
 }
 
 /**
- * @brief Wait for at least t_cyc cycles.
+ * @brief Wait for at least t_cyc cpu cycles.
  * 
  * No upper limit of waiting time guaranteed!
  * Busy waiting currently, since no hw timers implemented yet.
  */ 
 
 static void wait(u32_t t_cyc){
-    u32_t start = k_cycle_get_32();
+    u32_t start = get_cycle_32();
     u32_t now = start;
-    
+
+    if(t_cyc != 0){
+        SYS_LOG_DBG("Busy wait for %i cyc ", t_cyc);
+    }
     while(t_cyc < (now - start)){
-        now = k_cycle_get_32();
+        now = get_cycle_32();
     }
 
 }
@@ -570,19 +599,20 @@ static int check_time_goal(struct State * state, int mode, u32_t * t_left){
 
     if(state->id_name == CYCLE_STATE_START && (mode == 0)){
          // implicitly sets timer at beginning of start state (before .action)
-        timestamp_reset = k_cycle_get_32();  
+        timestamp_reset = get_cycle_32();  
     }
 
     u32_t delta_cyc;
     u32_t goal;
     goal = (mode == 0) ? (state->timing_goal_start) : (state->timing_goal_end);
-    delta_cyc = get_time_delta(state);
+    delta_cyc = state_mng_get_time_delta();
 
 
     // attention: delta and goal are both time differences since timestamp_reset 
     if(delta_cyc > goal){
-        SYS_LOG_WRN("Timing goal %i = %i cyc missed for state %i, now: %i", \
-                    mode, goal, state->id_name, delta_cyc);
+        /*SYS_LOG_WRN("Timing goal %i = %i cyc missed for state %i, now: %i", \
+                mode, goal, state->id_name, delta_cyc);
+        */
         return 1;
     }
 
@@ -603,6 +633,7 @@ static bool is_val_in_array(irqt_val_id_t val, irqt_val_id_t *arr, int len){
 }
 
 // helper
+// deprecated, use utils::print_arr_X
 void print_arr(irqt_val_id_t arr[], int len){
     int i;
     for (i=0; i < len; i++) {
@@ -616,7 +647,7 @@ void print_state(struct State * state){
     printk("id: %i \ndefault_next: %i \ngoal_start: %u \ngoal_end: %u \nval_ids_req \n", \
             state->id_name, state->default_next_state,     \
             state->timing_goal_start, state->timing_goal_end);
-    print_arr(state->val_ids_req, STATES_REQ_VALS_MAX);
+    print_arr_uint(state->val_ids_req, STATES_REQ_VALS_MAX);
     printk("action: %p \n", state->action);
 
 }

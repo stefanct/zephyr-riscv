@@ -4,6 +4,7 @@
 #include "../irqtestperipheral.h"
 #include "../state_manager.h"
 #include "tests.h"
+#include "cycles.h"
 
 // ugly globals
 int error_count = 0;
@@ -47,16 +48,16 @@ void test_hw_rev_1_basic_1(struct device * dev){
 
 	// without load to driver, value should be 0 
 	irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &test);
-	printk("get_reg perval: %i \n", test.payload);
+	printk("get_reg perval0: %i \n", test.payload);
 	test_assert(test.payload == (u32_t)0);
 
 	// firing loads register into driver values
 	irqtester_fe310_fire(dev);
 	irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &test);
-	printk("get_val perval: %i \n", test.payload);
+	printk("get_val perval0: %i \n", test.payload);
 	test_assert(test.payload == (u32_t)42);
 	irqtester_fe310_get_reg(dev, VAL_IRQ_0_STATUS, &test);
-	printk("get_reg status: %i \n", test.payload);
+	printk("get_reg status0: %i \n", test.payload);
 	test_assert(test.payload == (u32_t)0); // no error code status
 
 	// disabling won't fire the interrupt, so nothing loaded
@@ -67,7 +68,7 @@ void test_hw_rev_1_basic_1(struct device * dev){
 	irqtester_fe310_fire(dev);
 	// load from memory value
 	irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &test);
-	printk("get_val perval: %i \n", test.payload);
+	printk("get_val perval0: %i \n", test.payload);
 	test_assert(test.payload == (u32_t)42);
 	
 	// load from register should still work after re-enabling
@@ -75,7 +76,7 @@ void test_hw_rev_1_basic_1(struct device * dev){
 	irqtester_fe310_set_reg(dev, VAL_IRQ_0_ENABLE, &enable);
 	irqtester_fe310_get_reg(dev, VAL_IRQ_0_PERVAL, &test);
 	test_assert(test.payload == (u32_t)7);
-	printk("get_reg perval: %i \n", test.payload);
+	printk("get_reg perval0: %i \n", test.payload);
 
 	printk("Trying to get invalid value. Expect and ignore error. \n");
 	int ret = irqtester_fe310_get_val((u32_t)-1, &test);
@@ -84,11 +85,98 @@ void test_hw_rev_1_basic_1(struct device * dev){
 	
 }
 
+static struct device * dev_cp;
+void irq_handler_clear_irq_1(void){
+	struct DrvValue_bool val;
+	val.payload = 1;
+	irqtester_fe310_set_reg(dev_cp, VAL_IRQ_1_CLEAR, &val);
+	u32_t t = get_cycle_32();
+	printk("Interrupt: Cleared at %i cycles \n", t);
+	// reset clear input
+	val.payload = 0;
+	irqtester_fe310_set_reg(dev_cp, VAL_IRQ_1_CLEAR, &val);
+}
+
 // test new DPS blocks 
-// compatible with hw revs: 2,3
+// compatible with hw revs: 2
 void test_hw_rev_2_basic_1(struct device * dev){
 
+	u32_t NUM_FIRE_1 = 3;
+	u32_t PERIOD_FIRE_1 = 1000000;  // clock cycles
+	dev_cp = dev; // store to static var to have access
+
+	// configure an interrupt
+	struct DrvValue_uint reg_num = {.payload=NUM_FIRE_1};
+	struct DrvValue_uint reg_period = {.payload=PERIOD_FIRE_1};	
+	struct DrvValue_uint val;
+	struct DrvValue_uint status_1;
+	struct DrvValue_uint status_2;
+	struct DrvValue_bool clear_1;
+
+	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
+	irqtester_fe310_set_reg(dev, VAL_IRQ_1_PERIOD, &reg_period);
+	irqtester_fe310_get_reg(dev, VAL_IRQ_1_STATUS, &status_1);
+	irqtester_fe310_set_reg(dev, VAL_IRQ_2_NUM_REP, &reg_num);
+	irqtester_fe310_set_reg(dev, VAL_IRQ_2_PERIOD, &reg_period);
+	irqtester_fe310_get_reg(dev, VAL_IRQ_2_STATUS, &status_2);
+	printk("get_reg status_1: %i \n", status_1.payload);
+	printk("get_reg status_2: %i \n", status_2.payload);
+	
+	// fire irq1 3x, with handler thath won't clear interrupt
+	irqtester_fe310_register_callback(dev, IRQ_1, _irq_1_handler_1);
+	irqtester_fe310_register_callback(dev, IRQ_2, _irq_1_handler_1);
+	irqtester_fe310_fire_1(dev);
+	irqtester_fe310_fire_2(dev);
+
+
+	u32_t t_sleep_ms = (NUM_FIRE_1 * PERIOD_FIRE_1) / 65000;
+	printk("Sleeping for %i ms \n", t_sleep_ms);
+	k_sleep(t_sleep_ms); /// sleep in ms, run at 65 MHz
+	
+	irqtester_fe310_get_reg(dev, VAL_IRQ_1_NUM_REP, &val);
+	printk("get_reg num_rep_1: %i \n", val.payload);
+	irqtester_fe310_get_reg(dev, VAL_IRQ_1_PERIOD, &val);
+	printk("get_reg period_1: %i \n", val.payload);
+	
+	irqtester_fe310_get_reg(dev, VAL_IRQ_1_STATUS, &status_1);
+	printk("get_reg status_1: %i \n", status_1.payload);
+	irqtester_fe310_get_reg(dev, VAL_IRQ_2_STATUS, &status_2);
+	printk("get_reg status_2: %i \n", status_2.payload);
+
+	// we din't clear the interrupt, so status should be iterated
+	test_assert(status_1.payload == NUM_FIRE_1);
+	test_assert(status_2.payload == NUM_FIRE_1);
+
+	// install own interrupt handler which clears
+	irqtester_fe310_register_callback(dev, IRQ_1, irq_handler_clear_irq_1);
+	// fire irq1 3x
+	
+	// debug clear before fire
+	//struct DrvValue_bool val2;
+	//val2.payload = 1;
+	//irqtester_fe310_set_reg(dev_cp, VAL_IRQ_1_CLEAR, &val2);
+	// end debbug
+
+	u32_t t = get_cycle_32();
+	irqtester_fe310_fire_1(dev);
+	k_sleep(NUM_FIRE_1 * PERIOD_FIRE_1 / 65000); 
+	printk("Fired at %i cycles \n", t);
+
+	irqtester_fe310_get_reg(dev, VAL_IRQ_1_STATUS, &status_1);
+	printk("get_reg status_1: %i \n", status_1.payload);
+	irqtester_fe310_get_reg(dev, VAL_IRQ_1_CLEAR, &clear_1);
+	printk("get_reg clear_1: %i \n", clear_1.payload);
+
+	// we did clear the interrupt, so status should be unchanged
+	test_assert(status_1.payload == NUM_FIRE_1);
+
+	// reset to default handlers
+	irqtester_fe310_register_callback(dev, IRQ_1, _irq_gen_handler);
+	irqtester_fe310_register_callback(dev, IRQ_1, _irq_gen_handler);
+
 }
+
+
 
 
 K_SEM_DEFINE(wait_sem, 0, 1);
@@ -103,7 +191,7 @@ void irq_handler_mes_time(void){
 	irqtester_fe310_get_enable(dev_cp, &res_enable);
 	isr_perval = res_perval;
 
-	time_isr =  k_cycle_get_32();
+	time_isr =  get_cycle_32();
 	k_sem_give(&wait_sem);
 	//printk("Callback fired at %i ticks. [perval / enable]: %i, %i \n", time_isr, 
 	//	res_perval, res_enable);
@@ -120,7 +208,7 @@ void test_interrupt_timing(struct device * dev, int timing_res[], int num_runs, 
 
 	for(u32_t i=0; i<num_runs; i++){
 
-		u32_t start_cyc = k_cycle_get_32();
+		u32_t start_cyc = get_cycle_32();
 		irqtester_fe310_set_value(dev, i);
 		irqtester_fe310_fire(dev);
 
@@ -149,6 +237,114 @@ void test_interrupt_timing(struct device * dev, int timing_res[], int num_runs, 
 	warn_on_new_error();
 
 }
+
+static void irq_handler_clear_irq_2(void){
+	irqtester_fe310_clear_1(dev_cp);
+}
+// test for a given delta_cyc, whether interrupts can be cleared in time
+void test_irq_throughput_1(struct device * dev, int delta_cyc, int * status_res, int num_runs){
+
+	dev_cp = dev; // store to static var to have access
+
+	// configure an interrupt
+	struct DrvValue_uint reg_num = {.payload=num_runs};
+	struct DrvValue_uint reg_period = {.payload=delta_cyc};	
+	struct DrvValue_uint status_1;
+
+	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
+	irqtester_fe310_set_reg(dev, VAL_IRQ_1_PERIOD, &reg_period);
+	irqtester_fe310_register_callback(dev, IRQ_1, irq_handler_clear_irq_2);
+
+
+	irqtester_fe310_fire_1(dev);
+	u32_t t_sleep_ms = (num_runs * delta_cyc) / 65000;
+	if (t_sleep_ms == 0)
+		t_sleep_ms  = 1;
+	//printk("Sleeping for %i ms \n", t_sleep_ms);
+	k_sleep(t_sleep_ms); // sleep in ms, run at 65 MHz
+
+	// check whether status was incremented
+	irqtester_fe310_get_reg(dev, VAL_IRQ_1_STATUS, &status_1);
+	
+	*status_res = status_1.payload; 
+
+	// note: curently status can't be cleared for next run
+
+}
+
+static int * _status_arr; // pointer to array
+static int _status_arr_length;
+static int _num_max_calls_handler;
+static int i_handler;
+static void irq_handler_clear_and_check(void){
+	
+	static u32_t status_stamp;
+	int i_arr = i_handler % _status_arr_length;
+
+	// read error status
+	struct DrvValue_uint val;
+	irqtester_fe310_get_reg(dev_cp, VAL_IRQ_1_STATUS, &val);
+	u32_t status_new = val.payload;
+
+
+	// save how many irqs missed since handler called alst time
+	_status_arr[i_arr] = status_new - status_stamp;
+	// debug
+	//printk("Saving %u errors in i_handler run %i \n", status_new - status_stamp, i_handler);
+	status_stamp = status_new;
+	
+	i_handler++;
+
+	irqtester_fe310_clear_1(dev_cp);
+}
+
+// get number of missed handlers for every handler call
+// to analyze warmp up behaviour of icache 
+// if num_runs > len status_arr gets overwritten in fifo manner
+void test_irq_throughput_2(struct device * dev, int period_cyc, int num_runs, int status_arr[], int len){
+
+	dev_cp = dev; // store to static var to have access
+	_status_arr_length = len;
+	_status_arr = status_arr;
+
+	// reset if called mutliple times
+	i_handler = 0;
+	_num_max_calls_handler = num_runs;
+
+
+	// configure an interrupt to fire 
+	// attention: short periods in combination with high reg_num
+	// can freeze whole rtos!
+	int timeout = 100; //ms
+	struct DrvValue_uint reg_num = {.payload= (65000 * timeout) / period_cyc};
+	struct DrvValue_uint reg_period = {.payload=period_cyc};	
+	struct DrvValue_uint status_1;
+
+	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
+	irqtester_fe310_set_reg(dev, VAL_IRQ_1_PERIOD, &reg_period);
+	irqtester_fe310_register_callback(dev, IRQ_1, irq_handler_clear_and_check);
+
+	irqtester_fe310_fire_1(dev);
+
+	// will at least fire (UINT32_MAX) until i_handler counted to num_runs
+	
+	while(i_handler < num_runs && timeout > 0){
+		k_sleep(1); 
+		timeout--;
+	}
+	
+	reg_num.payload=0;
+	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
+	irqtester_fe310_unregister_callback(dev, IRQ_1);
+
+	if(timeout <= 0){
+		// couldn't invoke handler, so we definetely missed clearing
+		for(int i=i_handler; i<_status_arr_length; i++)
+			_status_arr[i] = -1;
+	}
+
+}
+
 
 
 /*
@@ -218,7 +414,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 		irqtester_fe310_set_value(dev, i);
 
 		if(use_fifo){
-			u32_t start_cyc = k_cycle_get_32();
+			u32_t start_cyc = get_cycle_32();
 			irqtester_fe310_fire(dev);
 
 			struct DrvEvent * p_evt;
@@ -231,7 +427,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 				test_assert(0);
 				continue;
 			}
-			delta_cyc = k_cycle_get_32() - start_cyc;
+			delta_cyc = get_cycle_32() - start_cyc;
 
 			if(verbose>1)
 				irqtester_fe310_dbgprint_event(dev, p_evt);
@@ -259,7 +455,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 
 		}
 		if(use_semArr){
-			u32_t start_cyc = k_cycle_get_32();
+			u32_t start_cyc = get_cycle_32();
 			irqtester_fe310_fire(dev);
 
 			struct DrvEvent evt;
@@ -270,7 +466,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 				test_assert(0);
 				continue;
 			}
-			delta_cyc = k_cycle_get_32() - start_cyc;
+			delta_cyc = get_cycle_32() - start_cyc;
 			if(verbose>1)
 				irqtester_fe310_dbgprint_event(dev, &evt);
 
@@ -292,7 +488,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 				struct DrvEvent evt = drv_evt_arr_rx[count];
 				// measure time only for first msg, purge rest
 				if(i==0)
-					delta_cyc = k_cycle_get_32() - start_cyc;
+					delta_cyc = get_cycle_32() - start_cyc;
 
 				if(evt.cleared != 0)
 					printk("Event with id %i at count %i shouln't be cleared yet!", evt.id_name, count);
@@ -306,7 +502,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 			*/	
 		}
 		if(use_queue){			
-			u32_t start_cyc = k_cycle_get_32();
+			u32_t start_cyc = get_cycle_32();
 			irqtester_fe310_fire(dev);
 			
 			struct DrvEvent evt;			
@@ -316,7 +512,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 				test_assert(0);
 				continue;
 			}
-			delta_cyc = k_cycle_get_32() - start_cyc;
+			delta_cyc = get_cycle_32() - start_cyc;
 			if(verbose>1)
 				irqtester_fe310_dbgprint_event(dev, &evt);
 			k_msgq_purge(&drv_q_rx);  // throw away all but first msg
@@ -332,7 +528,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 					// do only for first message, because handling the first
 					// messages takes some time - and we don't want to measure this
 					if(i==0){
-						delta_cyc = k_cycle_get_32() - start_cyc;
+						delta_cyc = get_cycle_32() - start_cyc;
 					}
 					//irqtester_fe310_dbgprint_event(dev, &evt);
 				}
@@ -343,7 +539,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 		if(use_valflag){
 			// not event driven
 			// just checks whether a specified value was loaded into driver mem
-			u32_t start_cyc = k_cycle_get_32();
+			u32_t start_cyc = get_cycle_32();
 			int timeout = 10; // shouldn't occur
 
 			//printk("DEBUG Flags: [enable | perval]: %i|%i\n", 
@@ -355,7 +551,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 			while(timeout > 0 && (0 == irqtester_fe310_test_valflag(dev, VAL_IRQ_0_PERVAL))){
 				timeout--; // high precision busy wait
 			}
-			delta_cyc = k_cycle_get_32() - start_cyc;
+			delta_cyc = get_cycle_32() - start_cyc;
 			if(timeout <= 0){
 				printk("Message got lost \n");
 				test_assert(0);
@@ -378,7 +574,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 
 		if(use_valflag_plus_queue){
 			int timeout = 10; // shouldn't occur
-			u32_t start_cyc = k_cycle_get_32();
+			u32_t start_cyc = get_cycle_32();
 		
 			irqtester_fe310_fire(dev);
 			struct DrvEvent evt;			
@@ -392,7 +588,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 			while(timeout > 0 && (0 == irqtester_fe310_test_valflag(dev, VAL_IRQ_0_PERVAL))){
 				timeout--; // high precision busy wait
 			}
-			delta_cyc = k_cycle_get_32() - start_cyc;
+			delta_cyc = get_cycle_32() - start_cyc;
 
 			if(timeout <= 0){
 				test_assert(0);
