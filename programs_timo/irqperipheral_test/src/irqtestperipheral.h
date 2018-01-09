@@ -27,10 +27,21 @@ typedef enum{
     VAL_IRQ_2_STATUS, 
     VAL_IRQ_2_PERIOD,   // input
     VAL_IRQ_2_NUM_REP,  // input
+    VAL_DSP_3_STATUS,
+    VAL_DSP_3_PERVAL,
+    VAL_DSP_3_ID_COUNTER,
+    VAL_DSP_3_VALUE,    // input
+    VAL_DSP_3_PERIOD,   // input
+    VAL_DSP_3_DUTY,     // input
+    VAL_DSP_3_NUM_REP,  // input
+    VAL_DSP_3_DELAY,    // input
+    VAL_DSP_3_CLEAR_ID, // input
     /// start bools
     VAL_IRQ_0_ENABLE,   // input
     VAL_IRQ_1_CLEAR,    // input
     VAL_IRQ_2_CLEAR,    // input
+    VAL_DSP_3_READY,
+    VAL_DSP_3_RESET,    // input
     _NUM_VALS           /// must be last
 }irqt_val_id_t;
 

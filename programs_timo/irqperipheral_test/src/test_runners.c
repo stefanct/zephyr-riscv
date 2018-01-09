@@ -7,7 +7,7 @@
 
 
 void run_test_hw_basic_1(struct device * dev){
-    print_banner();
+    //print_banner();
     print_time_banner();
 
     printk_framed("Now running basic hw test");
@@ -20,6 +20,10 @@ void run_test_hw_basic_1(struct device * dev){
     printk_framed("Testing hw rev 2 functionality");
     print_dash_line();
     test_hw_rev_2_basic_1(dev);
+    print_dash_line();
+    printk_framed("Testing hw rev 3 functionality");
+    print_dash_line();
+    test_hw_rev_3_basic_1(dev);
 
     print_dash_line();
     print_report(error_count); // global var from tests.c
@@ -286,7 +290,7 @@ void run_test_irq_throughput_3_autoadj(struct device * dev){
     int num_runs = 20; // runs per t
     u32_t guess_t_cyc = 5000;
     u32_t delta_cyc = 50;   // num_ts * delta_cyc should be enough to get close to 0
-    int num_ts = 100;
+    int num_ts = 250;
 
     printk_framed("Now running interrupt throughput test 3 with auto adjust");
     print_dash_line();
@@ -322,29 +326,29 @@ void run_test_irq_throughput_3_autoadj(struct device * dev){
             
         }
         else{
-            if(cur_t_cyc != succes_t_cyc)
-                printk("Could clear irq for interrupt period t= %u cyc, t= %u us => f= %u kHz \n", cur_t_cyc, cur_t_cyc/65, 65000 / (cur_t_cyc));  
-            succes_t_cyc = cur_t_cyc;
+            if(cur_t_cyc == succes_t_cyc)
+                printk("\r");   // overwrite console
+            else
+                printk("\n");
+            printk("[%i] Cleared interrupt with period t= %u cyc, t= %u us => f= %u kHz", i, cur_t_cyc, cur_t_cyc/65, 65000 / (cur_t_cyc)); 
+            
 
+            succes_t_cyc = cur_t_cyc;
             
             if(status_arr[1] != 0){
                 // means we're close too threshold
                 delta_cyc /= 2;
-                if(cur_t_cyc != succes_t_cyc){
-                    printk("Cache warmup status_1 behaviour: \n");
-                    print_arr_int(status_arr, status_arr_len);
-                }
             }  
             else{
                 delta_cyc *= 2;
             }
 
-            // change cur_t and catch bad cases 
-            if(cur_t_cyc > delta_cyc)
-                cur_t_cyc -= delta_cyc;
-            
+            // change cur_t and catch bad cases
             if(delta_cyc == 0)
                 delta_cyc = 1;
+
+            if(cur_t_cyc > delta_cyc)
+                cur_t_cyc -= delta_cyc;
 
             for(int j=0; j<status_arr_len; j++)
                 status_arr_success[j] = status_arr[j];
@@ -353,13 +357,93 @@ void run_test_irq_throughput_3_autoadj(struct device * dev){
     }
 
     irqtester_fe310_get_reg(dev, VAL_IRQ_1_STATUS, &status_1);
-	printk("Finished, status_1 after run: %i.  \n", status_1.payload);
+	printk("\nFinished, status_1 after run: %i.  \n", status_1.payload);
     printk("Last cache warmup status_1 behaviour: \n");
     print_arr_int(status_arr_success, status_arr_len);
 
     print_dash_line();
 }
 
+void run_test_poll_throughput_1_autoadj(struct device * dev){
+    
+    int num_runs = 20; // runs per t
+    u32_t guess_t_cyc = 5000;
+    u32_t delta_cyc = 50;   // num_ts * delta_cyc should be enough to get close to 0
+    int num_ts = 250;
+
+    printk_framed("Now running poll throughput test 1 with auto adjust");
+    print_dash_line();
+
+    struct DrvValue_uint status_3;
+	irqtester_fe310_get_reg(dev, VAL_DSP_3_STATUS, &status_3);
+	printk("Status_3 before first run: %i. Test may take some seconds... \n", status_3.payload);
+
+    int status_arr_len = num_runs;
+    int status_arr[status_arr_len];
+    int status_arr_success[status_arr_len];
+
+    u32_t cur_t_cyc = guess_t_cyc;
+    u32_t succes_t_cyc = 0;
+    for(int i=0; i<num_ts; i++){
+        test_poll_throughput_1(dev, cur_t_cyc, num_runs, status_arr, status_arr_len);
+        // do very basic adjustment algorithm
+        if(status_arr[status_arr_len - 1] != 0){
+            // couln't clear in time, even after warming up icache
+            if(succes_t_cyc == 0) {
+                // haven't beeen successfull so far
+                cur_t_cyc += delta_cyc;  
+                delta_cyc *= 2;
+            }
+            else if(cur_t_cyc == succes_t_cyc){
+                succes_t_cyc++;    // catch: doesn't work 2nd time
+                cur_t_cyc = succes_t_cyc; 
+            }
+            else{
+                 // go back to already sucessfull
+                cur_t_cyc = succes_t_cyc;    
+            }
+            
+        }
+        else{
+            if(cur_t_cyc == succes_t_cyc)
+                printk("\r");   // overwrite console
+            else
+                printk("\n");
+            printk("[%i] Cleared poll dev with period t= %u cyc, t= %u us => f= %u kHz", i, cur_t_cyc, cur_t_cyc/65, 65000 / (cur_t_cyc)); 
+            
+            printk("\nCache warmup status_3 behaviour: \n");
+            print_arr_int(status_arr, status_arr_len);
+
+            succes_t_cyc = cur_t_cyc;
+            
+            if(status_arr[1] != 0){
+                // means we're close to threshold
+                delta_cyc /= 2;
+            }  
+            else{
+                delta_cyc *= 2;
+            }
+
+            if(delta_cyc == 0)
+                delta_cyc = 1;
+
+            // change cur_t and catch bad cases 
+            if(cur_t_cyc > delta_cyc)
+                cur_t_cyc -= delta_cyc;
+
+            for(int j=0; j<status_arr_len; j++)
+                status_arr_success[j] = status_arr[j];
+        }
+       // printk("Debug: Changing cur_t_cyc= %u, delta_t= %u \n", cur_t_cyc, delta_cyc);
+    }
+
+    irqtester_fe310_get_reg(dev, VAL_DSP_3_STATUS, &status_3);
+	printk("\nFinished, status_3 after run: %i.  \n", status_3.payload);
+    printk("Last cache warmup status_1 behaviour: \n");
+    print_arr_int(status_arr_success, status_arr_len);
+
+    print_dash_line();
+}
 
 // set value register to sum of states since START
 // so while testing, after every fire() when returning back to IDLE

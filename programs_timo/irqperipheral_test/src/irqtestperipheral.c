@@ -33,6 +33,7 @@
 #define FE310_IRQTESTER_0_DSP_0_BASE_ADDR			0x2000
 #define FE310_IRQTESTER_0_DSP_1_BASE_ADDR			0x2010
 #define FE310_IRQTESTER_0_DSP_2_BASE_ADDR			0x2020
+#define FE310_IRQTESTER_0_DSP_3_BASE_ADDR			0x2030
 #define FE310_IRQTESTER_0_DSP_0_STATUS_BLOCKED   	2
 
 // below should actually be set by kconfig and end up in auoconf.h
@@ -66,6 +67,8 @@ enum flags{
 	((volatile struct irqtester_fe310_1_t *)(DEV_CFG(dev))->irqtester_base_addr[1])
 #define DEV_REGS_2(dev)							\
 	((volatile struct irqtester_fe310_2_t *)(DEV_CFG(dev))->irqtester_base_addr[2])
+#define DEV_REGS_3(dev)							\
+	((volatile struct irqtester_fe310_3_t *)(DEV_CFG(dev))->irqtester_base_addr[3])
 #define DEV_DATA(dev)				\
 	((struct irqtester_fe310_data *)(dev)->driver_data)
 #define DEV()	\
@@ -99,7 +102,16 @@ static struct DrvValue_uint _values_uint[] = {
 	{._super.id_name = VAL_IRQ_1_NUM_REP},
 	{._super.id_name = VAL_IRQ_2_STATUS},
 	{._super.id_name = VAL_IRQ_2_PERIOD},
-	{._super.id_name = VAL_IRQ_2_NUM_REP}
+	{._super.id_name = VAL_IRQ_2_NUM_REP},
+	{._super.id_name = VAL_DSP_3_STATUS},
+	{._super.id_name = VAL_DSP_3_PERVAL},
+	{._super.id_name = VAL_DSP_3_ID_COUNTER},
+	{._super.id_name = VAL_DSP_3_VALUE},
+	{._super.id_name = VAL_DSP_3_PERIOD},
+	{._super.id_name = VAL_DSP_3_DUTY},
+	{._super.id_name = VAL_DSP_3_NUM_REP},
+	{._super.id_name = VAL_DSP_3_DELAY},
+	{._super.id_name = VAL_DSP_3_CLEAR_ID},
 };
 
 // data pool for int like data
@@ -111,7 +123,9 @@ static struct DrvValue_int _values_int[] = {
 static struct DrvValue_bool _values_bool[] = {
 	{._super.id_name = VAL_IRQ_0_ENABLE},
 	{._super.id_name = VAL_IRQ_1_CLEAR},
-	{._super.id_name = VAL_IRQ_2_CLEAR}
+	{._super.id_name = VAL_IRQ_2_CLEAR},
+	{._super.id_name = VAL_DSP_3_READY},
+	{._super.id_name = VAL_DSP_3_RESET},
 };
 
 #define NUM_VALS() \
@@ -157,10 +171,24 @@ struct irqtester_fe310_2_t {
 	bool clear_2;
 	bool fire_2;
 };
+/// register-set structure of DSP 3
+struct irqtester_fe310_3_t {
+	unsigned int period_3;
+	unsigned int duty_3;
+	unsigned int num_rep_3;
+	unsigned int delay_3;
+	unsigned int value_3;
+	unsigned int clear_id_3;
+	unsigned int status_3;
+	unsigned int perval_3;
+	unsigned int id_counter_3;
+	bool reset_3;
+	bool ready_3;
+};
 
 /// config struct for registering with kernel
 struct irqtester_fe310_config {
-	u32_t               irqtester_base_addr[3];	// base addresses of all DPSs
+	u32_t               irqtester_base_addr[4];	// base addresses of all DPSs
 	fe310_cfg_func_t    irqtester_cfg_func; 	// called at device init, IRQ registering
 };
 
@@ -830,7 +858,7 @@ int irqtester_fe310_set_reg(struct device * dev, irqt_val_id_t id, void * set_va
  * 			Only works for regs which are loaded to driver mem pools.			
  * 
  * Might be called from an ISR, but potentially slower than direct getters.
- * For an reg to be available, _save_reg_addr() has to be called in driver init.
+ * For an reg to be available, _store_reg_addr() has to be called in driver init.
  * @param id: id of value to set
  * @param set_value: pointer to a DrvValue_X struct of correct type. 
  */ 
@@ -1280,10 +1308,11 @@ static int irqtester_fe310_init(struct device *dev)
 	volatile struct irqtester_fe310_0_t *irqt_0 = DEV_REGS_0(dev);
 	volatile struct irqtester_fe310_1_t *irqt_1 = DEV_REGS_1(dev);
 	volatile struct irqtester_fe310_2_t *irqt_2 = DEV_REGS_2(dev);
+	volatile struct irqtester_fe310_3_t *irqt_3 = DEV_REGS_3(dev);
 	const struct irqtester_fe310_config *cfg = DEV_CFG(dev);
 	struct irqtester_fe310_data *data = DEV_DATA(dev);
 
-	SYS_LOG_DBG("Init iqrtester driver with hw at mem addresses %p, %p, %p", irqt_0, irqt_1, irqt_2);
+	SYS_LOG_DBG("Init iqrtester driver with hw at mem addresses %p, %p, %p, %p", irqt_0, irqt_1, irqt_2, irqt_3);
 
 	/* Ensure that all registers are reset to 0 initially */
 	irqt_0->enable		= 0;
@@ -1303,6 +1332,19 @@ static int irqtester_fe310_init(struct device *dev)
 	irqt_2->status_2	= 0;
 	irqt_2->fire_2   	= 0;
 	irqt_2->clear_2		= 0;
+
+	irqt_3->period_3	= 0;
+	irqt_3->duty_3		= 0;
+	irqt_3->num_rep_3	= 0;
+	irqt_3->delay_3		= 0;
+	irqt_3->value_3		= 0;
+	irqt_3->clear_id_3	= 0;
+	irqt_3->status_3	= 0;
+	irqt_3->perval_3	= 0;
+	irqt_3->id_counter_3= 0;
+	irqt_3->reset_3		= 0;
+	irqt_3->ready_3		= 0;
+
 	// store addr of registers to allow set/get by id_name
 	_store_reg_addr(VAL_IRQ_0_ENABLE, 	&(irqt_0->enable)	);
 	_store_reg_addr(VAL_IRQ_0_VALUE, 	&(irqt_0->value_0)	);
@@ -1318,6 +1360,18 @@ static int irqtester_fe310_init(struct device *dev)
 	_store_reg_addr(VAL_IRQ_2_PERIOD, 	&(irqt_2->period_2)	);
 	_store_reg_addr(VAL_IRQ_2_NUM_REP, 	&(irqt_2->num_rep_2));
 	_store_reg_addr(VAL_IRQ_2_CLEAR, 	&(irqt_2->clear_2)	);
+
+	_store_reg_addr(VAL_DSP_3_VALUE, 	&(irqt_3->value_3)	);
+	_store_reg_addr(VAL_DSP_3_PERVAL, 	&(irqt_3->perval_3)	);
+	_store_reg_addr(VAL_DSP_3_STATUS, 	&(irqt_3->status_3)	);
+	_store_reg_addr(VAL_DSP_3_ID_COUNTER, &(irqt_3->id_counter_3));
+	_store_reg_addr(VAL_DSP_3_PERIOD, 	&(irqt_3->period_3)	);
+	_store_reg_addr(VAL_DSP_3_DUTY, 	&(irqt_3->duty_3)	);
+	_store_reg_addr(VAL_DSP_3_NUM_REP, 	&(irqt_3->num_rep_3));
+	_store_reg_addr(VAL_DSP_3_DELAY, 	&(irqt_3->delay_3)	);
+	_store_reg_addr(VAL_DSP_3_CLEAR_ID, &(irqt_3->clear_id_3));
+	_store_reg_addr(VAL_DSP_3_READY, 	&(irqt_3->ready_3)	);
+	_store_reg_addr(VAL_DSP_3_RESET, 	&(irqt_3->reset_3)	);
 
 	/* Setup IRQ handler  */
 	// Strange that not done by kernel...
@@ -1586,7 +1640,8 @@ static void irqtester_fe310_cfg_0(void); // forward declared
 static const struct irqtester_fe310_config irqtester_fe310_config0 = {
 	.irqtester_base_addr    = {FE310_IRQTESTER_0_DSP_0_BASE_ADDR,
 							   FE310_IRQTESTER_0_DSP_1_BASE_ADDR,
-							   FE310_IRQTESTER_0_DSP_2_BASE_ADDR},
+							   FE310_IRQTESTER_0_DSP_2_BASE_ADDR,
+							   FE310_IRQTESTER_0_DSP_3_BASE_ADDR},
 	.irqtester_cfg_func     = irqtester_fe310_cfg_0,
 };
 
