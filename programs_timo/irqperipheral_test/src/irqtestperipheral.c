@@ -23,6 +23,8 @@
 #include <misc/printk.h> // debug only, 
 #endif
 #include <logging/sys_log.h>
+#include "log_perf.h"
+#include "cycles.h"
 
 // debug only!
 //#define RISCV_MAX_GENERIC_IRQ						11
@@ -701,6 +703,9 @@ void _irq_2_handler_0(void){
 	count_irq2++;
 	_values_uint[VAL_IRQ_0_PERVAL - 1].payload = count_irq2; // only works for uint type values
 	
+
+	if(!atomic_test_bit(data->_valflags_rx, VAL_IRQ_0_PERVAL))
+		LOG_PERF("[%u] Set perval valflag", get_cycle_32());
 
 	// manually inlining send, flag functions
 	atomic_set_bit(data->_valflags_rx, VAL_IRQ_0_PERVAL);

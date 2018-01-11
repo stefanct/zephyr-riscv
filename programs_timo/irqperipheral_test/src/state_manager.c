@@ -9,18 +9,19 @@
  */
 
 #ifndef TEST_MINIMAL
+#include "state_manager.h"
 #include "irqtestperipheral.h"
 
 #define SYS_LOG_DOMAIN "StateManager"  
 #define SYS_LOG_LEVEL SYS_LOG_LEVEL_DEBUG
 #include <logging/sys_log.h>
+#include "log_perf.h"
 #include "states.h"
 #include "utils.h"
 #include "cycles.h"
 
-
-
 #define STATE_MNG_QUEUE_RX_DEPTH 10
+#define STATE_MNG_LOG_SWITCH_DEPTH 20  // 0 to deactivate log
 
 /* modified table-based, event-driven state machine from here
  * http://www.pezzino.ch/state-machine-in-c/
@@ -46,6 +47,15 @@ atomic_t flags;
 struct Event{
     cycle_event_id_t id_name;
 };
+
+struct Switch_Event{
+    cycle_state_id_t to_state;
+    u8_t to_substate;
+    u32_t t_cyc;
+    u32_t t_delta_cyc;
+};
+// todo: implement generic way for performance critical logging
+static struct Switch_Event log_switch_evts[STATE_MNG_LOG_SWITCH_DEPTH];
 
 
 /// defines next state id_name on event
@@ -73,17 +83,15 @@ static u32_t timestamp_reset;
 // forward declare
 static void _default_action_dispatcher(cycle_state_id_t state);
 // forward declare helpers
-static struct State * id_2_state(cycle_state_id_t id_name);
 void print_state(struct State * state);
 void print_arr(irqt_val_id_t arr[], int len);
 static bool is_val_in_array(irqt_val_id_t val, irqt_val_id_t *arr, int len);
 // forward devlare internal functions
 static struct State * switch_state(struct State * current, struct Event * evt);
-static struct State * id_2_state(cycle_state_id_t id_name);
-static int check_vals_ready(struct State * state);
 static int gather_events(struct Event * res_evt);
-static void wait(u32_t t_cyc);
-static int check_time_goal(struct State * state, int mode, u32_t * t_left);
+static int check_time_goal(struct State * state, int mode, int * t_left);
+static void handle_time_goal(struct State * state, int mode, int t_left);
+static bool handle_vals_ready(struct State * state);
 
 // PROBLEM: ZEPHYR SW TIMERS ON MS SCALE
 // -> so far: no intrinsic hardware timers
@@ -123,11 +131,11 @@ void state_mng_configure(struct State cust_states[], cycle_state_id_t * cust_tt,
     /*
     printk("States after config()");
     SYS_LOG_DBG("CYCLE_STATE_IDLE");
-    print_state(id_2_state(CYCLE_STATE_IDLE));
+    print_state(state_mng_id_2_state(CYCLE_STATE_IDLE));
     SYS_LOG_DBG("CYCLE_STATE_START");
-    print_state(id_2_state(CYCLE_STATE_START));
+    print_state(state_mng_id_2_state(CYCLE_STATE_START));
     SYS_LOG_DBG("CYCLE_STATE_END");
-    print_state(id_2_state(CYCLE_STATE_END));
+    print_state(state_mng_id_2_state(CYCLE_STATE_END));
     */
 }
 
@@ -156,11 +164,11 @@ void state_mng_init(struct device * dev){
     /*
     printk("States after init()");
     SYS_LOG_DBG("CYCLE_STATE_IDLE");
-    print_state(id_2_state(CYCLE_STATE_IDLE));
+    print_state(state_mng_id_2_state(CYCLE_STATE_IDLE));
     SYS_LOG_DBG("CYCLE_STATE_START");
-    print_state(id_2_state(CYCLE_STATE_START));
+    print_state(state_mng_id_2_state(CYCLE_STATE_START));
     SYS_LOG_DBG("CYCLE_STATE_END");
-    print_state(id_2_state(CYCLE_STATE_END));
+    print_state(state_mng_id_2_state(CYCLE_STATE_END));
     */
 }
 
@@ -220,7 +228,7 @@ int state_mng_purge_registered_actions(cycle_state_id_t state_id){
     
     // purge reqvals
     for(int j=0; j<STATES_REQ_VALS_MAX; j++){
-        id_2_state(state_id)->val_ids_req[j] = _NIL_VAL;
+        state_mng_id_2_state(state_id)->val_ids_req[j] = _NIL_VAL;
     }
     
     return 0;
@@ -258,16 +266,17 @@ void state_mng_run(void){
         return;
     }
     
-    _state_cur = id_2_state(CYCLE_STATE_IDLE);
+    _state_cur = state_mng_id_2_state(CYCLE_STATE_IDLE);
     // debug to start witouth irq
-    // _state_cur = id_2_state(CYCLE_STATE_START);
+    // _state_cur = state_mng_id_2_state(CYCLE_STATE_START);
             
     irqtester_fe310_enable_queue_rx(irqt_dev);
     irqtester_fe310_enable_valflags_rx(irqt_dev);
 
     struct Event event = {.id_name=_CYCLE_DEFAULT_EVT}; // empty event container
-    bool vals_ready = false; 
-    u32_t time_left_cyc = 0;
+    bool vals_ready = false;
+    bool skip_actions = false; 
+    int time_left_cyc = 0;
 
     if(state_mng_is_running()){
         SYS_LOG_WRN("Aborted start. Already running.");
@@ -278,22 +287,23 @@ void state_mng_run(void){
 
     while(!atomic_test_bit(&flags, ABORT_LOOP)){
         // check other thread signals?
-        
-        if(state_mng_get_current() == CYCLE_STATE_IDLE){
-            //"waiting" is now done in gather_events()
-            //u32_t start_yield = get_cycle_32();
-            //k_yield(); 
-        }
-        
+               
         vals_ready = false; 
+        skip_actions = false;
         time_left_cyc = 0;
 
-        vals_ready = check_vals_ready(_state_cur);
         check_time_goal(_state_cur, 0, &time_left_cyc);
-        // todo: handle missed vals or start time
+        handle_time_goal(_state_cur, 0, time_left_cyc);
+
+        // check if requested values of state have set valflag
+        vals_ready = state_mng_check_vals_ready(_state_cur);
+        if(!vals_ready)
+            // call state handler, may wait until valflag set
+            skip_actions = handle_vals_ready(_state_cur);
+        // clear valflags if necessary in action
 
         // fire registered 'action' callbacks
-        if(_state_cur->action != NULL)
+        if(!skip_actions && _state_cur->action != NULL)
             _state_cur->action(_state_cur->id_name);
         
         // for clearity, do clear flags here (instead of as action)
@@ -302,9 +312,9 @@ void state_mng_run(void){
 
         time_left_cyc = 0;
         check_time_goal(_state_cur, 1, &time_left_cyc);
-        wait(time_left_cyc);
+        handle_time_goal(_state_cur, 1, time_left_cyc);
 
-        gather_events(&event);      // highest prio event during this state
+        gather_events(&event);      // get highest prio event during this state
         _state_cur = switch_state(_state_cur, &event);
     }
 
@@ -315,7 +325,7 @@ void state_mng_run(void){
     irqtester_fe310_purge_rx(irqt_dev);
     init_done = false; // have to, just purged our driver queue
 
-    SYS_LOG_DBG("Stoped running.");
+    SYS_LOG_DBG("Stopped running.");
 
     atomic_clear_bit(&flags, THREAD_RUNNING);
     atomic_clear_bit(&flags, THREAD_START);
@@ -380,7 +390,7 @@ int state_mng_register_action(cycle_state_id_t state_id, void (*func)(void), irq
     for(int i=0; i<len; i++){
         irqt_val_id_t val_search = arr_vals[i];
         // check wheter current val_search is already in target array
-        if(is_val_in_array(val_search, id_2_state(state_id)->val_ids_req, STATES_REQ_VALS_MAX)){
+        if(is_val_in_array(val_search, state_mng_id_2_state(state_id)->val_ids_req, STATES_REQ_VALS_MAX)){
             ; // nothing to do, value already there
         }
         else{
@@ -395,16 +405,16 @@ int state_mng_register_action(cycle_state_id_t state_id, void (*func)(void), irq
 
 
     //SYS_LOG_DBG("Printing state %i", state_id);
-    //print_state(id_2_state(state_id));
+    //print_state(state_mng_id_2_state(state_id));
     // find free space in target array and save value
     i_free = STATES_REQ_VALS_MAX;
     j = 0;
     for(int i=0; i<STATES_REQ_VALS_MAX; i++){
-        if(id_2_state(state_id)->val_ids_req[i] == _NIL_VAL){
+        if(state_mng_id_2_state(state_id)->val_ids_req[i] == _NIL_VAL){
             i_free = i; 
             // save new value, if existent
             if(j < num_vals_to_add){
-                id_2_state(state_id)->val_ids_req[i_free] = arr_vals_to_add[j];
+                state_mng_id_2_state(state_id)->val_ids_req[i_free] = arr_vals_to_add[j];
                 j++;
             }
         }
@@ -412,7 +422,7 @@ int state_mng_register_action(cycle_state_id_t state_id, void (*func)(void), irq
 
     if(j<num_vals_to_add){
         SYS_LOG_WRN("Couldn't save all requested values for action, full array: Increase STATES_REQ_VALS_MAX?");
-        print_arr_uint(id_2_state(state_id)->val_ids_req, STATES_REQ_VALS_MAX);
+        print_arr_uint(state_mng_id_2_state(state_id)->val_ids_req, STATES_REQ_VALS_MAX);
         return 2;
     }
 
@@ -423,16 +433,28 @@ int state_mng_register_action(cycle_state_id_t state_id, void (*func)(void), irq
     }
     printk("\n");
     SYS_LOG_DBG("Now requested values:");
-    print_arr_uint(id_2_state(state_id)->val_ids_req, STATES_REQ_VALS_MAX);
+    print_arr_uint(state_mng_id_2_state(state_id)->val_ids_req, STATES_REQ_VALS_MAX);
 
 
     return 0;
 }
 
+void state_mng_print_switch_evt_log(){
+    SYS_LOG_DBG("Last %i switch events:", STATE_MNG_LOG_SWITCH_DEPTH);
+    for(int i = 0; i<STATE_MNG_LOG_SWITCH_DEPTH; i++){
+        u32_t t_delta = log_switch_evts[i].t_delta_cyc;
+        u32_t t_cyc= log_switch_evts[i].t_cyc;
+        cycle_state_id_t to_id = log_switch_evts[i].to_state;
+        u8_t to_sub_id = log_switch_evts[i].to_substate;
+        SYS_LOG_DBG("[%u / %u] switch to %i.%u", t_delta, t_cyc, to_id, to_sub_id);
+    }
+
+}
+
 
 static struct State * switch_state(struct State * current, struct Event * evt){
-    cycle_state_id_t next_id;
-    cycle_event_id_t evt_id;
+    cycle_state_id_t next_id = 0;
+    cycle_event_id_t evt_id = 0;
 
     if(evt == NULL)
         evt_id = _CYCLE_DEFAULT_EVT; // = 0: get first element of row
@@ -443,14 +465,63 @@ static struct State * switch_state(struct State * current, struct Event * evt){
         SYS_LOG_ERR("Invalid event id %i or current state id %i", current->id_name, evt_id);
         return NULL;
     }
-    next_id = transition_table[current->id_name][evt_id];
-    atomic_set(&state_cur, next_id); // to make avalable outside
 
-    //SYS_LOG_DBG("Switchting to state %i @ %p", next_id, id_2_state(next_id));
-    return id_2_state(next_id);
+    // substate logic
+    // repeat this state if not all substates already occured
+    u8_t * cur_subs_p = &(current->cur_subs_idx); // value is 0, if max_subs_idx == 0
+    bool done_substates = true;
+    if(current->max_subs_idx > 0){
+        done_substates = false;
+        // iterate substate inedex in state
+        (*cur_subs_p)++;
+        
+        // all substates occured 
+        if(*cur_subs_p > current->max_subs_idx){
+            //reset 
+            *cur_subs_p = 0;
+            done_substates = true; 
+        }
+        else{
+            // repeat current parent state if no special event
+            if(evt_id == _CYCLE_DEFAULT_EVT)
+                next_id = current->id_name;
+        }
+    }
+    if(done_substates){
+        next_id = transition_table[current->id_name][evt_id];
+        atomic_set(&state_cur, next_id); // to make avalable outside
+    }
+
+    // log and debug
+    static u32_t i_switch;
+    u32_t t_delta = state_mng_get_time_delta();
+    //SYS_LOG_DBG("[%u] Switchting to state %i.%u @ %p", t_delta, next_id, *cur_subs_p, state_mng_id_2_state(next_id));
+    #if(STATE_MNG_LOG_SWITCH_DEPTH > 0)
+        struct Switch_Event * s_evt_p = &(log_switch_evts[i_switch % STATE_MNG_LOG_SWITCH_DEPTH]);
+        s_evt_p->t_delta_cyc = t_delta;
+        s_evt_p->t_cyc = get_cycle_32();
+        s_evt_p->to_state = next_id;
+        s_evt_p->to_substate = *cur_subs_p;
+        i_switch++;
+        LOG_PERF("[%u / %u] Switching to %i.%u", s_evt_p->t_delta_cyc, s_evt_p->t_cyc,
+            s_evt_p->to_state, s_evt_p->to_substate);
+    #endif
+    
+    // set timestamp if switching so START
+    if(next_id == CYCLE_STATE_START){
+        timestamp_reset = get_cycle_32();  
+    }
+    
+    return state_mng_id_2_state(next_id);
 } 
 
-static struct State * id_2_state(cycle_state_id_t id_name){
+
+/**
+ * @brief:  Non thread-safe getter of state struct.
+ *          Call ONLY from state_mng run loop.
+ * 
+ */
+struct State * state_mng_id_2_state(cycle_state_id_t id_name){
     if(id_name > _NUM_CYCLE_STATES){
         SYS_LOG_ERR("Requested invalid state_id: %i", id_name);
         return NULL;
@@ -520,20 +591,22 @@ static int gather_events(struct Event * res_evt){
             }
         }
         haveRx = true;
-        //SYS_LOG_DBG("Received event of type %i from driver", drv_evt.event_type);    
+        //SYS_LOG_DBG("[%u] Received event of type %i from driver", state_mng_get_time_delta(), drv_evt.event_type);    
     }
     if(!haveRx){
         res_evt->id_name = _CYCLE_DEFAULT_EVT;
         return 1;
     }
-    //SYS_LOG_DBG("Chosen relevant state event id %i", res_evt->id_name);    
+
+    if(res_evt->id_name != _CYCLE_DEFAULT_EVT)
+        ;//SYS_LOG_DBG("[%u] In state %i chosen relevant state event id %i", state_mng_get_time_delta(), state_mng_get_current(), res_evt->id_name);    
     
     return 0;
 
 }
 
 
-static int check_vals_ready(struct State * state){
+int state_mng_check_vals_ready(struct State * state){
     
     bool val_i_ready = false;
     bool all_ready = true;
@@ -545,12 +618,26 @@ static int check_vals_ready(struct State * state){
         val_i_ready = irqtester_fe310_test_valflag(irqt_dev, state->val_ids_req[i]);
 
         if(!val_i_ready){
-            SYS_LOG_WRN("Flag for requesting value %i from driver unready", state->val_ids_req[i]);
+            // performance critical, do not print
+            //SYS_LOG_WRN("Flag for requesting value %i from driver unready", state->val_ids_req[i]);
             all_ready = false;
         }
     }
 
     return all_ready;
+}
+
+/** 
+ * @brief: Handle if not all vals rady
+ * 
+ * @return: handler decision to skip actions in run loop.
+ */
+static bool handle_vals_ready(struct State * state){
+    // fire state callback if available
+    if(state->handle_val_rfail != NULL)
+        return state->handle_val_rfail(state);
+    
+    return false;
 }
 
 /** 
@@ -564,32 +651,38 @@ u32_t state_mng_get_time_delta(){
     return (get_cycle_32() - timestamp_reset);    
 }
 
-/**
- * @brief Wait for at least t_cyc cpu cycles.
- * 
- * No upper limit of waiting time guaranteed!
- * Busy waiting currently, since no hw timers implemented yet.
- */ 
 
-static void wait(u32_t t_cyc){
-    u32_t start = get_cycle_32();
-    u32_t now = start;
-
-    if(t_cyc != 0){
-        SYS_LOG_DBG("Busy wait for %i cyc ", t_cyc);
+int state_mng_get_timing_goal(struct State * state, u8_t substate, int mode){
+    
+    int result = 0;
+    
+    switch(mode){
+        case 0:
+            result = state->timing_goal_start;
+            break;
+        case 1:
+            result = state->timing_goal_end;
+            break;
+        default:
+            SYS_LOG_ERR("Unknown mode %i", mode);
+            result = -1;  
     }
-    while(t_cyc < (now - start)){
-        now = get_cycle_32();
+
+    // substate logic
+    if(state->max_subs_idx > 0){
+        result += substate * (state->timing_goal_end - state->timing_goal_start + state->timing_summand) ;
     }
 
+    return result;
 }
 
+
 /** 
- * @param t_left:   if goal met: cycles still left to goal, else 0   
- * @param mode:     0: check start goad, 1:end goal
- * @return:         0: goal met
+ * @param t_left:   if goal met: delta in cycles still to goal 
+ * @param mode:     0: check start goal, 1:end goal
+ * @return:         0: goal in future, 1: goal missed, 2: goal exactly hit
  */
-static int check_time_goal(struct State * state, int mode, u32_t * t_left){
+static int check_time_goal(struct State * state, int mode, int * t_left){
 
     *t_left = 0;
 
@@ -597,16 +690,10 @@ static int check_time_goal(struct State * state, int mode, u32_t * t_left){
         return 0;
     }
 
-    if(state->id_name == CYCLE_STATE_START && (mode == 0)){
-         // implicitly sets timer at beginning of start state (before .action)
-        timestamp_reset = get_cycle_32();  
-    }
+    u32_t goal = state_mng_get_timing_goal(state, state->cur_subs_idx, mode);
+    u32_t delta_cyc = state_mng_get_time_delta();
 
-    u32_t delta_cyc;
-    u32_t goal;
-    goal = (mode == 0) ? (state->timing_goal_start) : (state->timing_goal_end);
-    delta_cyc = state_mng_get_time_delta();
-
+    *t_left = goal - delta_cyc;
 
     // attention: delta and goal are both time differences since timestamp_reset 
     if(delta_cyc > goal){
@@ -614,11 +701,32 @@ static int check_time_goal(struct State * state, int mode, u32_t * t_left){
                 mode, goal, state->id_name, delta_cyc);
         */
         return 1;
+    }  
+    else if(delta_cyc < goal)
+        return 0; 
+    else
+        return 2;
+}
+
+/** 
+ * @param t_left:   result from check_time_goal()
+ * @param mode:     0: check start goal, 1:end goal
+ */
+static void handle_time_goal(struct State * state, int mode, int t_left){
+    // fire state callback if available
+    switch(mode){
+        case 0: 
+            if(state->handle_t_goal_start != NULL)
+                state->handle_t_goal_start(state, t_left);
+            break;
+        case 1:
+             if(state->handle_t_goal_end != NULL)
+                state->handle_t_goal_end(state, t_left);
+            break;
+        default:
+            SYS_LOG_ERR("Unknown mode %i", mode);
     }
-
-    *t_left = goal - delta_cyc;
-
-    return 0;
+    
 }
 
 

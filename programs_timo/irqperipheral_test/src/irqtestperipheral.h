@@ -90,12 +90,12 @@ struct DrvEvent{
  */
 struct DrvValue_gen{
     irqt_val_id_t id_name;
-    u32_t time_ns; // make sure SYS_CLOCK_HW_CYCLES_PER_SEC is correct
+    u32_t time_ns; // todo: make in cpu cycles
 };
 
 // "inherits" from generic DrvValue_gen
 struct DrvValue_int{
-    struct DrvValue_gen _super;   //todo rename
+    struct DrvValue_gen _super;   
     volatile int * base_addr;
     int payload;
 };

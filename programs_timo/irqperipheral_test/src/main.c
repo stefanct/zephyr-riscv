@@ -20,7 +20,7 @@
 #include "state_machines/sm1.h"
 
 #define IRQTESTER_DRV_NAME "irqtester0"
-#define IRQTESTER_HW_REV 2
+#define IRQTESTER_HW_REV 3
 
 
 int global_max_cyc;
@@ -78,14 +78,16 @@ void main(void)
 	irqtester_fe310_enable(dev);
 	
 	//test_uint_overflow();
-	//run_test_hw_basic_1(dev);
+	run_test_hw_basic_1(dev);
 
 	//run_test_irq_throughput_1(dev);
 	//run_test_irq_throughput_2(dev);
-	run_test_irq_throughput_3_autoadj(dev);
+	//run_test_irq_throughput_3_autoadj(dev);
+
+	//run_test_poll_throughput_1_autoadj(dev);
 
 	//run_test_sm1_throughput_1(dev);
-	//run_test_sm1_throughput_2(dev);
+	run_test_sm1_throughput_2(dev);
 	
 
 	int i=0;

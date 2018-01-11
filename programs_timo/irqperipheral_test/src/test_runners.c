@@ -3,6 +3,7 @@
 #include "utils.h"
 #include "irqtestperipheral.h"
 #include "state_manager.h"
+#include "log_perf.h"
 
 
 
@@ -531,14 +532,12 @@ struct k_thread thread_sm1_data;
 static int thread_sm1_prio;
 void run_test_sm1_throughput_1(struct device * dev){
     // when choosing numbers, mind integer divison
-    int start_period_2_us = 8000;
+    int start_period_1_us = 2000; //8000
     int NUM_TS = 7;
-    int RUN_T_MS = 10000;
+    int RUN_T_MS = 100;
 
-    int cur_t_us = start_period_2_us;
-    int dt_us = 1000;
-
-    int status_res[NUM_TS];
+    int cur_t_us = start_period_1_us;
+    int dt_us = 200;
 
     printk_framed("Now running sm1 throughput test 1");
     print_dash_line();
@@ -546,7 +545,7 @@ void run_test_sm1_throughput_1(struct device * dev){
     struct DrvValue_uint status_1;
 	irqtester_fe310_get_reg(dev, VAL_IRQ_1_STATUS, &status_1);
 	printk("Status_1 before first run: %i. Test may take some seconds... \n", status_1.payload);
-    int status_stamp = 0;
+
 
     for(int i=0; i<NUM_TS; i++){
         int status = 0;
@@ -564,49 +563,33 @@ void run_test_sm1_throughput_1(struct device * dev){
         // shut down and clean thread
         state_mng_abort();
         state_mng_purge_registered_actions_all();
-
-        struct DrvValue_uint status_1;
-	    irqtester_fe310_get_reg(dev, VAL_IRQ_1_STATUS, &status_1);
-        status = status_1.payload;
-  
+        // stop firing
+        struct DrvValue_uint reg_num = {.payload=0};
+    	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
 
 
-        printk("dt_us / status / status_tot: {[%i, %i, %i ]}\n", cur_t_us, status - status_stamp, status);
-        status_res[i] = status - status_stamp;
-        status_stamp = status;
+        state_mng_print_switch_evt_log();
+        sm1_print_report();
+        sm1_reset();
+ 
         cur_t_us -= dt_us;
 
     }
 
-    // printing results
-    printk("From %i ms long runs: dt_us\n", RUN_T_MS);
-    cur_t_us = start_period_2_us;
-    printk("{[");
-    for(int i=0; i<NUM_TS; i++){
-        printk("%i, ", cur_t_us);
-        cur_t_us -= dt_us;
-    }
-    printk("]} \n");
-
-    printk("From %i ms long runs: status\n", RUN_T_MS);
-    printk("{[");
-    print_arr(status_res, NUM_TS);
-    printk("]}\n");
-    
     print_dash_line();
 }
 
 void run_test_sm1_throughput_2(struct device * dev){
 
-    int period_irq1_us = 5000;
+    int period_irq1_us = 20000;
     // when choosing numbers, mind integer divison
 
     //int start_period_2_us = 5000;
-    int start_divisor = 2;
+    int start_divisor = 4; //2
     int delta_divisor = 2;
     //int dt_us = 50; // irq1/2 division must stay integer!
     int NUM_TS = 10;
-    int RUN_T_MS = 5000;
+    int RUN_T_MS = 1000;
 
     int cur_t_us = period_irq1_us / start_divisor;
    
@@ -649,6 +632,8 @@ void run_test_sm1_throughput_2(struct device * dev){
     	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
         irqtester_fe310_set_reg(dev, VAL_IRQ_2_NUM_REP, &reg_num);
 
+        state_mng_print_switch_evt_log();
+        PRINT_LOG_BUFF();
         sm1_print_report();
         sm1_reset();
  

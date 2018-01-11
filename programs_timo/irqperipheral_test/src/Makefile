@@ -8,4 +8,4 @@ obj-y += tests/tests.o
 obj-y += tests/tests_minimal.o
 obj-y += cycles.o
 obj-y += state_machines/sm1.o
-
+obj-y += log_perf.o

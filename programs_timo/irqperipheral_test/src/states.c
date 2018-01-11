@@ -122,6 +122,19 @@ void states_configure_custom(struct State * states, cycle_state_id_t * transitio
     }
 }
 
+/**
+ * @brief: Configure given state with serial substates.
+ * todo: make safe while sm running
+ */
+void states_configure_substates(struct State * state, u8_t num_substates, u8_t timing_summand){
+    if(num_substates < 1){
+        SYS_LOG_WRN("Invalid number of substates %i, set to 1", num_substates);
+        num_substates = 1;
+    }
+    state->max_subs_idx = num_substates - 1;    // idx 0 counts as substate
+    state->timing_summand = timing_summand;
+}
+
 
 /*
  * Define actions

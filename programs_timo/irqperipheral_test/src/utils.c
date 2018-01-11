@@ -209,5 +209,3 @@ void print_arr_uint(u32_t arr[], int len){
     }
     printk("\n");
 }
-
-
