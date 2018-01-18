@@ -27,7 +27,6 @@
 #include "cycles.h"
 
 // debug only!
-//#define RISCV_MAX_GENERIC_IRQ						11
 #define FE310_IRQTESTER_0_IRQ_0_PIN					53
 #define FE310_IRQTESTER_0_IRQ_0             		(RISCV_MAX_GENERIC_IRQ + FE310_IRQTESTER_0_IRQ_0_PIN)
 #define FE310_IRQTESTER_0_IRQ_1             		(RISCV_MAX_GENERIC_IRQ + FE310_IRQTESTER_0_IRQ_0_PIN + 1)
@@ -40,9 +39,9 @@
 
 // below should actually be set by kconfig and end up in auoconf.h
 // todo: move to kconfig system
-#define CONFIG_IRQTESTER_FE310_0_PRIORITY 	1
+#define CONFIG_IRQTESTER_FE310_0_PRIORITY 	FE310_PLIC_MAX_PRIORITY
 #define CONFIG_IRQTESTER_FE310_NAME 		"irqtester0"
-#define CONFIG_IRQTESTER_FE310_DIRECT_IRQ	0
+#define CONFIG_IRQTESTER_FE310_FAST_IRQ		1
 
 
 /*
@@ -194,6 +193,7 @@ struct irqtester_fe310_config {
 	fe310_cfg_func_t    irqtester_cfg_func; 	// called at device init, IRQ registering
 };
 
+
 /// data tied to a instance of the driver
 struct irqtester_fe310_data {
 	/* callback functionss
@@ -227,6 +227,8 @@ static struct irqtester_fe310_data irqtester_fe310_data0;
  * @param arg: When kernel calls, this is a handle to the device.
  */
 static void irqtester_fe310_irq_handler(void *arg){
+	//LOG_PERF("[%u] Entering driver handler", get_cycle_32());
+	LOG_PERF_INT(2, get_cycle_32());
 
 	// get handles
 	struct device *dev = (struct device *)arg;
@@ -244,42 +246,6 @@ static void irqtester_fe310_irq_handler(void *arg){
 	}
 }
 
-/**
- * IRQ Handler registered to the kernel, just calls a callback.
- * Direct implemetation with lower overhead. Registered cbs 
- * are only allowed to have reduced feature set!
- * 
- * @param arg: When kernel calls, this is a handle to the device.
- */
-
-#if(CONFIG_IRQTESTER_FE310_DIRECT_IRQ != 0)
-
-static void _irqtester_fe310_direct_irq_handler();
-ISR_DIRECT_DECLARE(irqtester_fe310_direct_irq_handler){
-   _irqtester_fe310_direct_irq_handler();
-   //ISR_DIRECT_PM(); /* no power management */
-   // return 0: no scheduling decision after IRQ, non-zero: do scheduling
-   return 0; 
-}
-
-static void _irqtester_fe310_direct_irq_handler(){
-
-	// get handles
-	struct device *dev = DEV();
-	struct irqtester_fe310_data *data = DEV_DATA(dev);
-
-	/* Get the irq id generating the interrupt
-	   IRQ_0 = 0, IRQ_1 = 1, ... 			*/
-	
-	irqt_irq_id_t id_irq = _get_irq_id();
-	//SYS_LOG_DBG("Irq dispatchter, irq_id: %i \n", id_irq);
-	
-	if(data->cb_arr[id_irq] != NULL){
-		// fire callback
-		data->cb_arr[id_irq]();
-	}
-}
-#endif
 
 /**
  * ISRs to pass data upwards.
@@ -691,9 +657,7 @@ void _irq_2_handler_0(void){
 	struct device * dev = DEV();
 	struct irqtester_fe310_data * data = DEV_DATA(dev);
 
-	/* own implementation 
-	 * read values from hardware registers and send up DrvEvents
-	 */
+	
 	// just to simulate timing
 	int perval_0;
 	irqtester_fe310_get_perval(dev, &perval_0);
@@ -922,6 +886,8 @@ int irqtester_fe310_get_reg(struct device * dev, irqt_val_id_t id, void * res_va
 	return retval;
 
 }
+
+
 
 /**
  * @brief Test whether a value was flagged ready to get_val() from driver memory. 
@@ -1281,7 +1247,7 @@ static inline bool test_flag(struct device * dev, int drv_flag){
 static int _store_reg_addr(irqt_val_id_t id, volatile void * addr){
 	
 	irqt_val_type_t type = id_2_type(id);
-	SYS_LOG_DBG("Saving addr for value id %i: %p", id, addr);
+	//SYS_LOG_DBG("Saving addr for value id %i: %p", id, addr);
 
 	switch(type){
 		case VAL_T_UINT:
@@ -1301,6 +1267,17 @@ static int _store_reg_addr(irqt_val_id_t id, volatile void * addr){
 	return 0;
 }
 
+static inline void reg_read_uint(uintptr_t addr, uint32_t * data)
+{
+	*data = *((volatile uint32_t *) addr);
+}
+
+static inline void reg_write_short(uintptr_t addr, uint8_t data)
+{
+	volatile uint8_t *ptr = (volatile uint8_t *) addr;
+	*ptr = data;
+}
+
 /**
  * @brief Initialize driver
  * @param dev IRQTester device struct
@@ -1317,7 +1294,7 @@ static int irqtester_fe310_init(struct device *dev)
 	const struct irqtester_fe310_config *cfg = DEV_CFG(dev);
 	struct irqtester_fe310_data *data = DEV_DATA(dev);
 
-	SYS_LOG_DBG("Init iqrtester driver with hw at mem addresses %p, %p, %p, %p", irqt_0, irqt_1, irqt_2, irqt_3);
+	//SYS_LOG_DBG("Init iqrtester driver with hw at mem addresses %p, %p, %p, %p", irqt_0, irqt_1, irqt_2, irqt_3);
 
 	/* Ensure that all registers are reset to 0 initially */
 	irqt_0->enable		= 0;
@@ -1397,13 +1374,50 @@ static int irqtester_fe310_init(struct device *dev)
 	return 0;
 }
 
+// note: it must be guaranteed that handler is NEVER 
+// called when corresping cb_arr == NULL 
+// note: to be fast, data must be placed in DTIM region!
+static void plic_fast_handler(int irq_num){
+	struct device * dev = DEV(); 
+	struct irqtester_fe310_data *data = DEV_DATA(dev);
+	//SYS_LOG_DBG("ISR called with irq num %i", irq_num);
 
+	// do pointer arithmetic to be fast
+	int * cbs_p =&(data->cb_arr);
+	// cast to function pointer and call with correct offset
+	// irq_num is guaranteed to be within array index, if 
+	// driver setup was correct
+	(( void(*)(void) )cbs_p[irq_num - FE310_IRQTESTER_0_IRQ_0_PIN])();
+
+
+	/*
+	switch(irq_num){
+		case FE310_IRQTESTER_0_IRQ_0 - RISCV_MAX_GENERIC_IRQ:	
+			cb_irq0();
+			//data->cb_arr[0]();
+			return;
+		case FE310_IRQTESTER_0_IRQ_1 - RISCV_MAX_GENERIC_IRQ:
+			cb_irq1();
+			//data->cb_arr[1]();
+			return;
+		case FE310_IRQTESTER_0_IRQ_2 - RISCV_MAX_GENERIC_IRQ:
+			cb_irq2();
+			//data->cb_arr[2]();
+			return;
+		default:
+			SYS_LOG_ERR("ISR called with invalid irq num %i", irq_num);
+			//_irq_spurious(NULL);
+	}
+	*/
+}
 
 int irqtester_fe310_register_callback(struct device *dev, irqt_irq_id_t irq_id, void (*cb)(void)){	
 
 	// get handle to data and write cb into
 	struct irqtester_fe310_data *data = DEV_DATA(dev);
 	
+	data->cb_arr[irq_id] = cb;
+
 
 	/* Enable interrupt for the pin at PLIC level */
 	switch(irq_id){
@@ -1420,8 +1434,6 @@ int irqtester_fe310_register_callback(struct device *dev, irqt_irq_id_t irq_id, 
 			SYS_LOG_WRN("Unknown IRQ id: %i", irq_id);
 			return 1;
 	}
-
-	data->cb_arr[irq_id] = cb;
 	
 	return 0;
 }
@@ -1574,7 +1586,8 @@ int irqtester_fe310_fire(struct device *dev)
  * 
  * Need to set regs num_rep_1 and period_1 first.
  */
-int irqtester_fe310_fire_1(struct device *dev){	
+void irqtester_fe310_fire_1(struct device *dev){	
+	/*
 	volatile struct irqtester_fe310_1_t *irqt_1 = DEV_REGS_1(dev);
 
 	// is saved to internal register after 1 clock cycle
@@ -1583,6 +1596,10 @@ int irqtester_fe310_fire_1(struct device *dev){
 	irqt_1->fire_1 = 0;
 
 	return 0;
+	*/
+	#define IRQ1_FIRE  0x201D
+	reg_write_short(IRQ1_FIRE, 1);
+    reg_write_short(IRQ1_FIRE, 0);
 }
 
 /**
@@ -1591,6 +1608,7 @@ int irqtester_fe310_fire_1(struct device *dev){
  * Need to set regs num_rep_2 and period_2 first.
  */
 int irqtester_fe310_fire_2(struct device *dev){	
+	
 	volatile struct irqtester_fe310_2_t *irqt_2 = DEV_REGS_2(dev);
 
 	// is saved to internal register after 1 clock cycle
@@ -1605,22 +1623,30 @@ int irqtester_fe310_fire_2(struct device *dev){
  * @brief:
  * 
  */
-int irqtester_fe310_clear_1(struct device *dev){	
+void irqtester_fe310_clear_1(struct device *dev){	
+	// SLOW OLD CODE
+	/*
+	struct device * dev = DEV();
 	volatile struct irqtester_fe310_1_t *irqt_1 = DEV_REGS_1(dev);
 
 	// is saved to internal register after 1 clock cycle
 	irqt_1->clear_1 = 1;
 	// reset
 	irqt_1->clear_1 = 0;
-
-	return 0;
+	*/
+	// FAST BUT UGLY, todo: make nice
+	#define IRQ1_CLEAR  0x201C
+	reg_write_short(IRQ1_CLEAR, 1);
+    reg_write_short(IRQ1_CLEAR, 0);
 }
 
 /**
  * @brief:
  * 
  */
-int irqtester_fe310_clear_2(struct device *dev){	
+void irqtester_fe310_clear_2(struct device *dev){
+	// SLOW OLD CODE
+	/*	
 	volatile struct irqtester_fe310_2_t *irqt_2 = DEV_REGS_2(dev);
 
 	// is saved to internal register after 1 clock cycle
@@ -1629,6 +1655,10 @@ int irqtester_fe310_clear_2(struct device *dev){
 	irqt_2->clear_2 = 0;
 
 	return 0;
+	*/
+	#define IRQ2_CLEAR  0x202C
+	reg_write_short(IRQ2_CLEAR, 1);
+    reg_write_short(IRQ2_CLEAR, 0);
 }
 
 
@@ -1667,12 +1697,13 @@ DEVICE_AND_API_INIT(irqtester_fe310, CONFIG_IRQTESTER_FE310_NAME,
 		 &irqtester_fe310_driver); 
 
 // Set up ISR handlers
+// macro places in _sw_isr_table, which is called by plic_fe310 driver
 // Note: Interrupt caused by firing the irqtester device
 // is always handled by own irqtester_fe310_irq_handler defined here.
 // Applications can register a callback executed within the handler. 
 static void irqtester_fe310_cfg_0(void)
 {
-	#if(CONFIG_IRQTESTER_FE310_DIRECT_IRQ == 0)
+	
 	IRQ_CONNECT(FE310_IRQTESTER_0_IRQ_0,
 		    CONFIG_IRQTESTER_FE310_0_PRIORITY,
 		    irqtester_fe310_irq_handler,
@@ -1688,19 +1719,11 @@ static void irqtester_fe310_cfg_0(void)
 		    irqtester_fe310_irq_handler,
 		    DEVICE_GET(irqtester_fe310),
 		    0);
-	#else
-	#warning "Direct IRQs activated. Currently not supported on riscv32."
-	IRQ_DIRECT_CONNECT(FE310_IRQTESTER_0_IRQ_0,
-		    CONFIG_IRQTESTER_FE310_0_PRIORITY,
-		    irqtester_fe310_direct_irq_handler, NULL);
-	IRQ_DIRECT_CONNECT(FE310_IRQTESTER_0_IRQ_1,
-		    CONFIG_IRQTESTER_FE310_0_PRIORITY,
-		    irqtester_fe310_direct_irq_handler, NULL);
-	IRQ_DIRECT_CONNECT(FE310_IRQTESTER_0_IRQ_2,
-		    CONFIG_IRQTESTER_FE310_0_PRIORITY,
-		    irqtester_fe310_direct_irq_handler, NULL);
+	#if CONFIG_IRQTESTER_FE310_FAST_IRQ == 1
+	// no need to place in _sw_isr_table
+	#warning "IRQTESTER_FE310_FAST_IRQ requires isr.S optimization to be activated"
+	plic_fe310_connect_handler_fast(plic_fast_handler);
 	#endif
-
 }
 
 /**@endcond*/

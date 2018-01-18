@@ -9,6 +9,12 @@
 #include <kernel_structs.h>
 #include <offsets_short.h>
 
+// todo: move to kconfig system
+#define CONFIG_ISR_ASS_OPT_LVL 1
+#if CONFIG_ISR_ASS_OPT_LVL > 0
+#warning "FE310 isr.S assembler optimization activated" 
+#endif
+
 /* imports */
 GDATA(_sw_isr_table)
 GTEXT(__soc_save_context)
@@ -81,16 +87,22 @@ SECTION_FUNC(exception.entry, __irq_wrapper)
 	 * floating-point registers should be accounted for when corresponding
 	 * config variable is set
 	 */
+	// todo: optimize away unneeded reg store/loads
+	// atm: t3, t4, t5, t6 unused in app assembly
 	sw ra, __NANO_ESF_ra_OFFSET(sp)
 	sw gp, __NANO_ESF_gp_OFFSET(sp)
 	sw tp, __NANO_ESF_tp_OFFSET(sp)
 	sw t0, __NANO_ESF_t0_OFFSET(sp)
 	sw t1, __NANO_ESF_t1_OFFSET(sp)
 	sw t2, __NANO_ESF_t2_OFFSET(sp)
+#if CONFIG_ISR_ASS_OPT_LVL > 2
+	// leave out
+#else
 	sw t3, __NANO_ESF_t3_OFFSET(sp)
 	sw t4, __NANO_ESF_t4_OFFSET(sp)
 	sw t5, __NANO_ESF_t5_OFFSET(sp)
 	sw t6, __NANO_ESF_t6_OFFSET(sp)
+#endif // CONFIG_ISR_ASS_OPT_LVL
 	sw a0, __NANO_ESF_a0_OFFSET(sp)
 	sw a1, __NANO_ESF_a1_OFFSET(sp)
 	sw a2, __NANO_ESF_a2_OFFSET(sp)
@@ -100,6 +112,7 @@ SECTION_FUNC(exception.entry, __irq_wrapper)
 	sw a6, __NANO_ESF_a6_OFFSET(sp)
 	sw a7, __NANO_ESF_a7_OFFSET(sp)
 
+
 	/* Save MEPC register */
 	csrr t0, mepc
 	sw t0, __NANO_ESF_mepc_OFFSET(sp)
@@ -107,6 +120,8 @@ SECTION_FUNC(exception.entry, __irq_wrapper)
 	/* Save SOC-specific MSTATUS register */
 	csrr t0, SOC_MSTATUS_REG
 	sw t0, __NANO_ESF_mstatus_OFFSET(sp)
+
+
 
 #ifdef CONFIG_RISCV_SOC_CONTEXT_SAVE
 	/* Handle context saving at SOC level. */
@@ -123,12 +138,14 @@ SECTION_FUNC(exception.entry, __irq_wrapper)
 	 * function (that needs to be implemented by each SOC). The result is
 	 * returned via register a0 (1: interrupt, 0 exception)
 	 */
+
 	jal ra, __soc_is_irq
+		
 
 	/* If a0 != 0, jump to is_interrupt */
 	addi t1, x0, 0
 	bnez a0, is_interrupt
-
+	
 	/*
 	 * If exception is not an interrupt, MEPC will contain
 	 * the instruction address, which has caused the exception.
@@ -154,6 +171,7 @@ SECTION_FUNC(exception.entry, __irq_wrapper)
 	 * otherwise handle fault
 	 */
 #ifdef CONFIG_IRQ_OFFLOAD
+#warning "irq offloading set"
 	/* If not system call, jump to is_fault */
 	bne t0, t1, is_fault
 
@@ -165,7 +183,8 @@ SECTION_FUNC(exception.entry, __irq_wrapper)
 	 */
 	la t0, _offload_routine
 	lw t1, 0x00(t0)
-	beqz t1, reschedule
+
+	beqz t1, reschedule	
 	bnez t1, is_interrupt
 
 is_fault:
@@ -238,6 +257,7 @@ call_irq:
 #endif
 
 	/* Get IRQ causing interrupt */
+	/* For global interrupts this will give plic port */
 	csrr a0, mcause
 	li t0, SOC_MCAUSE_EXP_MASK
 	and a0, a0, t0
@@ -246,8 +266,27 @@ call_irq:
 	 * Clear pending IRQ generating the interrupt at SOC level
 	 * Pass IRQ number to __soc_handle_irq via register a0
 	 */
-	jal ra, __soc_handle_irq
+	jal ra, __soc_handle_irq	// uses t0, t1, a0
 
+#if CONFIG_ISR_ASS_OPT_LVL > 0
+	/* bypass sw_isr_table and jump to plic handler */
+	#include <soc.h>
+	#include <soc_common.h>
+	/* check whether causing interrupt is plic port */
+	addi t1, x0, RISCV_MACHINE_EXT_IRQ 
+	beq t1, a0, bypass_sw_table
+	/* else normal code */
+	jal ra, call_sw_table
+
+#else
+	jal ra, call_sw_table
+#endif
+
+bypass_sw_table:
+	call plic_fe310_irq_handler_fast
+	j on_thread_stack
+
+call_sw_table:
 	/*
 	 * Call corresponding registered function in _sw_isr_table.
 	 * (table is 8-bytes wide, we should shift index by 3)
@@ -297,7 +336,7 @@ on_thread_stack:
 	 */
 	lhu t3, _thread_offset_to_preempt(t2)
 	li t4, _NON_PREEMPT_THRESHOLD
-	bgeu t3, t4, no_reschedule
+	bgeu t3, t4, no_reschedule	
 
 	/*
 	 * Check if next thread to schedule is current thread.
@@ -394,10 +433,13 @@ no_reschedule:
 	lw t0, __NANO_ESF_t0_OFFSET(sp)
 	lw t1, __NANO_ESF_t1_OFFSET(sp)
 	lw t2, __NANO_ESF_t2_OFFSET(sp)
+#if CONFIG_ISR_ASS_OPT_LVL > 2
+#else
 	lw t3, __NANO_ESF_t3_OFFSET(sp)
 	lw t4, __NANO_ESF_t4_OFFSET(sp)
 	lw t5, __NANO_ESF_t5_OFFSET(sp)
 	lw t6, __NANO_ESF_t6_OFFSET(sp)
+#endif 
 	lw a0, __NANO_ESF_a0_OFFSET(sp)
 	lw a1, __NANO_ESF_a1_OFFSET(sp)
 	lw a2, __NANO_ESF_a2_OFFSET(sp)

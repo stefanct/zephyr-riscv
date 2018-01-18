@@ -136,8 +136,10 @@ void irqtester_fe310_clear_all_valflags(struct device *dev);
 void irqtester_fe310_dbgprint_event(struct device * dev, struct DrvEvent * evt);
 
 int irqtester_fe310_fire(struct device *dev);
-int irqtester_fe310_fire_1(struct device *dev);
+void irqtester_fe310_fire_1(struct device *dev);
 int irqtester_fe310_fire_2(struct device *dev);
+void irqtester_fe310_clear_1(struct device *dev);
+void irqtester_fe310_clear_2(struct device *dev);
 
 // semi private
 int irqtester_fe310_register_callback(struct device *dev, irqt_irq_id_t irq_id, void (*cb)(void));
