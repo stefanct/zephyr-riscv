@@ -4,7 +4,8 @@
 #include "irqtestperipheral.h"
 #include "state_manager.h"
 #include "log_perf.h"
-
+#include "state_machines/sm1.h"
+#include "tests/test_suite.h"
 
 
 void run_test_hw_basic_1(struct device * dev){
@@ -27,7 +28,7 @@ void run_test_hw_basic_1(struct device * dev){
     test_hw_rev_3_basic_1(dev);
 
     print_dash_line();
-    print_report(error_count); // global var from tests.c
+    test_print_report(); // global var from tests.c
 }
 
 
@@ -38,8 +39,7 @@ void run_test_timing_rx(struct device * dev){
     int NUM_RUNS = 10;		// warning high values may overflow stack
 	int verbosity = 1;
 	int timing_detailed_cyc[NUM_RUNS];
-    error_count = 0;
-    error_stamp = 0;
+    test_reset();
 
     print_banner();
     print_time_banner();
@@ -51,6 +51,8 @@ void run_test_timing_rx(struct device * dev){
     test_interrupt_timing(dev, timing_detailed_cyc, NUM_RUNS, verbosity);
     print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
     print_dash_line();
+
+    //return;
 
     printk_framed("Now running timing test with queues and direct reg getters");
     print_dash_line();
@@ -110,7 +112,7 @@ void run_test_timing_rx(struct device * dev){
     // tests don't load values, so don't count errors here
     // -> reset error counter
     
-    int errors_sofar = error_stamp;
+    int errors_sofar = test_get_err_stamp();
     print_dash_line();
     printk("INFO: So far %i errors. Ignore the following error warnings for tests without load \n", errors_sofar);
     printk_framed("Now running timing test with noload, queue and direct reg getters");
@@ -137,14 +139,14 @@ void run_test_timing_rx(struct device * dev){
     print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
     print_dash_line();
     // reset counter
-    error_count = errors_sofar;
-    printk("INFO: End of noload. Resetting error count to %i \n", error_count);
+    test_set_err_count(errors_sofar);
+    printk("INFO: End of noload. Resetting error count to %i \n", test_get_err_count());
     print_dash_line();
 
     // restore default handler
     irqtester_fe310_register_callback(dev, 0, _irq_gen_handler);
 
-    print_report(error_count); // global var from tests.c
+    test_print_report(); // global var from tests.c
     #endif // TEST_MINIMAL
 }
 
@@ -157,8 +159,7 @@ void run_test_min_timing_rx(struct device * dev){
 	int verbosity = 1;
 	int timing_detailed_cyc[NUM_RUNS];
     //int * timing_detailed_cyc = NULL;
-    error_count = 0;
-    error_stamp = 0;
+    test_reset();
 
     switch(mode){
         case 4:
@@ -192,7 +193,7 @@ void run_test_min_timing_rx(struct device * dev){
     //print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
     //print_dash_line();
 
-    print_report(error_count); // global var from tests.c
+    test_print_report(); // global var from tests.c
 
 }
 
@@ -238,7 +239,7 @@ void run_test_irq_throughput_1(struct device * dev){
 
     printk("From %i runs: status\n", num_runs);
     printk("{[");
-    print_arr(status_res, NUM_TS);
+    print_arr_int(status_res, NUM_TS);
     printk("]}\n");
     
     print_dash_line();
@@ -283,7 +284,7 @@ void run_test_irq_throughput_2(struct device * dev){
 	printk("Status_1 after run: %i.  \n", status_1.payload);
 
     print_dash_line();
-    print_report(error_count);
+    test_print_report();
 }
 
 void run_test_irq_throughput_3_autoadj(struct device * dev){
@@ -291,7 +292,7 @@ void run_test_irq_throughput_3_autoadj(struct device * dev){
     int num_runs = 20; // runs per t
     u32_t guess_t_cyc = 5000;
     u32_t delta_cyc = 50;   // num_ts * delta_cyc should be enough to get close to 0
-    int num_ts = 250;
+    int num_ts = 1000;
 
     printk_framed("Now running interrupt throughput test 3 with auto adjust");
     print_dash_line();
@@ -336,12 +337,14 @@ void run_test_irq_throughput_3_autoadj(struct device * dev){
 
             succes_t_cyc = cur_t_cyc;
             
-            if(status_arr[1] != 0){
-                // means we're close too threshold
-                delta_cyc /= 2;
-            }  
-            else{
-                delta_cyc *= 2;
+            if(num_runs > 2){
+                if(status_arr[2] != 0){   
+                    // means we're close too threshold
+                    delta_cyc /= 2;
+                }  
+                else{
+                    delta_cyc *= 2;
+                }
             }
 
             // change cur_t and catch bad cases
@@ -517,7 +520,7 @@ void run_test_state_mng_1(struct device * dev){
     state_mng_abort();
     state_mng_purge_registered_actions_all();
 
-    print_report(error_count);
+    test_print_report();
     
 }
 
@@ -529,10 +532,10 @@ void run_test_state_mng_1(struct device * dev){
  */
 K_THREAD_STACK_DEFINE(thread_sm1_stack, 2048);
 struct k_thread thread_sm1_data;
-static int thread_sm1_prio;
+static int thread_sm1_prio = -2;    // cooperative thread
 void run_test_sm1_throughput_1(struct device * dev){
     // when choosing numbers, mind integer divison
-    int start_period_1_us = 2000; //8000
+    int start_period_1_us = 1500; //8000
     int NUM_TS = 7;
     int RUN_T_MS = 100;
 
@@ -568,7 +571,7 @@ void run_test_sm1_throughput_1(struct device * dev){
     	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
 
 
-        state_mng_print_switch_evt_log();
+        state_mng_print_evt_log();
         sm1_print_report();
         sm1_reset();
  
@@ -581,14 +584,14 @@ void run_test_sm1_throughput_1(struct device * dev){
 
 void run_test_sm1_throughput_2(struct device * dev){
 
-    int period_irq1_us = 20000;
+    int period_irq1_us = 1000;
     // when choosing numbers, mind integer divison
 
     //int start_period_2_us = 5000;
-    int start_divisor = 4; //2
-    int delta_divisor = 2;
+    int start_divisor = 20; //2
+    int delta_divisor = 20;
     //int dt_us = 50; // irq1/2 division must stay integer!
-    int NUM_TS = 10;
+    int NUM_TS = 20;
     int RUN_T_MS = 1000;
 
     int cur_t_us = period_irq1_us / start_divisor;
@@ -613,7 +616,7 @@ void run_test_sm1_throughput_2(struct device * dev){
                             K_THREAD_STACK_SIZEOF(thread_sm1_stack), state_mng_run,
                             NULL, NULL, NULL,
                             thread_sm1_prio, 0, K_NO_WAIT);
-        
+
         // avoid non integer fractions between irq1/2
         cur_t_us = period_irq1_us / cur_divisor;
         printk("Running sm1 with %u, %u us irq1/2 period time.\n", cur_t_us * cur_divisor, cur_t_us);
@@ -626,13 +629,14 @@ void run_test_sm1_throughput_2(struct device * dev){
         // to stop counting, register clear only cb
         irqtester_fe310_register_callback(dev, IRQ_2, _irq_2_handler_1);
         state_mng_abort();
+        k_yield(); // if cooperative main_thread, give sm control to quit thread
         state_mng_purge_registered_actions_all();
         // stop firing
         struct DrvValue_uint reg_num = {.payload=0};
     	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
         irqtester_fe310_set_reg(dev, VAL_IRQ_2_NUM_REP, &reg_num);
 
-        state_mng_print_switch_evt_log();
+        state_mng_print_evt_log();
         PRINT_LOG_BUFF();
         sm1_print_report();
         sm1_reset();

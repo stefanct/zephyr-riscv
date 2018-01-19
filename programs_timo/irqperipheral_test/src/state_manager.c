@@ -153,6 +153,39 @@ void state_mng_configure(struct State cust_states[], cycle_state_id_t * cust_tt,
     */
 }
 
+
+void state_mng_print_state_config(){
+
+    SYS_LOG_INF("State config:");
+
+    for(int i=0; i<_NUM_CYCLE_STATES; i++){
+        struct State * state_cur = &(_states[i]);
+        int j = 0;
+        do{
+            short next_substate = (j+1 > state_cur->max_subs_idx ? 0 : j+1);
+            int next_state = (next_substate == 0 ? state_cur->default_next_state : state_cur->id_name);
+            // State array is created with size of cycle_state_id_t
+            // but no need for every sm to configure all states
+            // unconfigured states are never reached
+            if(i != state_cur->id_name){
+                SYS_LOG_INF("State %i <disabled>", i);
+            }
+            else{
+                SYS_LOG_INF("State %i.%u -> %i.%u:\n\t t_goal_start/end= [%u - %u] cyc \n" \
+                        "\t handler_start/end: %p, %p",
+                state_cur->id_name, j, 
+                next_state, next_substate,
+                state_mng_get_timing_goal(state_cur, j, 0), 
+                state_mng_get_timing_goal(state_cur, j, 1),
+                state_cur->handle_t_goal_start, 
+                state_cur->handle_t_goal_end);
+            }
+            
+            j++;
+        }while(j <= state_cur->max_subs_idx);
+    }
+}
+
 /**
  * @brief Initialize. Mainly set up irqt driver. 
  * 

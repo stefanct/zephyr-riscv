@@ -1286,6 +1286,9 @@ static inline void reg_write_short(uintptr_t addr, uint8_t data)
  */
 static int irqtester_fe310_init(struct device *dev)
 {
+	// export global driver pointer
+	g_dev_cp = dev;
+
 	// get handles to registers of all DPSs
 	volatile struct irqtester_fe310_0_t *irqt_0 = DEV_REGS_0(dev);
 	volatile struct irqtester_fe310_1_t *irqt_1 = DEV_REGS_1(dev);
@@ -1470,6 +1473,7 @@ int irqtester_fe310_unregister_callback(struct device *dev, irqt_irq_id_t irq_id
  * ----------------------------------------------------------------------------
  */
 
+/* DEPRECATED
 int irqtester_fe310_set_value(struct device *dev, unsigned int val)
 {	
 	volatile struct irqtester_fe310_0_t *irqt_0 = DEV_REGS_0(dev);
@@ -1490,7 +1494,7 @@ int irqtester_fe310_get_value(struct device *dev, unsigned int * res)
 
 	return 0;
 }
-
+*/
 int irqtester_fe310_get_enable(struct device *dev, bool * res)
 {	
 	volatile struct irqtester_fe310_0_t *irqt_0 = DEV_REGS_0(dev);
@@ -1508,7 +1512,7 @@ inline int irqtester_fe310_get_perval(struct device *dev, unsigned int * res)
 
 	return 0;
 }
-
+/*
 int irqtester_fe310_get_status(struct device *dev, unsigned int * res)
 {	
 	volatile struct irqtester_fe310_0_t *irqt_0 = DEV_REGS_0(dev);
@@ -1526,6 +1530,7 @@ int irqtester_fe310_set_enable(struct device *dev, bool val)
 
 	return 0;
 }
+*/
 
 int irqtester_fe310_enable(struct device *dev)
 {	

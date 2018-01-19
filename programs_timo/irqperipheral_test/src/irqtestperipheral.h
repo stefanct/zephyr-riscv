@@ -3,6 +3,8 @@
 
 #include <device.h>
 
+// ugly global, get rid of by cleaning up driver API
+extern struct device * g_dev_cp;
 
 // todo: 
 // - refine naming convention for all global namespace items
@@ -149,14 +151,18 @@ int irqtester_fe310_unregister_callback(struct device *dev, irqt_irq_id_t irq_id
 
 
 // todo: make private
+/*
 int irqtester_fe310_set_value(struct device *dev, unsigned int val);
 int irqtester_fe310_enable(struct device *dev);
-int irqtester_fe310_disable(struct device *dev);
+
 
 int irqtester_fe310_get_value(struct device *dev, unsigned int * res);
-int irqtester_fe310_get_perval(struct device *dev, unsigned int * res);
+
 int irqtester_fe310_get_status(struct device *dev, unsigned int * res);
+*/
+int irqtester_fe310_get_perval(struct device *dev, unsigned int * res);
 int irqtester_fe310_get_enable(struct device *dev, bool * res);
+int irqtester_fe310_disable(struct device *dev);
 
 
 // for tests only, todo: make static inline

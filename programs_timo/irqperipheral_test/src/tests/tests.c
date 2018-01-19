@@ -5,22 +5,10 @@
 #include "../state_manager.h"
 #include "tests.h"
 #include "cycles.h"
+#include "log_perf.h"
+#include "test_suite.h"
 
-// ugly globals
-int error_count = 0;
-int error_stamp = 0;
 
-void test_assert(bool expression){
-	if(!expression)
-		error_count++;
-}
-
-static void warn_on_new_error(void){
-	if(error_count > error_stamp){
-		printk("WARNING: Test failed with %i errors. Total now %i \n", error_count - error_stamp, error_count);
-		error_stamp = error_count;
-	}
-}
 
 // running average
 // warning: only integer division right now, inprecise
@@ -54,7 +42,7 @@ void test_uint_overflow(){
 
 	test_assert(dif_normal + 10 == dif_ov );
 	printk("dif normal: %u, overroll: %u \n", dif_normal, dif_ov);
-	print_report(error_count);
+	test_print_report();
 }
 
 // tests functionality of hw rev 1
@@ -200,6 +188,11 @@ void test_hw_rev_3_basic_1(struct device * dev){
 	u32_t period_poll = 1000000;	// cycles
 	u32_t num_poll = 10;
 	
+	// no need for handlers or even irqs coming through
+	irqtester_fe310_unregister_callback(dev, IRQ_0);
+	irqtester_fe310_unregister_callback(dev, IRQ_1);
+	irqtester_fe310_unregister_callback(dev, IRQ_2);
+
 	// configure an interrupt for irq_1
 	struct DrvValue_uint irq_num = {.payload=1};
     
@@ -338,15 +331,19 @@ void test_hw_rev_3_basic_1(struct device * dev){
 
 
 K_SEM_DEFINE(wait_sem, 0, 1);
-static u32_t isr_perval;
-static u32_t time_isr;
 static struct device * dev_cp;
+static u32_t time_isr = 0;
+static u32_t isr_perval;
+// if need to make global by "extern" in tests.h
+// u32_t isr_perval = 0;
+// u32_t time_isr = 0;
 
 void irq_handler_mes_time(void){
+	//LOG_PERF("[%u] Entering irq_handler_mes_time", get_cycle_32());
+	LOG_PERF_INT(3, get_cycle_32());
 	u32_t res_perval;
-	bool res_enable;
 	irqtester_fe310_get_perval(dev_cp, &res_perval);
-	irqtester_fe310_get_enable(dev_cp, &res_enable);
+
 	isr_perval = res_perval;
 
 	time_isr =  get_cycle_32();
@@ -367,7 +364,11 @@ void test_interrupt_timing(struct device * dev, int timing_res[], int num_runs, 
 	for(u32_t i=0; i<num_runs; i++){
 
 		u32_t start_cyc = get_cycle_32();
-		irqtester_fe310_set_value(dev, i);
+		struct DrvValue_uint val;
+		val.payload = i;
+		irqtester_fe310_set_reg(dev, VAL_IRQ_0_VALUE, &val);
+		//LOG_PERF("[%u] Firing irq", get_cycle_32());
+		LOG_PERF_INT(0, get_cycle_32());
 		irqtester_fe310_fire(dev);
 
 		// measure time since fire
@@ -392,7 +393,7 @@ void test_interrupt_timing(struct device * dev, int timing_res[], int num_runs, 
 
 	}
 
-	warn_on_new_error();
+	test_warn_on_new_error();
 
 }
 
@@ -457,10 +458,12 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 		irqtester_fe310_enable_queue_rx(dev);
 	}
 
-	u32_t delta_cyc;
+	u32_t delta_cyc = 0;
 
 	for(u32_t i=0; i<num_runs; i++){
-		irqtester_fe310_set_value(dev, i);
+		struct DrvValue_uint val;
+		val.payload = i;
+		irqtester_fe310_set_reg(dev, VAL_IRQ_0_VALUE, &val);
 
 		if(use_fifo){
 			u32_t start_cyc = get_cycle_32();
@@ -674,7 +677,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 		
 	}
 
-	warn_on_new_error();
+	test_warn_on_new_error();
 	
 }
 
@@ -712,30 +715,72 @@ void test_irq_throughput_1(struct device * dev, int delta_cyc, int * status_res,
 
 }
 
+
+static inline void reg_read_uint(uintptr_t addr, uint32_t * data)
+{
+	*data = *((volatile uint32_t *) addr);
+}
+
+static inline void reg_write_short(uintptr_t addr, uint8_t data)
+{
+	volatile uint8_t *ptr = (volatile uint8_t *) addr;
+	*ptr = data;
+}
 static int * _status_arr; // pointer to array
 static int _status_arr_length;
 static int _num_max_calls_handler;
 static int i_handler;
+static u32_t status_stamp;
+#define IRQ1_CLEAR  0x201C
+#define IRQ1_STATUS  0x2018
+// if need to make global by "extern" in tests.h
+/*
+int * _status_arr = 0; // pointer to array
+int _status_arr_length  = 0;
+int _num_max_calls_handler = 0;
+int i_handler = 0;
+u32_t status_stamp;
+*/
+K_SEM_DEFINE(handler_sem, 0, 1);
 static void irq_handler_clear_and_check(void){
+	// attention: may overwrite beginning of status_arr
+	// since handler is invoked even if handler_sem might already
+	// be given	
 	
-	static u32_t status_stamp;
 	int i_arr = i_handler % _status_arr_length;
 
-	// read error status
-	struct DrvValue_uint val;
-	irqtester_fe310_get_reg(dev_cp, VAL_IRQ_1_STATUS, &val);
-	u32_t status_new = val.payload;
+	if(i_handler < _status_arr_length){
+		// read error status
+		// SLOW
+		//struct DrvValue_uint val;
+		//irqtester_fe310_get_reg(dev_cp, VAL_IRQ_1_STATUS, &val);
+		//u32_t status_new = val.payload;
+		// Fast but ugly
+		u32_t status_new = 0;
+        reg_read_uint(IRQ1_STATUS, &status_new);
 
+		// save how many irqs missed since handler called alst time
+		_status_arr[i_arr] = status_new - status_stamp;
+		// debug
+		//printk("Saving %u errors in i_handler run %i \n", status_new - status_stamp, i_handler);
+		status_stamp = status_new;
+	}
 
-	// save how many irqs missed since handler called alst time
-	_status_arr[i_arr] = status_new - status_stamp;
-	// debug
-	//printk("Saving %u errors in i_handler run %i \n", status_new - status_stamp, i_handler);
-	status_stamp = status_new;
-	
 	i_handler++;
-
+	// using this driver function here is REALLY slow 1500 vs 200 cyc
 	irqtester_fe310_clear_1(dev_cp);
+	// faster, but evil to call from ISR
+	//struct DrvValue_bool val;
+	//val.payload = 1;
+	//irqtester_fe310_set_reg(dev_cp, VAL_IRQ_1_CLEAR, &val);
+	//val.payload = 0;
+	//irqtester_fe310_set_reg(dev_cp, VAL_IRQ_1_CLEAR, &val);
+	//reg_write_short(IRQ1_CLEAR, 1);
+    //reg_write_short(IRQ1_CLEAR, 0);
+
+	// let continue and give only once (high handler frequency)
+	if(i_handler > _num_max_calls_handler && k_sem_count_get(&handler_sem) != 1)
+		k_sem_give(&handler_sem);
 }
 
 // get number of missed handlers for every handler call
@@ -749,6 +794,8 @@ void test_irq_throughput_2(struct device * dev, int period_cyc, int num_runs, in
 
 	// reset if called mutliple times
 	i_handler = 0;
+	
+	k_sem_init(&handler_sem, 0, 1);
 	_num_max_calls_handler = num_runs;
 
 
@@ -756,7 +803,7 @@ void test_irq_throughput_2(struct device * dev, int period_cyc, int num_runs, in
 	// attention: short periods in combination with high reg_num
 	// can freeze whole rtos!
 	int timeout = 100; //ms
-	struct DrvValue_uint reg_num = {.payload= (65000 * timeout) / period_cyc};
+	struct DrvValue_uint reg_num = {.payload= (100*65000 * timeout) / period_cyc};
 	struct DrvValue_uint reg_period = {.payload=period_cyc};	
 	struct DrvValue_uint status_1;
 
@@ -766,14 +813,26 @@ void test_irq_throughput_2(struct device * dev, int period_cyc, int num_runs, in
 
 	irqtester_fe310_fire_1(dev);
 
-	while(i_handler < num_runs && timeout > 0){
-		k_sleep(1); 
-		timeout--;
-	}
+	// semaphore is faster than sleeping, but unstable at high freqs
+	k_sem_take(&handler_sem, timeout);
+
+	
+	//while(i_handler < num_runs && timeout > 0){
+	//	k_sleep(1); 
+		//printk("[%u] Waiting for handler \n", i_handler);
+	//	timeout--;
+	//}
+	
 	
 	reg_num.payload=0;
 	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
 	irqtester_fe310_unregister_callback(dev, IRQ_1);
+
+	// print array
+    //for(int i=0; i<num_runs; i++){
+    //    printk("%i, ", _status_arr[i]);
+    // }
+    // printk("\n");
 
 	if(timeout <= 0){
 		// couldn't invoke handler, so we definetely missed clearing
@@ -905,7 +964,7 @@ void test_state_mng_1(struct device * dev){
 	printk("DEBUG: Finshed state machine cycle. State_sum %i \n", res_perval.payload);
 
 	
-	warn_on_new_error();
+	test_warn_on_new_error();
 	
 }
 

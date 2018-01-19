@@ -16,8 +16,11 @@
 typedef enum{
     CYCLE_STATE_IDLE,
     CYCLE_STATE_START, // aka preamble detect
+    CYCLE_START_DL_CONFIG,
     CYCLE_STATE_DL,
+    CYCLE_START_UL_CONFIG,
     CYCLE_STATE_UL,
+    CYCLE_START_RL_CONFIG,
     CYCLE_STATE_RL,
     CYCLE_STATE_END,
     _NUM_CYCLE_STATES // must be last
