@@ -277,7 +277,10 @@ void plic_fe310_irq_handler_fast(void *arg){
 		(volatile struct plic_fe310_regs_t *)FE310_PLIC_REG_BASE_ADDR;
 
 	u32_t irq_num = regs->claim_complete; // cleared upon read
+	// to support subsequent callbacks to use eg. riscv_plic_get_irq()
+	save_irq = irq_num; 
 
+	// invoke registered callback
 	_isr_fast(irq_num);
 
 	// indicate to plic that irq has been handled
