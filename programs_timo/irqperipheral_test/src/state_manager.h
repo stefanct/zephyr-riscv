@@ -5,6 +5,16 @@
 #include "states.h"
 #include "irqtestperipheral.h"
 
+
+typedef enum{
+    _NIL_RS,
+    RS_WAIT_FOR_START,
+    RS_WAIT_FOR_VAL,
+    _NUM_WAIT_REASON
+}sm_wait_reason_t;
+
+
+
 // todo: all threadsafe, repeated call safe?
 
 void state_mng_configure(struct State cust_states[], cycle_state_id_t * cust_tt, int len_states, int len_events);
@@ -18,15 +28,17 @@ int state_mng_check_vals_ready(struct State * state);
 u32_t state_mng_get_time_delta();
 int state_mng_get_timing_goal(struct State * state, u8_t substate, int mode);
 
-void state_mng_run(void);
-void state_mng_start();
+void state_mng_run(void);   
+int state_mng_start();
 int state_mng_abort();
 
 int state_mng_register_action(cycle_state_id_t state_id, void (*func)(void), irqt_val_id_t arr_vals[], int len);
 int state_mng_purge_registered_actions(cycle_state_id_t state_id);
 int state_mng_purge_registered_actions_all();
 
+void state_mng_wait_fix(struct State * state, u32_t t_fix, sm_wait_reason_t reason);
+bool state_mng_wait_vals_ready(struct State * state);
 
-void state_mng_print_switch_evt_log();
+void state_mng_print_evt_log();
 
 #endif

@@ -82,6 +82,7 @@ static u32_t period_1_after_warmup;
 
 /**
  * Define actions for SM1, are cbs called from state_mng_run()
+ * Mostly for diagnostics, see also sm1_tasks.h
  * ----------------------------------------------------------------------------
  */
 
@@ -124,8 +125,8 @@ static void sm1_clear_valflags(){
     irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &val);
 
     // use to differentiate behavior for differen substates
-    struct State * state_cur = state_mng_id_2_state(state_mng_get_current()); 
-    u8_t substate = state_cur->cur_subs_idx;
+    //struct State * state_cur = state_mng_id_2_state(state_mng_get_current()); 
+    //u8_t substate = state_cur->cur_subs_idx;
 
     // clear flag, such that requested in next substate again
     irqtester_fe310_clear_all_valflags(dev_cp);
@@ -175,7 +176,7 @@ static void sm1_check_val_updates(){
         u32_t num_irq2s = perval.payload;
  
         if(num_irq2s - num_irq2s_stamp != num_val_updt_per_cycle){
-            printk("WARNING: Expected %u new val updates in run %i, got: %u\n", num_val_updt_per_cycle, _i_sm_run, num_irq2s - num_irq2s_stamp);
+            LOG_PERF("WARNING: Expected %u new val updates in run %i, got: %u", num_val_updt_per_cycle, _i_sm_run, num_irq2s - num_irq2s_stamp);
             num_fail_valupdt++;
         }
 
@@ -194,8 +195,8 @@ static void sm1_check_last_state(){
     if(state_id_new == CYCLE_STATE_START){
         if(!(state_id == CYCLE_STATE_IDLE || state_id == CYCLE_STATE_END)){
             num_fail_reset++;
-            u32_t time_cyc = get_cycle_32();
-            u32_t time_delta_cyc = state_mng_get_time_delta();
+            //u32_t time_cyc = get_cycle_32();
+            //u32_t time_delta_cyc = state_mng_get_time_delta();
             // printing is slow, use only for debug
             //printk("WARNING: [%u / %u] Reset before finsihing cycle in run %u. Last state was %i \n", time_delta_cyc, time_cyc, _i_sm_run, state_id);
             _i_sm_run++;
@@ -219,13 +220,13 @@ static void sm1_check_clear_status(){
 
 
     if(status_1.payload != status_1_stamp){
-        printk("WARNING: Non-zero irq1/2 status reg = %u, %u in run %u \n", status_1.payload, status_2.payload, _i_sm_run);
+        LOG_PERF("WARNING: Non-zero irq1/2 status reg = %u, %u in run %u \n", status_1.payload, status_2.payload, _i_sm_run);
         status_1_stamp = status_1.payload;
         num_fail_status_1++;
     }
     
     if(status_2.payload != status_2_stamp){
-        printk("WARNING: Non-zero irq1/2 status reg = %u, %u in run %u \n", status_1.payload, status_2.payload, _i_sm_run);
+        LOG_PERF("WARNING: Non-zero irq1/2 status reg = %u, %u in run %u \n", status_1.payload, status_2.payload, _i_sm_run);
         status_2_stamp = status_2.payload;
         num_fail_status_2++;
     }
@@ -244,12 +245,12 @@ static void sm1_check_clear_status(){
 /// wait until start and warn on miss
 static void handle_timing_goal_start(struct State * state, int t_left){
     if(t_left < 0 && state->timing_goal_start != 0){
-        LOG_PERF("[%u] missed t_goal_start %u in state %i.%u",
+        LOG_PERF("WARNING: [%u] missed t_goal_start %u in state %i.%u",
                 state_mng_get_time_delta(), state->timing_goal_start, state->id_name, state->cur_subs_idx);
         num_fail_timing++;
     }
     else if(t_left > 0 && state->timing_goal_start != 0){
-        cycle_busy_wait(t_left);   
+        state_mng_wait_fix(state, t_left, RS_WAIT_FOR_START);   
     }
 }
 
@@ -269,25 +270,17 @@ static bool handle_fail_rval_ul(struct State * state_cur){
     // if different substates share same irq / ready flag
     u8_t substate = state_cur->cur_subs_idx;
 
-    bool timeout = false;
-    bool ready = false;
-
-    u32_t start = get_cycle_32();
-
-    while(!ready && !timeout){
-        ready = state_mng_check_vals_ready(state_cur);
-        // todo: safety margin, such that timeout doesn't lead to fail of timing goal
-        timeout = (state_mng_get_time_delta() > state_mng_get_timing_goal(state_cur, substate, 1));
-    }
-
-    u32_t end = get_cycle_32();
+    bool timeout = state_mng_wait_vals_ready(state_cur);
 
     if(timeout){
         num_fail_reqval++;
-        LOG_PERF("[%u / %u] Timeout requesting value in state %i.%u", state_mng_get_time_delta(), end, state_cur->id_name, substate);
+        u32_t end = get_cycle_32();
+        LOG_PERF("[%u / %u] Timeout requesting value in state %i.%u", 
+                state_mng_get_time_delta(), end, state_cur->id_name, substate);
     }
 
-    LOG_PERF("[%u / %u] Waited %u cyc, state %i.%u", state_mng_get_time_delta(), end, end-start, state_cur->id_name, substate);
+    // slow, so only for debugging
+    // LOG_PERF("[%u / %u] Waited %u cyc, state %i.%u", state_mng_get_time_delta(), end, end-start, state_cur->id_name, substate);
     
     
     return timeout;
@@ -305,12 +298,12 @@ static void config_timing_goals(int period_irq1_us, int period_irq2_us, int num_
     
     int period_irq1_cyc = 65 * period_irq1_us;
     int period_irq2_cyc = 65 * period_irq2_us;
-    int t_safe_inter_states = 25;
+    int t_safe_inter_states = 0;  // not needed, since we do not wait on end
 
-    int num_tot_states = 3 + num_substates;
+    //sint num_tot_states = 3 + num_substates;
     int t_state = period_irq1_cyc / 3 - num_substates * t_safe_inter_states;  // duration of ul, dl or rl 
     int t_substate = t_state / num_substates + t_safe_inter_states; 
-
+    
     sm1_dl.handle_t_goal_start = handle_timing_goal_start; 
     sm1_dl.handle_t_goal_end = handle_timing_goal_end;
     sm1_ul.handle_t_goal_start = handle_timing_goal_start;
@@ -318,7 +311,7 @@ static void config_timing_goals(int period_irq1_us, int period_irq2_us, int num_
     sm1_rl.handle_t_goal_start = handle_timing_goal_start;
     sm1_rl.handle_t_goal_end = handle_timing_goal_end;
     sm1_end.handle_t_goal_end = handle_timing_goal_end;
-
+    
     printk("State duration %i us / %i cyc \n", t_state / 65, t_state);   
     printk("Substate duration %i us / %i cyc \n", t_substate / 65, t_substate);   
 
@@ -374,6 +367,9 @@ void sm1_print_state_config(){
 
 void sm1_run(struct device * dev, int period_irq1_us, int period_irq2_us){
 
+    // todo: find out why slow wehen only irq1
+    // should be able to get to ~500 cycle without load and irq2=0
+
     dev_cp = dev;
 
     print_dash_line();
@@ -386,11 +382,15 @@ void sm1_run(struct device * dev, int period_irq1_us, int period_irq2_us){
     
     // additional config to states defined above
     int num_substates = 2;
-    config_timing_goals(period_irq1_us, period_irq2_us, num_substates);
-
-    sm1_ul.handle_val_rfail = handle_fail_rval_ul;
-
-    int substate_summand = (period_irq2_us == 0 ? 1 : 25 * 65); // safety between substates
+    if(period_irq2_us != 0){
+        config_timing_goals(period_irq1_us, period_irq2_us, num_substates);
+        // todo: encapusulate this
+        sm1_ul.handle_val_rfail = handle_fail_rval_ul;
+    }
+    
+    // safety margin shouldn't be necessary: no wait on end, but on start
+    // todo: verify and remove safety margins
+    int substate_summand = 0; //(period_irq2_us == 0 ? 1 : 25 * 65); // safety between substates
     states_configure_substates(&sm1_ul, num_substates, substate_summand);
     // transfer into and init state array
     sm1_states[0] = sm1_idle;
@@ -421,12 +421,15 @@ void sm1_run(struct device * dev, int period_irq1_us, int period_irq2_us){
     */
     state_mng_register_action(CYCLE_STATE_IDLE , sm1_check_last_state, NULL, 0);
     state_mng_register_action(CYCLE_STATE_START, sm1_check_last_state, NULL, 0);
+
     state_mng_register_action(CYCLE_STATE_DL   , sm1_check_last_state, NULL, 0);
     state_mng_register_action(CYCLE_STATE_DL   , sm1_clear_valflags, NULL, 0);
+
     // simulate requesting of a value, which is cleared in STATE_UL and every substate
     irqt_val_id_t reqvals_ul[] = {VAL_IRQ_0_PERVAL};
     state_mng_register_action(CYCLE_STATE_UL   , sm1_clear_valflags, reqvals_ul, 1);
     state_mng_register_action(CYCLE_STATE_UL   , sm1_check_last_state, NULL, 0);
+    
     state_mng_register_action(CYCLE_STATE_RL   , sm1_check_last_state, NULL, 0);
     state_mng_register_action(CYCLE_STATE_RL   , sm1_clear_valflags, NULL, 0);
 
@@ -448,7 +451,10 @@ void sm1_run(struct device * dev, int period_irq1_us, int period_irq2_us){
     irqtester_fe310_register_callback(dev, IRQ_2, _irq_2_handler_0);
 
 	// start the sm thread, created in main()
-	state_mng_start();
+	if(0 != state_mng_start()){
+        printk("ERROR: Couldn't start sm1. Issue with thread. Aborting...");
+        return;
+    }
 
 
     // program IRQ1 and IRQ2 to fire periodically
@@ -460,7 +466,7 @@ void sm1_run(struct device * dev, int period_irq1_us, int period_irq2_us){
     // to warm up icache
     // good idea, somehow not working currently... unstable timing irq1/2?
     period_1_after_warmup = period_1_cyc;
-    u32_t period_1_before_warmup = 10*period_1_cyc;
+    //u32_t period_1_before_warmup = 10*period_1_cyc;
 	struct DrvValue_uint reg_num = {.payload=UINT32_MAX};
 	struct DrvValue_uint reg_period = {.payload=period_1_after_warmup};	
 
