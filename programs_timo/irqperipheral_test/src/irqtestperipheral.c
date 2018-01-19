@@ -659,17 +659,17 @@ void _irq_2_handler_0(void){
 
 	
 	// just to simulate timing
-	int perval_0;
-	irqtester_fe310_get_perval(dev, &perval_0);
+	//int perval_0;
+	//irqtester_fe310_get_perval(dev, &perval_0);
 	
 	// fake value with static counter
 	static u32_t count_irq2;
 	count_irq2++;
 	_values_uint[VAL_IRQ_0_PERVAL - 1].payload = count_irq2; // only works for uint type values
 	
-
-	if(!atomic_test_bit(data->_valflags_rx, VAL_IRQ_0_PERVAL))
-		LOG_PERF("[%u] Set perval valflag", get_cycle_32());
+	// logging: slow
+	//if(!atomic_test_bit(data->_valflags_rx, VAL_IRQ_0_PERVAL))
+	//	LOG_PERF("[%u] Set perval valflag", get_cycle_32());
 
 	// manually inlining send, flag functions
 	atomic_set_bit(data->_valflags_rx, VAL_IRQ_0_PERVAL);
