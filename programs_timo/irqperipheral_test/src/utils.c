@@ -18,6 +18,7 @@
 #ifdef CONFIG_PRINTK
 #include <misc/printk.h>
 #include <stdio.h>
+#include <string.h>
 #else
 #error PRINTK configuration option needs to be enabled
 #endif
@@ -197,6 +198,52 @@ void print_arr_int(int arr[], int len){
             printk("%i, ", (int)arr[i]);
     }
     printk("\n");
+}
+
+void snprint_arr_int(char * str, int len_str, int arr[], int len){
+    // credits
+    // https://stackoverflow.com/questions/30234363/how-can-i-store-an-int-array-into-string
+    int i;
+    int i_str = 0;
+    int add_i_str = 0;
+
+    for (i=0; i < len; i++) {
+        add_i_str = 0;
+        if(i == len-1)
+            add_i_str = snprintk(str+i_str, len_str-i_str, "%i",  (int)arr[i]);
+        else
+            add_i_str = snprintk(str+i_str, len_str-i_str, "%i, ", (int)arr[i]);
+        // buffer full
+        if(add_i_str < 0)
+            break;
+        i_str += add_i_str;
+      
+        
+    }
+    // buffer full, add ... (if space for that)
+    if(add_i_str < 0)
+        snprintk(str+i_str-3, len_str-i_str+3, "...");
+}
+
+void snprint_arr_p(char * str, int len_str, void * arr[], int len){
+    // credits
+    // https://stackoverflow.com/questions/30234363/how-can-i-store-an-int-array-into-string
+    int i;
+    int i_str = 0;
+    int add_i_str = 0;
+
+    for (i=0; i < len; i++) {
+        add_i_str = 0;
+        if(i == len-1)
+            add_i_str = snprintk(str+i_str, len_str-i_str, "%p",  (void*)arr[i]);
+        else
+            add_i_str = snprintk(str+i_str, len_str-i_str, "%p, ", (void*)arr[i]);
+        // buffer full
+        if(add_i_str < 0)
+            break;
+        i_str += add_i_str;
+        
+    }
 }
 
 void print_arr_uint(u32_t arr[], int len){

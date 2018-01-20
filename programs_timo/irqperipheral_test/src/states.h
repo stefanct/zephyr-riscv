@@ -4,7 +4,7 @@
 #include <zephyr.h>
 #include "irqtestperipheral.h"
 
-#define STATES_REQ_VALS_MAX         _NUM_VALS    // might need adjustment if many vals
+#define STATES_REQ_VALS_MAX         5    // might need adjustment if many vals
 #define STATES_CBS_PER_ACTION_MAX   5
 #define STATES_SUBSTATE_SER_DEPTH   3     
 

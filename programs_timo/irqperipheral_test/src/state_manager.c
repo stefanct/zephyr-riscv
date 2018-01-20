@@ -171,14 +171,24 @@ void state_mng_print_state_config(){
                 SYS_LOG_INF("State %i <disabled>", i);
             }
             else{
+                char str_buf_1[30];
+                char str_buf_2[100];
+                snprint_arr_int(str_buf_1, 20, (int*)state_cur->val_ids_req, STATES_REQ_VALS_MAX);
+                snprint_arr_p(str_buf_2, 40, _cb_funcs[i], STATES_CBS_PER_ACTION_MAX);
+               
                 SYS_LOG_INF("State %i.%u -> %i.%u:\n\t t_goal_start/end= [%u - %u] cyc \n" \
-                        "\t handler_start/end: %p, %p",
+                        "\t handler_start/end: %p, %p \n" \
+                        "\t vals_requested: %s \n" \
+                        "\t actions: %s",
+
                 state_cur->id_name, j, 
                 next_state, next_substate,
                 state_mng_get_timing_goal(state_cur, j, 0), 
                 state_mng_get_timing_goal(state_cur, j, 1),
                 state_cur->handle_t_goal_start, 
-                state_cur->handle_t_goal_end);
+                state_cur->handle_t_goal_end,
+                str_buf_1, str_buf_2);
+                
             }
             
             j++;
@@ -486,18 +496,19 @@ int state_mng_register_action(cycle_state_id_t state_id, void (*func)(void), irq
 
     if(j<num_vals_to_add){
         SYS_LOG_WRN("Couldn't save all requested values for action, full array: Increase STATES_REQ_VALS_MAX?");
-        print_arr_uint(state_mng_id_2_state(state_id)->val_ids_req, STATES_REQ_VALS_MAX);
+        //print_arr_uint(state_mng_id_2_state(state_id)->val_ids_req, STATES_REQ_VALS_MAX);
         return 2;
     }
-
+    /*
     SYS_LOG_DBG("Successfully registered action %p for state %i", func, state_id);
     SYS_LOG_DBG("Now actions:");
     for(int i=0; i<STATES_CBS_PER_ACTION_MAX; i++){
         printk("%p, ", _cb_funcs[state_id][i]);
     }
     printk("\n");
-    SYS_LOG_DBG("Now requested values:");
-    print_arr_uint(state_mng_id_2_state(state_id)->val_ids_req, STATES_REQ_VALS_MAX);
+    */
+    //SYS_LOG_DBG("Now requested values:");
+    //print_arr_uint(state_mng_id_2_state(state_id)->val_ids_req, STATES_REQ_VALS_MAX);
 
 
     return 0;

@@ -26,7 +26,10 @@ void printk_centered(const char *string, ...);
 void printk_framed(const char *string, ...);
 
 void print_arr_uint(u32_t arr[], int len);
+void snprint_arr_int(char * str, int len_str, int arr[], int len);
 void print_arr_int(int arr[], int len);
+
+void snprint_arr_p(char * str, int len_str, void * arr[], int len);
 
 
 #endif	
