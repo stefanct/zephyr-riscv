@@ -31,6 +31,10 @@
 // warning: breaks build!
 //#define GROUP_DATA_LINK_IN(vregion, lregion) > lregion
 #endif
+//#define ISR_TABLE_TO_RAM
+#ifdef ISR_TABLE_TO_RAM
+#warning "Placing SW_ISR_TABLE in RAM"
+#endif
 
 #ifdef CONFIG_XIP
 /* _t_debug: changed to write all into slow SPI Flash 
@@ -88,8 +92,10 @@ SECTIONS
     SECTION_PROLOGUE(_TEXT_SECTION_NAME,,)
 	{
 		. = ALIGN(4);
+#ifndef ISR_TABLE_TO_RAM
 #ifdef CONFIG_GEN_SW_ISR_TABLE
 		KEEP(*(SW_ISR_TABLE))
+#endif
 #endif
 		KEEP(*(.openocd_debug))
 		KEEP(*(".openocd_debug.*"))
@@ -125,7 +131,12 @@ SECTIONS
 		 . = ALIGN(4);
 		 _image_ram_start = .;
 		 __data_ram_start = .;
-
+		#ifdef ISR_TABLE_TO_RAM
+		#ifdef CONFIG_GEN_SW_ISR_TABLE
+		KEEP(*(SW_ISR_TABLE))
+		#endif
+		#endif
+		 . = ALIGN(4);
 		 *(.data)
 		 *(".data.*")
 

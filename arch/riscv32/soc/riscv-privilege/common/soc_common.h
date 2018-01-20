@@ -15,7 +15,7 @@
 /* IRQ numbers */
 #define RISCV_MACHINE_SOFT_IRQ       3  /* Machine Software Interrupt */
 #define RISCV_MACHINE_TIMER_IRQ      7  /* Machine Timer Interrupt */
-#define RISCV_MACHINE_EXT_IRQ        11 /* Machine External Interrupt */
+#define RISCV_MACHINE_EXT_IRQ        11 /* Machine External Interrupt aka PLIC port */
 
 #define RISCV_MAX_GENERIC_IRQ        11 /* Max Generic Interrupt */
 
@@ -65,6 +65,9 @@ void riscv_plic_irq_disable(u32_t irq);
 int riscv_plic_irq_is_enabled(u32_t irq);
 void riscv_plic_set_priority(u32_t irq, u32_t priority);
 int riscv_plic_get_irq(void);
+
+void plic_fe310_irq_handler_fast(void *arg); 
+void plic_fe310_connect_handler_fast(void (*irq_handler)(int num_irq));
 #endif
 
 #endif /* !_ASMLANGUAGE */
