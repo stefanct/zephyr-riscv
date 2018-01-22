@@ -26,7 +26,6 @@
 #include "log_perf.h"
 #include "cycles.h"
 
-// debug only!
 #define FE310_IRQTESTER_0_IRQ_0_PIN					53
 #define FE310_IRQTESTER_0_IRQ_0             		(RISCV_MAX_GENERIC_IRQ + FE310_IRQTESTER_0_IRQ_0_PIN)
 #define FE310_IRQTESTER_0_IRQ_1             		(RISCV_MAX_GENERIC_IRQ + FE310_IRQTESTER_0_IRQ_0_PIN + 1)
@@ -42,7 +41,7 @@
 #define CONFIG_IRQTESTER_FE310_0_PRIORITY 	FE310_PLIC_MAX_PRIORITY
 #define CONFIG_IRQTESTER_FE310_NAME 		"irqtester0"
 #define CONFIG_IRQTESTER_FE310_FAST_IRQ		1
-
+#define CONFIG_IRQTESTER_FE310_FAST_ID2IDX	1	
 
 /*
  * Enums and macros internal to the driver 
@@ -91,8 +90,7 @@ enum flags{
  *   val_name enum from header in sync with _values_<..> arrays.
  * ----------------------------------------------------------------------------
  */
-
-
+  
 // data pool for uint like data
 static struct DrvValue_uint _values_uint[] = {
 	{._super.id_name = VAL_IRQ_0_PERVAL},
@@ -135,7 +133,10 @@ static struct DrvValue_bool _values_bool[] = {
 
 // forward declare static, internal helper functions
 static inline irqt_val_type_t id_2_type(irqt_val_id_t id);
+static inline irqt_val_type_t id_2_type_fast(irqt_val_id_t id);
 static inline int id_2_index(irqt_val_id_t id);
+static inline int id_2_index_fast(irqt_val_id_t id, irqt_val_type_t type);
+
 static inline irqt_irq_id_t _get_irq_id();
 static inline bool test_flag(struct device * dev, int drv_flag);
 static bool test_any_send_flag(struct device * dev);
@@ -713,7 +714,12 @@ int irqtester_fe310_get_val(irqt_val_id_t id, void * res_value){
 	
 	// we only read data -> thread safe without synchronization
 
+	#if	CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 0
+	irqt_val_type_t type = id_2_type_fast(id);
+	#else
 	irqt_val_type_t type = id_2_type(id);
+	#endif
+
 	int res = 0;
 	//SYS_LOG_DBG("Getting value for id %i, type %i", id, type);
 
@@ -727,19 +733,34 @@ int irqtester_fe310_get_val(irqt_val_id_t id, void * res_value){
 		case VAL_T_UINT:;
 			//struct DrvValue_uint * dbg = ((struct DrvValue_uint *) res_value);
 			((struct DrvValue_uint *) res_value)->_super.id_name = id;
+		#if	CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 0
+			((struct DrvValue_uint *) res_value)->payload = _values_uint[id_2_index_fast(id, VAL_T_UINT)].payload;
+			((struct DrvValue_uint *) res_value)->_super.time_ns = _values_uint[id_2_index_fast(id, VAL_T_UINT)]._super.time_ns;
+		#else
 			((struct DrvValue_uint *) res_value)->payload = _values_uint[id_2_index(id)].payload;
 			((struct DrvValue_uint *) res_value)->_super.time_ns = _values_uint[id_2_index(id)]._super.time_ns;
+		#endif
 			//SYS_LOG_DBG("at %p payload %i, time %i", dbg, dbg->payload, dbg->_super.time_ns);
 			break;
 		case VAL_T_INT:
 			((struct DrvValue_int *) res_value)->_super.id_name = id;
+		#if	CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 0
+			((struct DrvValue_int *) res_value)->payload = _values_int[id_2_index_fast(id, VAL_T_INT)].payload;
+			((struct DrvValue_int *) res_value)->_super.time_ns = _values_int[id_2_index_fast(id, VAL_T_INT)]._super.time_ns;
+		#else
 			((struct DrvValue_int *) res_value)->payload = _values_int[id_2_index(id)].payload;
 			((struct DrvValue_int *) res_value)->_super.time_ns = _values_int[id_2_index(id)]._super.time_ns;
+		#endif
 			break;
 		case VAL_T_BOOL:
 			((struct DrvValue_bool *) res_value)->_super.id_name = id;
+		#if	CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 0
+			((struct DrvValue_bool *) res_value)->payload = _values_bool[id_2_index_fast(id, VAL_T_BOOL)].payload;
+			((struct DrvValue_bool *) res_value)->_super.time_ns = _values_bool[id_2_index_fast(id, VAL_T_BOOL)]._super.time_ns;
+		#else
 			((struct DrvValue_bool *) res_value)->payload = _values_bool[id_2_index(id)].payload;
 			((struct DrvValue_bool *) res_value)->_super.time_ns = _values_bool[id_2_index(id)]._super.time_ns;
+		#endif
 			break;
 		default:
 			SYS_LOG_ERR("Unknown type %i", type);
@@ -767,8 +788,12 @@ int irqtester_fe310_set_reg(struct device * dev, irqt_val_id_t id, void * set_va
 	int retval = 0;
 	static struct k_mutex lock;
 	k_mutex_init(&lock);
-
+	
+	#if	CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 0
+	irqt_val_type_t type = id_2_type_fast(id);
+	#else
 	irqt_val_type_t type = id_2_type(id);
+	#endif
 
 	if (k_mutex_lock(&lock, K_MSEC(1)) != 0) {
 		SYS_LOG_WRN("Couldn't obtain lock to set registers with id %i", id);
@@ -788,21 +813,33 @@ int irqtester_fe310_set_reg(struct device * dev, irqt_val_id_t id, void * set_va
 	// its type to set the value in corresponding memory pool
 	switch(type){
 		case VAL_T_UINT: 
+		#if	CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 0
+			addr = _values_uint[id_2_index_fast(id, VAL_T_UINT)].base_addr;
+		#else
 			addr = _values_uint[id_2_index(id)].base_addr;
+		#endif
 			if(addr == NULL)
 				retval = 2;
 			else
 				*((u32_t *)addr) = ((struct DrvValue_uint *)set_val)->payload;
 			break;
 		case VAL_T_INT: 
+		#if	CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 0
+			addr = _values_int[id_2_index_fast(id, VAL_T_INT)].base_addr;
+		#else
 			addr = _values_int[id_2_index(id)].base_addr;
+		#endif
 			if(addr == NULL)
 				retval = 2;
 			else
 				*((int *)addr) = ((struct DrvValue_int *)set_val)->payload;
 			break;
 		case VAL_T_BOOL: 
+		#if	CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 0
+			addr = _values_bool[id_2_index_fast(id, VAL_T_BOOL)].base_addr;
+		#else
 			addr = _values_bool[id_2_index(id)].base_addr;
+		#endif
 			if(addr == NULL)
 				retval = 2;
 			else
@@ -833,7 +870,12 @@ int irqtester_fe310_set_reg(struct device * dev, irqt_val_id_t id, void * set_va
  */ 
 int irqtester_fe310_get_reg(struct device * dev, irqt_val_id_t id, void * res_val){
 	
+	#if	CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 0
+	irqt_val_type_t type = id_2_type_fast(id);
+	#else
 	irqt_val_type_t type = id_2_type(id);
+	#endif
+
 	u32_t now_ns = SYS_CLOCK_HW_CYCLES_TO_NS(k_cycle_get_32());
 	
 	int retval = 0;
@@ -848,8 +890,12 @@ int irqtester_fe310_get_reg(struct device * dev, irqt_val_id_t id, void * res_va
 	// cast the given value container depending on its type 
 	switch(type){
 		case VAL_T_UINT:
-			((struct DrvValue_uint *) res_val)->_super.id_name = id;
+		((struct DrvValue_uint *) res_val)->_super.id_name = id;
+		#if	CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 0
+			addr = (void *)_values_uint[id_2_index_fast(id, VAL_T_UINT)].base_addr;
+		#else
 			addr = (void *)_values_uint[id_2_index(id)].base_addr;
+		#endif
 			if(addr == NULL)
 				retval = 1;
 			else
@@ -858,7 +904,11 @@ int irqtester_fe310_get_reg(struct device * dev, irqt_val_id_t id, void * res_va
 			break;
 		case VAL_T_INT:
 			((struct DrvValue_int *) res_val)->_super.id_name = id;
+		#if	CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 0
+			addr = (void *)_values_uint[id_2_index_fast(id, VAL_T_INT)].base_addr;
+		#else
 			addr = (void *)_values_int[id_2_index(id)].base_addr;
+		#endif
 			if(addr == NULL)
 				retval = 1;
 			else
@@ -867,7 +917,11 @@ int irqtester_fe310_get_reg(struct device * dev, irqt_val_id_t id, void * res_va
 			break;
 		case VAL_T_BOOL:
 			((struct DrvValue_bool *) res_val)->_super.id_name = id;
+		#if	CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 0
+			addr = (void *)_values_uint[id_2_index_fast(id, VAL_T_BOOL)].base_addr;
+		#else
 			addr = (void *)_values_bool[id_2_index(id)].base_addr;
+		#endif
 			if(addr == NULL)
 				retval = 1;
 			else
@@ -1173,7 +1227,36 @@ void irqtester_fe310_dbgprint_event(struct device * dev, struct DrvEvent * evt){
 
 // TODO: encapsulate hardware reads, make functions static
 
-// calc (enum) type from value id 
+/**
+ * @brief: Fast id 2 index functions. 
+ * 
+ * Used if CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 1 set.
+ * No bound checking! Make sure there is NEVER an id < 0 or id > _NUM_VALS 
+ */
+#define IS_GREATER(x, y) \
+	((int)(x) > (int)(y) ? 1 : 0)
+#define ID_2_INDEX(id, type) \
+	(id - (IS_GREATER(type, VAL_T_UINT))*(LEN_ARRAY(_values_uint)) \
+		- (IS_GREATER(type, VAL_T_INT ))*(LEN_ARRAY(_values_int)) - 1)
+#define ID_2_TYPE(id) \
+	(_NUM_VAL_TYPES - (!(IS_GREATER(id, LEN_ARRAY(_values_uint))) * 1) \
+					- (!(IS_GREATER(id, LEN_ARRAY(_values_uint) + LEN_ARRAY(_values_int))) * 1) - 1)
+static int id_2_index_fast(irqt_val_id_t id, irqt_val_type_t type){
+	return ID_2_INDEX(id, type);
+}
+static irqt_val_type_t id_2_type_fast(irqt_val_id_t id){
+	return ID_2_TYPE(id);
+}
+
+
+/**
+ * @brief: Slow but safe id 2 index functions. 
+ * 
+ * Used if CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 1 not set.
+ * Bound cheking performed, but many branch instructions.
+ * Calc index to access the _values_ arrays from value id
+ * Order of _values_id must match .h::irqt_val_id_t
+ */
 static inline irqt_val_type_t id_2_type(irqt_val_id_t id){
 
 	int n_uint = LEN_ARRAY(_values_uint);
@@ -1196,15 +1279,10 @@ static inline irqt_val_type_t id_2_type(irqt_val_id_t id){
 		SYS_LOG_ERR("Tried to get type for unknown id %i", id);
 		return -1;
 	}
+	
 }
 
-// calc index to access the _values_ arrays from value id
-// order of _values_id must match .h::irqt_val_id_t
-// todo: in ISR, this is performance critical
-// check assembly whether compiler optimizes
-// if not: make macro, since all values are known at compile time
 static inline int id_2_index(irqt_val_id_t id){
-
 	int n_uint = LEN_ARRAY(_values_uint);
 	int m_int = LEN_ARRAY(_values_int);
 	//int k_bool = LEN_ARRAY(_values_bool);
@@ -1240,6 +1318,7 @@ static inline irqt_irq_id_t _get_irq_id(){
 
 // helper
 static inline bool test_flag(struct device * dev, int drv_flag){
+	
 	struct irqtester_fe310_data *data = DEV_DATA(dev);
 	return atomic_test_bit( &(data->flags), drv_flag);
 }

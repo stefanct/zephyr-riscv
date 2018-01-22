@@ -59,9 +59,11 @@ typedef enum{
  *  List all available value types when receiving a DrvValue
  */
 typedef enum{
+    _NIL_VAL_TYPE,
     VAL_T_UINT,
     VAL_T_INT,   
     VAL_T_BOOL,
+    _NUM_VAL_TYPES
 }irqt_val_type_t;
 
 /**
