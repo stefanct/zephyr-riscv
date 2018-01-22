@@ -24,6 +24,7 @@
 // log using Switch_Event and Wait_Event
 // fast way to log
 #define STATE_MNG_LOG_EVENTS_DEPTH 20  // 0 to deactivate log 
+#define STATE_MNG_DIS_SUBSTATES 0      // 1 to deactivate substates
 // can log using LOG_PERF
 // LOG_PERF is faster than SYS_LOG
 // but still slow! (~ 5000 cyc)
@@ -142,6 +143,15 @@ void state_mng_configure(struct State cust_states[], cycle_state_id_t * cust_tt,
     }
     else
         SYS_LOG_WRN("Illegal param combination. Set both or none.");
+    
+    // warn if substates configured but state manager does not support
+    #if(STATE_MNG_DIS_SUBSTATES == 1)
+    for(int i=0; i < _NUM_CYCLE_STATES; i++){
+        if(cust_states[i].max_subs_idx != 0)
+            SYS_LOG_WRN("State manager does not support substates, but configured %i in state %i.", cust_states[i].max_subs_idx+1, cust_states[i].id_name);
+    }
+    #endif
+    
     /*
     printk("States after config()");
     SYS_LOG_DBG("CYCLE_STATE_IDLE");
@@ -557,6 +567,7 @@ static struct State * switch_state(struct State * current, struct Event * evt){
     // repeat this state if not all substates already occured
     u8_t * cur_subs_p = &(current->cur_subs_idx); // value is 0, if max_subs_idx == 0
     bool done_substates = true;
+    #if(STATE_MNG_DIS_SUBSTATES == 0)
     if(current->max_subs_idx > 0){  // state has substates
         done_substates = false;
         // iterate substate inedex in state
@@ -574,6 +585,7 @@ static struct State * switch_state(struct State * current, struct Event * evt){
                 next_id = current->id_name;
         }
     }
+    #endif
     if(done_substates){
         next_id = transition_table[current->id_name][evt_id];
         atomic_set(&state_cur, next_id); // to make avalable outside
@@ -835,9 +847,11 @@ int state_mng_get_timing_goal(struct State * state, u8_t substate, int mode){
 
     // substate logic
     // replicate duration of parent state + summand
+    #if(STATE_MNG_DIS_SUBSTATES == 0)
     if(state->max_subs_idx > 0){
         result += substate * (state->timing_goal_end - state->timing_goal_start + state->timing_summand) ;
     }
+    #endif
 
     return result;
 }
