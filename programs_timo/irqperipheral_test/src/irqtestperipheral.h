@@ -94,7 +94,7 @@ struct DrvEvent{
  */
 struct DrvValue_gen{
     irqt_val_id_t id_name;
-    u32_t time_ns; // todo: make in cpu cycles
+    u32_t time_cyc; 
 };
 
 // "inherits" from generic DrvValue_gen
@@ -120,6 +120,10 @@ struct DrvValue_bool{
 int irqtester_fe310_get_val(irqt_val_id_t id_name, void * res);
 int irqtester_fe310_get_reg(struct device * dev, irqt_val_id_t id, void * res_val);
 int irqtester_fe310_set_reg(struct device * dev, irqt_val_id_t id, void * set_value);
+int irqtester_fe310_set_reg_fast(struct device * dev, irqt_val_id_t id, void * set_val);
+int irqtester_fe310_set_reg_uint_fast(struct device * dev, irqt_val_id_t id, void * set_val);
+
+
 
 int irqtester_fe310_register_queue_rx(struct device * dev, struct k_msgq * queue);
 int irqtester_fe310_register_fifo_rx(struct device * dev, struct k_fifo * queue);
@@ -155,13 +159,14 @@ int irqtester_fe310_unregister_callback(struct device *dev, irqt_irq_id_t irq_id
 // todo: make private
 /*
 int irqtester_fe310_set_value(struct device *dev, unsigned int val);
-int irqtester_fe310_enable(struct device *dev);
+
 
 
 int irqtester_fe310_get_value(struct device *dev, unsigned int * res);
 
 int irqtester_fe310_get_status(struct device *dev, unsigned int * res);
 */
+int irqtester_fe310_enable(struct device *dev);
 int irqtester_fe310_get_perval(struct device *dev, unsigned int * res);
 int irqtester_fe310_get_enable(struct device *dev, bool * res);
 int irqtester_fe310_disable(struct device *dev);

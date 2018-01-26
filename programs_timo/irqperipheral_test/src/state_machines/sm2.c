@@ -158,8 +158,9 @@ static void config_timing_goals(int period_irq1_us, int period_irq2_us, int num_
 static int num_substates; // = num of batches
 static int num_user_batch;
 static int num_users;
+static void (*ul_action_1)(void);
 
-void sm2_config(int users, int usr_per_batch){
+void sm2_config(int users, int usr_per_batch, void (*ul_task)(void), int param, int pos_param){
     num_substates = users / usr_per_batch;
     num_user_batch = usr_per_batch;
     num_users = users;
@@ -167,11 +168,36 @@ void sm2_config(int users, int usr_per_batch){
     if(users % usr_per_batch != 0){
         num_substates += 1;
         printk("WARNING: Fraction num_users / usr_per_batch non-integer. Setting num_substates= %i\n ", num_substates);
-       
+    }
+
+    if(ul_task != NULL){
+        ul_action_1 = ul_task;
+
+        // config for sm2 tasks
+        if(ul_task == sm2_task_bench_basic_ops){
+            switch(pos_param){
+                case 0:
+                    sm2_config_bench(param, 0, 0);
+                    break;
+                case 1:
+                    sm2_config_bench(0, param, 0);
+                    break;
+                case 2:
+                    sm2_config_bench(0, 0, param);
+                    break;
+                default:
+                    printk("Error: Unknown pos_param %i. Aborting.", pos_param);
+                    return;
+            }
+        }
+        if(ul_task == sm2_task_calc_cfo_1){
+            sm2_config_user_batch(num_user_batch);
+        }
+
     }
 }
 
-void sm2_run(struct device * dev, int period_irq1_us, int period_irq2_us, void (*ul_task)(void), int param, int pos_param){
+void sm2_run(struct device * dev, int period_irq1_us, int period_irq2_us, int param, int pos_param){
 
     g_dev_cp = dev;
 
@@ -222,31 +248,8 @@ void sm2_run(struct device * dev, int period_irq1_us, int period_irq2_us, void (
 
     // simulate requesting of a value, which is cleared in STATE_UL and every substate
     irqt_val_id_t reqvals_ul[] = {VAL_IRQ_0_PERVAL};
-    if(ul_task != NULL){
-        state_mng_register_action(CYCLE_STATE_UL   , ul_task, reqvals_ul, 1);
+    state_mng_register_action(CYCLE_STATE_UL   , ul_action_1, reqvals_ul, 1);
 
-        // config for sm2 tasks
-        if(ul_task == sm2_task_bench_basic_ops){
-            switch(pos_param){
-                case 0:
-                    sm2_config_bench(param, 0, 0);
-                    break;
-                case 1:
-                    sm2_config_bench(0, param, 0);
-                    break;
-                case 2:
-                    sm2_config_bench(0, 0, param);
-                    break;
-                default:
-                    printk("Error: Unknown pos_param %i. Aborting.", pos_param);
-                    return;
-            }
-        }
-        if(ul_task == sm2_task_calc_cfo_1){
-            sm2_config_user_batch(num_user_batch);
-        }
-
-    }
     state_mng_register_action(CYCLE_STATE_UL   , sm_com_clear_valflags, reqvals_ul, 1);
     
     state_mng_register_action(CYCLE_STATE_RL   , sm_com_clear_valflags, NULL, 0);

@@ -10,7 +10,7 @@
  */
 
 #define SM2_CFO_ARR_DEPTH 1
-#define SM2_NUM_USRS_PER_BATCH_MAX 16
+#define SM2_NUM_USRS_PER_BATCH_MAX 32
 
 typedef enum{
     _NIL_USER,  // must be first
@@ -30,6 +30,22 @@ typedef enum{
     USER_14,
     USER_15,
     USER_16,
+    USER_17,
+    USER_18,
+    USER_19,
+    USER_20,
+    USER_21,
+    USER_22,
+    USER_23,
+    USER_24,
+    USER_25,
+    USER_26,
+    USER_27,
+    USER_28,
+    USER_29,
+    USER_30,
+    USER_31,
+    USER_32,
     _NUM_USERS  // must be last
 }sm2_user_id_t;
 
@@ -142,7 +158,7 @@ void sm2_task_calc_cfo_1(){
     for(int i = 0; i<num_usr_per_batch; i++){
         // find out user
         sm2_user_id_t user = state_2_userid(state_cur, substate, i);
-        // should only occur if last substate not fully filled with user 
+        // occurs if last substate not fully filled with user 
         if(user == _NIL_USER){
             break;
         }

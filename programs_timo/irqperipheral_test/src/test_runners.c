@@ -509,9 +509,10 @@ void run_test_state_mng_1(struct device * dev){
 
 	// start the thread immediatly
 	k_tid_t my_tid = k_thread_create(&thread_mng_run_1_data, thread_mng_run_1_stack,
-                                 K_THREAD_STACK_SIZEOF(thread_mng_run_1_stack), state_mng_run,
+                                 K_THREAD_STACK_SIZEOF(thread_mng_run_1_stack), (void (*)(void *, void *, void *)) state_mng_run,
                                  NULL, NULL, NULL,
                                  0, 0, K_NO_WAIT);
+    printk("state_manager thread @ %p started\n", my_tid);
 
     for(int i=0; i<NUM_RUNS; i++){
         // fire (and run a state achine cycle) only every 100ms 
@@ -553,14 +554,14 @@ void run_test_sm1_throughput_1(struct device * dev){
 
 
     for(int i=0; i<NUM_TS; i++){
-        int status = 0;
         // spins until state_mng_start() invoked
         k_tid_t my_tid = k_thread_create(&thread_sm1_data, thread_sm1_stack,
-                            K_THREAD_STACK_SIZEOF(thread_sm1_stack), state_mng_run,
+                            K_THREAD_STACK_SIZEOF(thread_sm1_stack), (void (*)(void *, void *, void *))state_mng_run,
                             NULL, NULL, NULL,
                             thread_sm1_prio, 0, K_NO_WAIT);
-        printk("Running sm1 with %i us irq1 period time.\n", cur_t_us);
+        printk("state_manager thread @ %p started\n", my_tid);
         sm1_run(dev, cur_t_us, 0);
+
         printk("DEBUG: test_sm1_throughput_1 going to sleep... \n");
         k_sleep(RUN_T_MS);
         
@@ -615,13 +616,13 @@ void run_test_sm_throughput_2(struct device * dev, int id_sm){
        
         // spins until state_mng_start() invoked
         k_tid_t my_tid = k_thread_create(&thread_sm1_data, thread_sm1_stack,
-                            K_THREAD_STACK_SIZEOF(thread_sm1_stack), state_mng_run,
+                            K_THREAD_STACK_SIZEOF(thread_sm1_stack), (void (*)(void *, void *, void *))state_mng_run,
                             NULL, NULL, NULL,
                             thread_sm1_prio, 0, K_NO_WAIT);
+        printk("state_manager thread @ %p started\n", my_tid);
 
         // avoid non integer fractions between irq1/2
         cur_t_us = period_irq1_us / cur_divisor;
-        printk("Running sm%i with %u, %u us irq1/2 period time.\n", id_sm, cur_t_us * cur_divisor, cur_t_us);
         switch(id_sm){
             case 1:
                  sm1_run(dev, cur_t_us * cur_divisor, cur_t_us);
@@ -693,17 +694,16 @@ void run_test_sm2_action_perf_3(struct device * dev){
        
         // spins until state_mng_start() invoked
         k_tid_t my_tid = k_thread_create(&thread_sm1_data, thread_sm1_stack,
-                            K_THREAD_STACK_SIZEOF(thread_sm1_stack), state_mng_run,
+                            K_THREAD_STACK_SIZEOF(thread_sm1_stack), (void (*)(void *, void *, void *))state_mng_run,
                             NULL, NULL, NULL,
                             thread_sm1_prio, 0, K_NO_WAIT);
 
-        // avoid non integer fractions between irq1/2
+        printk("state_manager thread @ %p started\n", my_tid);
 
-        printk("Running sm2 with %u, %u us irq1/2 period time.\n", cur_t_us * t_irq_divisor, cur_t_us);
-
-        sm2_config(16, param);
+        sm2_config(32, param, sm2_task_calc_cfo_1, 1, 0);
+        sm2_run(dev, cur_t_us * t_irq_divisor, cur_t_us, 1, 0);
         //sm2_run(dev, cur_t_us * t_irq_divisor, cur_t_us, sm2_task_calc_cfo_1, param);
-        sm2_run(dev, cur_t_us * t_irq_divisor, cur_t_us, sm2_task_calc_cfo_1, param, 0);
+        
 
         printk("DEBUG: test_sm1_throughput_1 going to sleep... \n");
         k_sleep(t_per_run_ms);
@@ -713,7 +713,7 @@ void run_test_sm2_action_perf_3(struct device * dev){
         // to stop counting, register clear only cb
         irqtester_fe310_register_callback(dev, IRQ_2, _irq_2_handler_1);
         state_mng_abort();
-        k_yield(); // if cooperative main_thread, give sm control to quit thread
+        k_sleep(1); // if cooperative main_thread, give sm control to quit thread
         state_mng_purge_registered_actions_all();
         // stop firing
         struct DrvValue_uint reg_num = {.payload=0};

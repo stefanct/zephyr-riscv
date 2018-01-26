@@ -620,7 +620,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 			if(verbose>1){
 				struct DrvValue_uint val;
 				irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &val);
-				printk("Polled value (id: %i): %i updated at %u ns \n", val._super.id_name, val.payload, val._super.time_ns);
+				printk("Polled value (id: %i): %i updated at %u cyc \n", val._super.id_name, val.payload, val._super.time_cyc);
 			}
 		}
 
@@ -657,7 +657,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 			if(verbose>1){
 				struct DrvValue_uint val;
 				irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &val);
-				printk("Polled value (id: %i): %i updated at %u ns \n", val._super.id_name, val.payload, val._super.time_ns);
+				printk("Polled value (id: %i): %i updated at %u cyc \n", val._super.id_name, val.payload, val._super.time_cyc);
 			}
 		}
 
@@ -805,7 +805,7 @@ void test_irq_throughput_2(struct device * dev, int period_cyc, int num_runs, in
 	int timeout = 5; //ms
 	struct DrvValue_uint reg_num = {.payload= (2000*65000 * timeout) / period_cyc};
 	struct DrvValue_uint reg_period = {.payload=period_cyc};	
-	struct DrvValue_uint status_1;
+	//struct DrvValue_uint status_1;
 
 	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
 	irqtester_fe310_set_reg(dev, VAL_IRQ_1_PERIOD, &reg_period);
@@ -847,7 +847,7 @@ void test_poll_throughput_1(struct device * dev, int period_cyc, int num_runs, i
 
 	u32_t period_poll = period_cyc;
 	// number of sucessfully polled events
-	u32_t num_poll = num_runs;
+
 	
 	if(len != num_runs){
 		printk("ERROR: num_runs should equal len of status_arr \n");
@@ -923,7 +923,7 @@ void test_poll_throughput_1(struct device * dev, int period_cyc, int num_runs, i
 
 
 	// need to clean up input regs
-	struct DrvValue_bool reset = {.payload=1};
+	//struct DrvValue_bool reset = {.payload=1};
 	// don't reset status counter
 	//irqtester_fe310_set_reg(dev, VAL_DSP_3_RESET, &reset);
 	//reset.payload = 0;

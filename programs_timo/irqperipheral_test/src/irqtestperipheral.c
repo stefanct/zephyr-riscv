@@ -344,7 +344,6 @@ static inline void flag_event_rx(struct device * dev, struct DrvEvent *evt){
 // make static
 void _irq_gen_handler(void){
 
-	// todo: - check all time_ns code to be safe for high reliability, switch ns to cyc
 	#ifndef TEST_MINIMAL
 
 	/* generic part */
@@ -353,13 +352,13 @@ void _irq_gen_handler(void){
 		return;	// safety first
 
 	
-	u32_t now_ns = SYS_CLOCK_HW_CYCLES_TO_NS(k_cycle_get_32());
+	u32_t now_cyc = get_cycle_32();
 
 	/* own implementation 
 	 * read values from hardware registers and send up DrvEvents
 	 */
 	struct DrvValue_uint val_uint;
-	struct DrvValue_bool val_bool;
+	//struct DrvValue_bool val_bool;
 
 	irqt_irq_id_t irq_id = _get_irq_id();
 
@@ -375,11 +374,11 @@ void _irq_gen_handler(void){
 			// write into internal data pools 
 			irqtester_fe310_get_reg(dev, VAL_IRQ_0_PERVAL, &val_uint);
 			_values_uint[id_2_index(VAL_IRQ_0_PERVAL)].payload = val_uint.payload;
-			_values_uint[id_2_index(VAL_IRQ_0_PERVAL)]._super.time_ns = now_ns; 
+			_values_uint[id_2_index(VAL_IRQ_0_PERVAL)]._super.time_cyc = now_cyc; 
 
 			irqtester_fe310_get_reg(dev, VAL_IRQ_0_STATUS, &val_uint);
 			_values_uint[id_2_index(VAL_IRQ_0_STATUS)].payload = val_uint.payload;
-			_values_uint[id_2_index(VAL_IRQ_0_STATUS)]._super.time_ns = now_ns;
+			_values_uint[id_2_index(VAL_IRQ_0_STATUS)]._super.time_cyc = now_cyc;
 
 			// fill event
 			evt_val0.val_id 	= VAL_IRQ_0_PERVAL;
@@ -391,7 +390,7 @@ void _irq_gen_handler(void){
 		case IRQ_1:
 			irqtester_fe310_get_reg(dev, VAL_IRQ_1_STATUS, &val_uint);
 			_values_uint[id_2_index(VAL_IRQ_1_STATUS)].payload = val_uint.payload;
-			_values_uint[id_2_index(VAL_IRQ_1_STATUS)]._super.time_ns = now_ns;
+			_values_uint[id_2_index(VAL_IRQ_1_STATUS)]._super.time_cyc = now_cyc;
 
 			evt_val0.val_id 	= VAL_IRQ_1_STATUS;
 			evt_val0.val_type	= VAL_T_UINT;
@@ -402,7 +401,7 @@ void _irq_gen_handler(void){
 		case IRQ_2:	
 			irqtester_fe310_get_reg(dev, VAL_IRQ_2_STATUS, &val_uint);
 			_values_uint[id_2_index(VAL_IRQ_2_STATUS)].payload = val_uint.payload;
-			_values_uint[id_2_index(VAL_IRQ_2_STATUS)]._super.time_ns = now_ns;
+			_values_uint[id_2_index(VAL_IRQ_2_STATUS)]._super.time_cyc = now_cyc;
 
 			evt_val0.val_id 	= VAL_IRQ_2_STATUS;
 			evt_val0.val_type	= VAL_T_UINT;
@@ -453,12 +452,12 @@ void _irq_0_handler_1(void){
 	
 
 	// write into internal data pools 
-	u32_t now_ns = SYS_CLOCK_HW_CYCLES_TO_NS(k_cycle_get_32());
+	u32_t now_cyc = SYS_CLOCK_HW_CYCLES_TO_NS(k_cycle_get_32());
 	_values_uint[id_2_index(VAL_IRQ_0_PERVAL)].payload = perval_0;
-	_values_uint[id_2_index(VAL_IRQ_0_PERVAL)]._super.time_ns = now_ns; 
+	_values_uint[id_2_index(VAL_IRQ_0_PERVAL)]._super.time_cyc = now_cyc; 
 
 	_values_bool[id_2_index(VAL_IRQ_0_ENABLE)].payload = enable;
-	_values_bool[id_2_index(VAL_IRQ_0_ENABLE)]._super.time_ns = now_ns;
+	_values_bool[id_2_index(VAL_IRQ_0_ENABLE)]._super.time_cyc = now_cyc;
 
 	// issue events to queue
 	struct DrvEvent evt_perval = {.val_id=VAL_IRQ_0_PERVAL, .val_type=VAL_T_INT, .event_type=EVT_T_VAL_UPDATE};
@@ -500,12 +499,12 @@ void _irq_0_handler_2(void){
 	
 
 	// write into internal data pools 
-	u32_t now_ns = SYS_CLOCK_HW_CYCLES_TO_NS(k_cycle_get_32());
+	u32_t now_cyc = get_cycle_32();
 	_values_uint[id_2_index(VAL_IRQ_0_PERVAL)].payload = perval_0.payload;
-	_values_uint[id_2_index(VAL_IRQ_0_PERVAL)]._super.time_ns = now_ns; 
+	_values_uint[id_2_index(VAL_IRQ_0_PERVAL)]._super.time_cyc = now_cyc; 
 
 	_values_bool[id_2_index(VAL_IRQ_0_ENABLE)].payload = enable.payload;
-	_values_bool[id_2_index(VAL_IRQ_0_ENABLE)]._super.time_ns = now_ns;
+	_values_bool[id_2_index(VAL_IRQ_0_ENABLE)]._super.time_cyc = now_cyc;
 
 	// issue events to queue
 	struct DrvEvent evt_perval = {.val_id=VAL_IRQ_0_PERVAL, .val_type=VAL_T_INT, .event_type=EVT_T_VAL_UPDATE};
@@ -544,13 +543,13 @@ void _irq_0_handler_3(void){
 	
 
 	/* write into internal data pools */
-	u32_t now_ns = SYS_CLOCK_HW_CYCLES_TO_NS(k_cycle_get_32()); // might be written into event
+	//u32_t now_cyc = get_cycle_32(); // might be written into event
 	/*
 	_values_uint[id_2_index(VAL_IRQ_0_PERVAL)].payload = perval_0.payload;
-	_values_uint[id_2_index(VAL_IRQ_0_PERVAL)]._super.time_ns = now_ns; 
+	_values_uint[id_2_index(VAL_IRQ_0_PERVAL)]._super.time_cyc = now_cyc; 
 
 	_values_bool[id_2_index(VAL_IRQ_0_ENABLE)].payload = enable.payload;
-	_values_bool[id_2_index(VAL_IRQ_0_ENABLE)]._super.time_ns = now_ns;
+	_values_bool[id_2_index(VAL_IRQ_0_ENABLE)]._super.time_cyc = now_cyc;
 	*/
 
 	// issue events to queue
@@ -741,31 +740,31 @@ int irqtester_fe310_get_val(irqt_val_id_t id, void * res_value){
 			((struct DrvValue_uint *) res_value)->_super.id_name = id;
 		#if	CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 0
 			((struct DrvValue_uint *) res_value)->payload = _values_uint[id_2_index_fast(id, VAL_T_UINT)].payload;
-			((struct DrvValue_uint *) res_value)->_super.time_ns = _values_uint[id_2_index_fast(id, VAL_T_UINT)]._super.time_ns;
+			((struct DrvValue_uint *) res_value)->_super.time_cyc = _values_uint[id_2_index_fast(id, VAL_T_UINT)]._super.time_cyc;
 		#else
 			((struct DrvValue_uint *) res_value)->payload = _values_uint[id_2_index(id)].payload;
-			((struct DrvValue_uint *) res_value)->_super.time_ns = _values_uint[id_2_index(id)]._super.time_ns;
+			((struct DrvValue_uint *) res_value)->_super.time_cyc = _values_uint[id_2_index(id)]._super.time_cyc;
 		#endif
-			//SYS_LOG_DBG("at %p payload %i, time %i", dbg, dbg->payload, dbg->_super.time_ns);
+			//SYS_LOG_DBG("at %p payload %i, time %i", dbg, dbg->payload, dbg->_super.time_cyc);
 			break;
 		case VAL_T_INT:
 			((struct DrvValue_int *) res_value)->_super.id_name = id;
 		#if	CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 0
 			((struct DrvValue_int *) res_value)->payload = _values_int[id_2_index_fast(id, VAL_T_INT)].payload;
-			((struct DrvValue_int *) res_value)->_super.time_ns = _values_int[id_2_index_fast(id, VAL_T_INT)]._super.time_ns;
+			((struct DrvValue_int *) res_value)->_super.time_cyc = _values_int[id_2_index_fast(id, VAL_T_INT)]._super.time_cyc;
 		#else
 			((struct DrvValue_int *) res_value)->payload = _values_int[id_2_index(id)].payload;
-			((struct DrvValue_int *) res_value)->_super.time_ns = _values_int[id_2_index(id)]._super.time_ns;
+			((struct DrvValue_int *) res_value)->_super.time_cyc = _values_int[id_2_index(id)]._super.time_cyc;
 		#endif
 			break;
 		case VAL_T_BOOL:
 			((struct DrvValue_bool *) res_value)->_super.id_name = id;
 		#if	CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 0
 			((struct DrvValue_bool *) res_value)->payload = _values_bool[id_2_index_fast(id, VAL_T_BOOL)].payload;
-			((struct DrvValue_bool *) res_value)->_super.time_ns = _values_bool[id_2_index_fast(id, VAL_T_BOOL)]._super.time_ns;
+			((struct DrvValue_bool *) res_value)->_super.time_cyc = _values_bool[id_2_index_fast(id, VAL_T_BOOL)]._super.time_cyc;
 		#else
 			((struct DrvValue_bool *) res_value)->payload = _values_bool[id_2_index(id)].payload;
-			((struct DrvValue_bool *) res_value)->_super.time_ns = _values_bool[id_2_index(id)]._super.time_ns;
+			((struct DrvValue_bool *) res_value)->_super.time_cyc = _values_bool[id_2_index(id)]._super.time_cyc;
 		#endif
 			break;
 		default:
@@ -929,7 +928,7 @@ int irqtester_fe310_get_reg(struct device * dev, irqt_val_id_t id, void * res_va
 	irqt_val_type_t type = id_2_type(id);
 	#endif
 
-	u32_t now_ns = SYS_CLOCK_HW_CYCLES_TO_NS(k_cycle_get_32());
+	u32_t now_cyc = get_cycle_32();
 	
 	int retval = 0;
 	void * addr;
@@ -953,7 +952,7 @@ int irqtester_fe310_get_reg(struct device * dev, irqt_val_id_t id, void * res_va
 				retval = 1;
 			else
 				((struct DrvValue_uint *) res_val)->payload = *((u32_t *)addr);
-			((struct DrvValue_uint *) res_val)->_super.time_ns = now_ns;
+			((struct DrvValue_uint *) res_val)->_super.time_cyc = now_cyc;
 			break;
 		case VAL_T_INT:
 			((struct DrvValue_int *) res_val)->_super.id_name = id;
@@ -966,7 +965,7 @@ int irqtester_fe310_get_reg(struct device * dev, irqt_val_id_t id, void * res_va
 				retval = 1;
 			else
 				((struct DrvValue_int *) res_val)->payload = *((int *)addr);
-			((struct DrvValue_int *) res_val)->_super.time_ns = now_ns;
+			((struct DrvValue_int *) res_val)->_super.time_cyc = now_cyc;
 			break;
 		case VAL_T_BOOL:
 			((struct DrvValue_bool *) res_val)->_super.id_name = id;
@@ -979,7 +978,7 @@ int irqtester_fe310_get_reg(struct device * dev, irqt_val_id_t id, void * res_va
 				retval = 1;
 			else
 				((struct DrvValue_bool *) res_val)->payload = *((bool *)addr);
-			((struct DrvValue_bool *) res_val)->_super.time_ns = now_ns;
+			((struct DrvValue_bool *) res_val)->_super.time_cyc = now_cyc;
 			break;
 		default:
 			SYS_LOG_ERR("Unknown type %i", type);
@@ -1254,17 +1253,17 @@ void irqtester_fe310_dbgprint_event(struct device * dev, struct DrvEvent * evt){
 		if(evt->val_type == VAL_T_INT){
 			struct DrvValue_int val;
 			irqtester_fe310_get_val(id, &val);
-			SYS_LOG_DBG("Value (id: %i): %i updated at %u ns", val._super.id_name, val.payload, val._super.time_ns);
+			SYS_LOG_DBG("Value (id: %i): %i updated at %u ns", val._super.id_name, val.payload, val._super.time_cyc);
 		} 
 		else if(evt->val_type == VAL_T_UINT){
 			struct DrvValue_uint val;
 			irqtester_fe310_get_val(id, &val);
-			SYS_LOG_DBG("Value (id: %i): %u updated at %u ns", val._super.id_name, val.payload, val._super.time_ns);
+			SYS_LOG_DBG("Value (id: %i): %u updated at %u ns", val._super.id_name, val.payload, val._super.time_cyc);
 		} 
 		else if(evt->val_type == VAL_T_BOOL){
 			struct DrvValue_bool val;
 			irqtester_fe310_get_val(id, &val);
-			SYS_LOG_DBG("Value (id: %i): %i updated at %u ns", val._super.id_name, val.payload, val._super.time_ns);
+			SYS_LOG_DBG("Value (id: %i): %i updated at %u ns", val._super.id_name, val.payload, val._super.time_cyc);
 		}
 		else
 			SYS_LOG_WRN("Can't print event of unknown value type %i", evt->val_type);

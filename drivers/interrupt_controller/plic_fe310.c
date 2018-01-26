@@ -269,7 +269,7 @@ static void plic_fe310_irq_handler(void *arg)
  * 			while bypassing sw_isr_table.
  *  		Use in combination with connect_handler_fast()
  */
-static void(*_isr_fast)(int num_irq) = _irq_spurious;
+static void(*_isr_fast)(int num_irq) = (void(*)(int))_irq_spurious;
 void plic_fe310_irq_handler_fast(void *arg){
 
 	volatile struct plic_fe310_regs_t *regs =
