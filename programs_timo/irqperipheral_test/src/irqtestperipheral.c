@@ -42,6 +42,9 @@
 #define CONFIG_IRQTESTER_FE310_NAME 		"irqtester0"
 #define CONFIG_IRQTESTER_FE310_FAST_IRQ		1
 #define CONFIG_IRQTESTER_FE310_FAST_ID2IDX	1	
+#if CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 0
+#warning "Fast id2idx functions enabled. No bound checking on indices!"
+#endif
 
 /*
  * Enums and macros internal to the driver 
@@ -629,7 +632,10 @@ void _irq_1_handler_0(void){
 	struct DrvEvent evt_irq1   = {.val_id=_NIL_VAL, .event_type=EVT_T_IRQ, .irq_id=IRQ_1};
 
 	// manually inlining send, flag functions
+	//if(0 != k_msgq_put(data->_queue_rx, &evt_irq1, K_NO_WAIT))
+	//	SYS_LOG_WRN("Couln't send event irq1 to driver queue");
 	k_msgq_put(data->_queue_rx, &evt_irq1, K_NO_WAIT);
+	//SYS_LOG_WRN("IRQ1");
 
 	// clear irq hardware on hw rev 2
 	irqtester_fe310_clear_1(dev);
@@ -774,31 +780,20 @@ int irqtester_fe310_get_val(irqt_val_id_t id, void * res_value){
 }
 
 /** 
- * @brief 	Thread safe, generic setter for device registers.
+ * @brief 	Non-Thread safe, generic setter for device registers.
  * 			Only works for regs which have a driver mem pool entry.	
  * 
- * Must not be called by an ISR (mutex).
  * @param id: id of value to set
  * @param set_value: pointer to a DrvValue_X struct of correct type. 
  */ 
-int irqtester_fe310_set_reg(struct device * dev, irqt_val_id_t id, void * set_val){
-	
-	// only one thread at a time can write to reg
-	// todo: test mutex lock
+int irqtester_fe310_set_reg_fast(struct device * dev, irqt_val_id_t id, void * set_val){
 	int retval = 0;
-	static struct k_mutex lock;
-	k_mutex_init(&lock);
 	
 	#if	CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 0
 	irqt_val_type_t type = id_2_type_fast(id);
 	#else
 	irqt_val_type_t type = id_2_type(id);
 	#endif
-
-	if (k_mutex_lock(&lock, K_MSEC(1)) != 0) {
-		SYS_LOG_WRN("Couldn't obtain lock to set registers with id %i", id);
-		return 1;
-	}
 
 	// catch zero dereferencing if base_addr wasn't stored
 	volatile void * addr;
@@ -850,13 +845,71 @@ int irqtester_fe310_set_reg(struct device * dev, irqt_val_id_t id, void * set_va
 	}
 	
 	irq_unlock(lock_key);
-	k_mutex_unlock(&lock);
-
+	
 	if(retval == 2)
 		SYS_LOG_WRN("NULL base_addr for val id %i. Check _store_reg_adr() in driver init.", id);
 
 
 	return retval;
+}
+
+int irqtester_fe310_set_reg_uint_fast(struct device * dev, irqt_val_id_t id, void * set_val){
+	int retval = 0;
+	
+	// catch zero dereferencing if base_addr wasn't stored
+	volatile void * addr;
+
+	/* enter CRITICAL SECTION
+	 * we must not be interrupted while setting these 
+	 */ 
+
+	//printk("Debug: set_reg to _values_uint[%i] @ %p\n", id_2_index_fast(id, VAL_T_UINT), _values_uint);
+	unsigned int lock_key = irq_lock();
+
+#if	CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 0
+	addr = _values_uint[id_2_index_fast(id, VAL_T_UINT)].base_addr;
+#else
+	addr = _values_uint[id_2_index(id)].base_addr;
+#endif
+	if(addr == NULL){
+		SYS_LOG_WRN("NULL base_addr for val id %i. Check _store_reg_adr() in driver init.", id);
+		retval = 2;
+	}
+	else
+		*((u32_t *)addr) = ((struct DrvValue_uint *)set_val)->payload;
+		
+	
+	irq_unlock(lock_key);
+			
+
+	return retval;
+}
+
+/** 
+ * @brief 	Thread safe, generic setter for device registers.
+ * 			Only works for regs which have a driver mem pool entry.	
+ * 
+ * Must not be called by an ISR (mutex).
+ * @param id: id of value to set
+ * @param set_value: pointer to a DrvValue_X struct of correct type. 
+ */ 
+int irqtester_fe310_set_reg(struct device * dev, irqt_val_id_t id, void * set_val){
+	
+	// only one thread a time can write to regs
+	static struct k_mutex lock;
+	k_mutex_init(&lock);
+
+	if (k_mutex_lock(&lock, K_MSEC(1)) != 0) {
+		SYS_LOG_WRN("Couldn't obtain lock to set registers with id %i", id);
+		return 1;
+	}
+
+	int res = irqtester_fe310_set_reg_fast(dev, id, set_val);
+
+	k_mutex_unlock(&lock);
+
+	return res;
+
 }
 
 /**
@@ -1376,7 +1429,9 @@ static int irqtester_fe310_init(struct device *dev)
 	const struct irqtester_fe310_config *cfg = DEV_CFG(dev);
 	struct irqtester_fe310_data *data = DEV_DATA(dev);
 
-	//SYS_LOG_DBG("Init iqrtester driver with hw at mem addresses %p, %p, %p, %p", irqt_0, irqt_1, irqt_2, irqt_3);
+	SYS_LOG_DBG("Init iqrtester driver with hw @ %p, %p, %p, %p \n" \
+					"\t mem pools (uint, int, bool) @ %p, %p, %p", 
+				irqt_0, irqt_1, irqt_2, irqt_3, _values_uint, _values_int, _values_bool);
 
 	/* Ensure that all registers are reset to 0 initially */
 	irqt_0->enable		= 0;
@@ -1465,7 +1520,7 @@ static void plic_fast_handler(int irq_num){
 	//SYS_LOG_DBG("ISR called with irq num %i", irq_num);
 
 	// do pointer arithmetic to be fast
-	int * cbs_p =&(data->cb_arr);
+	int * cbs_p =(int *) &(data->cb_arr);
 	// cast to function pointer and call with correct offset
 	// irq_num is guaranteed to be within array index, if 
 	// driver setup was correct
@@ -1773,6 +1828,7 @@ static const struct irqtester_driver_api irqtester_fe310_driver = {
 	// dummy, we implement no api. But needed to properly init.
 };
 
+#if CONFIG_FE310_IRQT_DRIVER
 // ambigious how the 'name' works
 DEVICE_AND_API_INIT(irqtester_fe310, CONFIG_IRQTESTER_FE310_NAME,
          irqtester_fe310_init,
@@ -1803,11 +1859,13 @@ static void irqtester_fe310_cfg_0(void)
 		    irqtester_fe310_irq_handler,
 		    DEVICE_GET(irqtester_fe310),
 		    0);
-	#if CONFIG_IRQTESTER_FE310_FAST_IRQ == 1
+
+	#if CONFIG_FE310_ISR_PLIC_OPT_LVL > 0
 	// no need to place in _sw_isr_table
-	#warning "IRQTESTER_FE310_FAST_IRQ requires isr.S optimization to be activated"
 	plic_fe310_connect_handler_fast(plic_fast_handler);
 	#endif
+
 }
+#endif // CONFIG_FE310_IRQT_DRIVER
 
 /**@endcond*/

@@ -18,7 +18,6 @@
 #include "../../programs_timo/irqperipheral_test/src/log_perf.h"
 #include "../../programs_timo/irqperipheral_test/src/cycles.h"
 //#include "../../programs_timo/irqperipheral_test/src/tests/tests.h"
-#define PLIC_FE310_FAST_IRQ // todo: merge with isr.s switch and move to kconfig
 
 #define PLIC_FE310_IRQS        (CONFIG_NUM_IRQS - RISCV_MAX_GENERIC_IRQ)
 #define PLIC_FE310_EN_SIZE     ((PLIC_FE310_IRQS >> 5) + 1)
@@ -339,10 +338,10 @@ static int plic_fe310_init(struct device *dev)
 	regs->threshold_prio = 0;
 
 	/* Setup IRQ handler for PLIC driver */
-	// called directly from isr.S, so no need to install in sw_isr_table
+	// if _OPT_LVL > 0 called directly from isr.S,  don't install in sw_isr_table
 	IRQ_CONNECT(RISCV_MACHINE_EXT_IRQ,
 		    FE310_PLIC_MAX_PRIORITY, 	// t_dev: original: 0
-		#ifdef PLIC_FE310_FAST_IRQ
+		#if CONFIG_FE310_ISR_PLIC_OPT_LVL > 0
 		    _irq_spurious,
 		#else
 			plic_fe310_irq_handler,
