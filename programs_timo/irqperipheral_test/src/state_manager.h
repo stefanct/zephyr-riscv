@@ -20,6 +20,8 @@ typedef enum{
 void state_mng_configure(struct State cust_states[], cycle_state_id_t * cust_tt, int len_states, int len_events);
 void state_mng_init(struct device * dev);
 void state_mng_print_state_config();
+void state_mng_print_transition_table_config();
+int state_mng_pull_perf_action(int res_buff[], int idx_buf, int len); 
 
 bool state_mng_is_running();
 cycle_state_id_t state_mng_get_current();

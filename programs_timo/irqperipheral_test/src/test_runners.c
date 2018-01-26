@@ -144,7 +144,9 @@ void run_test_timing_rx(struct device * dev){
     print_dash_line();
 
     // restore default handler
-    irqtester_fe310_register_callback(dev, 0, _irq_gen_handler);
+    irqtester_fe310_register_callback(dev, IRQ_0, _irq_gen_handler);
+    irqtester_fe310_register_callback(dev, IRQ_1, _irq_gen_handler);
+    irqtester_fe310_register_callback(dev, IRQ_2, _irq_gen_handler);
 
     test_print_report(); // global var from tests.c
     #endif // TEST_MINIMAL
@@ -530,7 +532,7 @@ void run_test_state_mng_1(struct device * dev){
  * Successively lower period betweeen irq1 interrupts.
  * 
  */
-K_THREAD_STACK_DEFINE(thread_sm1_stack, 2048);
+K_THREAD_STACK_DEFINE(thread_sm1_stack, 3000);
 struct k_thread thread_sm1_data;
 static int thread_sm1_prio = -2;    // cooperative thread
 void run_test_sm1_throughput_1(struct device * dev){
@@ -582,14 +584,14 @@ void run_test_sm1_throughput_1(struct device * dev){
     print_dash_line();
 }
 
-void run_test_sm1_throughput_2(struct device * dev){
+void run_test_sm_throughput_2(struct device * dev, int id_sm){
 
     int period_irq1_us = 1000;
     // when choosing numbers, mind integer divison
 
     //int start_period_2_us = 5000;
-    int start_divisor = 20; //2
-    int delta_divisor = 20;
+    int start_divisor = 10; //2
+    int delta_divisor = 10;
     //int dt_us = 50; // irq1/2 division must stay integer!
     int NUM_TS = 20;
     int RUN_T_MS = 1000;
@@ -599,7 +601,7 @@ void run_test_sm1_throughput_2(struct device * dev){
 
 
 
-    printk_framed("Now running sm1 throughput test 2");
+    printk_framed("Now running sm%i throughput test 2", id_sm);
     print_dash_line();
 
     struct DrvValue_uint val_status_1;
@@ -619,8 +621,18 @@ void run_test_sm1_throughput_2(struct device * dev){
 
         // avoid non integer fractions between irq1/2
         cur_t_us = period_irq1_us / cur_divisor;
-        printk("Running sm1 with %u, %u us irq1/2 period time.\n", cur_t_us * cur_divisor, cur_t_us);
-        sm1_run(dev, cur_t_us * cur_divisor, cur_t_us);
+        printk("Running sm%i with %u, %u us irq1/2 period time.\n", id_sm, cur_t_us * cur_divisor, cur_t_us);
+        switch(id_sm){
+            case 1:
+                 sm1_run(dev, cur_t_us * cur_divisor, cur_t_us);
+                 break;
+            case 2:
+                 sm2_run(dev, cur_t_us * cur_divisor, cur_t_us, 1, NULL);
+                 break;
+            default:
+                printk("Error: Unknown sm id: %i", id_sm);
+                return;
+        }
         printk("DEBUG: test_sm1_throughput_1 going to sleep... \n");
         k_sleep(RUN_T_MS);
         
@@ -642,6 +654,78 @@ void run_test_sm1_throughput_2(struct device * dev){
         sm1_reset();
  
         cur_divisor += delta_divisor;
+
+    }
+    
+    print_dash_line();
+}
+
+// test differnt actions
+// supply a single parameter to be varied for each eaction
+void run_test_sm2_action_perf_3(struct device * dev){
+
+    #include "state_machines/sm2_tasks.h"
+
+    int period_irq1_us = 1000;
+    // when choosing numbers, mind integer divison
+
+    int t_irq_divisor = 10; //2
+    int param_start = 2;
+    int param_delta = 2;
+
+    int num_runs = 20;
+    int t_per_run_ms = 1000;
+
+    int cur_t_us = period_irq1_us / t_irq_divisor;
+   
+
+    printk_framed("Now running sm2 parametrized action performance test 3");
+    print_dash_line();
+
+    struct DrvValue_uint val_status_1;
+    struct DrvValue_uint val_status_2;
+	irqtester_fe310_get_reg(dev, VAL_IRQ_1_STATUS, &val_status_1);
+    irqtester_fe310_get_reg(dev, VAL_IRQ_1_STATUS, &val_status_2);
+	printk("Status_1/2 before first run: %u, %u Test may take some seconds... \n", val_status_1.payload, val_status_2.payload);
+
+    int param = param_start;
+    for(int i=0; i<num_runs; i++){
+       
+        // spins until state_mng_start() invoked
+        k_tid_t my_tid = k_thread_create(&thread_sm1_data, thread_sm1_stack,
+                            K_THREAD_STACK_SIZEOF(thread_sm1_stack), state_mng_run,
+                            NULL, NULL, NULL,
+                            thread_sm1_prio, 0, K_NO_WAIT);
+
+        // avoid non integer fractions between irq1/2
+
+        printk("Running sm2 with %u, %u us irq1/2 period time.\n", cur_t_us * t_irq_divisor, cur_t_us);
+
+        sm2_config(16, param);
+        //sm2_run(dev, cur_t_us * t_irq_divisor, cur_t_us, sm2_task_calc_cfo_1, param);
+        sm2_run(dev, cur_t_us * t_irq_divisor, cur_t_us, sm2_task_calc_cfo_1, param, 0);
+
+        printk("DEBUG: test_sm1_throughput_1 going to sleep... \n");
+        k_sleep(t_per_run_ms);
+        
+        printk("DEBUG: Woke up again. Trying to stop SM1. \n");
+        // shut down and clean thread
+        // to stop counting, register clear only cb
+        irqtester_fe310_register_callback(dev, IRQ_2, _irq_2_handler_1);
+        state_mng_abort();
+        k_yield(); // if cooperative main_thread, give sm control to quit thread
+        state_mng_purge_registered_actions_all();
+        // stop firing
+        struct DrvValue_uint reg_num = {.payload=0};
+    	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
+        irqtester_fe310_set_reg(dev, VAL_IRQ_2_NUM_REP, &reg_num);
+
+        state_mng_print_evt_log();
+        PRINT_LOG_BUFF();
+        sm1_print_report();
+        sm1_reset();
+ 
+        param += param_delta;
 
     }
     

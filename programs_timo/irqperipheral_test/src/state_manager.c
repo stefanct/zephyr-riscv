@@ -20,15 +20,20 @@
 #include "utils.h"
 #include "cycles.h"
 
-#define STATE_MNG_QUEUE_RX_DEPTH 10
+#define STATE_MNG_QUEUE_RX_DEPTH 5
 // log using Switch_Event and Wait_Event
 // fast way to log
-#define STATE_MNG_LOG_EVENTS_DEPTH 20  // 0 to deactivate log 
+#define STATE_MNG_LOG_EVENTS_DEPTH 15  // 0 to deactivate log 
 #define STATE_MNG_DIS_SUBSTATES 0      // 1 to deactivate substates
 // can log using LOG_PERF
 // LOG_PERF is faster than SYS_LOG
 // but still slow! (~ 5000 cyc)
 //#define STATE_MNG_LOG_PERF  
+
+#define LEN_ARRAY(x) \
+	((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
+	// call only on arrays defined in scope
+
 
 /* modified table-based, event-driven state machine from here
  * http://www.pezzino.ch/state-machine-in-c/
@@ -57,6 +62,8 @@ struct Event{
 
 /// used for fast logging
 struct Switch_Event{
+    cycle_state_id_t from_state;
+    u8_t from_substate;
     cycle_state_id_t to_state;
     u8_t to_substate;
     u32_t t_cyc;
@@ -72,6 +79,15 @@ struct Wait_Event{
 };
 static struct Wait_Event log_wait_evts[STATE_MNG_LOG_EVENTS_DEPTH];
 static u32_t i_wait_evts;
+/// user for measuring performance of actions
+/// (Can use switch events, too.)
+struct Perf_Event{
+    cycle_state_id_t state;
+    u8_t substate;
+    u32_t t_actions_cyc;
+};
+static struct Perf_Event log_perf_evts[STATE_MNG_LOG_EVENTS_DEPTH];
+static cycle_state_id_t log_filter[] = {CYCLE_STATE_UL};   // empty = no filter
 
 /// defines next state id_name on event
 static cycle_state_id_t transition_table[_NUM_CYCLE_STATES][_NUM_CYCLE_EVENTS];
@@ -101,6 +117,7 @@ static void _default_action_dispatcher(cycle_state_id_t state);
 void print_state(struct State * state);
 void print_arr(irqt_val_id_t arr[], int len);
 static bool is_val_in_array(irqt_val_id_t val, irqt_val_id_t *arr, int len);
+static void mes_perf(struct State * state, int mode);
 // forward devlare internal functions
 static struct State * switch_state(struct State * current, struct Event * evt);
 static int gather_events(struct Event * res_evt);
@@ -184,7 +201,7 @@ void state_mng_print_state_config(){
                 char str_buf_1[30];
                 char str_buf_2[100];
                 snprint_arr_int(str_buf_1, 20, (int*)state_cur->val_ids_req, STATES_REQ_VALS_MAX);
-                snprint_arr_p(str_buf_2, 40, _cb_funcs[i], STATES_CBS_PER_ACTION_MAX);
+                snprint_arr_p(str_buf_2, 40, (void (**))(_cb_funcs[i]), STATES_CBS_PER_ACTION_MAX);
                
                 SYS_LOG_INF("State %i.%u -> %i.%u:\n\t t_goal_start/end= [%u - %u] cyc \n" \
                         "\t handler_start/end: %p, %p \n" \
@@ -203,6 +220,21 @@ void state_mng_print_state_config(){
             
             j++;
         }while(j <= state_cur->max_subs_idx);
+    }
+}
+
+void state_mng_print_transition_table_config(){
+
+    SYS_LOG_INF("Transition table config:");
+    for(int i=0; i<_NUM_CYCLE_STATES; i++){
+        struct State * state_cur = &(_states[i]);
+        SYS_LOG_INF("State %i transitions:", state_cur->id_name); 
+
+        char string[80];
+        cycle_state_id_t * tt_line = transition_table[i];
+        snprint_arr_int(string, 80, (int *) tt_line, _NUM_CYCLE_EVENTS);
+        
+        SYS_LOG_INF("-> %s", string);
     }
 }
 
@@ -342,10 +374,15 @@ int state_mng_start(){
 void state_mng_run(void){
     
     // block here before start()
-    while(!atomic_test_bit(&flags, THREAD_START)){k_yield();}
+    while(!atomic_test_bit(&flags, THREAD_START)){k_sleep(10);}
 
     if(!init_done){
         SYS_LOG_WRN("Can't start state machine before .init().");
+        return;
+    }
+
+    if(state_mng_is_running()){
+        SYS_LOG_WRN("Aborted start. Already running.");
         return;
     }
     
@@ -353,7 +390,8 @@ void state_mng_run(void){
     // debug to start witouth irq
     // _state_cur = state_mng_id_2_state(CYCLE_STATE_START);
             
-    irqtester_fe310_enable_queue_rx(irqt_dev);
+    if(0 != irqtester_fe310_enable_queue_rx(irqt_dev))
+        return;
     irqtester_fe310_enable_valflags_rx(irqt_dev);
 
     struct Event event = {.id_name=_CYCLE_DEFAULT_EVT}; // empty event container
@@ -361,16 +399,11 @@ void state_mng_run(void){
     bool skip_actions = false; 
     int time_left_cyc = 0;
 
-    if(state_mng_is_running()){
-        SYS_LOG_WRN("Aborted start. Already running.");
-        return;
-    }
     atomic_set_bit(&flags, THREAD_RUNNING);
-    SYS_LOG_DBG("Start running.");
+    SYS_LOG_DBG("Start running, thread %p.", k_current_get());
 
     while(!atomic_test_bit(&flags, ABORT_LOOP)){
         // check other thread signals?
-
         vals_ready = false; 
         skip_actions = false;
         time_left_cyc = 0;
@@ -384,7 +417,10 @@ void state_mng_run(void){
         if(!vals_ready)
             // call state handler, may wait until valflag set
             skip_actions = handle_vals_ready(_state_cur);
-        // clear valflags if necessary in action
+            // clear valflags if necessary in action
+
+        // measure performance of actions, after waiting done
+        mes_perf(_state_cur, 0);
 
         // fire registered 'action' callbacks
         if(!skip_actions && _state_cur->action != NULL)
@@ -394,10 +430,12 @@ void state_mng_run(void){
         if(_state_cur->id_name == CYCLE_STATE_END)
             irqtester_fe310_clear_all_valflags(irqt_dev);
 
+        mes_perf(_state_cur, 1);
+
         time_left_cyc = 0;
         check_time_goal(_state_cur, 1, &time_left_cyc);
         handle_time_goal(_state_cur, 1, time_left_cyc);
-   
+
         gather_events(&event);      // get highest prio event during this state
         _state_cur = switch_state(_state_cur, &event);
     }
@@ -443,7 +481,7 @@ int state_mng_register_action(cycle_state_id_t state_id, void (*func)(void), irq
         return 3;
     }
     // find first free space in array 
-    // array is filled from low index side   
+    // array is filled from low index side ("bottom up")
     int i_free = STATES_CBS_PER_ACTION_MAX;
     
     for(int i=0; i<STATES_CBS_PER_ACTION_MAX; i++){
@@ -528,10 +566,15 @@ void state_mng_print_evt_log(){
     SYS_LOG_DBG("Last %i switch events:", STATE_MNG_LOG_EVENTS_DEPTH);
     for(int i = 0; i<STATE_MNG_LOG_EVENTS_DEPTH; i++){
         u32_t t_delta = log_switch_evts[i].t_delta_cyc;
-        u32_t t_cyc= log_switch_evts[i].t_cyc;
+        u32_t t_cyc = log_switch_evts[i].t_cyc;
+        u32_t t_last = log_switch_evts[(i-1)%STATE_MNG_LOG_EVENTS_DEPTH].t_cyc;
         cycle_state_id_t to_id = log_switch_evts[i].to_state;
         u8_t to_sub_id = log_switch_evts[i].to_substate;
-        SYS_LOG_DBG("[%u / %u] switch to %i.%u", t_delta, t_cyc, to_id, to_sub_id);
+        cycle_state_id_t from_id = log_switch_evts[i].from_state;
+        u8_t from_sub_id = log_switch_evts[i].from_substate;
+        SYS_LOG_DBG("[%u / %u] Switching %i.%u -> %i.%u after %u cyc", t_delta, t_cyc,
+            from_id, from_sub_id, to_id, to_sub_id, t_cyc - t_last);
+       
     }
 
     SYS_LOG_DBG("Last %i wait events:", STATE_MNG_LOG_EVENTS_DEPTH);
@@ -546,6 +589,45 @@ void state_mng_print_evt_log(){
         SYS_LOG_DBG("Waited %u cyc, reason %i in %i.%u", t_wait, reason, id, sub_id);
     }
 
+    SYS_LOG_DBG("Last %i perf mes events:", STATE_MNG_LOG_EVENTS_DEPTH);
+    for(int i = 0; i<STATE_MNG_LOG_EVENTS_DEPTH; i++){
+        cycle_state_id_t id = log_perf_evts[i].state;
+        u8_t sub_id = log_perf_evts[i].substate;
+        u32_t t_action = log_perf_evts[i].t_actions_cyc;
+        SYS_LOG_DBG("Actions for state %i.%u took %u cyc", id, sub_id, t_action);
+    }
+
+}
+
+// get and delete all log events for certain id_state
+// return idx of buffer last written
+int state_mng_pull_perf_action(int res_buf[], int idx_buf, int len){
+
+    // fill in with fitting values form event log
+    int i=idx_buf;
+    int overflow = 0;
+    for(int j_log=0; j_log<STATE_MNG_LOG_EVENTS_DEPTH; j_log++){
+        if(log_perf_evts[j_log].state == CYCLE_STATE_IDLE)
+            continue;
+            // by definition no action in IDLE state
+        if(i<len){
+            res_buf[i] = log_perf_evts[j_log].t_actions_cyc;
+            // "delete" log element
+            log_perf_evts[j_log].state = CYCLE_STATE_IDLE;
+            log_perf_evts[j_log].t_actions_cyc = 0;
+            i++;
+        }
+        if(i >= len){
+            i=0;  // full buffer, start writing at beginning again
+            overflow++;
+        }
+    }
+
+    // warn if buffer to small to save all evts
+    if((overflow == 1 && i >= idx_buf) || overflow > 1)
+        SYS_LOG_WRN("Supplied buffer too small. Some values overwritten");
+    
+    return i;
 }
 
 
@@ -566,17 +648,19 @@ static struct State * switch_state(struct State * current, struct Event * evt){
     // substate logic
     // repeat this state if not all substates already occured
     u8_t * cur_subs_p = &(current->cur_subs_idx); // value is 0, if max_subs_idx == 0
+    u8_t next_subs = 0;
+
     bool done_substates = true;
     #if(STATE_MNG_DIS_SUBSTATES == 0)
+    
     if(current->max_subs_idx > 0){  // state has substates
         done_substates = false;
-        // iterate substate inedex in state
-        (*cur_subs_p)++;
+        next_subs = current->cur_subs_idx + 1;
         
         // all substates occured 
-        if(*cur_subs_p > current->max_subs_idx){
+        if(next_subs > current->max_subs_idx){
             //reset 
-            *cur_subs_p = 0;
+            next_subs = 0;
             done_substates = true; 
         }
         else{
@@ -594,27 +678,49 @@ static struct State * switch_state(struct State * current, struct Event * evt){
     // log and debug
     
     #if(STATE_MNG_LOG_EVENTS_DEPTH > 0)
-        static u32_t i_switch;
-        u32_t t_delta = state_mng_get_time_delta();
-         //SYS_LOG_DBG("[%u] Switchting to state %i.%u @ %p", t_delta, next_id, *cur_subs_p, state_mng_id_2_state(next_id));
+     // skip if state is not listed in filter
+        if((is_val_in_array(current->id_name, (irqt_val_id_t*)log_filter, LEN_ARRAY(log_filter))) \
+            || (is_val_in_array(next_id, (irqt_val_id_t*)log_filter, LEN_ARRAY(log_filter))) \
+            || LEN_ARRAY(log_filter) == 0){
 
-        struct Switch_Event * s_evt_p = &(log_switch_evts[i_switch % STATE_MNG_LOG_EVENTS_DEPTH]);
-        s_evt_p->t_delta_cyc = t_delta;
-        s_evt_p->t_cyc = get_cycle_32();
-        s_evt_p->to_state = next_id;
-        s_evt_p->to_substate = *cur_subs_p;
-        i_switch++;
-    #ifdef STATE_MNG_LOG_PERF
-        LOG_PERF("[%u / %u] Switching to %i.%u", s_evt_p->t_delta_cyc, s_evt_p->t_cyc,
-            s_evt_p->to_state, s_evt_p->to_substate);
-    #endif
+            static u32_t i_switch;  // attention: log corruption if overflows
+            u32_t t_delta = state_mng_get_time_delta();
+            u32_t t_cyc = get_cycle_32();
+             
+            struct Switch_Event * s_evt_p = &(log_switch_evts[i_switch % STATE_MNG_LOG_EVENTS_DEPTH]);
+            s_evt_p->t_delta_cyc = t_delta;
+            s_evt_p->t_cyc = t_cyc;
+            s_evt_p->from_state = current->id_name;
+            s_evt_p->from_substate = current->cur_subs_idx;
+            s_evt_p->to_state = next_id;
+            s_evt_p->to_substate = next_subs;
+             
+            //SYS_LOG_DBG("[%u / %u] Switching %i.%u -> %i.%u", s_evt_p->t_delta_cyc, s_evt_p->t_cyc,
+            //   s_evt_p->from_state, s_evt_p->from_substate, s_evt_p->to_state, s_evt_p->to_substate);
+              
+        #ifdef STATE_MNG_LOG_PERF
+            u32_t t_last = log_switch_evts[(i_switch-1) % STATE_MNG_LOG_EVENTS_DEPTH].t_cyc;
+            LOG_PERF("[%u / %u] Switching %i.%u -> %i.%u after %u cyc", s_evt_p->t_delta_cyc, s_evt_p->t_cyc,
+                s_evt_p->from_state, s_evt_p->from_substate, s_evt_p->to_state, s_evt_p->to_substate, t_cyc - t_last);
+        #endif
+
+            i_switch++;
+        }
     #endif
     
     // set timestamp if switching so START
     if(next_id == CYCLE_STATE_START){
         timestamp_reset = get_cycle_32();  
     }
-    
+
+    #if(STATE_MNG_DIS_SUBSTATES == 0)
+    *cur_subs_p = next_subs;
+    #endif
+
+    // debug
+    //if(state_mng_get_current() == CYCLE_STATE_IDLE)
+    //    SYS_LOG_DBG("IDLE returning next id %i, state %p", next_id, state_mng_id_2_state(next_id));
+
     return state_mng_id_2_state(next_id);
 } 
 
@@ -670,8 +776,12 @@ static int gather_events(struct Event * res_evt){
     // reduces latency of spinning through NULL-event
     int k_wait = K_NO_WAIT;
     if(state_mng_get_current() == CYCLE_STATE_IDLE){
-        k_wait = K_FOREVER;
-        //SYS_LOG_DBG("Going to block in STATE_IDLE, waiting for queue events...");
+        int msgs_in_q = k_msgq_num_used_get(&queue_rx_driver);
+        if(msgs_in_q == 0){
+            //SYS_LOG_DBG("Going to block in STATE_IDLE, waiting for queue (%i msgs) events...", msgs_in_q);
+            k_wait = K_FOREVER;
+            //k_sleep(0);     // allow lower prio main thread to take over
+        }
     }
 
     // listen to driver queue
@@ -696,13 +806,19 @@ static int gather_events(struct Event * res_evt){
         haveRx = true;
         //SYS_LOG_DBG("[%u] Received event of type %i from driver", state_mng_get_time_delta(), drv_evt.event_type);    
     }
+
+    //if(state_mng_get_current() == CYCLE_STATE_IDLE)
+    //    SYS_LOG_DBG("In state IDLE have_rx %i and chosen relevant state event id %i", haveRx, res_evt->id_name);    
+       
+
     if(!haveRx){
         return 1;
     }
 
+    /*
     if(res_evt->id_name != _CYCLE_DEFAULT_EVT)
-        ;//SYS_LOG_DBG("[%u] In state %i chosen relevant state event id %i", state_mng_get_time_delta(), state_mng_get_current(), res_evt->id_name);    
-    
+        SYS_LOG_DBG("[%u] In state %i chosen relevant state event id %i", state_mng_get_time_delta(), state_mng_get_current(), res_evt->id_name);    
+    */
     return 0;
 
 }
@@ -791,7 +907,11 @@ void state_mng_wait_fix(struct State * state, u32_t t_fix_cyc, sm_wait_reason_t 
     cycle_busy_wait(t_fix_cyc);
 
     #if STATE_MNG_LOG_EVENTS_DEPTH > 0
-    
+         // skip if state is not listed in filter
+        if((!is_val_in_array(state->id_name, (irqt_val_id_t*)log_filter, LEN_ARRAY(log_filter))) \
+            && LEN_ARRAY(log_filter) != 0)
+            return;
+
         struct Wait_Event * w_evt_p = &(log_wait_evts[i_wait_evts % STATE_MNG_LOG_EVENTS_DEPTH]);
         u8_t substate = state->cur_subs_idx;
         
@@ -909,6 +1029,45 @@ static void handle_time_goal(struct State * state, int mode, int t_left){
     
 }
 
+/** 
+ * @brief: Measure duration of actions, after waiting in state is done.
+ * 
+ * Waiting occurs if a handler of state does so in case of missed time goal
+ * or not available requested value
+ * 
+ * @param mode:     0: measurement start, 1: mes end 
+ */
+static void mes_perf(struct State * state, int mode){
+#if STATE_MNG_LOG_EVENTS_DEPTH > 0
+    static u32_t start_action; // in cyc
+    static u32_t delta_action;
+    static u32_t i_perf;  // attention: log corruption if overflows
+
+    // skip if state is not listed in filter
+    if((!is_val_in_array(state->id_name, (irqt_val_id_t*)log_filter, LEN_ARRAY(log_filter))) \
+            && LEN_ARRAY(log_filter) != 0)
+        return;
+
+    switch(mode){
+        case 0:
+            start_action = state_mng_get_time_delta(); 
+            break;
+        case 1:
+            delta_action = state_mng_get_time_delta() - start_action; 
+            struct Perf_Event * evt_p;
+            evt_p = &(log_perf_evts[i_perf % STATE_MNG_LOG_EVENTS_DEPTH]);
+            evt_p->state = state->id_name;
+            evt_p->substate = state->cur_subs_idx;
+            evt_p->t_actions_cyc = delta_action;
+            i_perf++;
+            break;
+        default:
+            SYS_LOG_ERR("Unknown mode %i", mode);
+    }
+    
+#endif
+}
+
 
 // helper
 static bool is_val_in_array(irqt_val_id_t val, irqt_val_id_t *arr, int len){
@@ -942,6 +1101,9 @@ static void _default_action_dispatcher(cycle_state_id_t state){
         if(cb != NULL){
             // fire callback!
             cb();
+        }
+        else{
+            return; // cbs are filled "bottom up" in register_action()
         }
     }
 }

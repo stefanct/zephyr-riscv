@@ -10,6 +10,7 @@ void sm_com_update_counter();
 void sm_com_check_val_updates();
 void sm_com_check_last_state();
 void sm_com_check_clear_status();
+void sm_com_print_perf_log();
 
 // handlers
 void sm_com_handle_timing_goal_start(struct State * state, int t_left);
@@ -25,5 +26,6 @@ void sm_com_set_val_uptd_per_cycle(int val);
 // others
 void sm_com_reset();
 void sm_com_print_report();
+
 
 #endif

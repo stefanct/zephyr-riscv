@@ -87,7 +87,7 @@ static u32_t period_1_after_warmup;
  * ----------------------------------------------------------------------------
  */
 
-static void sm1_print_cycles(){
+void sm1_print_cycles(){
 
     //printk("DEBUG: Entering sm1 action in run %i \n", _i_sm_run);
     cycle_state_id_t state_id = state_mng_get_current();
@@ -96,7 +96,7 @@ static void sm1_print_cycles(){
 
    
     // print only 2 runs every 100 runs
-    if(sm_com_get_i_run() % 100 == 0 || sm_com_get_i_run() % 100 == 1)
+    //if(sm_com_get_i_run() % 100 == 0 || sm_com_get_i_run() % 100 == 1)
         printk("SM1 run %u in state %i, action at cycle %u, rtc %u \n", sm_com_get_i_run(), state_id, t_cyc, rtc_cyc);
 
 
@@ -155,18 +155,9 @@ static void sm1_save_time(){
  * ----------------------------------------------------------------------------
  */
 
+static void config_handlers(){
 
-// Attention: acts on states defined here, not states in sm1_states array
-static void config_timing_goals(int period_irq1_us, int period_irq2_us, int num_substates){
-    
-    int period_irq1_cyc = 65 * period_irq1_us;
-    int period_irq2_cyc = 65 * period_irq2_us;
-    int t_safe_inter_states = 0;  // not needed, since we do not wait on end
-
-    //sint num_tot_states = 3 + num_substates;
-    int t_state = period_irq1_cyc / 3 - num_substates * t_safe_inter_states;  // duration of ul, dl or rl 
-    int t_substate = t_state / num_substates + t_safe_inter_states; 
-    
+    // timing handlers, checked in state_manager::check_time_goal
     sm1_dl.handle_t_goal_start = sm_com_handle_timing_goal_start; 
     sm1_dl.handle_t_goal_end = sm_com_handle_timing_goal_end;
     sm1_ul.handle_t_goal_start = sm_com_handle_timing_goal_start;
@@ -174,7 +165,23 @@ static void config_timing_goals(int period_irq1_us, int period_irq2_us, int num_
     sm1_rl.handle_t_goal_start = sm_com_handle_timing_goal_start;
     sm1_rl.handle_t_goal_end = sm_com_handle_timing_goal_end;
     sm1_end.handle_t_goal_end = sm_com_handle_timing_goal_end;
+
+    // requested values handlers, checked in state_manager::state_mng_check_vals_ready()
+    sm1_ul.handle_val_rfail = sm_com_handle_fail_rval_ul;
+}
+
+
+
+// Attention: acts on states defined here, not states in sm1_states array
+static void config_timing_goals(int period_irq1_us, int period_irq2_us, int num_substates){
     
+    int period_irq1_cyc = 65 * period_irq1_us;
+    int period_irq2_cyc = 65 * period_irq2_us;
+ 
+    //sint num_tot_states = 3 + num_substates;
+    int t_state = period_irq1_cyc / 3 - num_substates;  // duration of ul, dl or rl 
+    int t_substate = (num_substates == 0 ? 0 : t_state / num_substates); 
+
     printk("State duration %i us / %i cyc \n", t_state / 65, t_state);   
     printk("Substate duration %i us / %i cyc \n", t_substate / 65, t_substate);   
 
@@ -182,15 +189,15 @@ static void config_timing_goals(int period_irq1_us, int period_irq2_us, int num_
     sm1_dl.timing_goal_start = 0;
     sm1_dl.timing_goal_end = t_state;
 
-    sm1_ul.timing_goal_start = sm1_dl.timing_goal_end + t_safe_inter_states;
+    sm1_ul.timing_goal_start = sm1_dl.timing_goal_end;
     // end of first substate
     sm1_ul.timing_goal_end = sm1_ul.timing_goal_start + t_substate;
     int t_state_ul = sm1_ul.timing_goal_end - sm1_ul.timing_goal_start;
 
-    sm1_rl.timing_goal_start = sm1_ul.timing_goal_start + num_substates * (t_state_ul + t_safe_inter_states);
+    sm1_rl.timing_goal_start = sm1_ul.timing_goal_start + num_substates * (t_state_ul);
     sm1_rl.timing_goal_end = sm1_rl.timing_goal_start + t_state;
 
-    sm1_end.timing_goal_end = sm1_rl.timing_goal_end + t_safe_inter_states;
+    sm1_end.timing_goal_end = sm1_rl.timing_goal_end;
 
     // make sure last end is < T(protocol cycle)
     if(sm1_end.timing_goal_end > period_irq1_cyc)
@@ -225,9 +232,8 @@ void sm1_run(struct device * dev, int period_irq1_us, int period_irq2_us){
     int num_substates = 2;
     if(period_irq2_us != 0){
         config_timing_goals(period_irq1_us, period_irq2_us, num_substates);
-        // todo: encapusulate this
-        sm1_ul.handle_val_rfail = sm_com_handle_fail_rval_ul;
     }
+    config_handlers();
     
 
     int substate_summand = 0;  // safety between substates, unnecessary
@@ -246,7 +252,6 @@ void sm1_run(struct device * dev, int period_irq1_us, int period_irq2_us){
     }
 
     state_mng_configure(sm1_states, (cycle_state_id_t *)sm1_tt, _NUM_CYCLE_STATES, _NUM_CYCLE_EVENTS);
-    state_mng_print_state_config();
 
     // todo: in case of shared irq for > 1 substate:
     // need to check whether values have uninit value and set skip action then
@@ -261,15 +266,12 @@ void sm1_run(struct device * dev, int period_irq1_us, int period_irq2_us){
     state_mng_register_action(CYCLE_STATE_IDLE , sm_com_check_last_state, NULL, 0);
     state_mng_register_action(CYCLE_STATE_START, sm_com_check_last_state, NULL, 0);
 
-    state_mng_register_action(CYCLE_STATE_DL   , sm_com_check_last_state, NULL, 0);
     state_mng_register_action(CYCLE_STATE_DL   , sm_com_clear_valflags, NULL, 0);
 
     // simulate requesting of a value, which is cleared in STATE_UL and every substate
     irqt_val_id_t reqvals_ul[] = {VAL_IRQ_0_PERVAL};
     state_mng_register_action(CYCLE_STATE_UL   , sm_com_clear_valflags, reqvals_ul, 1);
-    state_mng_register_action(CYCLE_STATE_UL   , sm_com_check_last_state, NULL, 0);
-    
-    state_mng_register_action(CYCLE_STATE_RL   , sm_com_check_last_state, NULL, 0);
+   
     state_mng_register_action(CYCLE_STATE_RL   , sm_com_clear_valflags, NULL, 0);
 
     //state_mng_register_action(CYCLE_STATE_START, sm1_print_cycles, NULL, 0);
@@ -282,20 +284,17 @@ void sm1_run(struct device * dev, int period_irq1_us, int period_irq2_us){
     state_mng_register_action(CYCLE_STATE_END  , sm_com_update_counter, NULL, 0);
     state_mng_register_action(CYCLE_STATE_END  , sm1_save_time, NULL, 0);
 
-    // configure event passing driver -> sm
-    // using default _irq_gen_handler
-    state_mng_init(dev);
-    // replace generic with optimized handler
+    // state config done, print
+    state_mng_print_state_config();
+
+    // replace generic isr with optimized handler
     irqtester_fe310_register_callback(dev, IRQ_1, _irq_1_handler_0);
     irqtester_fe310_register_callback(dev, IRQ_2, _irq_2_handler_0);
 
-	// start the sm thread, created in main()
-	if(0 != state_mng_start()){
-        printk("ERROR: Couldn't start sm1. Issue with thread. Aborting...");
-        return;
-    }
+    // make state manager ready to start
+    state_mng_init(dev);
 
-
+	
     // program IRQ1 and IRQ2 to fire periodically
     // todo: hw support for infinite repetitions?
     u32_t period_1_cyc = period_irq1_us * 65; // x * ~1000 us
@@ -327,6 +326,12 @@ void sm1_run(struct device * dev, int period_irq1_us, int period_irq2_us){
         irqtester_fe310_set_reg(dev, VAL_IRQ_2_NUM_REP, &reg_num);
         irqtester_fe310_set_reg(dev, VAL_IRQ_2_PERIOD, &reg_period);
         irqtester_fe310_fire_2(dev);
+    }
+
+    // start the sm thread, created in main()
+	if(0 != state_mng_start()){
+        printk("ERROR: Couldn't start sm1. Issue with thread. Aborting...");
+        return;
     }
 
     printk("DEBUG: SM1 offhanding to state manager thread \n");

@@ -92,11 +92,11 @@ void sm_com_check_val_updates(){
    
 }
 
-// check in all states
+// check in START and END, IDLE
 void sm_com_check_last_state(){
     static cycle_state_id_t state_id;
     cycle_state_id_t state_id_new = state_mng_get_current();
-
+    
     // check whether reset to START was while not finshed a cycle yet
     if(state_id_new == CYCLE_STATE_START){
         if(!(state_id == CYCLE_STATE_IDLE || state_id == CYCLE_STATE_END)){
@@ -107,7 +107,7 @@ void sm_com_check_last_state(){
             //printk("WARNING: [%u / %u] Reset before finsihing cycle in run %u. Last state was %i \n", time_delta_cyc, time_cyc, _i_sm_run, state_id);
             _i_sm_run++;
             // count this aborted cycle
-            k_yield(); // to allow other thread terminating sm
+            //k_yield(); // to allow other thread terminating sm
         }
     }
 
@@ -190,6 +190,36 @@ bool sm_com_handle_fail_rval_ul(struct State * state_cur){
     
     return timeout;
 
+}
+
+void sm_com_print_perf_log(){
+    // todo: this method may drop values or print them twice
+    // in cause of ring buffer overflow
+
+    // buffer should be bigger than expected results per state cycle
+    // writting to uart is slow, so do only if buffer full
+    #define buf_len 100
+    static int buf[buf_len];    // ring buf
+    static int idx_0 = 0;
+    static int idx_1 = 0;  // guaranteed to stay < buf_len
+    
+    // deletes pulled actions from state_manager log
+    idx_1 = state_mng_pull_perf_action(buf, idx_0, buf_len);
+
+    // write to uart console (slow)
+   
+    if(idx_0 < idx_1){
+        //print_arr_int(buf + idx_0, idx_1 - idx_0);
+    }
+    else if(idx_0 >= idx_1){
+        // buffer full write out
+        printk("Duration of last actions: \n");
+        printk("{[");
+        print_arr_int(buf, buf_len);    
+        printk("]}");
+    }
+   
+    idx_0 = idx_1;        
 }
 
 

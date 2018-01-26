@@ -85,7 +85,7 @@ void test_hw_rev_1_basic_1(struct device * dev){
 	test_assert(test.payload == (u32_t)7);
 	printk("get_reg perval0: %i \n", test.payload);
 
-	printk("Trying to get invalid value. Expect and ignore error. \n");
+	printk("Trying to get invalid value. Expect and ignore error.\nWill fail if set CONFIG_IRQTESTER_FE310_FAST_ID2IDX \n");
 	int ret = irqtester_fe310_get_val((u32_t)-1, &test);
 	test_assert(ret != 0);
 	
@@ -802,8 +802,8 @@ void test_irq_throughput_2(struct device * dev, int period_cyc, int num_runs, in
 	// configure an interrupt to fire 
 	// attention: short periods in combination with high reg_num
 	// can freeze whole rtos!
-	int timeout = 100; //ms
-	struct DrvValue_uint reg_num = {.payload= (100*65000 * timeout) / period_cyc};
+	int timeout = 5; //ms
+	struct DrvValue_uint reg_num = {.payload= (2000*65000 * timeout) / period_cyc};
 	struct DrvValue_uint reg_period = {.payload=period_cyc};	
 	struct DrvValue_uint status_1;
 
