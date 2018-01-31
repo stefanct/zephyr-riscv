@@ -106,8 +106,10 @@ void sm_com_check_last_state(){
             // printing is slow, use only for debug
             //printk("WARNING: [%u / %u] Reset before finsihing cycle in run %u. Last state was %i \n", time_delta_cyc, time_cyc, _i_sm_run, state_id);
             _i_sm_run++;
-            // count this aborted cycle
-            //k_yield(); // to allow other thread terminating sm
+          
+            // allow other thread terminating sm
+            // even if IDLE is not reached anymore
+            k_yield(); 
         }
     }
 
@@ -222,6 +224,56 @@ void sm_com_print_perf_log(){
     idx_0 = idx_1;        
 }
 
+static u32_t stamp_perf_cache;
+static u32_t stamp_perf_branch;
+static short i_mes_perf;
+void sm_com_mes_mperf(){
+    // todo: not working... but reg is there in rtl
+
+    #define FE310_PERF_CLASS_MICEVT 1
+    #define FE310_PERF_CLASS_MEMEVT 2
+    // instruction cache miss
+    #define FE310_PERF_BITMASK_ICACHE_MISS (1 << 8)     // and class memevt
+    // branch direction mispredictionch 
+    #define FE310_PERF_BITMASK_BRANCH_MISP (1 << 13)    // and class micevt 
+    // branch/jump target misprediction
+    #define FE310_PERF_BITMASK_BRJMP_MISP (1 << 14)     // and class micevt
+
+
+    // setup on first call
+    if(i_mes_perf == 0){
+        // configure mhpmevent3
+        // st. branch misprediction counter in reg mhpmcounter3
+        u32_t reg = FE310_PERF_CLASS_MICEVT;
+        reg |= FE310_PERF_BITMASK_BRANCH_MISP | FE310_PERF_BITMASK_BRJMP_MISP;
+
+        __asm__ volatile("csrw mhpmevent3, %0" :: "r" (reg));
+        // configure mhpmevent4
+        // icache miss counter in reg mhpmcounter4
+        reg = FE310_PERF_CLASS_MEMEVT;
+        reg |= FE310_PERF_BITMASK_ICACHE_MISS;
+        __asm__ volatile("csrw mhpmevent4, %0" :: "r" (reg));
+
+        // debug
+          __asm__ volatile("csrr %0, mhpmevent3" : "=r" (reg));
+        printk("Set mhpmevent3 to %p \n", reg);
+    } 
+    else{
+        u32_t count_3;
+        u32_t count_4;
+        __asm__ volatile("csrr %0, mhpmcounter3" : "=r" (count_3));
+        __asm__ volatile("csrr %0, mhpmcounter4" : "=r" (count_4));
+        if(count_3 != 0 || count_4 != 0){
+            LOG_PERF("[%u] %u icache miss, %u branch misprediction. Total: %u / %u", 
+                    i_mes_perf, count_4 - stamp_perf_cache, count_3 - stamp_perf_branch,
+                    count_4, count_3);
+            
+            stamp_perf_branch = count_3;
+            stamp_perf_cache = count_4;
+        }
+    }
+    i_mes_perf++;
+}
 
 
 /**
@@ -239,6 +291,7 @@ void sm_com_reset(){
     num_fail_status_2 = 0;
     num_fail_timing = 0;
     num_fail_reqval = 0;
+
 }
 
 void sm_com_print_report(){

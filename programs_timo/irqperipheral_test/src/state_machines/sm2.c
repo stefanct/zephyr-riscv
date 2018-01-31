@@ -22,6 +22,8 @@ struct device * g_dev_cp;
  * Define states for SM2
  * Currently, this is tightly coupled to cycle_state_id_t and cycle_event_id_t
  * declared in states.h
+ * Todo: state_manager copies into own _states and transition_table array.
+ * Create on stack here to save memory.
  * ----------------------------------------------------------------------------
  */
 
@@ -42,7 +44,8 @@ static struct State sm2_rl_config
 static struct State sm2_rl 
     = {.id_name = CYCLE_STATE_RL,   .default_next_state = CYCLE_STATE_END};
 static struct State sm2_end 
-    = {.id_name = CYCLE_STATE_END,  .default_next_state = CYCLE_STATE_IDLE};
+  //  = {.id_name = CYCLE_STATE_END,  .default_next_state = CYCLE_STATE_START};   // for profiling
+    = {.id_name = CYCLE_STATE_END,  .default_next_state = CYCLE_STATE_IDLE};    
 
 // state array, init in run()
 static struct State sm2_states[_NUM_CYCLE_STATES];
@@ -66,7 +69,12 @@ static cycle_state_id_t sm2_tt[_NUM_CYCLE_STATES][_NUM_CYCLE_EVENTS];
  * ----------------------------------------------------------------------------
  */
 
-
+// allow higher prio thread to take over, if not driven by irq1
+// should keep idling below 1/10000
+static void sm2_yield(){
+    if(sm_com_get_i_run() % 10000 == 0)
+        k_yield();
+}
 
 
 
@@ -78,7 +86,7 @@ static cycle_state_id_t sm2_tt[_NUM_CYCLE_STATES][_NUM_CYCLE_EVENTS];
  */
 
 static void config_handlers(){
-
+    
     // timing handlers, checked in state_manager::check_time_goal
     sm2_dl_config.handle_t_goal_start = sm_com_handle_timing_goal_start; 
     sm2_dl_config.handle_t_goal_end = sm_com_handle_timing_goal_end;
@@ -214,7 +222,8 @@ void sm2_run(struct device * dev, int period_irq1_us, int period_irq2_us, int pa
     if(period_irq2_us != 0){
         config_timing_goals(period_irq1_us, period_irq2_us, num_substates);
     }
-    config_handlers();
+    // deactivate for profiling
+    //config_handlers();
     states_configure_substates(&sm2_ul, num_substates, 0);
 
     // transfer into and init state array
@@ -258,10 +267,14 @@ void sm2_run(struct device * dev, int period_irq1_us, int period_irq2_us, int pa
 
     //state_mng_register_action(CYCLE_STATE_START, sm_com_speed_up_after_warmup, NULL, 0);
 
+
     state_mng_register_action(CYCLE_STATE_END  , sm_com_check_last_state, NULL, 0);
-    state_mng_register_action(CYCLE_STATE_END  , sm_com_check_clear_status, NULL, 0);
-    state_mng_register_action(CYCLE_STATE_END  , sm_com_check_val_updates, NULL, 0);
+    // state_mng_register_action(CYCLE_STATE_END  , sm_com_check_clear_status, NULL, 0);
+    // state_mng_register_action(CYCLE_STATE_END  , sm_com_check_val_updates, NULL, 0);
     state_mng_register_action(CYCLE_STATE_END  , sm_com_update_counter, NULL, 0);
+    //state_mng_register_action(CYCLE_STATE_END  , sm_com_mes_mperf, NULL, 0);
+    // for profiling (no wait for IRQ1) (NOT WORKING AS EXPECTED)
+    //state_mng_register_action(CYCLE_STATE_END  , sm2_yield, NULL, 0);
     //state_mng_register_action(CYCLE_STATE_END  , sm_com_print_perf_log, NULL, 0);
     
 
@@ -287,9 +300,10 @@ void sm2_run(struct device * dev, int period_irq1_us, int period_irq2_us, int pa
     // todo: hw support for infinite repetitions?
     u32_t period_1_cyc = period_irq1_us * 65; // x * ~1000 us
     u32_t period_2_cyc = period_irq2_us * 65;
+    // fire once to start running even if irq1 disabled
+    u32_t num_irq_1 = (period_1_cyc == 0 ? 1 : UINT32_MAX);
 
-
-	struct DrvValue_uint reg_num = {.payload=UINT32_MAX};
+	struct DrvValue_uint reg_num = {.payload=num_irq_1};
 	struct DrvValue_uint reg_period = {.payload=period_1_cyc};	
 
 	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
@@ -318,5 +332,9 @@ void sm2_run(struct device * dev, int period_irq1_us, int period_irq2_us, int pa
 
 void sm2_print_report(){
     sm_com_print_report();
+}
+
+void sm2_reset(){
+    sm_com_reset();
 }
 

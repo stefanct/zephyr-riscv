@@ -5,6 +5,7 @@
 #define SYS_LOG_DOMAIN "States"  
 #define SYS_LOG_LEVEL SYS_LOG_LEVEL_DEBUG
 #include <logging/sys_log.h>
+#include <string.h>
 
 /*
 * Define states
@@ -51,26 +52,26 @@ void states_configure_auto(struct State * states, cycle_state_id_t * transition_
     }
 
      // manually set up all states[_NUM_CYCLE_STATES] as defined in enum cycle_state_id_t
-    (*states_p)[0] = s_idle;
-    (*states_p)[1] = s_start;
-    (*states_p)[2] = s_end;
+    (*states_p)[CYCLE_STATE_IDLE] = s_idle;
+    (*states_p)[CYCLE_STATE_START] = s_start;
+    (*states_p)[CYCLE_STATE_END] = s_end;
 
     // manually set up transition table[_NUM_CYCLE_STATES][_NUM_CYCLE_EVENTS]
     // for CYCLE_STATE_IDLE
     cycle_event_id_t t0[_NUM_CYCLE_EVENTS] = \
-        {(*states_p)[0].default_next_state, CYCLE_STATE_START};  
-    (*tt_p)[0][0] = t0[0];   
-    (*tt_p)[0][1] = t0[1];  
+        {(*states_p)[CYCLE_STATE_IDLE].default_next_state, CYCLE_STATE_START};  
+    (*tt_p)[CYCLE_STATE_IDLE][_CYCLE_DEFAULT_EVT] = t0[0];   
+    (*tt_p)[CYCLE_STATE_IDLE][CYCLE_EVENT_RESET_IRQ] = t0[1];  
     // for CYCLE_STATE_START    
     cycle_event_id_t t1[_NUM_CYCLE_EVENTS] = \
-        {(*states_p)[1].default_next_state, CYCLE_STATE_START};  
-    (*tt_p)[1][0] = t1[0];   
-    (*tt_p)[1][1] = t1[1];   
+        {(*states_p)[CYCLE_STATE_START].default_next_state, CYCLE_STATE_START};  
+    (*tt_p)[CYCLE_STATE_START][_CYCLE_DEFAULT_EVT] = t1[0];   
+    (*tt_p)[CYCLE_STATE_START][CYCLE_EVENT_RESET_IRQ] = t1[1];   
     // for CYCLE_STATE_END        
     cycle_event_id_t t2[_NUM_CYCLE_EVENTS] = \
-        {(*states_p)[2].default_next_state, CYCLE_STATE_START};  
-    (*tt_p)[2][0] = t2[0];   
-    (*tt_p)[2][1] = t2[1];   
+        {(*states_p)[CYCLE_STATE_END].default_next_state, CYCLE_STATE_START};  
+    (*tt_p)[CYCLE_STATE_END][_CYCLE_DEFAULT_EVT] = t2[0];   
+    (*tt_p)[CYCLE_STATE_END][CYCLE_EVENT_RESET_IRQ] = t2[1];   
 
 }
 
@@ -79,16 +80,17 @@ void states_configure_auto(struct State * states, cycle_state_id_t * transition_
  * 
  * Registers a default action handler to every state, which is a function
  * that is responsible to fire all registered callbacks. 
+ * Non thread safe, never call if sm running
  * 
  * @param states:           Pointer to state_manager state array.
  * @param transition_table: Pointer to state_manager transition_table.
  * @param action:           Function pointer (void-2-void) to default action, usually state manager action dispatcher.
- * @param cust_states[]:    All states to be configured to state machine. Must be static var.
+ * @param cust_states[]:    All states to be configured to state machine. Must be static var. todo: really? Copying into sm?
  * @param cust_tt[]:        Transition table to be configure to state machine. Must be static var.
  */
 void states_configure_custom(struct State * states, cycle_state_id_t * transition_table, void * action, \
                                 struct State cust_states[], cycle_state_id_t * cust_tt, int len_states, int len_events){
-    // non thread safe, never call if running
+    
     // cast to pointers to array with correct dimensions
     struct State (*states_p)[_NUM_CYCLE_STATES]  = (struct State (*)[_NUM_CYCLE_STATES])states;
     cycle_state_id_t (*tt_p)[_NUM_CYCLE_STATES][_NUM_CYCLE_EVENTS] = (cycle_state_id_t (*)[_NUM_CYCLE_STATES][_NUM_CYCLE_EVENTS]) transition_table;
@@ -103,22 +105,20 @@ void states_configure_custom(struct State * states, cycle_state_id_t * transitio
         return;
     }
 
-    for(int i=0; i<len_states; i++){
-        // set (usually default) action handler, argument is casted to correct function type 
+    // set (usually default) action handler, argument is casted to correct function type 
+    for(int i=0; i<len_states; i++)
         cust_states[i].action = (void (*)(cycle_state_id_t))action;
-        // copy into states array
-        (*states_p)[i] = cust_states[i];
 
-    }
+    // copy into state_manger states array
+    memcpy(*states_p, cust_states, len_states * sizeof(*states)) ;
+
     for(int i=0; i<len_states; i++){
-        for(int j=0; j<len_events; j++){ 
-            // set up default (NULL event) transition
-            if(j==0)
-                (*tt_p)[i][j] = (*states_p)[i].default_next_state;   // states arr must have been filled before
-            // just copy
-            else
-                (*tt_p)[i][j] = (*cust_tt_p)[i][j];   
-        } 
+        for(int j=0; j<len_events; j++){
+            // copy into state_manager transition table
+            (*tt_p)[i][j] = (*cust_tt_p)[i][j];
+        }
+        // set up default (NULL event) transition
+        (*tt_p)[i][0] = (*states_p)[i].default_next_state;   // states arr must have been filled before
     }
 }
 

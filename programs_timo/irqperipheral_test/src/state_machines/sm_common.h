@@ -11,6 +11,7 @@ void sm_com_check_val_updates();
 void sm_com_check_last_state();
 void sm_com_check_clear_status();
 void sm_com_print_perf_log();
+void sm_com_mes_mperf();
 
 // handlers
 void sm_com_handle_timing_goal_start(struct State * state, int t_left);

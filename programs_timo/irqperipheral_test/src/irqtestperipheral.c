@@ -708,12 +708,12 @@ void _irq_2_handler_1(void){
  */
 
 /**
- * @brief Thread safe generic (by id) getter for values from driver memory pools.
+ * @brief Thread safe generic (by id) getter for values of generic type from driver memory pools.
  * 
  * Doesn't read from registers; an irq is needed to load regs into driver mem.
  * @param id: id of value to get
  * @param res_value: pointer to a DrvValue_X struct of correct type. 
- * @return always 0
+ * @return:	 success 0, 1 on unknown val_type_id
  */ 
 int irqtester_fe310_get_val(irqt_val_id_t id, void * res_value){
 	
@@ -778,12 +778,51 @@ int irqtester_fe310_get_val(irqt_val_id_t id, void * res_value){
 		 
 }
 
+/**
+ * @brief Thread safe generic (by id) getter for values of uint type from driver memory pools.
+ * 
+ * Doesn't read from registers; an irq is needed to load regs into driver mem.
+ * @param id: id of value to get
+ * @param res_value: pointer to a DrvValue_uint struct. 
+ * @return: always 0
+ */ 
+int irqtester_fe310_get_val_uint(irqt_val_id_t id, void * res_value){
+	
+	// we only read data -> thread safe without synchronization
+
+	irqt_val_type_t type = VAL_T_UINT;
+
+
+	/* enter CRITICAL SECTION
+	 * ISRs write to internal value pools
+	 * we must not be interrupted while reading these 
+	 */ 
+	unsigned int lock_key = irq_lock();
+
+	//struct DrvValue_uint * dbg = ((struct DrvValue_uint *) res_value);
+	((struct DrvValue_uint *) res_value)->_super.id_name = id;
+#if	CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 0
+	((struct DrvValue_uint *) res_value)->payload = _values_uint[id_2_index_fast(id, VAL_T_UINT)].payload;
+	((struct DrvValue_uint *) res_value)->_super.time_cyc = _values_uint[id_2_index_fast(id, VAL_T_UINT)]._super.time_cyc;
+#else
+	((struct DrvValue_uint *) res_value)->payload = _values_uint[id_2_index(id)].payload;
+	((struct DrvValue_uint *) res_value)->_super.time_cyc = _values_uint[id_2_index(id)]._super.time_cyc;
+#endif
+	//SYS_LOG_DBG("at %p payload %i, time %i", dbg, dbg->payload, dbg->_super.time_cyc);
+		
+	irq_unlock(lock_key);
+
+	return 0;
+		 
+}
+
 /** 
  * @brief 	Non-Thread safe, generic setter for device registers.
  * 			Only works for regs which have a driver mem pool entry.	
  * 
  * @param id: id of value to set
  * @param set_value: pointer to a DrvValue_X struct of correct type. 
+ * @return: 0 on success, != 0 on fail
  */ 
 int irqtester_fe310_set_reg_fast(struct device * dev, irqt_val_id_t id, void * set_val){
 	int retval = 0;
@@ -841,6 +880,7 @@ int irqtester_fe310_set_reg_fast(struct device * dev, irqt_val_id_t id, void * s
 			break;
 		default:
 			SYS_LOG_ERR("Unknown type %i", type);
+			retval = 1;
 	}
 	
 	irq_unlock(lock_key);
@@ -1516,7 +1556,13 @@ static int irqtester_fe310_init(struct device *dev)
 static void plic_fast_handler(int irq_num){
 	struct device * dev = DEV(); 
 	struct irqtester_fe310_data *data = DEV_DATA(dev);
-	//SYS_LOG_DBG("ISR called with irq num %i", irq_num);
+
+
+	//u32_t t;
+	//__asm__ volatile("csrr %0, mepc" : "=r" (t));
+	//__asm__ volatile("addi %0, t2, 0" : "=r" (t2));
+	//printk("t1 %u t2 %u \n", t1, t2);
+	//SYS_LOG_DBG("ISR called with irq num %i, mepc %p", irq_num, t);
 
 	// do pointer arithmetic to be fast
 	int * cbs_p =(int *) &(data->cb_arr);

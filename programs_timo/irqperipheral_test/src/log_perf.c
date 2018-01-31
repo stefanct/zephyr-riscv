@@ -4,7 +4,7 @@
 
 
 // takes a lot space in data segment, so try to keep short
-#define LOG_PERF_BUFFER_DEPTH 15
+#define LOG_PERF_BUFFER_DEPTH 10
 #define LOG_PERF_STRING_LEN 60
 
 typedef char logline[LOG_PERF_STRING_LEN];
@@ -32,6 +32,17 @@ void save_to_intbuf(int id, int msg){
     i_logint_call++; 
 }
 
+static void purge_buff(){
+
+    for(int i=0; i<LOG_PERF_BUFFER_DEPTH; i++){
+        log_intbuff[i][0] = 0;
+        log_intbuff[i][1] = 0;
+        vsnprintk(log_buff[i], LOG_PERF_STRING_LEN, "", NULL);
+    }
+
+    i_log_call = 0;
+}
+
 void print_buff(){
     int len = (i_log_call < LOG_PERF_BUFFER_DEPTH ? i_log_call : LOG_PERF_BUFFER_DEPTH); 
     int len_int = (i_logint_call < LOG_PERF_BUFFER_DEPTH ? i_logint_call : LOG_PERF_BUFFER_DEPTH); 
@@ -46,4 +57,6 @@ void print_buff(){
     for(int i=0; i<len_int; i++){
         printk("[%i] %i\n", log_intbuff[i][0], log_intbuff[i][1]);
     } 
+
+    purge_buff();
 }

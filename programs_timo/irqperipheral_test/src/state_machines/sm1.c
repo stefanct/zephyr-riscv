@@ -14,6 +14,9 @@
 #include "log_perf.h"
 #include "sm_common.h"
 
+#define SM1_ENABLE
+#ifdef SM1_ENABLE
+
 // ugly: todo remove driver pointer from public driver interface
 struct device * g_dev_cp;
 
@@ -363,3 +366,5 @@ void sm1_print_report(){
 void sm1_reset(){
     sm_com_reset();
 }
+
+#endif

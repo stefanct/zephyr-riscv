@@ -5,6 +5,7 @@
 #include "state_manager.h"
 #include "log_perf.h"
 #include "state_machines/sm1.h"
+#include "state_machines/sm2_tasks.h"
 #include "tests/test_suite.h"
 
 
@@ -476,7 +477,8 @@ void action_test_mng_1(void){
 K_THREAD_STACK_DEFINE(thread_mng_run_1_stack, 2048);
 struct k_thread thread_mng_run_1_data;
 void run_test_state_mng_1(struct device * dev){
-
+    // todo: this testcase is broken, for preempt sm therad only
+    // fix and include substate logic in test
     int NUM_RUNS = 10;	
     dev_testscope = dev;
 
@@ -494,25 +496,20 @@ void run_test_state_mng_1(struct device * dev){
     state_mng_register_action(CYCLE_STATE_START, action_test_mng_1, reqvals, 1);
     state_mng_register_action(CYCLE_STATE_END, action_test_mng_1, NULL, 0);
 
-    /* old
-    irqt_val_id_t reqvals[] = {1,2,3};
-    irqt_val_id_t reqvals2[] = {1,2,3,4,5,6};
-    state_mng_register_action(CYCLE_STATE_START, action_print_start_state, NULL, 0);
-    state_mng_register_action(CYCLE_STATE_END, action_print_state, NULL, 0);
-
-    state_mng_register_action(CYCLE_STATE_START, action_print_start_state, reqvals, 3);
-    state_mng_register_action(CYCLE_STATE_END, action_print_state, reqvals2, 6);
-    state_mng_register_action(CYCLE_STATE_START, action_print_start_state, reqvals2, 6);
-    */
-
     state_mng_init(dev);
+
+     // state config done, print
+    state_mng_print_state_config();
+    state_mng_print_transition_table_config();
 
 	// start the thread immediatly
 	k_tid_t my_tid = k_thread_create(&thread_mng_run_1_data, thread_mng_run_1_stack,
                                  K_THREAD_STACK_SIZEOF(thread_mng_run_1_stack), (void (*)(void *, void *, void *)) state_mng_run,
                                  NULL, NULL, NULL,
-                                 0, 0, K_NO_WAIT);
+                                -1, 0, K_NO_WAIT);
     printk("state_manager thread @ %p started\n", my_tid);
+
+    test_assert(state_mng_start() == 0);
 
     for(int i=0; i<NUM_RUNS; i++){
         // fire (and run a state achine cycle) only every 100ms 
@@ -702,13 +699,12 @@ void run_test_sm2_action_perf_3(struct device * dev){
 
         sm2_config(32, param, sm2_task_calc_cfo_1, 1, 0);
         sm2_run(dev, cur_t_us * t_irq_divisor, cur_t_us, 1, 0);
-        //sm2_run(dev, cur_t_us * t_irq_divisor, cur_t_us, sm2_task_calc_cfo_1, param);
-        
+     
+        printk("DEBUG: test_runner going to sleep... \n");
 
-        printk("DEBUG: test_sm1_throughput_1 going to sleep... \n");
         k_sleep(t_per_run_ms);
-        
-        printk("DEBUG: Woke up again. Trying to stop SM1. \n");
+
+        printk("DEBUG: Woke up again. Trying to stop SM2. \n");
         // shut down and clean thread
         // to stop counting, register clear only cb
         irqtester_fe310_register_callback(dev, IRQ_2, _irq_2_handler_1);
@@ -720,10 +716,97 @@ void run_test_sm2_action_perf_3(struct device * dev){
     	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
         irqtester_fe310_set_reg(dev, VAL_IRQ_2_NUM_REP, &reg_num);
 
+        
+
         state_mng_print_evt_log();
         PRINT_LOG_BUFF();
-        sm1_print_report();
-        sm1_reset();
+        sm2_print_report();
+        sm2_reset();
+ 
+        param += param_delta;
+
+    }
+    
+    print_dash_line();
+}
+
+// test differnt actions
+// for profiling
+void run_test_sm2_action_prof_4(struct device * dev){
+
+    #include "state_machines/sm2_tasks.h"
+
+    int period_irq1_us = 1000;
+    // when choosing numbers, mind integer divison
+
+    int t_irq_divisor = 10; //2
+    int param_start = 2;
+    int param_delta = 2;
+
+    int num_runs = 20;
+    int t_per_run_ms = 1000;
+
+    int cur_t_us = period_irq1_us / t_irq_divisor;
+   
+
+    printk_framed("Now running sm2 profiler test 4");
+    print_dash_line();
+
+    struct DrvValue_uint val_status_1;
+    struct DrvValue_uint val_status_2;
+	irqtester_fe310_get_reg(dev, VAL_IRQ_1_STATUS, &val_status_1);
+    irqtester_fe310_get_reg(dev, VAL_IRQ_1_STATUS, &val_status_2);
+	printk("Status_1/2 before first run: %u, %u Test may take some seconds... \n", val_status_1.payload, val_status_2.payload);
+
+    int param = param_start;
+    for(int i=0; i<num_runs; i++){
+       
+        // spins until state_mng_start() invoked
+        k_tid_t my_tid = k_thread_create(&thread_sm1_data, thread_sm1_stack,
+                            K_THREAD_STACK_SIZEOF(thread_sm1_stack), (void (*)(void *, void *, void *))state_mng_run,
+                            NULL, NULL, NULL,
+                            thread_sm1_prio, 0, K_NO_WAIT);
+
+        printk("state_manager thread @ %p started\n", my_tid);
+
+        // to profile sm loop
+        sm2_config(32, 2, sm2_task_calc_cfo_1, 1, 0);
+        // disable irq1 and irq2
+        sm2_run(dev, 0, 0, 1, 0); // irq2 used by profiler
+       
+        // attention:
+        // - sm2 should be configured to not wait for irq1 (else idling after state end)
+        // means also, that thread will never return 
+        // workaround: main thread highest prio, yield task in end state (NOT WORKING)
+        // - should be STATE_MNG_LOG_EVENTS_DEPTH = 0
+
+        printk("DEBUG: test_runner going to sleep... \n");
+        // test once withouth profiler whether sm is actually running as expected
+        //if(i!= 0){
+            profiler_enable(10000);  // (1000 cyc)**(-1) = 65 kHz
+            profiler_start();
+        //}
+        k_sleep(t_per_run_ms);
+
+        profiler_stop();
+        printk("DEBUG: Woke up again. Trying to stop SM2. \n");
+        // shut down and clean thread
+        // to stop counting, register clear only cb
+        irqtester_fe310_register_callback(dev, IRQ_2, _irq_2_handler_1);
+        state_mng_abort();
+        k_sleep(1); // if cooperative main_thread, give sm control to quit thread
+        state_mng_purge_registered_actions_all();
+        // stop firing
+        struct DrvValue_uint reg_num = {.payload=0};
+    	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
+        irqtester_fe310_set_reg(dev, VAL_IRQ_2_NUM_REP, &reg_num);
+
+        
+
+        state_mng_print_evt_log();
+        PRINT_LOG_BUFF();
+        sm2_print_report();
+        sm2_reset();
  
         param += param_delta;
 

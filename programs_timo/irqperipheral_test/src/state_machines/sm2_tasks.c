@@ -82,6 +82,7 @@ static sm2_user_id_t state_2_userid(struct State * state, short substate, short 
     sm2_user_id_t user_id = _NIL_USER;
 
     // performance vs safety
+    // only for verbosity, is catched in user_id check below
     if(num_in_batch > num_usr_per_batch - 1 || substate > state->max_subs_idx){
         printk("WARNING: invalid num_in_batch %u or substate id %u \n", num_in_batch, substate);
         return user_id;
@@ -96,7 +97,8 @@ static sm2_user_id_t state_2_userid(struct State * state, short substate, short 
             return _NIL_USER;
     }
 
-    if(user_id >= _NUM_USERS){
+    if(user_id < _NIL_USER || user_id >= _NUM_USERS){
+        // occurs if num_in_batch is an empty user
         //printk("WARNING: invalid user_id %i set to _NIL_USER. In sm2_user_id_t? \n", user_id);
         return _NIL_USER;  
     }
@@ -167,7 +169,7 @@ void sm2_task_calc_cfo_1(){
         
         struct DrvValue_uint cfo;
         // todo: own getters for uint / int / bool -> perf
-        irqtester_fe310_get_val(read_reg, &cfo);
+        irqtester_fe310_get_val_uint(read_reg, &cfo);
         u32_t cfo_val_in = cfo.payload;
         // CFO CALCULATION
         u32_t cfo_last_res = user_data_arr_cfo[user - 1][i_cfo_buf];   // 0: _NIL_USER
@@ -179,7 +181,7 @@ void sm2_task_calc_cfo_1(){
         user_data_arr_cfo[user - 1][i_cfo_buf] = cfo_val_res;
         cfo.payload = cfo_val_res;
         // todo: own setters for uint / int / bool -> perf
-        irqtester_fe310_set_reg_fast(g_dev_cp, write_reg, &cfo);  
+        irqtester_fe310_set_reg_uint_fast(g_dev_cp, write_reg, &cfo);  
         
     }
     // idx for cfo_arr
@@ -205,7 +207,7 @@ void sm2_task_bench_basic_ops(){
 
     // ctodo: heck that compiler doesn't optimize away
     for(int i=0; i < num_bench_loads; i++){
-        irqtester_fe310_get_val(read_reg, &val);
+        irqtester_fe310_get_val_uint(read_reg, &val);
         val_in = val.payload;
     }
     for(int i=0; i < num_bench_macs; i++){
@@ -213,7 +215,7 @@ void sm2_task_bench_basic_ops(){
     }
     for(int i=0; i < num_bench_writes; i++){
         val.payload = val_res;
-        irqtester_fe310_set_reg_fast(g_dev_cp, write_reg, &val);
+        irqtester_fe310_set_reg_uint_fast(g_dev_cp, write_reg, &val);
     }
 
 }

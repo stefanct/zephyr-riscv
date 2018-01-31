@@ -118,6 +118,7 @@ struct DrvValue_bool{
 // todo: clearify which functions need 'struct device * dev' param
 
 int irqtester_fe310_get_val(irqt_val_id_t id_name, void * res);
+int irqtester_fe310_get_val_uint(irqt_val_id_t id, void * res_value);
 int irqtester_fe310_get_reg(struct device * dev, irqt_val_id_t id, void * res_val);
 int irqtester_fe310_set_reg(struct device * dev, irqt_val_id_t id, void * set_value);
 int irqtester_fe310_set_reg_fast(struct device * dev, irqt_val_id_t id, void * set_val);
