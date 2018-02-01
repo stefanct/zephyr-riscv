@@ -968,6 +968,8 @@ int irqtester_fe310_get_reg(struct device * dev, irqt_val_id_t id, void * res_va
 	irqt_val_type_t type = id_2_type(id);
 	#endif
 
+	//SYS_LOG_DBG("val_id %i, type %i", id, type);
+
 	u32_t now_cyc = get_cycle_32();
 	
 	int retval = 0;
@@ -997,7 +999,7 @@ int irqtester_fe310_get_reg(struct device * dev, irqt_val_id_t id, void * res_va
 		case VAL_T_INT:
 			((struct DrvValue_int *) res_val)->_super.id_name = id;
 		#if	CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 0
-			addr = (void *)_values_uint[id_2_index_fast(id, VAL_T_INT)].base_addr;
+			addr = (void *)_values_int[id_2_index_fast(id, VAL_T_INT)].base_addr;
 		#else
 			addr = (void *)_values_int[id_2_index(id)].base_addr;
 		#endif
@@ -1010,7 +1012,7 @@ int irqtester_fe310_get_reg(struct device * dev, irqt_val_id_t id, void * res_va
 		case VAL_T_BOOL:
 			((struct DrvValue_bool *) res_val)->_super.id_name = id;
 		#if	CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 0
-			addr = (void *)_values_uint[id_2_index_fast(id, VAL_T_BOOL)].base_addr;
+			addr = (void *)_values_bool[id_2_index_fast(id, VAL_T_BOOL)].base_addr;
 		#else
 			addr = (void *)_values_bool[id_2_index(id)].base_addr;
 		#endif

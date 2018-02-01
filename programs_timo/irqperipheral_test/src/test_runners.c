@@ -9,27 +9,50 @@
 #include "tests/test_suite.h"
 
 
-void run_test_hw_basic_1(struct device * dev){
+int run_test_hw_basic_1(struct device * dev, int verbosity){
     //print_banner();
-    print_time_banner();
+    if(verbosity > 1){
+        print_time_banner();
+        printk_framed("Now running basic hw test");
+        print_dash_line();
 
-    printk_framed("Now running basic hw test");
-    print_dash_line();
+        printk_framed("Testing hw rev 1 functionality");  
+        print_dash_line();
+    }
+    test_hw_rev_1_basic_1(dev, verbosity);
+    if(verbosity > 1){
+        test_print_report();  
+        print_dash_line();
+        printk_framed("Testing hw rev 2 functionality");
+        
+        print_dash_line();
+    }
+    test_hw_rev_2_basic_1(dev, verbosity);
+    if(verbosity > 1){
+        test_print_report();
+        print_dash_line();
+        printk_framed("Testing hw rev 3 functionality");
+        print_dash_line();
+    }
+    test_hw_rev_3_basic_1(dev, verbosity);
 
-    printk_framed("Testing hw rev 1 functionality");
-    print_dash_line();
-    test_hw_rev_1_basic_1(dev);
-    print_dash_line();
-    printk_framed("Testing hw rev 2 functionality");
-    print_dash_line();
-    test_hw_rev_2_basic_1(dev);
-    print_dash_line();
-    printk_framed("Testing hw rev 3 functionality");
-    print_dash_line();
-    test_hw_rev_3_basic_1(dev);
-
-    print_dash_line();
-    test_print_report(); // global var from tests.c
+    if(verbosity > 1){
+        test_print_report();
+        print_dash_line();
+        test_print_report(); // global var from tests.c
+    }
+    
+    int num_err = test_get_err_count();
+    test_reset();
+    if(verbosity > 0){
+        // manually change for new hw rev
+        printk("Hardware test for rev %i... ", 3);    
+        if(num_err == 0)
+            printk("ok \n");
+        else
+            printk("FAILED with %i errors\n", num_err);
+    }
+    return num_err;
 }
 
 
@@ -260,7 +283,7 @@ void run_test_irq_throughput_2(struct device * dev){
     int cur_t_us = start_period1_us;
     int dt_us = 5;
 
-
+      
     printk_framed("Now running interrupt throughput test 2");
     print_dash_line();
 
@@ -290,20 +313,26 @@ void run_test_irq_throughput_2(struct device * dev){
     test_print_report();
 }
 
-void run_test_irq_throughput_3_autoadj(struct device * dev){
+
+int run_test_irq_throughput_3_autoadj(struct device * dev, int verbosity){
     
     int num_runs = 20; // runs per t
-    u32_t guess_t_cyc = 5000;
+    u32_t guess_t_cyc = 1000;
     u32_t delta_cyc = 50;   // num_ts * delta_cyc should be enough to get close to 0
-    int num_ts = 1000;
-
-    printk_framed("Now running interrupt throughput test 3 with auto adjust");
-    print_dash_line();
+    int num_ts = 200;
 
     struct DrvValue_uint status_1;
 	irqtester_fe310_get_reg(dev, VAL_IRQ_1_STATUS, &status_1);
-	printk("Status_1 before first run: %i. Test may take some seconds... \n", status_1.payload);
-
+    
+    if(verbosity == 1){
+        printk("Running irq1 throughput test...");
+    }
+    else if(verbosity > 1){
+        print_dash_line();
+        printk_framed("Now running interrupt throughput test 3 (auto adjust) for irq1 ");
+        print_dash_line();
+        printk("Status_1 before first run: %i. Test may take some seconds... \n", status_1.payload);
+    }
     int status_arr_len = num_runs;
     int status_arr[status_arr_len];
     int status_arr_success[status_arr_len];
@@ -311,6 +340,9 @@ void run_test_irq_throughput_3_autoadj(struct device * dev){
     u32_t cur_t_cyc = guess_t_cyc;
     u32_t succes_t_cyc = 0;
     for(int i=0; i<num_ts; i++){
+        // clear array
+        for(int j=0; j<status_arr_len; j++)
+            status_arr[j] = -1;
         test_irq_throughput_2(dev, cur_t_cyc, num_runs, status_arr, status_arr_len);
         // do very basic adjustment algorithm
         if(status_arr[status_arr_len - 1] != 0){
@@ -331,12 +363,24 @@ void run_test_irq_throughput_3_autoadj(struct device * dev){
             
         }
         else{
-            if(cur_t_cyc == succes_t_cyc)
-                printk("\r");   // overwrite console
-            else
-                printk("\n");
-            printk("[%i] Cleared interrupt with period t= %u cyc, t= %u us => f= %u kHz", i, cur_t_cyc, cur_t_cyc/65, 65000 / (cur_t_cyc)); 
-            
+            if(verbosity > 2){
+                bool overwrite_line = false;
+                // overwrite same last result for verbosity 2 only
+                if(verbosity == 2){
+                    if(cur_t_cyc == succes_t_cyc)
+                        overwrite_line = true;
+                    if(overwrite_line)
+                        printk("\r");   // overwrite console
+                    else
+                        printk("\n");
+                }
+                printk("[%i] Cleared interrupt with period t= %u cyc, t= %u us => f= %u kHz", i, cur_t_cyc, cur_t_cyc/65, 65000 / (cur_t_cyc)); 
+                if(verbosity > 3){
+                    printk("\n");
+                    printk("Status array: \n");
+                    print_arr_int(status_arr, status_arr_len);
+                }
+            }
 
             succes_t_cyc = cur_t_cyc;
             
@@ -364,11 +408,22 @@ void run_test_irq_throughput_3_autoadj(struct device * dev){
     }
 
     irqtester_fe310_get_reg(dev, VAL_IRQ_1_STATUS, &status_1);
-	printk("\nFinished, status_1 after run: %i.  \n", status_1.payload);
-    printk("Last cache warmup status_1 behaviour: \n");
-    print_arr_int(status_arr_success, status_arr_len);
+    
+    if(verbosity == 1){
+         printk(" t= %i cyc, f= %i kHz, status_1: %i.\n", 
+            succes_t_cyc, 65000 / succes_t_cyc, status_1.payload);
+    }
+    else if(verbosity > 1){
+        printk("\nFinished with irq t= %i cyc, f= %i kHz. Status_1 after run: %i.  \n",
+             succes_t_cyc, 65000 / succes_t_cyc, status_1.payload);
+        printk("Last cache warmup status_1 behaviour: \n");
+        print_arr_int(status_arr_success, status_arr_len);
+        print_dash_line();
+    }
+    
 
-    print_dash_line();
+    return succes_t_cyc;
+    
 }
 
 void run_test_poll_throughput_1_autoadj(struct device * dev){
@@ -668,10 +723,10 @@ void run_test_sm2_action_perf_3(struct device * dev){
     // when choosing numbers, mind integer divison
 
     int t_irq_divisor = 10; //2
-    int param_start = 2;
-    int param_delta = 2;
+    int param_start = 4;
+    int param_delta = 4;
 
-    int num_runs = 20;
+    int num_runs = 8;
     int t_per_run_ms = 1000;
 
     int cur_t_us = period_irq1_us / t_irq_divisor;
@@ -697,13 +752,17 @@ void run_test_sm2_action_perf_3(struct device * dev){
 
         printk("state_manager thread @ %p started\n", my_tid);
 
-        sm2_config(32, param, sm2_task_calc_cfo_1, 1, 0);
+        //sm2_config(32, param, sm2_task_calc_cfo_1, 1, 0);
+
+        // for model calibration
+        //sm2_config(32, param, NULL, 1, 0);
+        //sm2_config(param, 4, sm2_task_calc_cfo_1, 1, 0);
+        sm2_config(param, param, sm2_task_calc_cfo_1, 1, 0);
+        //sm2_config(32, 8, sm2_task_bench_basic_ops, param, 2);
+       
         sm2_run(dev, cur_t_us * t_irq_divisor, cur_t_us, 1, 0);
-     
         printk("DEBUG: test_runner going to sleep... \n");
-
         k_sleep(t_per_run_ms);
-
         printk("DEBUG: Woke up again. Trying to stop SM2. \n");
         // shut down and clean thread
         // to stop counting, register clear only cb
