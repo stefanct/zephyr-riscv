@@ -24,80 +24,104 @@
 #endif
 
 
+static int verbosity_thresh = -1;
+
+
+void print_set_verbosity(int verb){
+    printk("DEBUG: Set verb to %i \n", verb);
+    verbosity_thresh = verb;
+}
+
+int print_get_verbosity(){
+    return verbosity_thresh;
+}
+
+static bool do_print(int verbosity, bool exact){
+    bool cond1 = (verbosity_thresh >= verbosity);
+    if(exact)
+        cond1 = (verbosity_thresh == verbosity);
+
+    return (cond1 || verbosity == 0 || verbosity_thresh < 0);
+}
+
 /**
- *
+ * @brief: printk if given verbosity >= set verbosity threshold. 
+ * 
+ * @param verbosity: print always if 0
+ */
+
+void printkv(int verbosity, const char *fmt, ...){
+
+    if(do_print(verbosity, false)){
+        va_list args;
+        va_start(args, fmt);
+
+        vprintk(fmt, args); 
+        va_end(args);
+    }
+}
+/**
+ * @brief: printk if given verbosity exactly == set verbosity threshold. 
+ * 
+ * @param verbosity: print always if 0
+ */
+
+void printkve(int verbosity, const char *fmt, ...){
+
+    if(do_print(verbosity, true)){
+        va_list args;
+        va_start(args, fmt);
+
+        vprintk(fmt, args); 
+        va_end(args);
+    }
+}
+
+
+/**
  * @brief Print dash line
  *
  * @return N/A
  */
-void print_dash_line(void){
-	printk("|-------------------------------------------------------"
+void print_dash_line(int verbosity){
+	printkv(verbosity, "|-------------------------------------------------------"
 	       "----------------------|\n");
 }
 
-void print_report(int err_count){
-	print_dash_line();
+void print_report(int verbosity, int err_count){
+	print_dash_line(verbosity);
     if(err_count == 0){
-        printk_framed("All tests PASSED");
+        printk_framed(verbosity, "All tests PASSED");
     }
     else{
-        printk_framed("Tests FAILED with %i errors", err_count);
+        printk_framed(verbosity, "Tests FAILED with %i errors", err_count);
     }
-    print_dash_line();
+    print_dash_line(verbosity);
 
 }
 
-void print_end_banner()	{								
-	printk("|                                    E N D             " \
+void print_end_banner(int verbosity)	{								
+	printkv(verbosity, "|                                    E N D             " \
 	       "                       |\n");				\
-	print_dash_line();						\
+	print_dash_line(verbosity);						\
 } 
 
 
-void print_banner()	 {								
-	print_dash_line();						\
-	printk("|                            Latency Benchmark         " \
+void print_banner(int verbosity)	 {								
+	print_dash_line(verbosity);						\
+	printkv(verbosity, "|                            Latency Benchmark         " \
 	       "                       |\n");				\
-	print_dash_line();						\
+	print_dash_line(verbosity);						\
 } 
 
 
-void print_time_banner(){								
-	printk_framed("tcs = timer clock cycles: 1 tcs is %u nsec",	
+void print_time_banner(int verbosity){								
+	printk_framed(verbosity, "tcs = timer clock cycles: 1 tcs is %u nsec",	
 		     SYS_CLOCK_HW_CYCLES_TO_NS(1));			
-	print_dash_line();						
+	print_dash_line(verbosity);						
 } 
 
-/**
- * @brief prints string in the center of console
- * 
- * Only works if printf is avilable.
- * 
- * @param width: of console, suggested standard value is 80
- */
-void print_centered(const char *string, int width){
 
-	// do nothing if string doesn't fit in a single row
-	if(strlen(string) >= width)
-		printf("%s", string);
-	else
-		printf("%*s", (int)(width/2 + strlen(string)/2), string);
-}
- 
-/**
- * @brief 	prints string in the center of console with | at beginning
- * 			and end of line. 
- * 
- * Only works if printf is avilable.
- * 
- */
-void print_framed(const char *string){
-    int width = 80;
-	printf("|");
-	print_centered(string, width - 2);
-	printf("%*s",(int)((width-2)/2-(strlen(string))/2),"|");
-	printf("\n");
-}
 
 /**
  * @brief prints string in the center of console
@@ -105,10 +129,14 @@ void print_framed(const char *string){
  * Automatically adds \n identifier for end of line.
  * Uses standard width value of 80 for console.
  */
-void printk_centered(const char *fmt, ...){
-
-	va_list args;
+void printk_centered(int verbosity, const char *fmt, ...){
+    va_list args;
 	va_start(args, fmt);
+
+    if(!do_print(verbosity, false))
+        return;
+
+	
 
     size_t str_length = vsnprintk(NULL, 0, fmt, args);
 	int width = 80-1;
@@ -132,7 +160,7 @@ void printk_centered(const char *fmt, ...){
     }
  
 	vprintk(fmt, args);
-	  
+	 
     va_end(args);
 
 }
@@ -144,11 +172,14 @@ void printk_centered(const char *fmt, ...){
  * Automatically adds \n identifier for end of line.
  * Uses standard width value of 80 for console.
  */
-void printk_framed(const char *fmt, ...){
-    
-	va_list args;
+void printk_framed(int verbosity, const char *fmt, ...){
+
+    va_list args;
 	va_start(args, fmt);
-	
+
+    if(!do_print(verbosity, false))
+        return;
+
 	size_t str_length = vsnprintk(NULL, 0, fmt, args);
 	//printk("DEBUG: Length of string %i \n", str_length);
 	int width = 80-1;
@@ -189,15 +220,15 @@ void printk_framed(const char *fmt, ...){
 }
 
 
-void print_arr_int(int arr[], int len){
+void print_arr_int(int verbosity, int arr[], int len){
     int i;
     for (i=0; i < len; i++) {
         if(i == len-1)
-            printk("%i", (int)arr[i]);
+            printkv(verbosity, "%i", (int)arr[i]);
         else
-            printk("%i, ", (int)arr[i]);
+            printkv(verbosity, "%i, ", (int)arr[i]);
     }
-    printk("\n");
+    printkv(verbosity, "\n");
 }
 
 void snprint_arr_int(char * str, int len_str, int arr[], int len){
@@ -216,13 +247,9 @@ void snprint_arr_int(char * str, int len_str, int arr[], int len){
         // buffer full
         if(add_i_str < 0)
             break;
-        i_str += add_i_str;
-      
-        
+        i_str += add_i_str;      
     }
-    // buffer full, add ... (if space for that)
-    if(add_i_str < 0)
-        snprintk(str+i_str-3, len_str-i_str+3, "...");
+  
 }
 
 void snprint_arr_p(char * str, int len_str, void * arr[], int len){
@@ -246,13 +273,13 @@ void snprint_arr_p(char * str, int len_str, void * arr[], int len){
     }
 }
 
-void print_arr_uint(u32_t arr[], int len){
+void print_arr_uint(int verbosity, u32_t arr[], int len){
     int i;
     for (i=0; i < len; i++) {
         if(i == len-1)
-            printk("%u", (int)arr[i]);
+            printkv(verbosity, "%u", (int)arr[i]);
         else
-            printk("%u, ", (int)arr[i]);
+            printkv(verbosity, "%u, ", (int)arr[i]);
     }
-    printk("\n");
+    printkv(verbosity, "\n");
 }

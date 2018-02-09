@@ -136,20 +136,47 @@ void states_configure_substates(struct State * state, u8_t num_substates, u8_t t
 }
 
 
-/*
- * Define actions
- *-----------------------------------------------------------------------------
- */  
+void states_print_state(struct State * state){
+    printk("Printing state struct: \n");
+    printk("id: %i \ndefault_next: %i \ngoal_start: %u \ngoal_end: %u \nval_ids_req \n", \
+            state->id_name, state->default_next_state,     \
+            state->timing_goal_start, state->timing_goal_end);
+    print_arr_uint(0, state->val_ids_req, STATES_REQ_VALS_MAX);
+    printk("action: %p \n", state->action);
 
-
-
-void action_print_state(){
-    printk("Current state is %i \n", state_mng_get_current());
 }
 
 
-void action_print_start_state(){
-    printk("Received start event, state is %i \n", state_mng_get_current());
+int states_get_timing_goal_start(struct State * state, u8_t substate){
+    
+   
+    int result = state->timing_goal_start;   
+
+    // substate logic
+    // replicate duration of parent state + summand
+    #if(STATES_DIS_SUBSTATES == 0)
+    if(state->max_subs_idx > 0){
+        result += substate * (state->timing_goal_end - state->timing_goal_start + state->timing_summand) ;
+    }
+    #endif
+
+    return result;
 }
+
+int states_get_timing_goal_end(struct State * state, u8_t substate){
+    
+    int result = state->timing_goal_end;
+
+    // substate logic
+    // replicate duration of parent state + summand
+    #if(STATES_DIS_SUBSTATES == 0)
+    if(state->max_subs_idx > 0){
+        result += substate * (state->timing_goal_end - state->timing_goal_start + state->timing_summand) ;
+    }
+    #endif
+
+    return result;
+}
+
 
 #endif // TEST_MINIMAL

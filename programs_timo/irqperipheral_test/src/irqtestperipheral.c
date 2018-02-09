@@ -1,8 +1,7 @@
 /** 
  *  @file
- *  Driver for IrqTestPeripheral hw revision 1.
+ *  Driver for IrqTestPeripheral hw revision 3.
  *  Singleton, only register one instance with kernel!
- *  Based on gpio_fe310 driver by Jean-Paul Etienne <fractalclone@gmail.com>
  */
 
 // todo: 
@@ -40,7 +39,6 @@
 // todo: move to kconfig system
 #define CONFIG_IRQTESTER_FE310_0_PRIORITY 	FE310_PLIC_MAX_PRIORITY
 #define CONFIG_IRQTESTER_FE310_NAME 		"irqtester0"
-#define CONFIG_IRQTESTER_FE310_FAST_IRQ		1
 #define CONFIG_IRQTESTER_FE310_FAST_ID2IDX	1	
 #if CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 0
 #warning "Fast id2idx functions enabled. No bound checking on indices!"
@@ -328,7 +326,7 @@ static inline void flag_event_rx(struct device * dev, struct DrvEvent *evt){
 
 
 /**
- * @brief:  Default ISR set up in driver init. Serves all IRQs of irqtester.
+ * @brief  Default ISR set up in driver init. Serves all IRQs of irqtester.
  * 			Uses generic getters and conditional logic (potentially slow).
  * 
  * Notes:
@@ -713,7 +711,7 @@ void _irq_2_handler_1(void){
  * Doesn't read from registers; an irq is needed to load regs into driver mem.
  * @param id: id of value to get
  * @param res_value: pointer to a DrvValue_X struct of correct type. 
- * @return:	 success 0, 1 on unknown val_type_id
+ * @param	 success 0, 1 on unknown val_type_id
  */ 
 int irqtester_fe310_get_val(irqt_val_id_t id, void * res_value){
 	
@@ -784,13 +782,13 @@ int irqtester_fe310_get_val(irqt_val_id_t id, void * res_value){
  * Doesn't read from registers; an irq is needed to load regs into driver mem.
  * @param id: id of value to get
  * @param res_value: pointer to a DrvValue_uint struct. 
- * @return: always 0
+ * @param always 0
  */ 
 int irqtester_fe310_get_val_uint(irqt_val_id_t id, void * res_value){
 	
 	// we only read data -> thread safe without synchronization
 
-	irqt_val_type_t type = VAL_T_UINT;
+	//irqt_val_type_t type = VAL_T_UINT;
 
 
 	/* enter CRITICAL SECTION
@@ -816,13 +814,34 @@ int irqtester_fe310_get_val_uint(irqt_val_id_t id, void * res_value){
 		 
 }
 
+/**
+ * @brief	Thread safe generic (by id) getter for values of uint type from driver memory pools.
+ * 			For perforamnce reasons, use return value instread a passed container for result.	  	
+ * 
+ * Doesn't read from registers; an irq is needed to load regs into driver mem.
+ * @param id: id of value to get
+ * @param res_value: pointer to a DrvValue_uint struct. 
+ * @param always 0
+ */ 
+u32_t irqtester_fe310_get_val_uint_raw(irqt_val_id_t id){
+	
+	u32_t retval = 0;
+	unsigned int lock_key = irq_lock();
+	
+	retval = _values_uint[id_2_index_fast(id, VAL_T_UINT)].payload;
+	
+	irq_unlock(lock_key);
+
+	return retval;
+}
+
 /** 
  * @brief 	Non-Thread safe, generic setter for device registers.
  * 			Only works for regs which have a driver mem pool entry.	
  * 
  * @param id: id of value to set
  * @param set_value: pointer to a DrvValue_X struct of correct type. 
- * @return: 0 on success, != 0 on fail
+ * @param 0 on success, != 0 on fail
  */ 
 int irqtester_fe310_set_reg_fast(struct device * dev, irqt_val_id_t id, void * set_val){
 	int retval = 0;
@@ -1295,17 +1314,17 @@ void irqtester_fe310_dbgprint_event(struct device * dev, struct DrvEvent * evt){
 		if(evt->val_type == VAL_T_INT){
 			struct DrvValue_int val;
 			irqtester_fe310_get_val(id, &val);
-			SYS_LOG_DBG("Value (id: %i): %i updated at %u ns", val._super.id_name, val.payload, val._super.time_cyc);
+			SYS_LOG_DBG("Value (id: %i): %i updated at %u cyc", val._super.id_name, val.payload, val._super.time_cyc);
 		} 
 		else if(evt->val_type == VAL_T_UINT){
 			struct DrvValue_uint val;
 			irqtester_fe310_get_val(id, &val);
-			SYS_LOG_DBG("Value (id: %i): %u updated at %u ns", val._super.id_name, val.payload, val._super.time_cyc);
+			SYS_LOG_DBG("Value (id: %i): %u updated at %u cyc", val._super.id_name, val.payload, val._super.time_cyc);
 		} 
 		else if(evt->val_type == VAL_T_BOOL){
 			struct DrvValue_bool val;
 			irqtester_fe310_get_val(id, &val);
-			SYS_LOG_DBG("Value (id: %i): %i updated at %u ns", val._super.id_name, val.payload, val._super.time_cyc);
+			SYS_LOG_DBG("Value (id: %i): %i updated at %u cyc", val._super.id_name, val.payload, val._super.time_cyc);
 		}
 		else
 			SYS_LOG_WRN("Can't print event of unknown value type %i", evt->val_type);
@@ -1322,7 +1341,7 @@ void irqtester_fe310_dbgprint_event(struct device * dev, struct DrvEvent * evt){
 // TODO: encapsulate hardware reads, make functions static
 
 /**
- * @brief: Fast id 2 index functions. 
+ * @brief Fast id 2 index functions. 
  * 
  * Used if CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 1 set.
  * No bound checking! Make sure there is NEVER an id < 0 or id > _NUM_VALS 
@@ -1344,7 +1363,7 @@ static irqt_val_type_t id_2_type_fast(irqt_val_id_t id){
 
 
 /**
- * @brief: Slow but safe id 2 index functions. 
+ * @brief Slow but safe id 2 index functions. 
  * 
  * Used if CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 1 not set.
  * Bound cheking performed, but many branch instructions.
@@ -1401,7 +1420,7 @@ static inline int id_2_index(irqt_val_id_t id){
 }
 
 /**
- * @brief: Call ONLY from ISR!
+ * @brief Call ONLY from ISR!
  */
 static inline irqt_irq_id_t _get_irq_id(){
 	//return 0; // debug only
@@ -1768,7 +1787,7 @@ int irqtester_fe310_fire(struct device *dev)
 }
 
 /**
- * @brief:
+ * @brief
  * 
  * Need to set regs num_rep_1 and period_1 first.
  */
@@ -1789,7 +1808,7 @@ void irqtester_fe310_fire_1(struct device *dev){
 }
 
 /**
- * @brief:
+ * @brief
  * 
  * Need to set regs num_rep_2 and period_2 first.
  */
@@ -1806,7 +1825,7 @@ int irqtester_fe310_fire_2(struct device *dev){
 }
 
 /**
- * @brief:
+ * @brief
  * 
  */
 void irqtester_fe310_clear_1(struct device *dev){	
@@ -1827,7 +1846,7 @@ void irqtester_fe310_clear_1(struct device *dev){
 }
 
 /**
- * @brief:
+ * @brief
  * 
  */
 void irqtester_fe310_clear_2(struct device *dev){

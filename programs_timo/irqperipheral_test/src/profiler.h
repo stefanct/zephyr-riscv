@@ -1,3 +1,9 @@
+/**
+ * @file
+ * @brief  Simple statistical profiler employing periodic IRQ
+ *          of irqtestperipheral hardware.
+ */
+
 #ifndef PROFILER_H
 #define PROFILER_H
 

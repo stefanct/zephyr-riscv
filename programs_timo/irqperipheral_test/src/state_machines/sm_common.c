@@ -211,13 +211,13 @@ void sm_com_print_perf_log(){
     // write to uart console (slow)
    
     if(idx_0 < idx_1){
-        //print_arr_int(buf + idx_0, idx_1 - idx_0);
+        //print_arr_int(0, buf + idx_0, idx_1 - idx_0);
     }
     else if(idx_0 >= idx_1){
         // buffer full write out
         printk("Duration of last actions: \n");
         printk("{[");
-        print_arr_int(buf, buf_len);    
+        print_arr_int(0, buf, buf_len);    
         printk("]}");
     }
    

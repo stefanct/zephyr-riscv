@@ -223,9 +223,9 @@ static void config_timing_goals(int period_irq1_us, int period_irq2_us, int num_
 
 void sm1_run(struct device * dev, int period_irq1_us, int period_irq2_us){
 
-    print_dash_line();
-    printk_framed("Now running state machine sm1");
-    print_dash_line();
+    print_dash_line(0);
+    printk_framed(0, "Now running state machine sm1");
+    print_dash_line(0);
     printk("period_1: %i us, %i cyc, period_2: %i us, %i cyc\n", 
             period_irq1_us, 65*period_irq1_us, period_irq2_us, 65*period_irq2_us);
 
@@ -347,18 +347,18 @@ void sm1_print_report(){
     printk("Detailed timing of last %i runs [cpu cycles]: \n", SM1_TIMING_BUFFER_DEPTH);
     printk("State START to END time: \n");
     printk("{[");
-    print_arr_uint(timing_cyc, SM1_TIMING_BUFFER_DEPTH);
+    print_arr_uint(0, timing_cyc, SM1_TIMING_BUFFER_DEPTH);
     printk("]}\n");
 
     /*
     printk("Detailed timing_end  [cpu cycles]: \n");
     printk("{[");
-    print_arr_uint(timing_cyc_end, SM1_TIMING_BUFFER_DEPTH);
+    print_arr_uint(0, timing_cyc_end, SM1_TIMING_BUFFER_DEPTH);
     printk("]}\n");
 
     printk("Detailed timing_start  [cpu cycles]: \n");
     printk("{[");
-    print_arr_uint(timing_cyc_start, SM1_TIMING_BUFFER_DEPTH);
+    print_arr_uint(0, timing_cyc_start, SM1_TIMING_BUFFER_DEPTH);
     printk("]}\n");
     */
 }

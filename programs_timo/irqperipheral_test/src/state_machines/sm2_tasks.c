@@ -140,9 +140,9 @@ static short i_cfo_buf = 0;
 // simple cfo without considering all user weights
 // per user in batch: 1 load, 1 save, 1 MAC
 // must be called from non-preemtible task! (set_reg_fast)
-void sm2_task_calc_cfo_1(){
+void sm2_task_calc_cfo_1(struct ActionArg const * arg){
 
-    struct State * state_cur = state_mng_id_2_state(state_mng_get_current()); 
+    struct State * state_cur = arg->state_cur; 
     u8_t substate = state_cur->cur_subs_idx;
 
     // values to load from driver for each user in batch
@@ -157,25 +157,27 @@ void sm2_task_calc_cfo_1(){
 
 
     // TODO: DUMMY FORMULA, use and update weight over all users to calc 
-    for(int i = 0; i<num_usr_per_batch; i++){
+    for(int i_usr = 0; i_usr<num_usr_per_batch; i_usr++){
         // find out user
-        sm2_user_id_t user = state_2_userid(state_cur, substate, i);
+        sm2_user_id_t user = state_2_userid(state_cur, substate, i_usr);
         // occurs if last substate not fully filled with user 
         if(user == _NIL_USER){
             break;
         }
-        //printk("user %i for state %i.%u, batch_i %i \n", user, state_cur->id_name, substate, i);
+        //printk("user %i for state %i.%u, batch_i %i \n", user, state_cur->id_name, substate, i_usr);
         // read value from driver
         
         struct DrvValue_uint cfo;
         // todo: own getters for uint / int / bool -> perf
         irqtester_fe310_get_val_uint(read_reg, &cfo);
         u32_t cfo_val_in = cfo.payload;
+        
         // CFO CALCULATION
         u32_t cfo_last_res = user_data_arr_cfo[user - 1][i_cfo_buf];   // 0: _NIL_USER
 
         // multiply accumulate
         u32_t cfo_val_res = cfo_last_res + user * cfo_val_in;
+        
         // todo: statistics?        
         // write back
         user_data_arr_cfo[user - 1][i_cfo_buf] = cfo_val_res;
@@ -200,15 +202,18 @@ void sm2_task_print_cfo_stat(){
 void sm2_task_bench_basic_ops(){
     irqt_val_id_t read_reg  = VAL_IRQ_0_PERVAL;
     irqt_val_id_t write_reg = VAL_DSP_3_CLEAR_ID;
+    int read_arr_irx = 0;
     
     struct DrvValue_uint val;
     u32_t val_in = 42;
     u32_t val_res = 7;
 
-    // ctodo: heck that compiler doesn't optimize away
     for(int i=0; i < num_bench_loads; i++){
         irqtester_fe310_get_val_uint(read_reg, &val);
         val_in = val.payload;
+        // test
+        //val_in = irqtester_fe310_get_val_uint_raw_2(read_arr_irx);
+
     }
     for(int i=0; i < num_bench_macs; i++){
         val_res = i + i * val_in;

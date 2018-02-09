@@ -1,3 +1,10 @@
+/**
+ * @file
+ * @brief  Read riscv32 hardware cpu cycle count (not realtime counter (rtc))
+ */
+
+
+
 #ifndef CYCLES_H
 #define CYCLES_H
 

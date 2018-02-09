@@ -27,9 +27,9 @@ int getAvg (int x, bool reset){
 }
 
 void test_uint_overflow(){
-	print_dash_line();
-	printk_framed("Now checking uint (timer) overrroll behaviour ");
-    print_dash_line();
+	print_dash_line(0);
+	printk_framed(0, "Now checking uint (timer) overrroll behaviour ");
+    print_dash_line(0);
 
 	printk("1: (non overroll) UINT_MAX - (UINT_MAX-1) \n2: (overroll) UINT_MAX + 10 - (UINT_MAX-1) \n");
 	printk("Expect (1) + 10 == (2) \n");
@@ -42,12 +42,12 @@ void test_uint_overflow(){
 
 	test_assert(dif_normal + 10 == dif_ov );
 	printk("dif normal: %u, overroll: %u \n", dif_normal, dif_ov);
-	test_print_report();
+	test_print_report(0);
 }
 
 // tests functionality of hw rev 1
 // compatible with hw revs: 1,2,3
-void test_hw_rev_1_basic_1(struct device * dev, int verbosity){
+void test_hw_rev_1_basic_1(struct device * dev){
 	// test generic reg setters and getters, driver mem getter
 	struct DrvValue_uint val = {.payload=42}; 
 	struct DrvValue_uint test;
@@ -57,26 +57,22 @@ void test_hw_rev_1_basic_1(struct device * dev, int verbosity){
 	// save enable status on enter
 	irqtester_fe310_get_reg(dev, VAL_IRQ_0_ENABLE, &enable);
 	bool enable_on_enter = enable.payload;
-	if(verbosity > 1)
-		printk("get_reg enable0: %i, should be 1\n", enable_on_enter);
+	printkv(2, "get_reg enable0: %i, should be 1\n", enable_on_enter);
 	test_assert(enable_on_enter == 1);
 
 	// without load to driver, value should be 0 
 	irqtester_fe310_set_reg(dev, VAL_IRQ_0_VALUE, &val);	
 	irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &test);
-	if(verbosity > 1)
-		printk("get_reg perval0: %i, should be 0\n", test.payload);
+	printkv(2, "get_reg perval0: %i, should be 0\n", test.payload);
 	test_assert(test.payload == (u32_t)0);
 
 	// firing loads register into driver values
 	irqtester_fe310_fire(dev);
 	irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &test);
-	if(verbosity > 1)
-		printk("get_val perval0: %i, should be 42 \n", test.payload);
+	printkv(2, "get_val perval0: %i, should be 42 \n", test.payload);
 	test_assert(test.payload == (u32_t)42);
 	irqtester_fe310_get_reg(dev, VAL_IRQ_0_STATUS, &test);
-	if(verbosity > 1)
-		printk("get_reg status0: %i, should be 0 \n", test.payload);
+	printkv(2, "get_reg status0: %i, should be 0 \n", test.payload);
 	test_assert(test.payload == (u32_t)0); // no error code status
 
 	// disabling won't fire the interrupt, so nothing loaded
@@ -87,8 +83,7 @@ void test_hw_rev_1_basic_1(struct device * dev, int verbosity){
 	irqtester_fe310_fire(dev);
 	// load from memory value
 	irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &test);
-	if(verbosity > 1)
-		printk("get_val perval0: %i, should be 42 \n", test.payload);
+	printkv(2, "get_val perval0: %i, should be 42 \n", test.payload);
 	test_assert(test.payload == (u32_t)42);
 	
 	// load from register should still work after re-enabling
@@ -96,13 +91,12 @@ void test_hw_rev_1_basic_1(struct device * dev, int verbosity){
 	irqtester_fe310_set_reg(dev, VAL_IRQ_0_ENABLE, &enable);
 	irqtester_fe310_get_reg(dev, VAL_IRQ_0_PERVAL, &test);
 	test_assert(test.payload == (u32_t)7);
-	if(verbosity > 1)
-		printk("get_reg perval0: %i, should be 7 \n", test.payload);
+	printkv(2, "get_reg perval0: %i, should be 7 \n", test.payload);
 	/* disable, will always fail on usual setting CONFIG_IRQTESTER_FE310_FAST_ID2IDX
-	if(verbosity > 1){
-		printk("get_reg perval0: %i \n", test.payload);
-		printk("Trying to get invalid value. Expect and ignore error.\nWill fail if set CONFIG_IRQTESTER_FE310_FAST_ID2IDX \n");
-	}
+
+	printkv(2, "get_reg perval0: %i \n", test.payload);
+	printkv(2, "Trying to get invalid value. Expect and ignore error.\nWill fail if set CONFIG_IRQTESTER_FE310_FAST_ID2IDX \n");
+	
 	int ret = irqtester_fe310_get_val((u32_t)-1, &test);
 	test_assert(ret != 0);
 	*/
@@ -129,7 +123,7 @@ void irq_handler_clear_irq_1(void){
 
 // test new DPS blocks 
 // compatible with hw revs: 2
-void test_hw_rev_2_basic_1(struct device * dev, int verbosity){
+void test_hw_rev_2_basic_1(struct device * dev){
 
 	u32_t NUM_FIRE_1 = 3;
 	u32_t PERIOD_FIRE_1 = 1000000;  // clock cycles
@@ -149,10 +143,10 @@ void test_hw_rev_2_basic_1(struct device * dev, int verbosity){
 	irqtester_fe310_set_reg(dev, VAL_IRQ_2_NUM_REP, &reg_num);
 	irqtester_fe310_set_reg(dev, VAL_IRQ_2_PERIOD, &reg_period);
 	irqtester_fe310_get_reg(dev, VAL_IRQ_2_STATUS, &status_2);
-	if(verbosity > 1){
-		printk("get_reg status_1: %i \n", status_1.payload);
-		printk("get_reg status_2: %i \n", status_2.payload);
-	}
+
+	printkv(2, "get_reg status_1: %i \n", status_1.payload);
+	printkv(2, "get_reg status_2: %i \n", status_2.payload);
+	
 	// fire irq1 3x, with handler that won't clear interrupt
 	irqtester_fe310_register_callback(dev, IRQ_1, _irq_1_handler_1);
 	irqtester_fe310_register_callback(dev, IRQ_2, _irq_1_handler_1);
@@ -161,23 +155,22 @@ void test_hw_rev_2_basic_1(struct device * dev, int verbosity){
 
 
 	u32_t t_sleep_ms = (NUM_FIRE_1 * PERIOD_FIRE_1) / 65000;
-	if(verbosity > 1)
-		printk("Sleeping for %i ms \n", t_sleep_ms);
+	printkv(2, "Sleeping for %i ms \n", t_sleep_ms);
 	k_sleep(t_sleep_ms); /// sleep in ms, run at 65 MHz
 	
 	irqtester_fe310_get_reg(dev, VAL_IRQ_1_NUM_REP, &val);
-	if(verbosity > 1)
-		printk("get_reg num_rep_1: %i \n", val.payload);
+
+	printkv(2, "get_reg num_rep_1: %i \n", val.payload);
 	irqtester_fe310_get_reg(dev, VAL_IRQ_1_PERIOD, &val);
-	if(verbosity > 1)
-		printk("get_reg period_1: %i \n", val.payload);
+
+	printkv(2, "get_reg period_1: %i \n", val.payload);
 	
 	irqtester_fe310_get_reg(dev, VAL_IRQ_1_STATUS, &status_1);
-	if(verbosity > 1)
-		printk("get_reg status_1: %i, should be %i \n", status_1.payload, NUM_FIRE_1);
+
+	printkv(2, "get_reg status_1: %i, should be %i \n", status_1.payload, NUM_FIRE_1);
 	irqtester_fe310_get_reg(dev, VAL_IRQ_2_STATUS, &status_2);
-	if(verbosity > 1)
-		printk("get_reg status_2: %i, should be %i \n", status_2.payload, NUM_FIRE_1);
+
+	printkv(2, "get_reg status_2: %i, should be %i \n", status_2.payload, NUM_FIRE_1);
 
 	// we din't clear the interrupt, so status should be iterated
 	test_assert(status_1.payload == NUM_FIRE_1);
@@ -196,15 +189,14 @@ void test_hw_rev_2_basic_1(struct device * dev, int verbosity){
 	u32_t t = get_cycle_32();
 	irqtester_fe310_fire_1(dev);
 	k_sleep(10 * NUM_FIRE_1 * PERIOD_FIRE_1 / 65000);  
-	if(verbosity > 1)
-		printk("Fired at %i cycles \n", t);
+
+	printkv(2, "Fired at %i cycles \n", t);
 
 	irqtester_fe310_get_reg(dev, VAL_IRQ_1_STATUS, &status_1);
-	if(verbosity > 1)
-		printk("get_reg status_1: %i, should be %i \n", status_1.payload, NUM_FIRE_1);
+	printkv(2, "get_reg status_1: %i, should be %i \n", status_1.payload, NUM_FIRE_1);
 	irqtester_fe310_get_reg(dev, VAL_IRQ_1_CLEAR, &clear_1);
-	if(verbosity > 1)
-		printk("get_reg clear_1: %i \n", clear_1.payload);
+
+	printkv(2, "get_reg clear_1: %i \n", clear_1.payload);
 
 	// we did clear the interrupt, so status should be unchanged
 	test_assert(status_1.payload == NUM_FIRE_1);
@@ -215,7 +207,7 @@ void test_hw_rev_2_basic_1(struct device * dev, int verbosity){
 
 }
 
-void test_hw_rev_3_basic_1(struct device * dev, int verbosity){
+void test_hw_rev_3_basic_1(struct device * dev){
 	
 	u32_t period_poll = 1000000;	// cycles
 	u32_t num_poll = 10;
@@ -249,10 +241,10 @@ void test_hw_rev_3_basic_1(struct device * dev, int verbosity){
 	irqtester_fe310_get_reg(dev, VAL_IRQ_1_STATUS, &status_1);
 	irqtester_fe310_get_reg(dev, VAL_DSP_3_STATUS, &status_3);
 
-	if(verbosity > 1){
-		printk("get_reg status_1: %i \n", status_1.payload);
-		printk("get_reg status_3: %i \n", status_3.payload);
-	}
+
+	printkv(2, "get_reg status_1: %i \n", status_1.payload);
+	printkv(2, "get_reg status_3: %i \n", status_3.payload);
+	
 	u32_t t_start = get_cycle_32();
 	u32_t t_end;
 	irqtester_fe310_fire_1(dev);
@@ -280,14 +272,12 @@ void test_hw_rev_3_basic_1(struct device * dev, int verbosity){
 			// clear
 			val.payload = i+1;
 			irqtester_fe310_set_reg(dev, VAL_DSP_3_CLEAR_ID, &val);
-			if(verbosity > 1)
-				printk("Successfully polled counter_id %u in t= %u cycles since irq, timeout= %i \n", counter_reg, t_end - t_start, timeout);
+			printkv(2, "Successfully polled counter_id %u in t= %u cycles since irq, timeout= %i \n", counter_reg, t_end - t_start, timeout);
 
 		}
 		else{
 			test_assert(0);
-			if(verbosity > 1)
-				printk("Polling value %i timed out \n", i+1);
+			printkv(2, "Polling value %i timed out \n", i+1);
 		}
 
 	}
@@ -330,14 +320,12 @@ void test_hw_rev_3_basic_1(struct device * dev, int verbosity){
 			// dont clear
 			irqtester_fe310_get_reg(dev, VAL_DSP_3_STATUS, &status_3);
 			irqtester_fe310_get_reg(dev, VAL_DSP_3_CLEAR_ID, &val);
-			if(verbosity > 1)
-				printk("Successfully polled with no clear counter_id %u, status_3 %i, clear_id= %i \n", counter_reg, status_3.payload, val.payload);
+			printkv(2, "Successfully polled with no clear counter_id %u, status_3 %i, clear_id= %i \n", counter_reg, status_3.payload, val.payload);
 
 		}
 		else{
 			test_assert(0);
-			if(verbosity > 1)
-				printk("Polling value %i timed out \n", i+1);
+			printkv(2, "Polling value %i timed out \n", i+1);
 		}
 
 	}
@@ -347,8 +335,7 @@ void test_hw_rev_3_basic_1(struct device * dev, int verbosity){
 	irqtester_fe310_get_reg(dev, VAL_DSP_3_STATUS, &status_3);
 	test_assert(num_poll == status_3.payload);
 
-	if(verbosity > 1)
-		printk("get_reg status_3: %i \n", status_3.payload);
+	printkv(2, "get_reg status_3: %i \n", status_3.payload);
 
 	// need to clean up input regs
 	reset.payload = 1;
@@ -378,13 +365,13 @@ static u32_t isr_perval;
 
 void irq_handler_mes_time(void){
 	//LOG_PERF("[%u] Entering irq_handler_mes_time", get_cycle_32());
-	LOG_PERF_INT(3, get_cycle_32());
+	time_isr =  get_cycle_32();
+
+	LOG_PERF_INT(3, time_isr);
 	u32_t res_perval;
 	irqtester_fe310_get_perval(dev_cp, &res_perval);
 
 	isr_perval = res_perval;
-
-	time_isr =  get_cycle_32();
 	k_sem_give(&wait_sem);
 	//printk("Callback fired at %i ticks. [perval / enable]: %i, %i \n", time_isr, 
 	//	res_perval, res_enable);
@@ -401,12 +388,13 @@ void test_interrupt_timing(struct device * dev, int timing_res[], int num_runs, 
 
 	for(u32_t i=0; i<num_runs; i++){
 
-		u32_t start_cyc = get_cycle_32();
+		
 		struct DrvValue_uint val;
 		val.payload = i;
 		irqtester_fe310_set_reg(dev, VAL_IRQ_0_VALUE, &val);
 		//LOG_PERF("[%u] Firing irq", get_cycle_32());
 		LOG_PERF_INT(0, get_cycle_32());
+		u32_t start_cyc = get_cycle_32();
 		irqtester_fe310_fire(dev);
 
 		// measure time since fire
@@ -531,10 +519,9 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 				if(p_evt == NULL || i == i_limit)
 					break;
 				evt = *p_evt;
-				if(verbose>1){
-					printk("Discarding fifo element %p. Event [cleared, val_id, val_type, event_type, irq_id]: %i, %i, %i, %i, %i \n" \
-						,evt._reserved, evt.cleared, evt.val_id, evt.val_type, evt.event_type, evt.irq_id);
-				}
+				printkv(2, "Discarding fifo element %p. Event [cleared, val_id, val_type, event_type, irq_id]: %i, %i, %i, %i, %i \n" \
+					,evt._reserved, evt.cleared, evt.val_id, evt.val_type, evt.event_type, evt.irq_id);
+				
 				i++;
 				; //  actually, nothing to do here
 			}
@@ -982,25 +969,28 @@ void test_poll_throughput_1(struct device * dev, int period_cyc, int num_runs, i
 }
 
 
-void test_state_mng_1(struct device * dev){
+void test_state_mng_1(struct device * dev, int sum_expect){
 
-	// calc expected state_sum for automatic config states.c
-	int sum_expect = 0;
-	for(int j=0; j<_NUM_CYCLE_STATES; j++){
-		sum_expect += j;
-	}
-	irqtester_fe310_fire(dev);
+	//irqtester_fe310_fire(dev);	// fire irq0
+	// fire irq1
+    struct DrvValue_uint reg_num = {.payload=1};
+	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
+	irqtester_fe310_fire_1(dev);
+
+
 	// have to wait, if prio of this thread is higher than state_manager
-	k_yield();
+	k_sleep(100);
 
 	// after firing, this thread should gain control again when 
 	// state machine returns to IDLE
 	// registered action writes state_sum to perval
 	struct DrvValue_uint res_perval;
-	irqtester_fe310_get_reg(dev, VAL_IRQ_0_VALUE, &res_perval);
+	irqtester_fe310_get_reg(dev, VAL_IRQ_0_PERVAL, &res_perval);
 	test_assert(res_perval.payload == sum_expect);
-	printk("DEBUG: Finshed state machine cycle. State_sum %i \n", res_perval.payload);
-
+	printkv(2, "DEBUG: Finshed state machine cycle. State_sum %i \n", res_perval.payload);
+	// reset
+	res_perval.payload = 0;
+	irqtester_fe310_set_reg(dev, VAL_IRQ_0_VALUE, &res_perval);
 	
 	test_warn_on_new_error();
 	
@@ -1072,13 +1062,13 @@ void print_analyze_timing(int timing[], int len, int verbosity){
 		 len, SYS_CLOCK_HW_CYCLES_TO_NS(delta_avg), 
 		 SYS_CLOCK_HW_CYCLES_TO_NS(delta_min),
 		 SYS_CLOCK_HW_CYCLES_TO_NS(delta_max));
-	if(verbosity > 0){
-		printk("Detailed reaction in cycles: \n {[");
-		for(int i=0; i < len; i++){
-			printk("%i, ", timing[i]);
-		}
-		printk("]} \n");
+
+	printkv(1, "Detailed reaction in cycles: \n {[");
+	for(int i=0; i < len; i++){
+		printkv(1, "%i, ", timing[i]);
 	}
+	printkv(1, "]} \n");
+
 }
 
 void print_continous(int timing[], int len, int verbosity){

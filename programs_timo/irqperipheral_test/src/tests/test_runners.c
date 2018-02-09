@@ -9,49 +9,51 @@
 #include "tests/test_suite.h"
 
 
-int run_test_hw_basic_1(struct device * dev, int verbosity){
+int run_test_hw_basic_1(struct device * dev){
+    
+   
     //print_banner();
-    if(verbosity > 1){
-        print_time_banner();
-        printk_framed("Now running basic hw test");
-        print_dash_line();
+   
+    print_time_banner(2);
+    printk_framed(2, "Now running basic hw test");
+    print_dash_line(2);
 
-        printk_framed("Testing hw rev 1 functionality");  
-        print_dash_line();
-    }
-    test_hw_rev_1_basic_1(dev, verbosity);
-    if(verbosity > 1){
-        test_print_report();  
-        print_dash_line();
-        printk_framed("Testing hw rev 2 functionality");
+    printk_framed(2, "Testing hw rev 1 functionality");  
+    print_dash_line(2);
+    
+    test_hw_rev_1_basic_1(dev);
+
+    test_print_report(2);  
+    print_dash_line(2);
+    printk_framed(2, "Testing hw rev 2 functionality");
         
-        print_dash_line();
-    }
-    test_hw_rev_2_basic_1(dev, verbosity);
-    if(verbosity > 1){
-        test_print_report();
-        print_dash_line();
-        printk_framed("Testing hw rev 3 functionality");
-        print_dash_line();
-    }
-    test_hw_rev_3_basic_1(dev, verbosity);
+    print_dash_line(2);
+    
+    test_hw_rev_2_basic_1(dev);
 
-    if(verbosity > 1){
-        test_print_report();
-        print_dash_line();
-        test_print_report(); // global var from tests.c
-    }
+    test_print_report(2);
+    print_dash_line(2);
+    printk_framed(2, "Testing hw rev 3 functionality");
+    print_dash_line(2);
+    
+    test_hw_rev_3_basic_1(dev);
+
+
+    test_print_report(2);
+    print_dash_line(2);
+    test_print_report(2); // global var from tests.c
+
     
     int num_err = test_get_err_count();
     test_reset();
-    if(verbosity > 0){
-        // manually change for new hw rev
-        printk("Hardware test for rev %i... ", 3);    
-        if(num_err == 0)
-            printk("ok \n");
-        else
-            printk("FAILED with %i errors\n", num_err);
-    }
+
+    // manually change for new hw rev
+    printkv(1, "Hardware test for rev %i... ", 3);    
+    if(num_err == 0)
+        printkv(1, "ok \n");
+    else
+        printkv(1, "FAILED with %i errors\n", num_err);
+
     return num_err;
 }
 
@@ -65,70 +67,70 @@ void run_test_timing_rx(struct device * dev){
 	int timing_detailed_cyc[NUM_RUNS];
     test_reset();
 
-    print_banner();
-    print_time_banner();
+    print_banner(0);
+    print_time_banner(0);
     
 
-    printk_framed("Now running raw irq to isr timing test");
-    print_dash_line();
+    printk_framed(0, "Now running raw irq to isr timing test");
+    print_dash_line(0);
     irqtester_fe310_register_callback(dev, 0, &irq_handler_mes_time);
     test_interrupt_timing(dev, timing_detailed_cyc, NUM_RUNS, verbosity);
     print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
-    print_dash_line();
+    print_dash_line(0);
 
     //return;
 
-    printk_framed("Now running timing test with queues and direct reg getters");
-    print_dash_line();
+    printk_framed(0, "Now running timing test with queues and direct reg getters");
+    print_dash_line(0);
     irqtester_fe310_register_callback(dev, 0,_irq_0_handler_1);
     test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 0, verbosity);
     print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
     
-    printk_framed("Now running timing test with queues and generic reg getters");
-    print_dash_line();
+    printk_framed(0, "Now running timing test with queues and generic reg getters");
+    print_dash_line(0);
     irqtester_fe310_register_callback(dev, 0, _irq_0_handler_2);
     test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 0, verbosity);
     print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
-    print_dash_line();
+    print_dash_line(0);
     
-    printk_framed("Now running timing test with fifos and direct reg getters");
-    print_dash_line();
+    printk_framed(0, "Now running timing test with fifos and direct reg getters");
+    print_dash_line(0);
     irqtester_fe310_register_callback(dev, 0, _irq_0_handler_1);
     test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 1, verbosity);
     print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
-    printk_framed("Now running timing test with fifos and generic reg getters");
-    print_dash_line();
+    printk_framed(0, "Now running timing test with fifos and generic reg getters");
+    print_dash_line(0);
     irqtester_fe310_register_callback(dev, 0, _irq_0_handler_2);
     test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 1, verbosity);
     print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
-    print_dash_line();
+    print_dash_line(0);
 
-    printk_framed("Now running timing test with semArr and direct reg getters");
-    print_dash_line();
+    printk_framed(0, "Now running timing test with semArr and direct reg getters");
+    print_dash_line(0);
     irqtester_fe310_register_callback(dev, 0, _irq_0_handler_1);
     test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 2, verbosity);
     print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
-    printk_framed("Now running timing test with semArr and generic reg getters");
-    print_dash_line();
+    printk_framed(0, "Now running timing test with semArr and generic reg getters");
+    print_dash_line(0);
     irqtester_fe310_register_callback(dev, 0, _irq_0_handler_2);
     test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 2, verbosity);
     print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
-    print_dash_line();
+    print_dash_line(0);
     
-    printk_framed("Now running timing test with valflags and direct reg getters");
-    print_dash_line();
+    printk_framed(0, "Now running timing test with valflags and direct reg getters");
+    print_dash_line(0);
     irqtester_fe310_register_callback(dev, 0, _irq_0_handler_1);
     test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 3, verbosity);
     print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
-    printk_framed("Now running timing test with valflags and generic reg getters");
-    print_dash_line();
+    printk_framed(0, "Now running timing test with valflags and generic reg getters");
+    print_dash_line(0);
     irqtester_fe310_register_callback(dev, 0, _irq_0_handler_2);
     test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 3, verbosity);
     print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
-    print_dash_line();
+    print_dash_line(0);
 
-    printk_framed("Now running timing test with hand-optimized valflag plus queue");
-    print_dash_line();
+    printk_framed(0, "Now running timing test with hand-optimized valflag plus queue");
+    print_dash_line(0);
     irqtester_fe310_register_callback(dev, 0, _irq_0_handler_5);
     test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 4, verbosity);
     print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
@@ -137,42 +139,42 @@ void run_test_timing_rx(struct device * dev){
     // -> reset error counter
     
     int errors_sofar = test_get_err_stamp();
-    print_dash_line();
+    print_dash_line(0);
     printk("INFO: So far %i errors. Ignore the following error warnings for tests without load \n", errors_sofar);
-    printk_framed("Now running timing test with noload, queue and direct reg getters");
+    printk_framed(0, "Now running timing test with noload, queue and direct reg getters");
     irqtester_fe310_register_callback(dev, 0, _irq_0_handler_3);
     test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 0, verbosity);
     print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
-    printk_framed("Now running timing test with noload, fifos and direct reg getters");
+    printk_framed(0, "Now running timing test with noload, fifos and direct reg getters");
     irqtester_fe310_register_callback(dev, 0, _irq_0_handler_3);
     test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 1, verbosity);
     print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
-    printk_framed("Now running timing test with noload, semArr and direct reg getters");
+    printk_framed(0, "Now running timing test with noload, semArr and direct reg getters");
     irqtester_fe310_register_callback(dev, 0, _irq_0_handler_3);
     test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 2, verbosity);
     print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
-    printk_framed("Now running timing test with noload, valflags and direct reg getters");
+    printk_framed(0, "Now running timing test with noload, valflags and direct reg getters");
     irqtester_fe310_register_callback(dev, 0, _irq_0_handler_3);
     test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 3, verbosity);
     print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
-    print_dash_line();
+    print_dash_line(0);
 
-    printk_framed("Now running timing test with minimal, valflags\n");
+    printk_framed(0, "Now running timing test with minimal, valflags\n");
     irqtester_fe310_register_callback(dev, 0, _irq_0_handler_4);
     test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 3, verbosity);
     print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
-    print_dash_line();
+    print_dash_line(0);
     // reset counter
     test_set_err_count(errors_sofar);
     printk("INFO: End of noload. Resetting error count to %i \n", test_get_err_count());
-    print_dash_line();
+    print_dash_line(0);
 
     // restore default handler
     irqtester_fe310_register_callback(dev, IRQ_0, _irq_gen_handler);
     irqtester_fe310_register_callback(dev, IRQ_1, _irq_gen_handler);
     irqtester_fe310_register_callback(dev, IRQ_2, _irq_gen_handler);
 
-    test_print_report(); // global var from tests.c
+    test_print_report(0); // global var from tests.c
     #endif // TEST_MINIMAL
 }
 
@@ -189,11 +191,11 @@ void run_test_min_timing_rx(struct device * dev){
 
     switch(mode){
         case 4:
-            printk_framed("Now running timing test with hand-optimized valflag plus queue");
+            printk_framed(0, "Now running timing test with hand-optimized valflag plus queue");
              irqtester_fe310_register_callback(dev, 0, _irq_0_handler_5);
             break;
         case 3:
-            printk_framed("Now running timing test with hand-optimized valflag only");
+            printk_framed(0, "Now running timing test with hand-optimized valflag only");
              irqtester_fe310_register_callback(dev, 0, _irq_0_handler_6);
             break;
         default:
@@ -203,23 +205,23 @@ void run_test_min_timing_rx(struct device * dev){
     }
  
    
-    print_dash_line();
+    print_dash_line(0);
     // note: defining TEST_MINIMAL in driver sets callback in init function
     // might help compiler to optimize
    
     test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, mode, verbosity);
     //test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 0, verbosity);
     print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
-    print_dash_line();
+    print_dash_line(0);
     //
-    //printk_framed("Now running timing test with queues and direct reg getters");
-    //print_dash_line();
+    //printk_framed(0, "Now running timing test with queues and direct reg getters");
+    //print_dash_line(0);
     //irqtester_fe310_register_callback(dev, 0, _irq_gen_handler);
     //test_rx_timing(dev, timing_detailed_cyc, NUM_RUNS, 0, verbosity);
     //print_analyze_timing(timing_detailed_cyc, NUM_RUNS, verbosity);
-    //print_dash_line();
+    //print_dash_line(0);
 
-    test_print_report(); // global var from tests.c
+    test_print_report(0); // global var from tests.c
 
 }
 
@@ -235,8 +237,8 @@ void run_test_irq_throughput_1(struct device * dev){
 
     int status_res[NUM_TS];
 
-    printk_framed("Now running interrupt throughput test 1");
-    print_dash_line();
+    printk_framed(0, "Now running interrupt throughput test 1");
+    print_dash_line(0);
 
     struct DrvValue_uint status_1;
 	irqtester_fe310_get_reg(dev, VAL_IRQ_1_STATUS, &status_1);
@@ -265,10 +267,10 @@ void run_test_irq_throughput_1(struct device * dev){
 
     printk("From %i runs: status\n", num_runs);
     printk("{[");
-    print_arr_int(status_res, NUM_TS);
+    print_arr_int(0, status_res, NUM_TS);
     printk("]}\n");
     
-    print_dash_line();
+    print_dash_line(0);
 
 }
 
@@ -284,8 +286,8 @@ void run_test_irq_throughput_2(struct device * dev){
     int dt_us = 5;
 
       
-    printk_framed("Now running interrupt throughput test 2");
-    print_dash_line();
+    printk_framed(0, "Now running interrupt throughput test 2");
+    print_dash_line(0);
 
     struct DrvValue_uint status_1;
 	irqtester_fe310_get_reg(dev, VAL_IRQ_1_STATUS, &status_1);
@@ -300,7 +302,7 @@ void run_test_irq_throughput_2(struct device * dev){
         printk("From %i runs with irq1 period %u us, %u cpu cycles. \n", num_runs, cur_t_us, 65*cur_t_us);
 
         printk("Detailed missed clear status per run \n");
-	    print_arr_int(status_arr, status_arr_len);
+	    print_arr_int(0, status_arr, status_arr_len);
 
         cur_t_us -= dt_us;
 
@@ -309,12 +311,12 @@ void run_test_irq_throughput_2(struct device * dev){
     irqtester_fe310_get_reg(dev, VAL_IRQ_1_STATUS, &status_1);
 	printk("Status_1 after run: %i.  \n", status_1.payload);
 
-    print_dash_line();
-    test_print_report();
+    print_dash_line(0);
+    test_print_report(0);
 }
 
 
-int run_test_irq_throughput_3_autoadj(struct device * dev, int verbosity){
+int run_test_irq_throughput_3_autoadj(struct device * dev){
     
     int num_runs = 20; // runs per t
     u32_t guess_t_cyc = 1000;
@@ -324,15 +326,15 @@ int run_test_irq_throughput_3_autoadj(struct device * dev, int verbosity){
     struct DrvValue_uint status_1;
 	irqtester_fe310_get_reg(dev, VAL_IRQ_1_STATUS, &status_1);
     
-    if(verbosity == 1){
-        printk("Running irq1 throughput test...");
-    }
-    else if(verbosity > 1){
-        print_dash_line();
-        printk_framed("Now running interrupt throughput test 3 (auto adjust) for irq1 ");
-        print_dash_line();
-        printk("Status_1 before first run: %i. Test may take some seconds... \n", status_1.payload);
-    }
+    
+    printkve(1, "Running irq1 throughput test...");
+    
+
+    print_dash_line(2);
+    printk_framed(2, "Now running interrupt throughput test 3 (auto adjust) for irq1 ");
+    print_dash_line(2);
+    printk(2, "Status_1 before first run: %i. Test may take some seconds... \n", status_1.payload);
+    
     int status_arr_len = num_runs;
     int status_arr[status_arr_len];
     int status_arr_success[status_arr_len];
@@ -363,24 +365,24 @@ int run_test_irq_throughput_3_autoadj(struct device * dev, int verbosity){
             
         }
         else{
-            if(verbosity > 2){
-                bool overwrite_line = false;
-                // overwrite same last result for verbosity 2 only
-                if(verbosity == 2){
-                    if(cur_t_cyc == succes_t_cyc)
-                        overwrite_line = true;
-                    if(overwrite_line)
-                        printk("\r");   // overwrite console
-                    else
-                        printk("\n");
-                }
-                printk("[%i] Cleared interrupt with period t= %u cyc, t= %u us => f= %u kHz", i, cur_t_cyc, cur_t_cyc/65, 65000 / (cur_t_cyc)); 
-                if(verbosity > 3){
-                    printk("\n");
-                    printk("Status array: \n");
-                    print_arr_int(status_arr, status_arr_len);
-                }
+       
+            bool overwrite_line = false;
+            // overwrite same last result for verbosity 2 only
+            if(print_get_verbosity() == 2){
+                if(cur_t_cyc == succes_t_cyc)
+                    overwrite_line = true;
+                if(overwrite_line)
+                    printkv(3, "\r");   // overwrite console
+                else
+                    printkv(3, "\n");
             }
+            printkv(3, "[%i] Cleared interrupt with period t= %u cyc, t= %u us => f= %u kHz", i, cur_t_cyc, cur_t_cyc/65, 65000 / (cur_t_cyc)); 
+
+            printkv(4, "\n");
+            printkv(4, "Status array: \n");
+            print_arr_int(4, status_arr, status_arr_len);
+            
+            
 
             succes_t_cyc = cur_t_cyc;
             
@@ -409,17 +411,17 @@ int run_test_irq_throughput_3_autoadj(struct device * dev, int verbosity){
 
     irqtester_fe310_get_reg(dev, VAL_IRQ_1_STATUS, &status_1);
     
-    if(verbosity == 1){
-         printk(" t= %i cyc, f= %i kHz, status_1: %i.\n", 
-            succes_t_cyc, 65000 / succes_t_cyc, status_1.payload);
-    }
-    else if(verbosity > 1){
-        printk("\nFinished with irq t= %i cyc, f= %i kHz. Status_1 after run: %i.  \n",
+ 
+    printkve(1, " t= %i cyc, f= %i kHz, status_1: %i.\n", 
              succes_t_cyc, 65000 / succes_t_cyc, status_1.payload);
-        printk("Last cache warmup status_1 behaviour: \n");
-        print_arr_int(status_arr_success, status_arr_len);
-        print_dash_line();
-    }
+    
+
+    printkv(2, "\nFinished with irq t= %i cyc, f= %i kHz. Status_1 after run: %i.  \n",
+            succes_t_cyc, 65000 / succes_t_cyc, status_1.payload);
+    printkv(2, "Last cache warmup status_1 behaviour: \n");
+    print_arr_int(2, status_arr_success, status_arr_len);
+    print_dash_line(2);
+  
     
 
     return succes_t_cyc;
@@ -433,8 +435,8 @@ void run_test_poll_throughput_1_autoadj(struct device * dev){
     u32_t delta_cyc = 50;   // num_ts * delta_cyc should be enough to get close to 0
     int num_ts = 250;
 
-    printk_framed("Now running poll throughput test 1 with auto adjust");
-    print_dash_line();
+    printk_framed(0, "Now running poll throughput test 1 with auto adjust");
+    print_dash_line(0);
 
     struct DrvValue_uint status_3;
 	irqtester_fe310_get_reg(dev, VAL_DSP_3_STATUS, &status_3);
@@ -474,7 +476,7 @@ void run_test_poll_throughput_1_autoadj(struct device * dev){
             printk("[%i] Cleared poll dev with period t= %u cyc, t= %u us => f= %u kHz", i, cur_t_cyc, cur_t_cyc/65, 65000 / (cur_t_cyc)); 
             
             printk("\nCache warmup status_3 behaviour: \n");
-            print_arr_int(status_arr, status_arr_len);
+            print_arr_int(0, status_arr, status_arr_len);
 
             succes_t_cyc = cur_t_cyc;
             
@@ -502,81 +504,112 @@ void run_test_poll_throughput_1_autoadj(struct device * dev){
     irqtester_fe310_get_reg(dev, VAL_DSP_3_STATUS, &status_3);
 	printk("\nFinished, status_3 after run: %i.  \n", status_3.payload);
     printk("Last cache warmup status_1 behaviour: \n");
-    print_arr_int(status_arr_success, status_arr_len);
+    print_arr_int(0, status_arr_success, status_arr_len);
 
-    print_dash_line();
+    print_dash_line(0);
 }
 
 // set value register to sum of states since START
 // so while testing, after every fire() when returning back to IDLE
 // state_sum is the sum of state_ids collected when running through the cycle
-// we cann assert on this
+// we can assert on this
 static struct device * dev_testscope;
-void action_test_mng_1(void){
+void action_test_mng_1(struct ActionArg const * arg){
     static int state_sum;
-    cycle_state_id_t state = state_mng_get_current();
+    cycle_state_id_t state = arg->state_cur->id_name;
+    // getting substate is save here, because fired out of state_mng loop
+    u8_t subs = arg->state_cur->cur_subs_idx;
 
     if(state == CYCLE_STATE_START){
         state_sum = 0;
     }
     state_sum += state;
 
-    printk("Test action fired in state %i, state_sum: %i \n", state, state_sum);
+    printkv(2, "Test action fired in state %i.%u, state_sum: %i \n", state, subs, state_sum);
 
     struct DrvValue_uint setval = {.payload=state_sum};
 
     irqtester_fe310_set_reg(dev_testscope, VAL_IRQ_0_VALUE, &setval);
+    irqtester_fe310_clear_1(dev_testscope);
 
 }
 
 K_THREAD_STACK_DEFINE(thread_mng_run_1_stack, 2048);
 struct k_thread thread_mng_run_1_data;
+// todo: this test should work on top every state machine
+// currently, tightly coupled to automatic config
 void run_test_state_mng_1(struct device * dev){
-    // todo: this testcase is broken, for preempt sm therad only
-    // fix and include substate logic in test
+
+    // 
+   
+    //todo: include substate logic in test
     int NUM_RUNS = 10;	
     dev_testscope = dev;
 
-    print_dash_line();
-    printk_framed("Now running state manager test 1");
-    print_dash_line();
+    print_dash_line(2);
+    printk_framed(2, "Now running state manager test 1");
+    print_dash_line(2);
 
     // auto config, todo: make custom config for this test
     // in order to reduce coupling to states::auto implementation
     state_mng_configure(NULL, NULL, 0, 0);
 
-    printk("ATTENTION: Requesting value %i, expect load warnings in STATE_START. Something is wrong if none! \n", VAL_IRQ_0_VALUE);
-    irqt_val_id_t reqvals[] = {VAL_IRQ_0_VALUE};   // input, this flag will never be set!
     state_mng_register_action(CYCLE_STATE_IDLE, action_test_mng_1, NULL, 0);
-    state_mng_register_action(CYCLE_STATE_START, action_test_mng_1, reqvals, 1);
+    state_mng_register_action(CYCLE_STATE_START, action_test_mng_1, NULL, 0);
     state_mng_register_action(CYCLE_STATE_END, action_test_mng_1, NULL, 0);
 
+    // irq handler to send up reset event
+    irqtester_fe310_register_callback(dev, IRQ_1, _irq_1_handler_0);
     state_mng_init(dev);
 
-     // state config done, print
-    state_mng_print_state_config();
-    state_mng_print_transition_table_config();
+    // for debug state config done, print
+    //state_mng_print_state_config();
+    //state_mng_print_transition_table_config();
 
 	// start the thread immediatly
 	k_tid_t my_tid = k_thread_create(&thread_mng_run_1_data, thread_mng_run_1_stack,
                                  K_THREAD_STACK_SIZEOF(thread_mng_run_1_stack), (void (*)(void *, void *, void *)) state_mng_run,
                                  NULL, NULL, NULL,
                                 -1, 0, K_NO_WAIT);
-    printk("state_manager thread @ %p started\n", my_tid);
+    printkv(2, "state_manager thread @ %p started\n", my_tid);
 
     test_assert(state_mng_start() == 0);
 
+    // expection for automatic sm config
+    int sum_expect = CYCLE_STATE_IDLE + CYCLE_STATE_END + CYCLE_STATE_START;
     for(int i=0; i<NUM_RUNS; i++){
         // fire (and run a state achine cycle) only every 100ms 
         k_sleep(100); //ms
-        test_state_mng_1(dev);
+        test_state_mng_1(dev, sum_expect);
     }
+    
+    /*
+    k_sleep(100);   // hand of
+    // fire irq1
+    struct DrvValue_uint reg_num = {.payload=1};
+	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
+	irqtester_fe310_fire_1(dev);
 
+    k_sleep(100);   // hand of
+    */
     state_mng_abort();
     state_mng_purge_registered_actions_all();
 
-    test_print_report();
-    
+
+    // print for dbg
+    //state_mng_print_evt_log();
+    //test_print_report(0);
+
+    int num_err = test_get_err_count();
+    test_reset();
+
+    // manually change for new hw rev
+    printkv(1, "SM test (auto conf)... ");    
+    if(num_err == 0)
+        printkv(1, "ok \n");
+    else
+        printkv(1, "FAILED with %i errors\n", num_err);
+
 }
 
 
@@ -597,8 +630,8 @@ void run_test_sm1_throughput_1(struct device * dev){
     int cur_t_us = start_period_1_us;
     int dt_us = 200;
 
-    printk_framed("Now running sm1 throughput test 1");
-    print_dash_line();
+    printk_framed(0, "Now running sm1 throughput test 1");
+    print_dash_line(0);
 
     struct DrvValue_uint status_1;
 	irqtester_fe310_get_reg(dev, VAL_IRQ_1_STATUS, &status_1);
@@ -634,7 +667,7 @@ void run_test_sm1_throughput_1(struct device * dev){
 
     }
 
-    print_dash_line();
+    print_dash_line(0);
 }
 
 void run_test_sm_throughput_2(struct device * dev, int id_sm){
@@ -654,8 +687,8 @@ void run_test_sm_throughput_2(struct device * dev, int id_sm){
 
 
 
-    printk_framed("Now running sm%i throughput test 2", id_sm);
-    print_dash_line();
+    printk_framed(0, "Now running sm%i throughput test 2", id_sm);
+    print_dash_line(0);
 
     struct DrvValue_uint val_status_1;
     struct DrvValue_uint val_status_2;
@@ -710,7 +743,7 @@ void run_test_sm_throughput_2(struct device * dev, int id_sm){
 
     }
     
-    print_dash_line();
+    print_dash_line(0);
 }
 
 // test differnt actions
@@ -732,8 +765,8 @@ void run_test_sm2_action_perf_3(struct device * dev){
     int cur_t_us = period_irq1_us / t_irq_divisor;
    
 
-    printk_framed("Now running sm2 parametrized action performance test 3");
-    print_dash_line();
+    printk_framed(0, "Now running sm2 parametrized action performance test 3");
+    print_dash_line(0);
 
     struct DrvValue_uint val_status_1;
     struct DrvValue_uint val_status_2;
@@ -752,15 +785,19 @@ void run_test_sm2_action_perf_3(struct device * dev){
 
         printk("state_manager thread @ %p started\n", my_tid);
 
+        // for general purpose
         //sm2_config(32, param, sm2_task_calc_cfo_1, 1, 0);
 
         // for model calibration
         //sm2_config(32, param, NULL, 1, 0);
         //sm2_config(param, 4, sm2_task_calc_cfo_1, 1, 0);
-        sm2_config(param, param, sm2_task_calc_cfo_1, 1, 0);
-        //sm2_config(32, 8, sm2_task_bench_basic_ops, param, 2);
+        //sm2_config(param, param, sm2_task_calc_cfo_1, 1, 0);
+        //sm2_config(32, 8, sm2_task_bench_basic_ops, param, 0);  // mac
+        sm2_config(32, 8, sm2_task_bench_basic_ops, param, 1);  // read
+        //sm2_config(32, 8, sm2_task_bench_basic_ops, param, 2);  // write
        
         sm2_run(dev, cur_t_us * t_irq_divisor, cur_t_us, 1, 0);
+        sm2_fire_irqs(dev, cur_t_us * t_irq_divisor, cur_t_us);
         printk("DEBUG: test_runner going to sleep... \n");
         k_sleep(t_per_run_ms);
         printk("DEBUG: Woke up again. Trying to stop SM2. \n");
@@ -786,7 +823,7 @@ void run_test_sm2_action_perf_3(struct device * dev){
 
     }
     
-    print_dash_line();
+    print_dash_line(0);
 }
 
 // test differnt actions
@@ -808,8 +845,8 @@ void run_test_sm2_action_prof_4(struct device * dev){
     int cur_t_us = period_irq1_us / t_irq_divisor;
    
 
-    printk_framed("Now running sm2 profiler test 4");
-    print_dash_line();
+    printk_framed(0, "Now running sm2 profiler test 4");
+    print_dash_line(0);
 
     struct DrvValue_uint val_status_1;
     struct DrvValue_uint val_status_2;
@@ -832,6 +869,7 @@ void run_test_sm2_action_prof_4(struct device * dev){
         sm2_config(32, 2, sm2_task_calc_cfo_1, 1, 0);
         // disable irq1 and irq2
         sm2_run(dev, 0, 0, 1, 0); // irq2 used by profiler
+        sm2_fire_irqs(dev, 0, 0);
        
         // attention:
         // - sm2 should be configured to not wait for irq1 (else idling after state end)
@@ -871,5 +909,5 @@ void run_test_sm2_action_prof_4(struct device * dev){
 
     }
     
-    print_dash_line();
+    print_dash_line(0);
 }

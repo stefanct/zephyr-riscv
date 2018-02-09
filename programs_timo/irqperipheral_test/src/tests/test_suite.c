@@ -16,8 +16,8 @@ void test_warn_on_new_error(void){
 	}
 }
 
-void test_print_report(){
-    print_report(error_count);
+void test_print_report(int verbosity){
+    print_report(verbosity, error_count);
 }
 
 int test_get_err_count(){

@@ -23,8 +23,7 @@
 #define STATE_MNG_QUEUE_RX_DEPTH 5
 // log using Switch_Event and Wait_Event
 // fast way to log
-#define STATE_MNG_LOG_EVENTS_DEPTH 30  // 0 to deactivate log 
-#define STATE_MNG_DIS_SUBSTATES 0      // 1 to deactivate substates
+#define STATE_MNG_LOG_EVENTS_DEPTH 64  // 0 to deactivate log 
 // can log using LOG_PERF
 // LOG_PERF is faster than SYS_LOG
 // but still slow! (~ 5000 cyc)
@@ -53,10 +52,10 @@ enum{
     _NUM_FLAGS
 };
 
-atomic_t flags;
+static atomic_t flags;
 
-
-struct Event{
+/// Controls switching of state_manager states
+struct SMEvent{
     cycle_event_id_t id_name;
 };
 
@@ -87,7 +86,7 @@ struct Perf_Event{
     u32_t t_actions_cyc;
 };
 static struct Perf_Event log_perf_evts[STATE_MNG_LOG_EVENTS_DEPTH];
-static cycle_state_id_t log_filter[] = {CYCLE_STATE_UL};   // empty = no filter
+static cycle_state_id_t log_filter[] = {CYCLE_STATE_UL, CYCLE_STATE_UL_CONFIG};   // empty = no filter
 
 /// defines next state id_name on event
 static cycle_state_id_t transition_table[_NUM_CYCLE_STATES][_NUM_CYCLE_EVENTS];
@@ -96,14 +95,14 @@ static cycle_state_id_t transition_table[_NUM_CYCLE_STATES][_NUM_CYCLE_EVENTS];
 static struct State _states[_NUM_CYCLE_STATES];
 //
 /**
- * Internal array storing void to void functions as callbacks.
+ * Internal array storing callbacks. Get passed a read-only (const) ActionArg on call.
  * rows: each state
  * columns: different registered callbacks  
  */ 
-static void(* _cb_funcs[_NUM_CYCLE_STATES][STATES_CBS_PER_ACTION_MAX])(void);
+static void(* _cb_funcs[_NUM_CYCLE_STATES][STATES_CBS_PER_ACTION_MAX])(struct ActionArg const *);
 
 
-atomic_t state_cur_id;                  // save to read from outside, use get_state()
+static atomic_t state_cur_id;               // save to read from outside, use get_state()
 static struct State * _state_cur;   // don't read from outside thread
 static struct device * irqt_dev;
 K_MSGQ_DEFINE(queue_rx_driver, sizeof(struct DrvEvent), STATE_MNG_QUEUE_RX_DEPTH, 4); // is static
@@ -113,14 +112,12 @@ static u32_t timestamp_reset;
 
 // forward declare
 static void _default_action_dispatcher(cycle_state_id_t state);
-// forward declare helpers
-void print_state(struct State * state);
-void print_arr(irqt_val_id_t arr[], int len);
+
 static bool is_val_in_array(irqt_val_id_t val, irqt_val_id_t *arr, int len);
 static void mes_perf(struct State * state, int mode);
 // forward devlare internal functions
-static struct State * switch_state(struct State * current, struct Event * evt);
-static int gather_events(struct Event * res_evt);
+static struct State * switch_state(struct State * current, struct SMEvent * evt);
+static int gather_events(struct SMEvent * res_evt);
 static int check_time_goal(struct State * state, int mode, int * t_left);
 static void check_time_goal_start(struct State * state, int * t_left);
 static void check_time_goal_end(struct State * state, int * t_left);
@@ -128,14 +125,8 @@ static void handle_time_goal(struct State * state, int mode, int t_left);
 static void handle_time_goal_start(struct State * state, int t_left);
 static void handle_time_goal_end(struct State * state, int t_left);
 static bool handle_vals_ready(struct State * state);
-
-// PROBLEM: ZEPHYR SW TIMERS ON MS SCALE
-// -> so far: no intrinsic hardware timers
-// OWN HW TIMERS (COUNTER): 50 cycles to release mutex or queue msg
-// -> measure systematic delay and counterbalance?
-
-
- // todo: check all functions that write or read _cb_funcs, _states, transition_table
+static int state_mng_check_vals_ready(struct State * state);
+    
 
 
 
@@ -144,10 +135,10 @@ static bool handle_vals_ready(struct State * state);
  * 
  * If you choose to use custom config, make sure that all your data is properly init!
  * Call first state_mng_configure(), then state_mng_register_action() and state_mng_init().
- * @param: cust_states: Custom 1d state array. Set NULL to use auto.
- * @param: cust_tt:     Custom 2d transition table. Set NULL to use auto.
- * @param: len_state:   Number of elements in cust_states.
- * @paramL len_events:  Number of configured events in cust_tt (second dimension)
+ * @param cust_states: Custom 1d state array. Set NULL to use auto.
+ * @param cust_tt:     Custom 2d transition table. Set NULL to use auto.
+ * @param len_state:   Number of elements in cust_states.
+ * @param len_events:  Number of configured events in cust_tt (second dimension)
  */ 
 void state_mng_configure(struct State cust_states[], cycle_state_id_t * cust_tt, int len_states, int len_events){
     if(init_done){
@@ -166,7 +157,7 @@ void state_mng_configure(struct State cust_states[], cycle_state_id_t * cust_tt,
         SYS_LOG_WRN("Illegal param combination. Set both or none.");
     
     // warn if substates configured but state manager does not support
-    #if(STATE_MNG_DIS_SUBSTATES == 1)
+    #if(STATES_DIS_SUBSTATES == 1)
     for(int i=0; i < _NUM_CYCLE_STATES; i++){
         if(cust_states[i].max_subs_idx != 0)
             SYS_LOG_WRN("State manager does not support substates, but configured %i in state %i.", cust_states[i].max_subs_idx+1, cust_states[i].id_name);
@@ -176,15 +167,18 @@ void state_mng_configure(struct State cust_states[], cycle_state_id_t * cust_tt,
     /*
     printk("States after config()");
     SYS_LOG_DBG("CYCLE_STATE_IDLE");
-    print_state(state_mng_id_2_state(CYCLE_STATE_IDLE));
+    states_print_state(state_mng_id_2_state(CYCLE_STATE_IDLE));
     SYS_LOG_DBG("CYCLE_STATE_START");
-    print_state(state_mng_id_2_state(CYCLE_STATE_START));
+    states_print_state(state_mng_id_2_state(CYCLE_STATE_START));
     SYS_LOG_DBG("CYCLE_STATE_END");
-    print_state(state_mng_id_2_state(CYCLE_STATE_END));
+    states_print_state(state_mng_id_2_state(CYCLE_STATE_END));
     */
 }
 
 
+/**
+ * @brief Print info for all states configured to state_manager
+ */
 void state_mng_print_state_config(){
 
     SYS_LOG_INF("State config:");
@@ -227,6 +221,9 @@ void state_mng_print_state_config(){
     }
 }
 
+/**
+ * @brief Print transition table as configured to state_manager
+ */
 void state_mng_print_transition_table_config(){
 
     SYS_LOG_INF("Transition table config:");
@@ -267,11 +264,11 @@ void state_mng_init(struct device * dev){
     /*
     printk("States after init()");
     SYS_LOG_DBG("CYCLE_STATE_IDLE");
-    print_state(state_mng_id_2_state(CYCLE_STATE_IDLE));
+    states_print_state(state_mng_id_2_state(CYCLE_STATE_IDLE));
     SYS_LOG_DBG("CYCLE_STATE_START");
-    print_state(state_mng_id_2_state(CYCLE_STATE_START));
+    states_print_state(state_mng_id_2_state(CYCLE_STATE_START));
     SYS_LOG_DBG("CYCLE_STATE_END");
-    print_state(state_mng_id_2_state(CYCLE_STATE_END));
+    states_print_state(state_mng_id_2_state(CYCLE_STATE_END));
     */
 }
 
@@ -283,11 +280,21 @@ bool state_mng_is_running(){
 }
 
 /**
- * @brief Thread-safe getter of current state.
- * @return: id of current state.
+ * @brief Thread-safe getter of current state id.
+ * @return id of current state.
  */ 
 cycle_state_id_t state_mng_get_current(){
     return atomic_get(&state_cur_id);
+}
+/**
+ * @brief Thread-unsafe getter of current substate index.
+ *        Call ONLY from within state_mng run loop.
+ * @return id of current state.
+ */ 
+u8_t state_mng_get_current_subs(){
+    struct State * state_cur = state_mng_id_2_state(state_mng_get_current()); 
+    return state_cur->cur_subs_idx;
+    
 }
 
 /**
@@ -315,12 +322,12 @@ int state_mng_abort(){
 
 /**
  * @brief Clear callback array and reqvalue arrays for a state.
- * @param: id of state to clear
- * @return: 0 on success, != 0 otherwise.
+ * @param state_id: id of state to clear
+ * @return 0 on success, != 0 otherwise.
  */ 
 int state_mng_purge_registered_actions(cycle_state_id_t state_id){
-    // todo: make threadsafe or prevent while running
-    if(init_done){
+
+    if(init_done || state_mng_is_running()){
         SYS_LOG_WRN("Can't modify state machine after init. Call .abort() first.");
         return 1;
     }
@@ -339,7 +346,7 @@ int state_mng_purge_registered_actions(cycle_state_id_t state_id){
 
 /**
  * @brief Clear callback array and reqvalue arrays for all states.
- * @return: 0 on success, != 0 otherwise.
+ * @return 0 on success, != 0 otherwise.
  */ 
 int state_mng_purge_registered_actions_all(){
     int res = 0;
@@ -351,13 +358,16 @@ int state_mng_purge_registered_actions_all(){
     return res;
 }
 
+/**
+ * @brief Send signal to start running state machine.
+ */ 
 int state_mng_start(){
     atomic_set_bit(&flags, THREAD_START);
 
     SYS_LOG_DBG("Received start to run sm loop.");
 
     int timeout = 100; // ms
-    while(state_mng_is_running() && timeout >= 0){
+    while(!state_mng_is_running() && timeout >= 0){
         k_sleep(10);    // switch to state_manager thread
         timeout -= 10;
     }
@@ -372,7 +382,7 @@ int state_mng_start(){
 
 
 /**
- * @brief: Entry function for state machine loop. Do not call.
+ * @brief Entry function for state machine loop. Do not call.
  *         Should be invoked as thread.
  */ 
 void state_mng_run(void){
@@ -408,14 +418,14 @@ void state_mng_run(void){
     irqtester_fe310_enable_valflags_rx(irqt_dev);
 
     atomic_set_bit(&flags, THREAD_RUNNING);
-    SYS_LOG_DBG("Start running, thread %p.", k_current_get());
+    SYS_LOG_DBG("SM thread entering loop, thread %p.", k_current_get());
 
     while(!atomic_test_bit(&flags, ABORT_LOOP)){
         // check other thread signals?
         bool vals_ready = false; 
         bool skip_actions = false;
         int time_left_cyc = 0;
-        struct Event event = {.id_name=_CYCLE_DEFAULT_EVT}; // empty event container
+        struct SMEvent event = {.id_name=_CYCLE_DEFAULT_EVT}; // empty event container
        
         check_time_goal_start(_state_cur, &time_left_cyc);
         handle_time_goal_start(_state_cur, time_left_cyc);
@@ -475,16 +485,14 @@ void state_mng_run(void){
  * @param arr_vals: array of value ids to request from driver.
  * @param len:      number of elements in arr_vals.
  */
-int state_mng_register_action(cycle_state_id_t state_id, void (*func)(void), irqt_val_id_t arr_vals[], int len){
-    // todo: make threadsafe
+int state_mng_register_action(cycle_state_id_t state_id, void (*func)(struct ActionArg const *), irqt_val_id_t arr_vals[], int len){
     
     if(state_mng_is_running()){
         SYS_LOG_WRN("Can't register action while running");
-        // Used sloppy, import to check whether not running
         return 4;
     }
 
-    if(state_id > _NUM_CYCLE_STATES){
+    if(state_id > _NUM_CYCLE_STATES || state_id < CYCLE_STATE_IDLE){
         SYS_LOG_WRN("Couln't register action to unknown state %i", state_id);
         return 3;
     }
@@ -535,7 +543,7 @@ int state_mng_register_action(cycle_state_id_t state_id, void (*func)(void), irq
 
 
     //SYS_LOG_DBG("Printing state %i", state_id);
-    //print_state(state_mng_id_2_state(state_id));
+    //states_print_state(state_mng_id_2_state(state_id));
     // find free space in target array and save value
     i_free = STATES_REQ_VALS_MAX;
     j = 0;
@@ -570,6 +578,9 @@ int state_mng_register_action(cycle_state_id_t state_id, void (*func)(void), irq
     return 0;
 }
 
+/**
+ * @brief Print logged switch, wait and performance mes. events
+ */ 
 void state_mng_print_evt_log(){
     SYS_LOG_DBG("Last %i switch events:", STATE_MNG_LOG_EVENTS_DEPTH);
     for(int i = 0; i<STATE_MNG_LOG_EVENTS_DEPTH; i++){
@@ -608,8 +619,13 @@ void state_mng_print_evt_log(){
 
 }
 
-// get and delete all log events for certain id_state
-// return idx of buffer last written
+/**
+ * @brief   Debug function, likely to be removed.
+ *          Get and delete all log events for certain id_state
+ * @return  idx of buffer last written
+ * 
+ */
+
 int state_mng_pull_perf_action(int res_buf[], int idx_buf, int len){
 
     // fill in with fitting values form event log
@@ -640,7 +656,7 @@ int state_mng_pull_perf_action(int res_buf[], int idx_buf, int len){
 }
 
 
-static struct State * switch_state(struct State * current, struct Event * evt){
+static struct State * switch_state(struct State * current, struct SMEvent * evt){
     cycle_state_id_t next_id = 0;
     cycle_event_id_t evt_id = 0;
 
@@ -660,7 +676,7 @@ static struct State * switch_state(struct State * current, struct Event * evt){
     u8_t next_subs = 0;
 
     bool done_substates = true;
-#if(STATE_MNG_DIS_SUBSTATES == 0)
+#if(STATES_DIS_SUBSTATES == 0)
     
     if(current->max_subs_idx > 0){  // state has substates
         done_substates = false;
@@ -724,7 +740,7 @@ static struct State * switch_state(struct State * current, struct Event * evt){
         timestamp_reset = get_cycle_32();  
     }
 
-    #if(STATE_MNG_DIS_SUBSTATES == 0)
+    #if(STATES_DIS_SUBSTATES == 0)
     *cur_subs_p = next_subs;
     #endif
 
@@ -737,7 +753,7 @@ static struct State * switch_state(struct State * current, struct Event * evt){
 
 
 /**
- * @brief:  Non thread-safe getter of state struct.
+ * @brief  Non thread-safe getter of state struct.
  *          Call ONLY from state_mng run loop.
  * 
  */
@@ -753,7 +769,7 @@ struct State * state_mng_id_2_state(cycle_state_id_t id_name){
  * @brief Get priority of a DrvEvent
  * 
  * @param evt:  event to get priority from.
- * @return:     priority, high positive values indicate high priority.
+ * @return     priority, high positive values indicate high priority.
  *              -1: Error. Higher negative values: reserved.
  */
 static short get_event_prio(struct DrvEvent * evt){
@@ -763,7 +779,7 @@ static short get_event_prio(struct DrvEvent * evt){
         case IRQ_1: // used as IRQ_Reset_SM
             return 1;
         default:
-            SYS_LOG_WRN("Event with unknown irq_id %i", evt->irq_id);
+            SYS_LOG_WRN("SMEvent with unknown irq_id %i", evt->irq_id);
     }
     return -1;
 }
@@ -776,7 +792,7 @@ static short get_event_prio(struct DrvEvent * evt){
  *
  *  @param res_evt: Pointer to state manager event to write result.
  */
-static int gather_events(struct Event * res_evt){
+static int gather_events(struct SMEvent * res_evt){
     struct DrvEvent drv_evt;                // driver event type
     res_evt->id_name = _CYCLE_DEFAULT_EVT;  // sm transition event type
     
@@ -838,7 +854,7 @@ static int gather_events(struct Event * res_evt){
 }
 
 
-int state_mng_check_vals_ready(struct State * state){
+static int state_mng_check_vals_ready(struct State * state){
     
     bool val_i_ready = false;
     bool all_ready = true;
@@ -860,12 +876,12 @@ int state_mng_check_vals_ready(struct State * state){
 }
 
 /**
- * @brief: Wait until all requested values for state become available. 
+ * @brief Wait until all requested values for state become available. 
  *         Timeout, if timing goal end of the state is hit.        
  *  
  * Also logs using waiting events if defined.
  * 
- * @return: 0: all good. 1: timeout occured
+ * @return 0: all good. 1: timeout occured
  * 
  * Todo: currently busy waiting. Replace.
  */
@@ -908,7 +924,7 @@ bool state_mng_wait_vals_ready(struct State * state){
 }
 
 /**
- * @brief: Wait for a fixed amount of time.
+ * @brief Wait for a fixed amount of time.
  * 
  * Also logs using waiting events if defined.
  *                   
@@ -939,9 +955,9 @@ void state_mng_wait_fix(struct State * state, u32_t t_fix_cyc, sm_wait_reason_t 
 }
 
 /** 
- * @brief: Handle if not all vals rady
+ * @brief Handle if not all vals rady
  * 
- * @return: handler decision to skip actions in run loop.
+ * @return handler decision to skip actions in run loop.
  */
 static bool handle_vals_ready(struct State * state){
     // fire state callback if available
@@ -955,7 +971,7 @@ static bool handle_vals_ready(struct State * state){
  *   @brief Calcs the time since start state.
  *   
  *   Warning: requires that delta to start state can never > 2^32 cycles. 
- *   @return: delta in cpu cycles
+ *   @return delta in cpu cycles
  */ 
 u32_t state_mng_get_time_delta(){
  
@@ -963,7 +979,7 @@ u32_t state_mng_get_time_delta(){
 }
 
 /**
- * Deprecated, use explicit _start, _end methods
+ * @brief   Deprecated, use explicit _start, _end methods
  */
 int state_mng_get_timing_goal(struct State * state, u8_t substate, int mode){
     
@@ -983,7 +999,7 @@ int state_mng_get_timing_goal(struct State * state, u8_t substate, int mode){
 
     // substate logic
     // replicate duration of parent state + summand
-    #if(STATE_MNG_DIS_SUBSTATES == 0)
+    #if(STATES_DIS_SUBSTATES == 0)
     if(state->max_subs_idx > 0){
         result += substate * (state->timing_goal_end - state->timing_goal_start + state->timing_summand) ;
     }
@@ -992,36 +1008,6 @@ int state_mng_get_timing_goal(struct State * state, u8_t substate, int mode){
     return result;
 }
 
-int state_mng_get_timing_goal_start(struct State * state, u8_t substate){
-    
-   
-    int result = state->timing_goal_start;   
-
-    // substate logic
-    // replicate duration of parent state + summand
-    #if(STATE_MNG_DIS_SUBSTATES == 0)
-    if(state->max_subs_idx > 0){
-        result += substate * (state->timing_goal_end - state->timing_goal_start + state->timing_summand) ;
-    }
-    #endif
-
-    return result;
-}
-
-int state_mng_get_timing_goal_end(struct State * state, u8_t substate){
-    
-    int result = state->timing_goal_end;
-
-    // substate logic
-    // replicate duration of parent state + summand
-    #if(STATE_MNG_DIS_SUBSTATES == 0)
-    if(state->max_subs_idx > 0){
-        result += substate * (state->timing_goal_end - state->timing_goal_start + state->timing_summand) ;
-    }
-    #endif
-
-    return result;
-}
 
 
 
@@ -1029,7 +1015,7 @@ int state_mng_get_timing_goal_end(struct State * state, u8_t substate){
  * Deprecated, use explicit _start, _end methods
  * @param t_left:   if goal met: delta in cycles still to goal 
  * @param mode:     0: check start goal, 1:end goal
- * @return:         0: goal in future, 1: goal missed, 2: goal exactly hit
+ * @return          0: goal in future, 1: goal missed, 2: goal exactly hit
  */
 static int check_time_goal(struct State * state, int mode, int * t_left){
 
@@ -1058,7 +1044,7 @@ static int check_time_goal(struct State * state, int mode, int * t_left){
 }
 
 /**
- * @brief: Helper to be called from check_time_goal_start() or _end()
+ * @brief Helper to be called from check_time_goal_start() or _end()
  */
 static void calc_time_goal(struct State * state, int * t_left, int goal){
     
@@ -1089,7 +1075,7 @@ static void calc_time_goal(struct State * state, int * t_left, int goal){
  */
 static void check_time_goal_start(struct State * state, int * t_left){
 
-    u32_t goal = state_mng_get_timing_goal_start(state, state->cur_subs_idx);
+    u32_t goal = states_get_timing_goal_start(state, state->cur_subs_idx);
     calc_time_goal(state, t_left, goal);
 }
 
@@ -1098,7 +1084,7 @@ static void check_time_goal_start(struct State * state, int * t_left){
  */
 static void check_time_goal_end(struct State * state, int * t_left){
 
-    u32_t goal = state_mng_get_timing_goal_end(state, state->cur_subs_idx);
+    u32_t goal = states_get_timing_goal_end(state, state->cur_subs_idx);
     calc_time_goal(state, t_left, goal);
 }
 
@@ -1143,7 +1129,7 @@ static void handle_time_goal_end(struct State * state, int t_left){
 }
 
 /** 
- * @brief: Measure duration of actions, after waiting in state is done.
+ * @brief Measure duration of actions, after waiting in state is done.
  * 
  * Waiting occurs if a handler of state does so in case of missed time goal
  * or not available requested value
@@ -1192,16 +1178,7 @@ static bool is_val_in_array(irqt_val_id_t val, irqt_val_id_t *arr, int len){
     return false;
 }
 
-// helper
-void print_state(struct State * state){
-    printk("Printing state struct: \n");
-    printk("id: %i \ndefault_next: %i \ngoal_start: %u \ngoal_end: %u \nval_ids_req \n", \
-            state->id_name, state->default_next_state,     \
-            state->timing_goal_start, state->timing_goal_end);
-    print_arr_uint(state->val_ids_req, STATES_REQ_VALS_MAX);
-    printk("action: %p \n", state->action);
 
-}
 
 /**
  *  @brief Fires all callbacks stored in internal array.
@@ -1209,11 +1186,17 @@ void print_state(struct State * state){
  *  Use state_manager::register_action() and ::purge_registered_action() to access.
  */
 static void _default_action_dispatcher(cycle_state_id_t state){
+
+    // created on stack, gets invalid after dispatching finished
+    // holds pointer to current state of state_manager, content must not be
+    // altered by a callback
+    struct ActionArg arg ={.state_cur = state_mng_id_2_state(state_mng_get_current())};
+
     for(int i=0; i<STATES_CBS_PER_ACTION_MAX; i++){
-        void (*cb)(void) = _cb_funcs[state][i];
+        void (*cb)(struct ActionArg const *) = _cb_funcs[state][i];
         if(cb != NULL){
             // fire callback!
-            cb();
+            cb(&arg);
         }
         else{
             return; // cbs are filled "bottom up" in register_action()

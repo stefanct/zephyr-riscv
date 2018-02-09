@@ -1,13 +1,15 @@
+
+/**
+ * @file 
+ * @brief  Implements a performance logging method which prints
+ *          to a fifo string buffer instead of uart.
+ */
+
 #ifndef LOG_PERF_H
 #define LOG_PERF_H
 
 #include <misc/printk.h>
 
-/**
- * @file    Implements a performance logging method which prints
- *          to a fifo string buffer instead of uart.
- * 
- */
 
 
 

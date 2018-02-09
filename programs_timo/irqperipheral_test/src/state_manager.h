@@ -1,3 +1,9 @@
+/**
+ * @file
+ * @brief  Generic logic for running a state machine. Concrete implementation 
+ *         happens elsewhere.
+ */
+
 #ifndef STATE_MANAGER_H
 #define STATE_MANAGER_H
 
@@ -25,8 +31,8 @@ int state_mng_pull_perf_action(int res_buff[], int idx_buf, int len);
 
 bool state_mng_is_running();
 cycle_state_id_t state_mng_get_current();
+u8_t state_mng_get_current_subs();
 struct State * state_mng_id_2_state(cycle_state_id_t id_name);
-int state_mng_check_vals_ready(struct State * state);
 
 u32_t state_mng_get_time_delta();
 int state_mng_get_timing_goal(struct State * state, u8_t substate, int mode);
@@ -35,7 +41,7 @@ void state_mng_run(void);
 int state_mng_start();
 int state_mng_abort();
 
-int state_mng_register_action(cycle_state_id_t state_id, void (*func)(void), irqt_val_id_t arr_vals[], int len);
+int state_mng_register_action(cycle_state_id_t state_id, void (*func)(struct ActionArg const *), irqt_val_id_t arr_vals[], int len);
 int state_mng_purge_registered_actions(cycle_state_id_t state_id);
 int state_mng_purge_registered_actions_all();
 

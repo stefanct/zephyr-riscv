@@ -1,9 +1,3 @@
-/**
- * Implementation of State Machine SM2.
- * For testing and benchmarkin with workload (actions).
- * 
- */
-
 #include "sm_common.h"
 #include "cycles.h"
 #include "state_manager.h"
@@ -16,6 +10,17 @@
 
 // ugly: todo remove driver pointer from public driver interface
 struct device * g_dev_cp;
+
+/**
+ * Stuff to change for creating a new SM:
+ * - create file like this to create states (coupled to states.h::cycle_state_id_t)
+ * - define actions, eg. in own file. Need to keep track of users there
+ * - define irq handlers which deliver DrvEvents up to state_manager
+ */
+
+
+
+
 
 
 /**
@@ -209,9 +214,9 @@ void sm2_run(struct device * dev, int period_irq1_us, int period_irq2_us, int pa
 
     g_dev_cp = dev;
 
-    print_dash_line();
-    printk_framed("Now running state machine sm2");
-    print_dash_line();
+    print_dash_line(0);
+    printk_framed(0, "Now running state machine sm2");
+    print_dash_line(0);
     printk("param: %i, pos_param: %i \n" \
            "period_1: %i us, %i cyc, period_2: %i us, %i cyc\n" \
            "num_users: %i, substates: %i, usr_per_batch: %i \n", 
@@ -259,7 +264,7 @@ void sm2_run(struct device * dev, int period_irq1_us, int period_irq2_us, int pa
     irqt_val_id_t reqvals_ul[] = {VAL_IRQ_0_PERVAL};
     state_mng_register_action(CYCLE_STATE_UL   , ul_action_1, reqvals_ul, 1);
 
-    state_mng_register_action(CYCLE_STATE_UL   , sm_com_clear_valflags, reqvals_ul, 1);
+    //state_mng_register_action(CYCLE_STATE_UL   , sm_com_clear_valflags, reqvals_ul, 1);
     
     state_mng_register_action(CYCLE_STATE_RL   , sm_com_clear_valflags, NULL, 0);
 
@@ -296,6 +301,11 @@ void sm2_run(struct device * dev, int period_irq1_us, int period_irq2_us, int pa
     }
 
 
+ 
+    printk("DEBUG: SM2 offhanding to state manager thread \n");
+}
+
+void sm2_fire_irqs(struct device * dev, int period_irq1_us, int period_irq2_us){
     // program IRQ1 and IRQ2 to fire periodically
     // todo: hw support for infinite repetitions?
     u32_t period_1_cyc = period_irq1_us * 65; // x * ~1000 us
@@ -316,7 +326,7 @@ void sm2_run(struct device * dev, int period_irq1_us, int period_irq2_us, int pa
     if(period_irq2_us != 0){
         int div_1_2 = period_irq1_us / period_irq2_us;    // integer division, p_1 always > p_2
         if(div_1_2 * period_irq2_us != period_irq1_us){
-            printk("WARNING: Non integer divisble irq2 %u, irq1 %u lead to unstable timing relation. \n", period_irq2_us, period_irq1_us);
+            printk("WARNING: Non integer divisible irq2 %u, irq1 %u lead to unstable timing relation. \n", period_irq2_us, period_irq1_us);
         }
         sm_com_set_val_uptd_per_cycle(div_1_2);
 
@@ -327,7 +337,6 @@ void sm2_run(struct device * dev, int period_irq1_us, int period_irq2_us, int pa
     }
 
 
-    printk("DEBUG: SM2 offhanding to state manager thread \n");
 }
 
 void sm2_print_report(){
