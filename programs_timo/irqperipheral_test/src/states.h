@@ -44,8 +44,8 @@ struct State{
     u32_t timing_goal_end;
     irqt_val_id_t val_ids_req[STATES_REQ_VALS_MAX];  // holds the irqt vals requested by state
     void (*action)(cycle_state_id_t);  // method called when switched to this state , note that usually _default_action()
-    void (*handle_t_goal_start)(struct State *, int);     
-    void (*handle_t_goal_end)(struct State *, int); 
+    void (*handle_t_goal_start)(struct State *, int);  // method called when entering state, to act when time goal hit / missed    
+    void (*handle_t_goal_end)(struct State *, int);    // method called when leaving state, to act when time goal hit / missed
     bool (*handle_val_rfail)(struct State *);    // called when check_vals_ready fails at beginning of state, returns true if actions should be skipped
 
     // serial substates logic: automatically invoked as next state

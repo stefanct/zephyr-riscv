@@ -14,7 +14,7 @@ struct device * g_dev_cp;
 /**
  * Stuff to change for creating a new SM:
  * - create file like this to create states (coupled to states.h::cycle_state_id_t)
- * - define actions, eg. in own file. Need to keep track of users there
+ * - define actions in own file. Need to keep track of users there
  * - define irq handlers which deliver DrvEvents up to state_manager
  */
 
@@ -299,9 +299,7 @@ void sm2_run(struct device * dev, int period_irq1_us, int period_irq2_us, int pa
         printk("ERROR: Couldn't start sm2. Issue with thread. Aborting...");
         return;
     }
-
-
- 
+    
     printk("DEBUG: SM2 offhanding to state manager thread \n");
 }
 

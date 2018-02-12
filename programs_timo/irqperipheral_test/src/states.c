@@ -155,9 +155,8 @@ int states_get_timing_goal_start(struct State * state, u8_t substate){
     // substate logic
     // replicate duration of parent state + summand
     #if(STATES_DIS_SUBSTATES == 0)
-    if(state->max_subs_idx > 0){
-        result += substate * (state->timing_goal_end - state->timing_goal_start + state->timing_summand) ;
-    }
+    if(likely(state->max_subs_idx > 0))
+        result += substate * (state->timing_goal_end - state->timing_goal_start + state->timing_summand);
     #endif
 
     return result;
@@ -170,9 +169,8 @@ int states_get_timing_goal_end(struct State * state, u8_t substate){
     // substate logic
     // replicate duration of parent state + summand
     #if(STATES_DIS_SUBSTATES == 0)
-    if(state->max_subs_idx > 0){
+    if(likely(state->max_subs_idx > 0))
         result += substate * (state->timing_goal_end - state->timing_goal_start + state->timing_summand) ;
-    }
     #endif
 
     return result;

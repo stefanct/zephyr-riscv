@@ -92,6 +92,7 @@ struct DrvEvent{
     irqt_val_type_t val_type;
     irqt_event_type_t event_type;
     irqt_irq_id_t irq_id;
+    short prio;         /// higher values have higher prio, for same prio later event is preferred
 };
 
 /** Driver Value. Generic parent struct to be casted to 
@@ -126,14 +127,11 @@ struct DrvValue_bool{
 int irqtester_fe310_get_val(irqt_val_id_t id_name, void * res);
 int irqtester_fe310_get_val_uint(irqt_val_id_t id, void * res_value);
 u32_t irqtester_fe310_get_val_uint_raw(irqt_val_id_t id);
-
-
 int irqtester_fe310_get_reg(struct device * dev, irqt_val_id_t id, void * res_val);
+
 int irqtester_fe310_set_reg(struct device * dev, irqt_val_id_t id, void * set_value);
 int irqtester_fe310_set_reg_fast(struct device * dev, irqt_val_id_t id, void * set_val);
 int irqtester_fe310_set_reg_uint_fast(struct device * dev, irqt_val_id_t id, void * set_val);
-
-
 
 int irqtester_fe310_register_queue_rx(struct device * dev, struct k_msgq * queue);
 int irqtester_fe310_register_fifo_rx(struct device * dev, struct k_fifo * queue);

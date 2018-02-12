@@ -23,7 +23,7 @@
 #define STATE_MNG_QUEUE_RX_DEPTH 5
 // log using Switch_Event and Wait_Event
 // fast way to log
-#define STATE_MNG_LOG_EVENTS_DEPTH 64  // 0 to deactivate log 
+#define STATE_MNG_LOG_EVENTS_DEPTH 32  // 0 to deactivate log 
 // can log using LOG_PERF
 // LOG_PERF is faster than SYS_LOG
 // but still slow! (~ 5000 cyc)
@@ -383,7 +383,12 @@ int state_mng_start(){
 
 /**
  * @brief Entry function for state machine loop. Do not call.
- *         Should be invoked as thread.
+ *        Should be invoked as thread.
+ * 
+ * - Note for optimization, from ISA: Assume that backward branches 
+ *   will be predicted taken, forward branches as not taken.
+ * - Attention: depending in gcc version likely() macros may not work as expected
+ *   check assembly! (not properly working on riscv-gcc: 6.1.0 / 7.1.1)
  */ 
 void state_mng_run(void){
     
@@ -429,24 +434,24 @@ void state_mng_run(void){
        
         check_time_goal_start(_state_cur, &time_left_cyc);
         handle_time_goal_start(_state_cur, time_left_cyc);
-
+     
         // check if requested values of state have set valflag
         vals_ready = state_mng_check_vals_ready(_state_cur);
 
-        if(!vals_ready)
+        if(unlikely(!vals_ready)){
             // call state handler, may wait until valflag set
             skip_actions = handle_vals_ready(_state_cur);
             // clear valflags if necessary in action
-
+        }
         // measure performance of actions, after waiting done
         mes_perf(_state_cur, 0);
 
         // fire registered 'action' callbacks
-        if(!skip_actions && _state_cur->action != NULL)
+        if(likely(!skip_actions && _state_cur->action != NULL)) 
             _state_cur->action(_state_cur->id_name);
         
         // for clearity, do clear flags here (instead of as action)
-        if(_state_cur->id_name == CYCLE_STATE_END)
+        if(unlikely(_state_cur->id_name == CYCLE_STATE_END))
             irqtester_fe310_clear_all_valflags(irqt_dev);
 
         mes_perf(_state_cur, 1);
@@ -660,12 +665,12 @@ static struct State * switch_state(struct State * current, struct SMEvent * evt)
     cycle_state_id_t next_id = 0;
     cycle_event_id_t evt_id = 0;
 
-    if(evt == NULL)
+    if(unlikely(evt == NULL))
         evt_id = _CYCLE_DEFAULT_EVT; // = 0: get first element of row
     else
         evt_id = evt->id_name;
     
-    if(evt_id >= _NUM_CYCLE_EVENTS || current->id_name >= _NUM_CYCLE_STATES){
+    if(unlikely(evt_id >= _NUM_CYCLE_EVENTS || current->id_name >= _NUM_CYCLE_STATES)){
         SYS_LOG_ERR("Invalid event id %i or current state id %i", current->id_name, evt_id);
         return NULL;
     }
@@ -678,13 +683,13 @@ static struct State * switch_state(struct State * current, struct SMEvent * evt)
     bool done_substates = true;
 #if(STATES_DIS_SUBSTATES == 0)
     
-    if(current->max_subs_idx > 0){  // state has substates
+    if(likely(current->max_subs_idx > 0)){  // state has substates
         done_substates = false;
         next_subs = current->cur_subs_idx + 1;
         
         // all substates occured 
         // or non-default event forces switching
-        if(next_subs > current->max_subs_idx || evt_id != _CYCLE_DEFAULT_EVT){
+        if(unlikely(next_subs > current->max_subs_idx || evt_id != _CYCLE_DEFAULT_EVT)){
             //reset 
             next_subs = 0;
             done_substates = true; 
@@ -695,7 +700,7 @@ static struct State * switch_state(struct State * current, struct SMEvent * evt)
         }
     }
 #endif
-    if(done_substates){
+    if(unlikely(done_substates)){
         next_id = transition_table[current->id_name][evt_id];
         atomic_set(&state_cur_id, next_id); // to make available outside
     }
@@ -736,7 +741,7 @@ static struct State * switch_state(struct State * current, struct SMEvent * evt)
     #endif
     
     // set timestamp if switching so START
-    if(next_id == CYCLE_STATE_START){
+    if(unlikely(next_id == CYCLE_STATE_START)){
         timestamp_reset = get_cycle_32();  
     }
 
@@ -758,31 +763,13 @@ static struct State * switch_state(struct State * current, struct SMEvent * evt)
  * 
  */
 struct State * state_mng_id_2_state(cycle_state_id_t id_name){
-    if(id_name > _NUM_CYCLE_STATES){
+    if(unlikely(id_name > _NUM_CYCLE_STATES)){
         SYS_LOG_ERR("Requested invalid state_id: %i", id_name);
         return NULL;
     }
     return &(_states[id_name]);
 }
 
-/**
- * @brief Get priority of a DrvEvent
- * 
- * @param evt:  event to get priority from.
- * @return     priority, high positive values indicate high priority.
- *              -1: Error. Higher negative values: reserved.
- */
-static short get_event_prio(struct DrvEvent * evt){
-    switch(evt->irq_id){
-        case IRQ_0:
-            return 0;
-        case IRQ_1: // used as IRQ_Reset_SM
-            return 1;
-        default:
-            SYS_LOG_WRN("SMEvent with unknown irq_id %i", evt->irq_id);
-    }
-    return -1;
-}
 
 /**
  *  @brief Read all events in driver queue and get the one of highest priority.
@@ -805,7 +792,7 @@ static int gather_events(struct SMEvent * res_evt){
     // reduces latency of spinning through NULL-event
     int k_wait = K_NO_WAIT;
     
-    if(_state_cur->id_name == CYCLE_STATE_IDLE){
+    if(unlikely(_state_cur->id_name == CYCLE_STATE_IDLE)){
         int msgs_in_q = k_msgq_num_used_get(&queue_rx_driver);
         if(msgs_in_q == 0){
             //SYS_LOG_DBG("Going to block in STATE_IDLE, waiting for queue (%i msgs) events...", msgs_in_q);
@@ -819,14 +806,13 @@ static int gather_events(struct SMEvent * res_evt){
         // after receiving first queue element (in STATE IDLE), we stop blocking
         k_wait = K_NO_WAIT;
         // filter all wanted IRQs
-        if(drv_evt.event_type == EVT_T_IRQ){
+        if(likely(drv_evt.event_type == EVT_T_IRQ)){
             // only return highest prio event
-            // currently indicated by highest int value irqt_event_type_t, todo
-            irq_cur_prio = get_event_prio(&drv_evt);
-            if(irq_cur_prio >= irq_high_prio){
+            irq_cur_prio = drv_evt.prio;
+            if(likely(irq_cur_prio >= irq_high_prio)){
                 // transtale driver event to sm event
                 // currently only sm event: reset on IRQ1
-                if(drv_evt.irq_id == IRQ_1)
+                if(likely(drv_evt.irq_id == IRQ_1))
                     res_evt->id_name = CYCLE_EVENT_RESET_IRQ;
                 else
                     res_evt->id_name = _CYCLE_DEFAULT_EVT;
@@ -841,7 +827,7 @@ static int gather_events(struct SMEvent * res_evt){
     //    SYS_LOG_DBG("In state IDLE have_rx %i and chosen relevant state event id %i", haveRx, res_evt->id_name);    
        
 
-    if(!haveRx){
+    if(unlikely(!haveRx)){
         return 1;
     }
 
@@ -857,22 +843,21 @@ static int gather_events(struct SMEvent * res_evt){
 static int state_mng_check_vals_ready(struct State * state){
     
     bool val_i_ready = false;
-    bool all_ready = true;
     
     for(int i=0; i<STATES_REQ_VALS_MAX; i++){
         // empty array entry means no more vals to check
-        if(state->val_ids_req[i] == _NIL_VAL)
+        if(unlikely(state->val_ids_req[i] == _NIL_VAL))
             break;
         val_i_ready = irqtester_fe310_test_valflag(irqt_dev, state->val_ids_req[i]);
 
-        if(!val_i_ready){
+        if(unlikely(!val_i_ready)){
             // performance critical, do not print
             //SYS_LOG_WRN("Flag for requesting value %i from driver unready", state->val_ids_req[i]);
-            all_ready = false;
+            return false;
         }
     }
 
-    return all_ready;
+    return true;
 }
 
 /**
@@ -1047,27 +1032,16 @@ static int check_time_goal(struct State * state, int mode, int * t_left){
  * @brief Helper to be called from check_time_goal_start() or _end()
  */
 static void calc_time_goal(struct State * state, int * t_left, int goal){
-    
-    if(state->id_name == CYCLE_STATE_IDLE){
-        *t_left = 0;
-        return;
-    }
-    
+        
     u32_t delta_cyc = state_mng_get_time_delta();
 
     *t_left = goal - delta_cyc;
 
-    // attention: delta and goal are both time differences since timestamp_reset 
-    /*
-    if(delta_cyc > goal){
-       
-        return 1;
-    }  
-    else if(delta_cyc < goal)
-        return 0; 
-    else
-        return 2;
-    */
+    // no "early return" for static branch prediction
+    if(unlikely(state->id_name == CYCLE_STATE_IDLE)){
+        *t_left = 0;
+    }
+
 }
 
 /** 
@@ -1115,8 +1089,9 @@ static void handle_time_goal(struct State * state, int mode, int t_left){
  */
 static void handle_time_goal_start(struct State * state, int t_left){
     // fire state callback if available
-    if(state->handle_t_goal_start != NULL)
-        state->handle_t_goal_start(state, t_left);       
+    if(unlikely(state->handle_t_goal_start == NULL))
+        return;
+    state->handle_t_goal_start(state, t_left);       
 }
 
 /** 
@@ -1124,8 +1099,9 @@ static void handle_time_goal_start(struct State * state, int t_left){
  */
 static void handle_time_goal_end(struct State * state, int t_left){
     // fire state callback if available
-    if(state->handle_t_goal_end != NULL)
-        state->handle_t_goal_end(state, t_left);  
+    if(unlikely(state->handle_t_goal_end == NULL))
+        return;
+    state->handle_t_goal_end(state, t_left);  
 }
 
 /** 
@@ -1194,12 +1170,10 @@ static void _default_action_dispatcher(cycle_state_id_t state){
 
     for(int i=0; i<STATES_CBS_PER_ACTION_MAX; i++){
         void (*cb)(struct ActionArg const *) = _cb_funcs[state][i];
-        if(cb != NULL){
+        if(unlikely(cb == NULL)) return; // cbs are filled "bottom up" in register_action()
+        else{
             // fire callback!
             cb(&arg);
-        }
-        else{
-            return; // cbs are filled "bottom up" in register_action()
         }
     }
 }

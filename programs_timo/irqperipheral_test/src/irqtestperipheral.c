@@ -622,11 +622,7 @@ void _irq_1_handler_0(void){
 	struct device * dev = DEV();
 	struct irqtester_fe310_data * data = DEV_DATA(dev);
 
-	/* own implementation 
-	 * read values from hardware registers and send up DrvEvents
-	 */
-	
-	struct DrvEvent evt_irq1   = {.val_id=_NIL_VAL, .event_type=EVT_T_IRQ, .irq_id=IRQ_1};
+	struct DrvEvent evt_irq1   = {.val_id=_NIL_VAL, .event_type=EVT_T_IRQ, .irq_id=IRQ_1, .prio=1};
 
 	// manually inlining send, flag functions
 	//if(0 != k_msgq_put(data->_queue_rx, &evt_irq1, K_NO_WAIT))
@@ -644,10 +640,6 @@ void _irq_1_handler_1(void){
 	struct device * dev = DEV();
 	struct irqtester_fe310_data * data = DEV_DATA(dev);
 
-	/* own implementation 
-	 * read values from hardware registers and send up DrvEvents
-	 */
-	
 	struct DrvEvent evt_irq1   = {.val_id=_NIL_VAL, .event_type=EVT_T_IRQ, .irq_id=IRQ_1};
 
 	// manually inlining send, flag functions
@@ -929,12 +921,14 @@ int irqtester_fe310_set_reg_uint_fast(struct device * dev, irqt_val_id_t id, voi
 #else
 	addr = _values_uint[id_2_index(id)].base_addr;
 #endif
-	if(addr == NULL){
+
+	if(likely(addr != NULL)){
+		*((u32_t *)addr) = ((struct DrvValue_uint *)set_val)->payload;
+	}
+	else{
 		SYS_LOG_WRN("NULL base_addr for val id %i. Check _store_reg_adr() in driver init.", id);
 		retval = 2;
 	}
-	else
-		*((u32_t *)addr) = ((struct DrvValue_uint *)set_val)->payload;
 		
 	
 	irq_unlock(lock_key);
@@ -942,6 +936,7 @@ int irqtester_fe310_set_reg_uint_fast(struct device * dev, irqt_val_id_t id, voi
 
 	return retval;
 }
+
 
 /** 
  * @brief 	Thread safe, generic setter for device registers.
@@ -1062,7 +1057,7 @@ int irqtester_fe310_get_reg(struct device * dev, irqt_val_id_t id, void * res_va
  */
 bool irqtester_fe310_test_valflag(struct device *dev, irqt_val_id_t id){
 	struct irqtester_fe310_data *data = DEV_DATA(dev);
-	if(id > _NUM_VALS){
+	if(unlikely(id > _NUM_VALS)){
 		SYS_LOG_WRN("Requesting to test flag for invalid value id %i", id);
 		return false;
 	}
@@ -1490,7 +1485,7 @@ static int irqtester_fe310_init(struct device *dev)
 	struct irqtester_fe310_data *data = DEV_DATA(dev);
 
 	SYS_LOG_DBG("Init iqrtester driver with hw @ %p, %p, %p, %p \n" \
-					"\t mem pools (uint, int, bool) @ %p, %p, %p", 
+					"mem pools (uint, int, bool) @ %p, %p, %p", 
 				irqt_0, irqt_1, irqt_2, irqt_3, _values_uint, _values_int, _values_bool);
 
 	/* Ensure that all registers are reset to 0 initially */

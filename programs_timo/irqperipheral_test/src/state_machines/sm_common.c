@@ -99,7 +99,7 @@ void sm_com_check_last_state(){
     
     // check whether reset to START was while not finshed a cycle yet
     if(state_id_new == CYCLE_STATE_START){
-        if(!(state_id == CYCLE_STATE_IDLE || state_id == CYCLE_STATE_END)){
+        if(unlikely(!(state_id == CYCLE_STATE_IDLE || state_id == CYCLE_STATE_END))){
             num_fail_reset++;
             //u32_t time_cyc = get_cycle_32();
             //u32_t time_delta_cyc = state_mng_get_time_delta();
@@ -151,11 +151,12 @@ void sm_com_check_clear_status(){
 
 /// wait until start and warn on miss
 void sm_com_handle_timing_goal_start(struct State * state, int t_left){
-    if(t_left < 0 && state->timing_goal_start != 0){
+    if(unlikely(t_left < 0 && state->timing_goal_start != 0)){
         LOG_PERF("WARNING: [%u] missed t_goal_start %u in state %i.%u",
                 state_mng_get_time_delta(), state->timing_goal_start, state->id_name, state->cur_subs_idx);
         num_fail_timing++;
     }
+    // todo: depending whether waiting on time (not reqval) is common, mark likely
     else if(t_left > 0 && state->timing_goal_start != 0){
         state_mng_wait_fix(state, t_left, RS_WAIT_FOR_START);   
     }
@@ -163,7 +164,7 @@ void sm_com_handle_timing_goal_start(struct State * state, int t_left){
 
 /// warn on miss end
 void sm_com_handle_timing_goal_end(struct State * state, int t_left){
-    if(t_left < 0 && state->timing_goal_end != 0){
+    if(unlikely(t_left < 0 && state->timing_goal_end != 0)){
         num_fail_timing++;
         LOG_PERF("WARNING: [%u] missed t_goal_end %u in state %i.%u",
                 state_mng_get_time_delta(), state->timing_goal_end, state->id_name, state->cur_subs_idx);
