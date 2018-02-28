@@ -385,7 +385,14 @@ int state_mng_start(){
  * @brief Entry function for state machine loop. Do not call.
  *        Should be invoked as thread.
  * 
- * - Note for optimization, from ISA: Assume that backward branches 
+ * Todo:
+ * - either use hw with dynamic branch prediction (btb != None) or
+ *   optimize state_mng_run such that no branch misprediction in loop.
+ *   Currently, mispredictions due to likely() problem (see below)
+ * 
+ * Notes:
+ * - FE310: Freedom/With1TinyCore sets btb = None -> no dynamic branch prediction 
+ * - For static optimization, from ISA: Assume that backward branches 
  *   will be predicted taken, forward branches as not taken.
  * - Attention: depending in gcc version likely() macros may not work as expected
  *   check assembly! (not properly working on riscv-gcc: 6.1.0 / 7.1.1)

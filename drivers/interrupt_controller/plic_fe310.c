@@ -188,7 +188,6 @@ void plic_fe310_irq_handler_dbg(void *arg){
 	u32_t irq = regs->claim_complete; // cleared upon read
 	regs->claim_complete = irq;
 
-	// we pass the irq_num in reg a6
 	//u32_t a0;
 	//u32_t t;
 	// to have in some reg, add 0 to target reg

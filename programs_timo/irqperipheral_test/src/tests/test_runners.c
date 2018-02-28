@@ -333,7 +333,7 @@ int run_test_irq_throughput_3_autoadj(struct device * dev){
     print_dash_line(2);
     printk_framed(2, "Now running interrupt throughput test 3 (auto adjust) for irq1 ");
     print_dash_line(2);
-    printk(2, "Status_1 before first run: %i. Test may take some seconds... \n", status_1.payload);
+    printkv(2, "Status_1 before first run: %i. Test may take some seconds... \n", status_1.payload);
     
     int status_arr_len = num_runs;
     int status_arr[status_arr_len];
@@ -793,11 +793,12 @@ void run_test_sm2_action_perf_3(struct device * dev){
         //sm2_config(param, 4, sm2_task_calc_cfo_1, 1, 0);
         //sm2_config(param, param, sm2_task_calc_cfo_1, 1, 0);
         //sm2_config(32, 8, sm2_task_bench_basic_ops, param, 0);  // mac
-        sm2_config(32, 8, sm2_task_bench_basic_ops, param, 1);  // read
-        //sm2_config(32, 8, sm2_task_bench_basic_ops, param, 2);  // write
-       
-        sm2_run(dev, cur_t_us * t_irq_divisor, cur_t_us, 1, 0);
-        sm2_fire_irqs(dev, cur_t_us * t_irq_divisor, cur_t_us);
+        //sm2_config(32, 8, sm2_task_bench_basic_ops, param, 1);  // read
+        sm2_config(32, 8, sm2_task_bench_basic_ops, param, 2);  // write
+        sm2_init(dev, cur_t_us * t_irq_divisor, cur_t_us);
+        sm2_run();
+        sm2_fire_irqs(cur_t_us * t_irq_divisor, cur_t_us);
+
         printk("DEBUG: test_runner going to sleep... \n");
         k_sleep(t_per_run_ms);
         printk("DEBUG: Woke up again. Trying to stop SM2. \n");
