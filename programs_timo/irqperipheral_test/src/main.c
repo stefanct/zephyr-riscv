@@ -1,17 +1,13 @@
-/*
- * Copyright (c) 2012-2014 Wind River Systems, Inc.
- *
- * SPDX-License-Identifier: Apache-2.0
- */
 
 #include <zephyr.h>
 #include <misc/printk.h>
 #include <device.h>
 
 #include "irqtestperipheral.h"
-#include "test_runners.h"
+#include "tests/test_runners.h"
 #include "tests/tests.h"
 #include "cycles.h"
+#include "log_perf.h"
 
 #include "state_manager.h"
 #ifndef TEST_MINIMAL
@@ -24,10 +20,6 @@
 
 
 int global_max_cyc;
-
-// thread data
-//char __noinit __stack my_stack_area[1024];
-//struct k_thread my_thread_data;
 
 
 // copy of disabled function in devices.c
@@ -59,11 +51,38 @@ void print_device_drivers(){
 
 // make static to keep handle after main thread is done
 static struct device *dev;
-// needed threads
+
+void print_kernel_info(){
+
+	#ifndef CONFIG_PREEMPT_ENABLED
+	#define PRINT_CONFIG_PREEMPT_ENABLED 0
+	#else
+	#define PRINT_CONFIG_PREEMPT_ENABLED CONFIG_PREEMPT_ENABLED
+	#endif
+	#ifndef CONFIG_TIMESLICING
+	#define PRINT_CONFIG_TIMESLICING 0
+	#else
+	#define PRINT_CONFIG_TIMESLICING CONFIG_TIMESLICING
+	#endif
+	#ifndef CONFIG_IRQ_OFFLOAD
+	#define PRINT_CONFIG_IRQ_OFFLOAD 0
+	#else
+	#define PRINT_CONFIG_IRQ_OFFLOAD CONFIG_IRQ_OFFLOAD
+	#endif
+	u32_t t_rtc = k_cycle_get_32();
+	u32_t t_cyc = get_cycle_32();
+	printk("Boot finished at rtc / cycles: [%u / %u] \n", t_rtc, t_cyc);
+	printk("Kernel Config Info:" \
+		"\nMain thread @%p prio: %i \nTimeslicing: %i \nPreempt: %i \nIRQ_offloading: %i\n" \
+		"isr.S optimization: %i\n",
+		k_current_get(), CONFIG_MAIN_THREAD_PRIORITY, PRINT_CONFIG_TIMESLICING,
+		PRINT_CONFIG_PREEMPT_ENABLED, PRINT_CONFIG_IRQ_OFFLOAD, CONFIG_FE310_ISR_PLIC_OPT_LVL);
+}
+
 
 void main(void)
 {	
-	printk("Current rtc / hw cycles: %u / %u \n", k_cycle_get_32(), get_cycle_32());
+	print_kernel_info();
 	print_device_drivers();
 	printk("Starting irqtester test for hw rev. %i on arch: %s\n", IRQTESTER_HW_REV, CONFIG_ARCH);
 
@@ -78,16 +97,33 @@ void main(void)
 	irqtester_fe310_enable(dev);
 	
 	//test_uint_overflow();
-	run_test_hw_basic_1(dev);
+	print_set_verbosity(1);
+
+	run_test_hw_basic_1(dev);	// sets printkv verbosity to 1
+
+
+
+	//run_test_timing_rx(dev);
+
+	// test basic functionality
 
 	//run_test_irq_throughput_1(dev);
 	//run_test_irq_throughput_2(dev);
-	//run_test_irq_throughput_3_autoadj(dev);
+
+	//run_test_irq_throughput_3_autoadj(dev 1);
+	//run_test_irq_throughput_3_autoadj(dev, 2);
+	//PRINT_LOG_BUFF();
 
 	//run_test_poll_throughput_1_autoadj(dev);
-
+	
+	run_test_state_mng_1(dev);
 	//run_test_sm1_throughput_1(dev);
-	run_test_sm1_throughput_2(dev);
+	//PRINT_LOG_BUFF();
+	//run_test_sm_throughput_2(dev, 1);
+	//run_test_sm_throughput_2(dev, 2);
+	run_test_sm2_action_perf_3(dev);
+	//run_test_sm2_action_prof_4(dev);
+	PRINT_LOG_BUFF();
 	
 
 	int i=0;
