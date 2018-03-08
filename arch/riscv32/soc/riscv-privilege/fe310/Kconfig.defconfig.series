@@ -44,14 +44,4 @@ config RISCV_RAM_SIZE
 	hex
 	default 0x10000
 
-config FE310_IRQT_DRIVER
-	bool "IrqTestPeripheral Driver enabled"
-	depends on SOC_RISCV32_FE310
-	default y
-
-config FE310_ISR_PLIC_OPT_LVL
-	int "Level of ISR optimization for PLIC IRQ handling"
-	depends on SOC_RISCV32_FE310
-	default 0
-
 endif # SOC_SERIES_RISCV32_FE310

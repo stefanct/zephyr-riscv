@@ -28,6 +28,7 @@ source "ext/Kconfig"
 
 source "tests/Kconfig"
 
+
 #
 # The following are for Kconfig files for default values only.
 # These should be parsed at the end.
@@ -37,3 +38,7 @@ source "tests/Kconfig"
 #
 source "arch/*/soc/*/Kconfig.defconfig"
 source "boards/*/*/Kconfig.defconfig"
+
+
+# for Kconfig for applications
+source "apps/Kconfig"

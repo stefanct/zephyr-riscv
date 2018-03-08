@@ -93,14 +93,10 @@ SECTION_FUNC(exception.entry, __irq_wrapper)
 	sw t0, __NANO_ESF_t0_OFFSET(sp)
 	sw t1, __NANO_ESF_t1_OFFSET(sp)
 	sw t2, __NANO_ESF_t2_OFFSET(sp)
-#if CONFIG_FE310_ISR_PLIC_OPT_LVL > 2
-	// leave out
-#else
 	sw t3, __NANO_ESF_t3_OFFSET(sp)
 	sw t4, __NANO_ESF_t4_OFFSET(sp)
 	sw t5, __NANO_ESF_t5_OFFSET(sp)
 	sw t6, __NANO_ESF_t6_OFFSET(sp)
-#endif // CONFIG_FE310_ISR_PLIC_OPT_LVL
 	sw a0, __NANO_ESF_a0_OFFSET(sp)
 	sw a1, __NANO_ESF_a1_OFFSET(sp)
 	sw a2, __NANO_ESF_a2_OFFSET(sp)
@@ -431,13 +427,10 @@ no_reschedule:
 	lw t0, __NANO_ESF_t0_OFFSET(sp)
 	lw t1, __NANO_ESF_t1_OFFSET(sp)
 	lw t2, __NANO_ESF_t2_OFFSET(sp)
-#if CONFIG_FE310_ISR_PLIC_OPT_LVL > 2
-#else
 	lw t3, __NANO_ESF_t3_OFFSET(sp)
 	lw t4, __NANO_ESF_t4_OFFSET(sp)
 	lw t5, __NANO_ESF_t5_OFFSET(sp)
 	lw t6, __NANO_ESF_t6_OFFSET(sp)
-#endif 
 	lw a0, __NANO_ESF_a0_OFFSET(sp)
 	lw a1, __NANO_ESF_a1_OFFSET(sp)
 	lw a2, __NANO_ESF_a2_OFFSET(sp)

@@ -1,0 +1,18 @@
+# Kconfig - application dirver configuration options
+# this Kconfig file has to be sourced in <root>/Kconfig.zephyr
+
+
+menuconfig APP_DRIVERS
+	bool
+	prompt "Application drivers"
+	default n
+	help
+	Enable options for drivers from application build dirs.
+
+if APP_DRIVERS
+
+# currently app drivers have to live in application dir
+# might consider building drivers as libs instead
+source "apps/irqperipheral_test/src/drivers/*/Kconfig.*"
+
+endif

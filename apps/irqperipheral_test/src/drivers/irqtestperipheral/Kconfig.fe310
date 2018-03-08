@@ -1,0 +1,37 @@
+
+# may use the FE310 driver also for zc706, mind to configure settings accordingly!
+menuconfig FE310_IRQT_DRIVER
+	bool "IrqTestPeripheral driver enabled"
+	depends on SOC_RISCV32_FE310 || SOC_RISCV32_ZC706
+	default n
+
+config FE310_IRQT_NAME
+	string "Device name of irqt driver"
+	depends on FE310_IRQT_DRIVER
+	default "irqtester0"
+
+config FE310_IRQT_FAST_ID2IDX
+	bool "Enable fast translation from id to idx. No bound checking!"
+	depends on FE310_IRQT_DRIVER
+	default 0
+
+config FE310_ISR_PLIC_OPT_LVL
+	int "Level of ISR optimization for PLIC IRQ handling"
+	depends on FE310_IRQT_DRIVER
+	default 0
+
+config FE310_IRQT_IRQ_0_PIN
+	int "Pin of IRQ0 of IrqTestPeripheral"
+	depends on FE310_IRQT_DRIVER
+	default 53
+	help 
+	As given in rocket interrupt map
+
+config FE310_IRQT_RISCV_CORE_FREQ_MHZ
+	int "Clock speed of the riscv core in MHz"
+	depends on FE310_IRQT_DRIVER
+	default 65
+	help 
+	Only for convenience.
+	Not used for any kernel functionality, which is based on the sysclock.
+	

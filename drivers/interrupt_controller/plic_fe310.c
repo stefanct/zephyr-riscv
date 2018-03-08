@@ -15,8 +15,8 @@
 #include <soc.h>
 #include <sw_isr_table.h>
 // for perf profiling
-#include "../../programs_timo/irqperipheral_test/src/log_perf.h"
-#include "../../programs_timo/irqperipheral_test/src/cycles.h"
+//#include "../../programs_timo/irqperipheral_test/src/log_perf.h"
+//#include "../../programs_timo/irqperipheral_test/src/cycles.h"
 //#include "../../programs_timo/irqperipheral_test/src/tests/tests.h"
 
 #define PLIC_FE310_IRQS        (CONFIG_NUM_IRQS - RISCV_MAX_GENERIC_IRQ)
@@ -242,7 +242,7 @@ static void plic_fe310_irq_handler(void *arg)
 	 * cleared upon read.
 	 */
 	save_irq = irq;
-
+	
 	/*
 	 * If the IRQ is out of range, call _irq_spurious.
 	 * A call to _irq_spurious will not return.
@@ -251,6 +251,9 @@ static void plic_fe310_irq_handler(void *arg)
 		_irq_spurious(NULL);
 
 	irq += RISCV_MAX_GENERIC_IRQ;
+
+	//printk("PLIC handler called on irq %i / %i. Jump to %x \n ", save_irq, irq, &_sw_isr_table[irq]);
+
 
 	/* Call the corresponding IRQ handler in _sw_isr_table */
 	ite = (struct _isr_table_entry *)&_sw_isr_table[irq];

@@ -1,5 +1,0 @@
-- bug:      If running run_test_timing_rx() results may be slow
-            Tests running thereafter might be or might not be affected.
-
-- delib:    CONFIG_IRQTESTER_FE310_FAST_ID2IDX > 1 leads to undefined 
-            behaviour if loading val ids out of bounds
