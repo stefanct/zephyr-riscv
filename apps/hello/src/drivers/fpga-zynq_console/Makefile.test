@@ -1,0 +1,9 @@
+# use this Makefile from this dir (.) for building the drivers own main.c (debug)
+
+BOARD ?= qemu_x86
+CONF_FILE = prj.conf
+
+include ${ZEPHYR_BASE}/Makefile.test
+
+
+

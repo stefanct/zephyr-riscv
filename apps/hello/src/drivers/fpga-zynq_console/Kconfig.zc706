@@ -1,0 +1,33 @@
+
+menuconfig FPGAZYNQ_UART_DRIVER
+	bool "fpga-zynq serial driver enabled"
+	depends on SOC_RISCV32_ZC706
+	default n
+	select SERIAL
+	select SERIAL_HAS_DRIVER
+	select CONSOLE_HAS_DRIVER
+	select UART_CONSOLE
+
+	help
+	  This option enables the zc706 fake serial driver for communication with fesvr.
+	  Application driver, will not be listed in device driver menuconfig.
+	  Remember to set the console driver for output, too.
+
+if FPGAZYNQ_UART_DRIVER
+
+menuconfig UART_FPGAZYNQ_NAME
+	string "Device name of fesvr uart driver. Mind setting console driver, too."
+	depends on FPGAZYNQ_UART_DRIVER
+	default "uart-fesvr0"
+	
+endif
+
+# this forces overrite of value,
+# usually set in menuconfig drivers/console
+#if FPGAZYNQ_UART_DRIVER
+#config UART_CONSOLE_ON_DEV_NAME
+#	string
+#	prompt "Name of uart device for console output"
+#	default UART_FPGAZYNQ_NAME
+#endif
+
