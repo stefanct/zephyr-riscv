@@ -5,8 +5,8 @@
 // stripped down copy of tests
 // uses same header!
 
-#include "../utils.h"
-#include "../irqtestperipheral.h"
+#include "utils.h"
+#include "irqtestperipheral.h"
 #include "tests.h"
 #include "cycles.h"
 
@@ -17,22 +17,6 @@ int error_stamp = 0;
 // redefine printk to throw out all unnecessarz prints
 #define printk_force(fmt, ...) printk(fmt, ##__VA_ARGS__)
 #define printk_(fmt, ...) // deleted
-
-
-
-
-void test_assert(bool expression){
-	if(!expression)
-		error_count++;
-}
-
-static void warn_on_new_error(void){
-	if(error_count > error_stamp){
-		printk_("WARNING: Test failed with %i errors. Total now %i \n", error_count - error_stamp, error_count);
-		error_stamp = error_count;
-	}
-}
-
 
 
 /*
@@ -257,10 +241,7 @@ int calc_avg_arr(int arr[], int len, bool disc_negative){
 
 extern int global_max_cyc;
 void print_analyze_timing(int timing[], int len, int verbosity){
-	if(timing == NULL){
-		printk_("WARNING: No array to analyze");
-		return;
-	}
+	
 	int delta_min = find_min_in_arr(timing, len, 0);
 	int delta_max = find_max_in_arr(timing, len, 0);
 	if(delta_max > global_max_cyc)

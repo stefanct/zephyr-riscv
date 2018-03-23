@@ -1,8 +1,8 @@
 #include "cycles.h"
 #include <stdio.h>
-#include "../../common/encoding.h"
+#include "encoding.h"
 
-#define CYCLES_CPUCYC_PER_US 65 // todo: derive from CONFIG_ macro
+#define CYCLES_CPUCYC_PER_US CONFIG_APP_RISCV_CORE_FREQ_MHZ 
 
 // from sifive-freedom-sdk
 // The mcycle counter is 64-bit counter, but since

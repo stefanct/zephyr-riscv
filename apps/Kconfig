@@ -9,10 +9,23 @@ menuconfig APP_DRIVERS
 	help
 	Enable options for drivers from application build dirs.
 
-if APP_DRIVERS
 
+if APP_DRIVERS
 # currently app drivers have to live in application dir
 # might consider building drivers as libs instead
 source "apps/irqperipheral_test/src/drivers/*/Kconfig.*"
-
 endif
+
+menuconfig APP_SETTINGS
+	bool
+	prompt "Application settings"
+	default n
+	help
+	Enable the configuration of different settings for apps.
+
+
+if APP_SETTINGS
+	source "apps/irqperipheral_test/src/Kconfig.*"
+endif
+
+

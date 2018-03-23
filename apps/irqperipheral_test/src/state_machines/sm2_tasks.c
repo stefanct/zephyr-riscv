@@ -12,6 +12,8 @@
 #define SM2_CFO_ARR_DEPTH 1
 #define SM2_NUM_USRS_PER_BATCH_MAX 32
 
+#ifndef TEST_MINIMAL
+
 typedef enum{
     _NIL_USER,  // must be first
     USER_1,
@@ -170,6 +172,7 @@ void sm2_task_calc_cfo_1(struct ActionArg const * arg){
         }
         //printk("user %i for state %i.%u, batch_i %i \n", user, state_cur->id_name, substate, i_usr);
         // read value from driver
+        //continue;
         
         struct DrvValue_uint cfo;
         // todo: own getters for uint / int / bool -> perf
@@ -220,15 +223,18 @@ void sm2_task_bench_basic_ops(){
 
     }
     for(int i=0; i < num_bench_macs; i++){
-        val_res = i + i * val_in;
+        val_res = val_in + i * val_res;
     }
     for(int i=0; i < num_bench_writes; i++){
         val.payload = val_res;
         irqtester_fe310_set_reg_uint_fast(g_dev_cp, write_reg, &val);
     }
     for(int i=0; i< num_bench_jumps; i++){
-        // todo: check that this really avoids being optimized away
+        // avoids being optimized away
         __asm__ volatile("");
     }
 
 }
+
+
+#endif // TEST_MINIMAL

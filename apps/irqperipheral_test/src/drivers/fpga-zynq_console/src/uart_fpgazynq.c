@@ -2,6 +2,7 @@
 #include <arch/cpu.h>
 #include <uart.h>
 #include <board.h>
+#include "com_fesvr/syscalls.h"
 
 #define DEV_CFG(dev)						\
 	((const struct uart_fpgazynq_device_config * const)	\
@@ -22,24 +23,8 @@ struct uart_fpgazynq_data {
 static unsigned char uart_fpgazynq_poll_out(struct device *dev,
 					 unsigned char ch)
 {
-	// todo: fix corruption of boot banner
-	// for some reason, buffering here leads to better output
 	printfsvr("%c", ch);
 	return ch;	
-	static char buf[64];
-  	static int buflen = 0;
-
-	// todo: check wether no buffering and printfsvr("%c", ch) workds
-	buf[buflen++] = ch;
-
-	if (ch == '\n' || buflen == (sizeof(buf)/sizeof(buf[0]))-1){	
-		buf[buflen+1] = 0; // terminate string
-		printfsvr("%s", buf);
-		buflen = 0;
-  	}
-
-	return ch;
-	
 }
 
 static int uart_fpgazynq_poll_in(struct device *dev, unsigned char *c)
@@ -50,7 +35,16 @@ static int uart_fpgazynq_poll_in(struct device *dev, unsigned char *c)
 
 static int uart_fpgazynq_init(struct device *dev)
 {
-	const struct uart_fpgazynq_device_config * const cfg = DEV_CFG(dev);
+	//const struct uart_fpgazynq_device_config * const cfg = DEV_CFG(dev);
+
+	// debug
+	u32_t reg = (u32_t) uart_fpgazynq_poll_out;
+	// write pointer p_mem to a5
+	__asm__ volatile("mv a5, %0" :: "r" (reg));
+	__asm__ volatile("li a5, 42");
+	// load mem at p_mem to a4
+	__asm__ volatile("csrw mepc,a5");
+
 
 	return 0;
 }
@@ -65,11 +59,11 @@ static const struct uart_driver_api uart_fpgazynq_driver_api = {
 
 
 static const struct uart_fpgazynq_device_config uart_fpgazynq_dev_cfg_0 = {
-	.dummy = NULL
+	.dummy = 0
 };
 
 static struct uart_fpgazynq_data uart_fpgazynq_data_0 = {
-	.dummy = NULL
+	.dummy = 0
 };
 
 
@@ -83,7 +77,7 @@ static struct uart_fpgazynq_data uart_fpgazynq_data_0 = {
  * 		- device drivers / console / "device name" = CONFIG_UART_FPGAZYNQ_NAME
  * - this driver automatically sets drivers / serial. Ignore settings in menuconfig there.
  *   selecting "serial" causes a warning (STM32F4X...), ignore 
- * You can whether correct hook is installer in uart_console_init()
+ * You can check whether correct hook is installer in uart_console_init()
  */
 
 #if CONFIG_FPGAZYNQ_UART_DRIVER
@@ -91,7 +85,7 @@ static struct uart_fpgazynq_data uart_fpgazynq_data_0 = {
 DEVICE_AND_API_INIT(uart_fpgazynq_0, CONFIG_UART_FPGAZYNQ_NAME,
 		    uart_fpgazynq_init,
 		    &uart_fpgazynq_data_0, &uart_fpgazynq_dev_cfg_0,
-		    PRE_KERNEL_1, CONFIG_KERNEL_INIT_PRIORITY_DEVICE,
+		    POST_KERNEL, CONFIG_KERNEL_INIT_PRIORITY_DEVICE,
 		    (void *)&uart_fpgazynq_driver_api);
 
 #endif

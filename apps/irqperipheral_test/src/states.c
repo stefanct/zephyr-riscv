@@ -7,12 +7,12 @@
 #include <logging/sys_log.h>
 #include <string.h>
 
-/*
-* Define states
-* Use state_manager::register_action() to set additional
-* state actions and required values.
-*-----------------------------------------------------------------------------
-*/
+/**
+ * Defines a minimal set of states
+ * Use state_manager::register_action() to set state actions and required values.
+ * CHANGES may make benchmarks based on SM auto uncomparable!
+ *-----------------------------------------------------------------------------
+ */
 
 static struct State s_idle = {.id_name = CYCLE_STATE_IDLE, .default_next_state = CYCLE_STATE_IDLE,
         .timing_goal_start = 0, .timing_goal_end = 0,  
@@ -29,8 +29,9 @@ static struct State s_end = {.id_name = CYCLE_STATE_END, .default_next_state = C
 /**
  * @brief: Set up state array and transition table automatically. 
  * 
- * Uses states hard-coded in states.c
- * Registers a default action handler to every state, which is a function
+ * Uses auto SM states hard-coded in states.c.
+ * Is used for tests/benchs with a minimal critical loop.
+ * Registers a (default) action handler to every state, which is a function
  * that is responsible to fire all registered callbacks. 
  */
 void states_configure_auto(struct State * states, cycle_state_id_t * transition_table, void * action){

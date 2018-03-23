@@ -1,13 +1,15 @@
 #include "test_runners.h"
-#include "tests/tests.h"
+#include "tests.h"
 #include "utils.h"
 #include "irqtestperipheral.h"
 #include "state_manager.h"
 #include "log_perf.h"
 #include "state_machines/sm1.h"
 #include "state_machines/sm2_tasks.h"
-#include "tests/test_suite.h"
+#include "test_suite.h"
 #include "cycles.h"
+
+//#ifndef TEST_MINIMAL
 
 int run_test_hw_basic_1(struct device * dev){
     
@@ -321,6 +323,9 @@ void run_test_irq_throughput_2(struct device * dev){
 }
 
 /// todo: unstable on zc706, don't run any productive code after this has run
+// Todo: re-check waveform, whether results reliable. Mind ila cycles != cpu cycles
+// this troughput measurment is not a good measure for irq latency
+// since period set to irqt seems != cycles
 int run_test_irq_throughput_3_autoadj(struct device * dev){
     
     int num_runs = 20; // runs per t
@@ -525,11 +530,12 @@ void action_test_mng_1(struct ActionArg const * arg){
     // getting substate is save here, because fired out of state_mng loop
     u8_t subs = arg->state_cur->cur_subs_idx;
 
-    if(state == CYCLE_STATE_START){
+    if(unlikely(state == CYCLE_STATE_START)){
         state_sum = 0;
     }
     state_sum += state;
 
+    // ok to print in action, shouln't be taken if verbosity low
     printkv(2, "Test action fired in state %i.%u, state_sum: %i \n", state, subs, state_sum);
 
     struct DrvValue_uint setval = {.payload=state_sum};
@@ -627,13 +633,15 @@ void run_test_state_mng_1(struct device * dev){
 /// benchmark: time it takes to run from reset once trough auto conf sm
 void run_test_state_mng_2(struct device * dev){
    
+    #include "../state_machines/sm_common.h"
     //todo: include substate logic in test
-    const int num_runs = 10;     // high values may overflow stack!
-    const int num_states = 3;   // see auto config 	
+    const int num_runs = 10;     // high values may silently overflow stack!
+    const int num_states = 3;    // see auto config 	
     dev_testscope = dev;
     int thread_mng_run_1_prio = -2;
     struct Switch_Event log_buf[num_states * num_runs + 1];     // must be big enough to hold event log
 
+    
     print_dash_line(2);
     printk_framed(2, "Now running state manager test 2");
     print_dash_line(2);
@@ -653,6 +661,8 @@ void run_test_state_mng_2(struct device * dev){
     state_mng_register_action(CYCLE_STATE_IDLE, action_test_mng_1, NULL, 0);
     state_mng_register_action(CYCLE_STATE_START, action_test_mng_1, NULL, 0);
     state_mng_register_action(CYCLE_STATE_END, action_test_mng_1, NULL, 0);
+    // only activate for debug, not benchmark
+    //state_mng_register_action(CYCLE_STATE_END, sm_com_mes_mperf, NULL, 0);
 
     // irq handler to send up reset event
     irqtester_fe310_register_callback(dev, IRQ_1, _irq_1_handler_0);
@@ -684,6 +694,11 @@ void run_test_state_mng_2(struct device * dev){
     state_mng_purge_registered_actions_all();
     irqtester_fe310_register_callback(dev, IRQ_1, _irq_gen_handler);
     
+    // print for dbg
+    state_mng_print_evt_log();
+    //test_print_report(1);
+    PRINT_LOG_BUFF();
+
     // get log
     int retval_log = state_mng_get_switch_events(log_buf, num_states * num_runs);
     state_purge_switch_events();
@@ -692,6 +707,8 @@ void run_test_state_mng_2(struct device * dev){
         test_assert(0); // to small buf
         printkv(0, "WARNING: state manager test 2, too small buffer \n");
     }  
+
+
 
     // extract only runtime
     u32_t timing_cyc[num_states * num_runs];
@@ -707,9 +724,9 @@ void run_test_state_mng_2(struct device * dev){
     }
     print_analyze_timing(timing_cyc, j, 1);
     
-    // print for dbg
-    //state_mng_print_evt_log();
-    //test_print_report(1);
+
+   
+  
 
     
     int num_err = test_get_err_count();
@@ -722,7 +739,7 @@ void run_test_state_mng_2(struct device * dev){
 /**
  * Test throughput of irq1 reset interrupts.
  * Successively lower period betweeen irq1 interrupts.
- * 
+ * Todo: check waveform, whether results reliable
  */
 K_THREAD_STACK_DEFINE(thread_sm1_stack, 3000);
 struct k_thread thread_sm1_data;
@@ -895,12 +912,17 @@ void run_test_sm2_action_perf_3(struct device * dev){
         //sm2_config(32, param, sm2_task_calc_cfo_1, 1, 0);
 
         // for model calibration
-        //sm2_config(32, param, NULL, 1, 0);
-        //sm2_config(param, 4, sm2_task_calc_cfo_1, 1, 0);
-        //sm2_config(param, param, sm2_task_calc_cfo_1, 1, 0);
-        //sm2_config(32, 8, sm2_task_bench_basic_ops, param, 0);  // mac
-        //sm2_config(32, 8, sm2_task_bench_basic_ops, param, 1);  // read
-        sm2_config(32, 8, sm2_task_bench_basic_ops, param, 2);  // write
+        //sm2_config(32, 8, sm2_task_bench_basic_ops, param, 0);    // mac
+        //sm2_config(32, 8, sm2_task_bench_basic_ops, param, 1);    // read
+        //sm2_config(32, 8, sm2_task_bench_basic_ops, param, 2);    // write
+        //sm2_config(32, 8, sm2_task_bench_basic_ops, param, 3);    // jump
+        //sm2_config(param, param, sm2_task_calc_cfo_1, 1, 0);      // t_ov_act
+        sm2_config(param, param, sm2_task_calc_cfo_1, 1, 0);        // calib N=f
+        //sm2_config(param, 4, sm2_task_calc_cfo_1, 1, 0);          // calib f=4
+  
+        
+        state_mng_purge_filter_state();
+        state_mng_add_filter_state(CYCLE_STATE_UL);
         sm2_init(dev, cur_t_us * t_irq_divisor, cur_t_us);
         sm2_run();
         sm2_fire_irqs(cur_t_us * t_irq_divisor, cur_t_us);
@@ -1018,3 +1040,5 @@ void run_test_sm2_action_prof_4(struct device * dev){
     
     print_dash_line(0);
 }
+
+//#endif  // TEST_MINIMAL

@@ -1,6 +1,8 @@
 #include "profiler.h"
 #include "irqtestperipheral.h"
 
+#ifndef TEST_MINIMAL
+
 #define PROFILER_BUF_DEPTH 1000
 
 
@@ -88,3 +90,5 @@ void profiler_stop(){
     irqtester_fe310_unregister_callback(g_dev_cp, 2);
 
 }
+
+#endif // TEST_MINIMAL

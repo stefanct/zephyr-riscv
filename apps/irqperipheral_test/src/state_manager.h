@@ -37,7 +37,6 @@ struct Wait_Event{
     sm_wait_reason_t reason;
 };
 
-static u32_t i_wait_evts;
 /// user for measuring performance of actions
 /// (Can use switch events, too.)
 struct Perf_Event{

@@ -8,13 +8,14 @@
 #include "log_perf.h"
 
 
+#ifndef TEST_MINIMAL
 
 
-static atomic_t _i_sm_run;
 static u32_t num_val_updt_per_cycle;
 static u32_t num_val_updt;
 
-
+// todo: move into some sort of diagnostics struct
+static atomic_t _i_sm_run;
 static u32_t num_fail_valupdt;
 static u32_t num_fail_status_1;
 static u32_t num_fail_status_2;
@@ -226,12 +227,11 @@ void sm_com_print_perf_log(){
     idx_0 = idx_1;        
 }
 
-static u32_t stamp_perf_cache;
-static u32_t stamp_perf_branch;
-static short i_mes_perf;
+static u32_t stamp_perf_cache = 0;
+static u32_t stamp_perf_branch = 0;
+static short i_mes_perf = 0;
 void sm_com_mes_mperf(){
-    // todo: not working... but reg is there in rtl
-
+    // those regs are platform specific, but zc706 and fe310 seem to work!
     #define FE310_PERF_CLASS_MICEVT 1
     #define FE310_PERF_CLASS_MEMEVT 2
     // instruction cache miss
@@ -248,32 +248,39 @@ void sm_com_mes_mperf(){
         // st. branch misprediction counter in reg mhpmcounter3
         u32_t reg = FE310_PERF_CLASS_MICEVT;
         reg |= FE310_PERF_BITMASK_BRANCH_MISP | FE310_PERF_BITMASK_BRJMP_MISP;
+        //reg |= 0xFFF00; // select all in class 1
+        //reg = 1;
 
         __asm__ volatile("csrw mhpmevent3, %0" :: "r" (reg));
         // configure mhpmevent4
         // icache miss counter in reg mhpmcounter4
-        reg = FE310_PERF_CLASS_MEMEVT;
-        reg |= FE310_PERF_BITMASK_ICACHE_MISS;
-        __asm__ volatile("csrw mhpmevent4, %0" :: "r" (reg));
+        u32_t reg2 = FE310_PERF_CLASS_MEMEVT;
+        reg2 |= FE310_PERF_BITMASK_ICACHE_MISS;
+        __asm__ volatile("csrw mhpmevent4, %0" :: "r" (reg2));
 
-        // debug
-          __asm__ volatile("csrr %0, mhpmevent3" : "=r" (reg));
-        printk("Set mhpmevent3 to %p \n", reg);
-    } 
-    else{
-        u32_t count_3;
-        u32_t count_4;
-        __asm__ volatile("csrr %0, mhpmcounter3" : "=r" (count_3));
-        __asm__ volatile("csrr %0, mhpmcounter4" : "=r" (count_4));
-        if(count_3 != 0 || count_4 != 0){
-            LOG_PERF("[%u] %u icache miss, %u branch misprediction. Total: %u / %u", 
-                    i_mes_perf, count_4 - stamp_perf_cache, count_3 - stamp_perf_branch,
-                    count_4, count_3);
-            
-            stamp_perf_branch = count_3;
-            stamp_perf_cache = count_4;
+        // check whether activation successfull
+        u32_t reg_check;
+        u32_t reg2_check;
+        __asm__ volatile("csrr %0, mhpmevent3" : "=r" (reg_check));
+        __asm__ volatile("csrr %0, mhpmevent4" : "=r" (reg2_check));
+        if(reg_check != reg || reg2_check != reg2){
+            printk("WARNING: Failed activating performance monitoring. mhpe3, mhpe4: %u / %u\n", reg_check, reg2_check);
         }
+    } 
+    
+    u32_t count_3 = 0;
+    u32_t count_4 = 0;
+    __asm__ volatile("csrr %0, mhpmcounter3" : "=r" (count_3));
+    __asm__ volatile("csrr %0, mhpmcounter4" : "=r" (count_4));
+    if(count_3 != 0 || count_4 != 0){
+        LOG_PERF("[%u] %u icache miss, %u branch mispr. Total: %u / %u", 
+                i_mes_perf, count_4 - stamp_perf_cache, count_3 - stamp_perf_branch,
+                count_4, count_3);
+        
+        stamp_perf_branch = count_3;
+        stamp_perf_cache = count_4;
     }
+    
     i_mes_perf++;
 }
 
@@ -304,3 +311,5 @@ void sm_com_print_report(){
 
 
 }
+
+#endif TEST_MINIMAL

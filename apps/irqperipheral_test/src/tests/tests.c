@@ -976,16 +976,14 @@ void test_state_mng_1(struct device * dev, int sum_expect){
     struct DrvValue_uint reg_num = {.payload=1};
 	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
 	irqtester_fe310_fire_1(dev);
-
-	
-
-
 	struct DrvValue_uint res_perval;
+	// after run through, sm will be in idle state, 
+	// ready to give back control to threads of higher prio
 
-	
-	// in case we slept too short
 	int timeout = 10; // ms
 	while(res_perval.payload != sum_expect && timeout > 0){
+		// firing is not so reliable.. so keep doing
+		irqtester_fe310_fire_1(dev);
 		// hand off to state_manager thread
 		// wait instead yield, since prio of this thread is higher than state_manager
 		k_sleep(1);
@@ -996,7 +994,12 @@ void test_state_mng_1(struct device * dev, int sum_expect){
 		irqtester_fe310_get_reg(dev, VAL_IRQ_0_PERVAL, &res_perval);
 	}
 	
-	test_assert(res_perval.payload == sum_expect);
+	// if called from test_state_mng_2, perval is set in registered sm action
+	if(res_perval.payload != sum_expect){
+		test_assert(res_perval.payload == sum_expect);
+		printkv(1, "WARNING: test_state_mng_1 assert failed. timeout %i, perval %i \n",
+				timeout, res_perval.payload);
+	}
 	printkv(2, "DEBUG: Finshed SM cycle. SM alive %i, state %i, state_sum %i \n", 
 			  state_mng_is_running(), state_mng_get_current(), res_perval.payload);
 	// reset
@@ -1011,6 +1014,14 @@ void test_state_mng_1(struct device * dev, int sum_expect){
 
 
 int find_min_in_arr(int arr[], int len, int * pos){
+	if(len < 1){
+		*pos = -1;
+		return -1;
+	} 
+	if(pos == NULL){	// catch zero dereference
+		int a = 0;	// dummy
+		pos = &a;
+	}
 	int min = arr[0];
 	*pos = 0;
 
@@ -1026,6 +1037,14 @@ int find_min_in_arr(int arr[], int len, int * pos){
 
 
 int find_max_in_arr(int arr[], int len, int * pos){
+	if(len < 1){
+		*pos = -1;
+		return -1;
+	} 
+	if(pos == NULL){	// catch zero dereference
+		int a = 0;	// dummy
+		pos = &a;
+	}
 	int max = arr[0];
 	*pos = 0;
 
@@ -1061,8 +1080,8 @@ int calc_avg_arr(int arr[], int len, bool disc_negative){
 extern int global_max_cyc;
 void print_analyze_timing(int timing[], int len, int verbosity){
 	
-	int delta_min = find_min_in_arr(timing, len, 0);
-	int delta_max = find_max_in_arr(timing, len, 0);
+	int delta_min = find_min_in_arr(timing, len, NULL);
+	int delta_max = find_max_in_arr(timing, len, NULL);
 	if(delta_max > global_max_cyc)
 		global_max_cyc = delta_max;
 	int delta_avg = calc_avg_arr(timing, len, true); // ignore timer overflow vals

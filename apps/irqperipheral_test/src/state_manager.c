@@ -407,8 +407,8 @@ int state_mng_start(){
 
 
 /**
- * @brief Entry function for state machine loop. Do not call.
- *        Should be invoked as thread.
+ * @brief Entry function for state machine (FSM) loop. 
+ *        Should be invoked as thread; do NOT call.
  * 
  * Todo:
  * - either use hw with dynamic branch prediction (btb != None) or
@@ -421,6 +421,9 @@ int state_mng_start(){
  *   will be predicted taken, forward branches as not taken.
  * - Attention: depending in gcc version likely() macros may not work as expected
  *   check assembly! (not properly working on riscv-gcc: 6.1.0 / 7.1.1)
+ * - Implementation detail: Waiting on start time goals and vals ready could be 
+ *   related to transitions in the FSM. Here, included in state to keep transition 
+ *   table small and allow for more flexibility (-> handler for missed time goals)
  */ 
 void state_mng_run(void){
     // block here before start()
@@ -750,7 +753,13 @@ static struct State * switch_state(struct State * current, struct SMEvent * evt)
             static u32_t i_switch;  // attention: log corruption if overflows
             u32_t t_delta = state_mng_get_time_delta();
             u32_t t_cyc = get_cycle_32();
-             
+            /* dbg
+            u32_t reg = i_switch;
+            __asm__ volatile("csrw mtvec, %0" :: "r" (reg)); 
+            void __irq_wrapper();
+            reg = __irq_wrapper;
+            __asm__ volatile("csrw mtvec, %0" :: "r" (reg)); 
+            */
             struct Switch_Event * s_evt_p = &(log_switch_evts[i_switch % STATE_MNG_LOG_EVENTS_DEPTH]);
             s_evt_p->t_delta_cyc = t_delta;
             s_evt_p->t_cyc = t_cyc;
@@ -905,6 +914,7 @@ static int state_mng_check_vals_ready(struct State * state){
  * 
  * Todo: currently busy waiting. Replace.
  */
+static u32_t i_wait_evts;
 bool state_mng_wait_vals_ready(struct State * state){
     
     bool timeout = false;

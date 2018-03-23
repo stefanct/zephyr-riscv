@@ -106,6 +106,10 @@ SECTION_FUNC(exception.entry, __irq_wrapper)
 	sw a6, __NANO_ESF_a6_OFFSET(sp)
 	sw a7, __NANO_ESF_a7_OFFSET(sp)
 
+	/* debug for perf mes */
+	//csrr t0, mtvec
+	//csrw mtvec, 0x42ff
+	//csrw mtvec, t0
 
 	/* Save MEPC register */
 	csrr t0, mepc

@@ -1,11 +1,10 @@
 #include "log_perf.h"
 #include "utils.h"
 #include <misc/printk.h>
+#include <logging/sys_log.h>
 
+#ifndef TEST_MINMAL
 
-// takes a lot space in data segment, so try to keep short
-#define LOG_PERF_BUFFER_DEPTH 10
-#define LOG_PERF_STRING_LEN 60
 
 typedef char logline[LOG_PERF_STRING_LEN];
 logline log_buff[LOG_PERF_BUFFER_DEPTH];
@@ -49,14 +48,16 @@ void print_buff(){
     
 
     //printk("i_log_calls %u \n", i_log_call);
-    printk("Printing LOG_PERF buffer: \n");
+    SYS_LOG_DBG("Printing LOG_PERF buffer: \n");
     for(int i=0; i<len; i++){
-        printk("%s\n", log_buff[i]);
+        SYS_LOG_DBG("%s\n", log_buff[i]);
     }
-    printk("Printing LOG_PERF int buffer: \n");
+    SYS_LOG_DBG("Printing LOG_PERF int buffer: \n");
     for(int i=0; i<len_int; i++){
-        printk("[%i] %i\n", log_intbuff[i][0], log_intbuff[i][1]);
+        SYS_LOG_DBG("[%i] %i\n", log_intbuff[i][0], log_intbuff[i][1]);
     } 
 
     purge_buff();
 }
+
+#endif // TEST_MINIMAL

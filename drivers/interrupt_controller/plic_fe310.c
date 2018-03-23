@@ -222,6 +222,7 @@ void plic_fe310_irq_handler_dbg_2(void){
  * Calculates the offset to functions on external lines connected to PLIC
  * and also placed in _sw_isr_table. 
  */
+#if CONFIG_FE310_ISR_PLIC_OPT_LVL == 0
 static void plic_fe310_irq_handler(void *arg)
 {
 	//LOG_PERF_INT(1, get_cycle_32());
@@ -265,6 +266,7 @@ static void plic_fe310_irq_handler(void *arg)
 	 */
 	regs->claim_complete = save_irq;
 }
+#endif //CONFIG_FE310_ISR_PLIC_OPT_LVL == 0
 
 /**
  * 	@brief: Handler directly called from isr.S on plic irq 

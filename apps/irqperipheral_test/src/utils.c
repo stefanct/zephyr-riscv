@@ -15,12 +15,14 @@
 #include <zephyr.h>
 #include "utils.h"
 
+#ifndef TEST_MINIMAL
+
 #ifdef CONFIG_PRINTK
 #include <misc/printk.h>
 #include <stdio.h>
 #include <string.h>
 #else
-#error PRINTK configuration option needs to be enabled
+#warning PRINTK configuration option needs to be enabled
 #endif
 
 
@@ -52,7 +54,8 @@ static bool do_print(int verbosity, bool exact){
 
 void printkv(int verbosity, const char *fmt, ...){
 
-    if(do_print(verbosity, false)){
+    // predict branch assuming verbosity is not high
+    if(unlikely(do_print(verbosity, false))){
         va_list args;
         va_start(args, fmt);
 
@@ -68,7 +71,7 @@ void printkv(int verbosity, const char *fmt, ...){
 
 void printkve(int verbosity, const char *fmt, ...){
 
-    if(do_print(verbosity, true)){
+    if(unlikely(do_print(verbosity, true))){
         va_list args;
         va_start(args, fmt);
 
@@ -297,3 +300,6 @@ void dbg_read_mem(u32_t * p_mem){
 	return reg;
 
 }
+
+
+#endif // TEST_MINIMAL

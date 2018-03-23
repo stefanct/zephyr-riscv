@@ -1,7 +1,7 @@
 // Stripped down version from riscv-tools/riscv-tests/benchmark/common
 // See LICENSE for license details.
 
-
+#include "syscalls.h"
 #include <stdint.h>
 #include <string.h>
 #include <stdarg.h>
@@ -43,23 +43,6 @@ static uintptr_t syscall(uintptr_t which, uint64_t arg0, uint64_t arg1, uint64_t
 }
 
 
-/*
-void setStats(int enable)
-{
-  int i = 0;
-#define READ_CTR(name) do { \
-    while (i >= NUM_COUNTERS) ; \
-    uintptr_t csr = read_csr(name); \
-    if (!enable) { csr -= counters[i]; counter_names[i] = #name; } \
-    counters[i++] = csr; \
-  } while (0)
-
-  READ_CTR(mcycle);
-  READ_CTR(minstret);
-
-#undef READ_CTR
-}
-*/
 
 void __attribute__((noreturn)) tohost_exit(uintptr_t code)
 {
@@ -101,38 +84,6 @@ int __attribute__((weak)) main(int argc, char** argv)
   return -1;
 }
 
-/*
-static void init_tls()
-{
-  register void* thread_pointer asm("tp");
-  extern char _tls_data;
-  extern __thread char _tdata_begin, _tdata_end, _tbss_end;
-  size_t tdata_size = &_tdata_end - &_tdata_begin;
-  memcpy(thread_pointer, &_tls_data, tdata_size);
-  size_t tbss_size = &_tbss_end - &_tdata_end;
-  memset(thread_pointer + tdata_size, 0, tbss_size);
-}
-
-void _init(int cid, int nc)
-{
-  init_tls();
-  thread_entry(cid, nc);
-
-  // only single-threaded programs should ever get here.
-  int ret = main(0, 0);
-
-  char buf[NUM_COUNTERS * 32] __attribute__((aligned(64)));
-  char* pbuf = buf;
-  for (int i = 0; i < NUM_COUNTERS; i++)
-    if (counters[i])
-      pbuf += sprintf(pbuf, "%s = %d\n", counter_names[i], counters[i]);
-  if (pbuf != buf)
-    printstr(buf);
-
-  exit(ret);
-}
-*/
-
 int putchar_2(int ch)
 {
   /* debug, if only this works, probably linking of tohost section broken
@@ -148,7 +99,7 @@ int putchar_2(int ch)
 
   buf[buflen++] = ch;
   
-  if (ch == '\n' || buflen == sizeof(buf)/sizeof(buf[0]))
+  if (ch == '\n' || ch == '\0' || buflen == sizeof(buf)/sizeof(buf[0]))
   {
     syscall(SYS_write, 1, (uintptr_t)buf, buflen);
     buflen = 0;
@@ -240,8 +191,11 @@ static void vprintfmt(void (*putch)(int, void**), void **putdat, const char *fmt
 
   while (1) {
     while ((ch = *(unsigned char *) fmt) != '%') {
-      if (ch == '\0')
+      if (ch == '\0'){
+        // put, to allow putch to see termination
+        putch(ch, putdat);
         return;
+      }
       fmt++;
       putch(ch, putdat);
     }
@@ -390,106 +344,3 @@ int printfsvr(const char* fmt, ...)
   va_end(ap);
   return 0; // incorrect return value, but who cares, anyway?
 }
-
-/*
-int sprintf(char* str, const char* fmt, ...)
-{
-  va_list ap;
-  char* str0 = str;
-  va_start(ap, fmt);
-
-  void sprintf_putch(int ch, void** data)
-  {
-    char** pstr = (char**)data;
-    **pstr = ch;
-    (*pstr)++;
-  }
-
-  vprintfmt(sprintf_putch, (void**)&str, fmt, ap);
-  *str = 0;
-
-  va_end(ap);
-  return str - str0;
-}
-*/
-
-/*
-void* memcpy(void* dest, const void* src, size_t len)
-{
-  if ((((uintptr_t)dest | (uintptr_t)src | len) & (sizeof(uintptr_t)-1)) == 0) {
-    const uintptr_t* s = src;
-    uintptr_t *d = dest;
-    while (d < (uintptr_t*)(dest + len))
-      *d++ = *s++;
-  } else {
-    const char* s = src;
-    char *d = dest;
-    while (d < (char*)(dest + len))
-      *d++ = *s++;
-  }
-  return dest;
-}
-
-
-void* memset(void* dest, int byte, size_t len)
-{
-  if ((((uintptr_t)dest | len) & (sizeof(uintptr_t)-1)) == 0) {
-    uintptr_t word = byte & 0xFF;
-    word |= word << 8;
-    word |= word << 16;
-    word |= word << 16 << 16;
-
-    uintptr_t *d = dest;
-    while (d < (uintptr_t*)(dest + len))
-      *d++ = word;
-  } else {
-    char *d = dest;
-    while (d < (char*)(dest + len))
-      *d++ = byte;
-  }
-  return dest;
-}
-
-
-
-int strcmp(const char* s1, const char* s2)
-{
-  unsigned char c1, c2;
-
-  do {
-    c1 = *s1++;
-    c2 = *s2++;
-  } while (c1 != 0 && c1 == c2);
-
-  return c1 - c2;
-}
-
-char* strcpy(char* dest, const char* src)
-{
-  char* d = dest;
-  while ((*d++ = *src++))
-    ;
-  return dest;
-}
-
-long atol(const char* str)
-{
-  long res = 0;
-  int sign = 0;
-
-  while (*str == ' ')
-    str++;
-
-  if (*str == '-' || *str == '+') {
-    sign = *str == '-';
-    str++;
-  }
-
-  while (*str) {
-    res *= 10;
-    res += *str++ - '0';
-  }
-
-  return sign ? -res : res;
-}
-*/

@@ -27,11 +27,3 @@ config FE310_IRQT_IRQ_0_PIN
 	help 
 	As given in rocket interrupt map
 
-config FE310_IRQT_RISCV_CORE_FREQ_MHZ
-	int "Clock speed of the riscv core in MHz"
-	depends on FE310_IRQT_DRIVER
-	default 65
-	help 
-	Only for convenience.
-	Not used for any kernel functionality, which is based on the sysclock.
-	

@@ -15,6 +15,7 @@
 //#define STATES_SUBSTATE_SER_DEPTH   3   
 #define STATES_DIS_SUBSTATES 0      // 1 to deactivate substates  
 
+/// declares all possible states (.id_names) of a state manager
 typedef enum{
     _NIL_CYCLE_STATE,   // must be first
     CYCLE_STATE_IDLE,
@@ -30,6 +31,7 @@ typedef enum{
 
 }cycle_state_id_t;
 
+/// declares all possible events (state_manager.c::SMEvent) causing transitions
 typedef enum{
     _CYCLE_DEFAULT_EVT, // must be first -> call next state as define by element 0 of transition table
     CYCLE_EVENT_RESET_IRQ,

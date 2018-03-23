@@ -8,6 +8,7 @@
 #include "tests/tests.h"
 #include "cycles.h"
 #include "log_perf.h"
+#include "utils.h"
 
 #include "state_manager.h"
 #ifndef TEST_MINIMAL
@@ -15,7 +16,13 @@
 #endif
 #include "state_machines/sm1.h"
 
+
+#include <uart.h>
+
+// set driver names in Kconfig
 #define IRQTESTER_DRV_NAME "irqtester0"
+#define UART1_DRV_NAME "uart0"			// 1st uart on PMOD J58 header
+#define UART2_DRV_NAME "uart1"			// 2nd uart on PMOD J58 header
 #define IRQTESTER_HW_REV 3
 
 
@@ -49,11 +56,9 @@ void print_device_drivers(){
 	#endif
 }
 
-// make static to keep handle after main thread is done
-static struct device *dev;
 
 void print_kernel_info(){
-
+	#ifndef TEST_MINIMAL
 	#ifndef CONFIG_PREEMPT_ENABLED
 	#define PRINT_CONFIG_PREEMPT_ENABLED 0
 	#else
@@ -81,55 +86,141 @@ void print_kernel_info(){
 	#if CONFIG_FE310_IRQT_DRIVER
 	printk("isr.S optimization: %i\n", CONFIG_FE310_ISR_PLIC_OPT_LVL);
 	#endif
+	#endif // TEST_MINIMAL
 }
 
-
-
-void main(void)
-{	
-	//dbg1();
-	print_kernel_info();
-	print_device_drivers();
-	printk("Starting irqtester test for hw rev. %i on arch: %s\n", IRQTESTER_HW_REV, CONFIG_ARCH);
-
+// make static to keep handle after main thread is done
+static struct device *d_irqt;
+static struct device *d_uart0;
+static struct device *d_uart1;
+void load_drivers(){
 	// get driver handles
-	dev = device_get_binding(IRQTESTER_DRV_NAME);
-	//dbg1();
+	d_irqt = device_get_binding(IRQTESTER_DRV_NAME);
 
-	if (!dev) {
-		printk("Cannot find %s!\n", IRQTESTER_DRV_NAME);
+	d_uart0 = device_get_binding(UART1_DRV_NAME);
+	d_uart1 = device_get_binding(UART2_DRV_NAME);
+
+	if (!d_irqt) {
+		printk("Cannot find driver %s!\n", IRQTESTER_DRV_NAME);
 		return;
 	}
 
-	irqtester_fe310_enable(dev);
+	if (!d_uart0) {
+		printk("Cannot find driver %s!\n", UART1_DRV_NAME);
+		return;
+	}
+	if (!d_uart1) {
+		printk("Cannot find driver %s!\n", UART2_DRV_NAME);
+		return;
+	}
+
+}
+
+void uart_print_rx_buf(struct device * dev){
+	unsigned char char_in;
+	if(0 == uart_poll_in(dev, &char_in)){
+		unsigned char name[6];
+		if(dev == d_uart0) strcpy(&name, "UART0");
+		else if(dev == d_uart1) strcpy(&name, "UART1");
+		else strcpy(&name, "UARTX");
+
+		printk("%s received: %c", name, char_in);
+		while(0 == uart_poll_in(dev, &char_in)){
+			printk("%c", char_in);
+		}
+		printk("\n");
+	}
+	
+}
+
+void uart_test1(){
+	int j=48;  // ASCII: 0
+	printk("UART0 Poll out test: \n");
+	while(1){
+
+		unsigned char write_char = j;
+		
+		if(write_char + j < 126){	// last printable char in ASCII
+			// repeat char
+			for(int i=0; i<10; i++){
+				uart_poll_out(d_uart0, write_char);
+				k_sleep(200);
+				printk("%c", write_char);
+			}
+			printk("\n");
+			uart_print_rx_buf(d_uart1);	// print all rx
+			uart_print_rx_buf(d_uart0);	// print all rx
+			j++;
+		}
+		else
+			j = 32; // first printable char in ASCII
+	}
+}
+
+void main(void)
+{	
+	/**
+	 * Printing policy:
+	 * - available: 
+	 * a) logging (SYS_LOG_<>), b) (verbsoity controlled) printkv, c) buffered LOG_PERF
+	 * - usage:
+	 * a) stuff that runs periodcially in productive coe
+	 * 	  -> can be thrown out of code with kconfig
+	 * b) stuff in tests that is not run periodiclly
+	 * 	  -> can control vai print_set_verbosity 
+	 *    -> stays in binary, even when vebosity set to not show
+	 * 	  -> productive code should avoid compiling test code anyway
+	 * c) stuff inside periodically run code
+	 *    -> logs to buffer and prints after run
+	 *    -> still slower than not printing, better than serial out
+	 *    -> set CONFIG_APP_LOG_PERF_BUFFER_DEPTH=0 to deactivate
+	 */
+
+
+
+	print_kernel_info();
+	print_device_drivers();
+	load_drivers();
+
+	uart_test1();
+
+	printk("Starting irqtester test for hw rev. %i on arch: %s\n", IRQTESTER_HW_REV, CONFIG_ARCH);
+
+
+	
+
+	irqtester_fe310_enable(d_irqt);
 	print_set_verbosity(1);
+	
 
 	//test_uint_overflow();
-	run_test_hw_basic_1(dev);	
+	// todo: irqt hardware doesn't work without test here
+	run_test_hw_basic_1(d_irqt);	
 
-	//run_test_timing_rx(dev);
+	//run_test_timing_rx(d_irqt);
 
 	// test basic functionality
 
-	//run_test_irq_throughput_1(dev);
-	//run_test_irq_throughput_2(dev);
+	//run_test_irq_throughput_1(d_irqt);
+	//run_test_irq_throughput_2(d_irqt);
 
 	// todo: buggy on zc706 (not fe310)
-	//run_test_irq_throughput_3_autoadj(dev);
+	//run_test_irq_throughput_3_autoadj(d_irqt);
 	//PRINT_LOG_BUFF();
 
-	//run_test_poll_throughput_1_autoadj(dev);
+	//run_test_poll_throughput_1_autoadj(d_irqt);
 	
-	// todo: on zc706: fails if not run test_hw_basic_1 first!?
-	//run_test_state_mng_1(dev);
-	//run_test_state_mng_2(dev);
-	//run_test_sm1_throughput_1(dev);
+
+	// TODO: on zc706: fails if not run test_hw_basic_1 first!?
+	//run_test_state_mng_1(d_irqt);
+	//run_test_state_mng_2(d_irqt);
+	//run_test_sm1_throughput_1(d_irqt);
 	//PRINT_LOG_BUFF();
-	//run_test_sm_throughput_2(dev, 1);
-	//run_test_sm_throughput_2(dev, 2);
-	//run_test_sm2_action_perf_3(dev);
-	//run_test_sm2_action_prof_4(dev);
-	PRINT_LOG_BUFF();
+	//run_test_sm_throughput_2(d_irqt, 1);
+	//run_test_sm_throughput_2(d_irqt, 2);
+	//run_test_sm2_action_perf_3(d_irqt);
+	//run_test_sm2_action_prof_4(d_irqt);
+	//PRINT_LOG_BUFF();
 	
 
 	int i=0;
@@ -140,10 +231,10 @@ void main(void)
 
 		
 		// timing
-		//run_test_timing_rx(dev);
-		//run_test_min_timing_rx(dev);
-		//run_test_state_mng_1(dev);
-		run_test_state_mng_2(dev);
+		//run_test_timing_rx(d_irqt);
+		//run_test_min_timing_rx(d_irqt);
+		//run_test_state_mng_1(d_irqt);
+		run_test_state_mng_2(d_irqt);
 
 	}while(!abort);
 	

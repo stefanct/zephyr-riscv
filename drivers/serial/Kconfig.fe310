@@ -7,7 +7,7 @@
 
 menuconfig UART_FE310
 	bool "SiFive Freedom E310 serial driver"
-	depends on SOC_RISCV32_FE310
+	depends on SOC_RISCV32_FE310 || SOC_RISCV32_ZC706 	# allow zc706 to use fe310 driver
 	default n
 	select SERIAL_HAS_DRIVER
 	select SERIAL_SUPPORT_INTERRUPT

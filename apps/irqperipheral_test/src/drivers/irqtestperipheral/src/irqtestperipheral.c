@@ -107,6 +107,7 @@ static struct DrvValue_uint _values_uint[] = {
 	{._super.id_name = VAL_IRQ_0_PERVAL},
 	{._super.id_name = VAL_IRQ_0_VALUE},
 	{._super.id_name = VAL_IRQ_0_STATUS},
+	#ifndef TEST_MINIMAL
 	{._super.id_name = VAL_IRQ_1_STATUS},
 	{._super.id_name = VAL_IRQ_1_PERIOD},
 	{._super.id_name = VAL_IRQ_1_NUM_REP},
@@ -122,6 +123,7 @@ static struct DrvValue_uint _values_uint[] = {
 	{._super.id_name = VAL_DSP_3_NUM_REP},
 	{._super.id_name = VAL_DSP_3_DELAY},
 	{._super.id_name = VAL_DSP_3_CLEAR_ID},
+	#endif
 };
 
 // data pool for int like data
@@ -642,6 +644,12 @@ void _irq_1_handler_0(void){
 
 	// clear irq hardware on hw rev 2
 	irqtester_fe310_clear_1(dev);
+
+	// dbg
+	   u32_t reg = 5;
+		__asm__ volatile("csrr t0, mtvec"); 
+		__asm__ volatile("csrw mtvec, %0" :: "r" (reg)); 
+		__asm__ volatile("csrw mtvec, t0"); 
 }
 
 // hand optimized handler irq1, queue, no clear

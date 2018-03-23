@@ -8,6 +8,7 @@
 #include "sm2_tasks.h"
 #include "sm1.h" // debug only
 
+#ifndef TEST_MINIMAL
 // ugly: todo remove driver pointer from public driver interface
 struct device * g_dev_cp;
 
@@ -93,7 +94,9 @@ static void sm2_yield(){
 static void config_handlers(){
     
     // timing handlers, checked in state_manager::check_time_goal
-    sm2_dl_config.handle_t_goal_start = sm_com_handle_timing_goal_start; 
+    // start: wait for timing goal
+    // end:   warn if missed
+    //sm2_dl_config.handle_t_goal_start = sm_com_handle_timing_goal_start; 
     sm2_dl_config.handle_t_goal_end = sm_com_handle_timing_goal_end;
     //sm2_dl.handle_t_goal_start = sm_com_handle_timing_goal_start; 
     sm2_dl.handle_t_goal_end = sm_com_handle_timing_goal_end;
@@ -192,7 +195,7 @@ static void sm2_appconfig(){
     // state_mng_register_action(CYCLE_STATE_END  , sm_com_check_clear_status, NULL, 0);
     // state_mng_register_action(CYCLE_STATE_END  , sm_com_check_val_updates, NULL, 0);
     state_mng_register_action(CYCLE_STATE_END  , sm_com_update_counter, NULL, 0);
-    //state_mng_register_action(CYCLE_STATE_END  , sm_com_mes_mperf, NULL, 0);
+    state_mng_register_action(CYCLE_STATE_END  , sm_com_mes_mperf, NULL, 0);
     // for profiling (no wait for IRQ1) (NOT WORKING AS EXPECTED)
     //state_mng_register_action(CYCLE_STATE_END  , sm2_yield, NULL, 0);
     //state_mng_register_action(CYCLE_STATE_END  , sm_com_print_perf_log, NULL, 0);
@@ -358,3 +361,4 @@ void sm2_reset(){
     sm_com_reset();
 }
 
+#endif //TEST_MINIMAL

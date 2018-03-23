@@ -15,4 +15,5 @@ menuconfig UART_RISCV_QEMU
 
 config UART_RISCV_0_NAME
 	string "Driver name"
+	depends on UART_RISCV_QEMU
 	default "uart0"

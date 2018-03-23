@@ -14,12 +14,12 @@
 #include "log_perf.h"
 #include "sm_common.h"
 
-#define SM1_ENABLE
-#ifdef SM1_ENABLE
 
 // ugly: todo remove driver pointer from public driver interface
 struct device * g_dev_cp;
 
+//#define SM1_ENABLE
+#ifdef SM1_ENABLE
 
 /**
  * Define states for SM1
