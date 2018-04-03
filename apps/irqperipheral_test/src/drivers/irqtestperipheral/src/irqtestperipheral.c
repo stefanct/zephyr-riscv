@@ -715,6 +715,55 @@ void _irq_2_handler_1(void){
  * ----------------------------------------------------------------------------
  */
 
+
+
+/**
+ * @brief Reset all hw regs but 'enable' to 0.
+ * 		  Doesn't reset internal and output regs!
+ * 
+ * @param dev IRQTester device struct
+ *
+ * @return 0
+ */
+int irqtester_fe310_reset_hw(struct device *dev){
+	// get handles to registers of all DPSs
+	volatile struct irqtester_fe310_0_t *irqt_0 = DEV_REGS_0(dev);
+	volatile struct irqtester_fe310_1_t *irqt_1 = DEV_REGS_1(dev);
+	volatile struct irqtester_fe310_2_t *irqt_2 = DEV_REGS_2(dev);
+	volatile struct irqtester_fe310_3_t *irqt_3 = DEV_REGS_3(dev);
+	//return;
+	irqt_0->value_0		= 0;
+	irqt_0->fire_0   	= 0;
+	
+	irqt_1->period_1	= 0;
+	irqt_1->num_rep_1	= 0;
+	irqt_1->fire_1   	= 0;
+	// clearing before fired once causes trouble!
+	//irqt_1->clear_1		= 1;
+	irqt_1->clear_1		= 0;
+
+	irqt_2->period_2	= 0;
+	irqt_2->num_rep_2	= 0;
+	irqt_2->fire_2   	= 0;
+	//irqt_2->clear_2		= 1;
+	irqt_2->clear_2		= 0;
+	
+	irqt_3->period_3	= 0;
+	irqt_3->duty_3		= 0;
+	irqt_3->num_rep_3	= 0;
+	irqt_3->delay_3		= 0;
+	irqt_3->value_3		= 0;
+	irqt_3->clear_id_3	= 0;
+	irqt_3->perval_3	= 0;
+	irqt_3->id_counter_3= 0;
+	irqt_3->reset_3		= 1;
+	irqt_3->reset_3		= 0;
+	irqt_3->ready_3		= 0;
+	
+	return 0;
+}
+
+
 /**
  * @brief Thread safe generic (by id) getter for values of generic type from driver memory pools.
  * 
@@ -1491,9 +1540,6 @@ static inline void reg_write_short(uintptr_t addr, uint8_t data)
  */
 static int irqtester_fe310_init(struct device *dev)
 {
-	// export global driver pointer
-	g_dev_cp = dev;
-
 	// get handles to registers of all DPSs
 	volatile struct irqtester_fe310_0_t *irqt_0 = DEV_REGS_0(dev);
 	volatile struct irqtester_fe310_1_t *irqt_1 = DEV_REGS_1(dev);
@@ -1805,7 +1851,7 @@ int irqtester_fe310_fire(struct device *dev)
  * Need to set regs num_rep_1 and period_1 first.
  */
 void irqtester_fe310_fire_1(struct device *dev){	
-	/*
+	
 	volatile struct irqtester_fe310_1_t *irqt_1 = DEV_REGS_1(dev);
 
 	// is saved to internal register after 1 clock cycle
@@ -1814,10 +1860,10 @@ void irqtester_fe310_fire_1(struct device *dev){
 	irqt_1->fire_1 = 0;
 
 	return 0;
-	*/
-	#define IRQ1_FIRE  0x201D
-	reg_write_short(IRQ1_FIRE, 1);
-    reg_write_short(IRQ1_FIRE, 0);
+	
+	//#define IRQ1_FIRE  0x201D
+	//reg_write_short(IRQ1_FIRE, 1);
+    //reg_write_short(IRQ1_FIRE, 0);
 }
 
 /**
@@ -1844,7 +1890,6 @@ int irqtester_fe310_fire_2(struct device *dev){
 void irqtester_fe310_clear_1(struct device *dev){	
 	// SLOW OLD CODE
 	/*
-	struct device * dev = DEV();
 	volatile struct irqtester_fe310_1_t *irqt_1 = DEV_REGS_1(dev);
 
 	// is saved to internal register after 1 clock cycle

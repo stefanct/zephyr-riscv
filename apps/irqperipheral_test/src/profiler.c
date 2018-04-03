@@ -1,10 +1,8 @@
 #include "profiler.h"
 #include "irqtestperipheral.h"
+#include "globals.h"
 
 #ifndef TEST_MINIMAL
-
-#define PROFILER_BUF_DEPTH 1000
-
 
 static u32_t log_pc[PROFILER_BUF_DEPTH];
 
@@ -35,8 +33,8 @@ static void irq_handler_profiler_1(){
         // in status register
         struct DrvValue_uint reg_num = {.payload=0};
         struct DrvValue_uint reg_period = {.payload=0};	
-        irqtester_fe310_get_reg(g_dev_cp, VAL_IRQ_2_PERIOD, &reg_period);
-        irqtester_fe310_get_reg(g_dev_cp, VAL_IRQ_2_NUM_REP, &reg_num);
+        irqtester_fe310_get_reg(g_dev_irqt, VAL_IRQ_2_PERIOD, &reg_period);
+        irqtester_fe310_get_reg(g_dev_irqt, VAL_IRQ_2_NUM_REP, &reg_num);
         u32_t save_num = reg_num.payload;
         u32_t save_period = reg_period.payload;
         
@@ -45,13 +43,13 @@ static void irq_handler_profiler_1(){
         // activate again
         reg_period.payload = save_period;
         reg_num.payload = save_num;
-        irqtester_fe310_set_reg(g_dev_cp, VAL_IRQ_2_PERIOD, &reg_period);
-        irqtester_fe310_set_reg(g_dev_cp, VAL_IRQ_2_NUM_REP, &reg_num);
+        irqtester_fe310_set_reg(g_dev_irqt, VAL_IRQ_2_PERIOD, &reg_period);
+        irqtester_fe310_set_reg(g_dev_irqt, VAL_IRQ_2_NUM_REP, &reg_num);
     }
 
-    irqtester_fe310_clear_2(g_dev_cp);
+    irqtester_fe310_clear_2(g_dev_irqt);
     // fire in case of deactived, else no effect
-    irqtester_fe310_fire_2(g_dev_cp);
+    irqtester_fe310_fire_2(g_dev_irqt);
 }
 
 /**
@@ -69,25 +67,25 @@ void profiler_enable(u32_t period_cyc){
     struct DrvValue_uint reg_num = {.payload=UINT32_MAX};
 	struct DrvValue_uint reg_period = {.payload=period_cyc};	
 
-	irqtester_fe310_set_reg(g_dev_cp, VAL_IRQ_2_NUM_REP, &reg_num);
-	irqtester_fe310_set_reg(g_dev_cp, VAL_IRQ_2_PERIOD, &reg_period);
+	irqtester_fe310_set_reg(g_dev_irqt, VAL_IRQ_2_NUM_REP, &reg_num);
+	irqtester_fe310_set_reg(g_dev_irqt, VAL_IRQ_2_PERIOD, &reg_period);
 
-    irqtester_fe310_register_callback(g_dev_cp, 2, irq_handler_profiler_1);
+    irqtester_fe310_register_callback(g_dev_irqt, 2, irq_handler_profiler_1);
 
 }
 
 void profiler_start(){
-    irqtester_fe310_fire_2(g_dev_cp);
+    irqtester_fe310_fire_2(g_dev_irqt);
 }
 
 void profiler_stop(){
     struct DrvValue_uint reg_num = {.payload=0};
 	struct DrvValue_uint reg_period = {.payload=0};	
 
-	irqtester_fe310_set_reg(g_dev_cp, VAL_IRQ_2_NUM_REP, &reg_num);
-	irqtester_fe310_set_reg(g_dev_cp, VAL_IRQ_2_PERIOD, &reg_period);
+	irqtester_fe310_set_reg(g_dev_irqt, VAL_IRQ_2_NUM_REP, &reg_num);
+	irqtester_fe310_set_reg(g_dev_irqt, VAL_IRQ_2_PERIOD, &reg_period);
 
-    irqtester_fe310_unregister_callback(g_dev_cp, 2);
+    irqtester_fe310_unregister_callback(g_dev_irqt, 2);
 
 }
 

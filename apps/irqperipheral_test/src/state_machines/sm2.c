@@ -7,10 +7,9 @@
 #include "log_perf.h"
 #include "sm2_tasks.h"
 #include "sm1.h" // debug only
+#include "globals.h"
 
 #ifndef TEST_MINIMAL
-// ugly: todo remove driver pointer from public driver interface
-struct device * g_dev_cp;
 
 static int num_substates; // = num of batches
 static int num_user_batch;
@@ -255,8 +254,6 @@ void sm2_config(int users, int usr_per_batch, void (*ul_task)(void), int param, 
 
 void sm2_init(struct device * dev, int period_irq1_us, int period_irq2_us){
 
-    g_dev_cp = dev;
-
     printk("SM2 initializing: \n" \
            "period_1: %i us, %i cyc, period_2: %i us, %i cyc\n",
             period_irq1_us, 65*period_irq1_us, period_irq2_us, 65*period_irq2_us);
@@ -295,11 +292,11 @@ void sm2_init(struct device * dev, int period_irq1_us, int period_irq2_us){
     state_mng_print_transition_table_config();
 
     // replace generic isr with optimized handler
-    irqtester_fe310_register_callback(g_dev_cp, IRQ_1, _irq_1_handler_0);
-    irqtester_fe310_register_callback(g_dev_cp, IRQ_2, _irq_2_handler_0);
+    irqtester_fe310_register_callback(g_dev_irqt, IRQ_1, _irq_1_handler_0);
+    irqtester_fe310_register_callback(g_dev_irqt, IRQ_2, _irq_2_handler_0);
 
     // make state manager ready to start
-    state_mng_init(g_dev_cp);
+    state_mng_init(g_dev_irqt);
 
 }
 
@@ -330,11 +327,11 @@ void sm2_fire_irqs(int period_irq1_us, int period_irq2_us){
 	struct DrvValue_uint reg_num = {.payload=num_irq_1};
 	struct DrvValue_uint reg_period = {.payload=period_1_cyc};	
 
-	irqtester_fe310_set_reg(g_dev_cp, VAL_IRQ_1_NUM_REP, &reg_num);
-	irqtester_fe310_set_reg(g_dev_cp, VAL_IRQ_1_PERIOD, &reg_period);
+	irqtester_fe310_set_reg(g_dev_irqt, VAL_IRQ_1_NUM_REP, &reg_num);
+	irqtester_fe310_set_reg(g_dev_irqt, VAL_IRQ_1_PERIOD, &reg_period);
 
     // start firing reset irqs
-	irqtester_fe310_fire_1(g_dev_cp);
+	irqtester_fe310_fire_1(g_dev_irqt);
 
     // start firing val update irqs
     if(period_irq2_us != 0){
@@ -345,9 +342,9 @@ void sm2_fire_irqs(int period_irq1_us, int period_irq2_us){
         sm_com_set_val_uptd_per_cycle(div_1_2);
 
         reg_period.payload = period_2_cyc;
-        irqtester_fe310_set_reg(g_dev_cp, VAL_IRQ_2_NUM_REP, &reg_num);
-        irqtester_fe310_set_reg(g_dev_cp, VAL_IRQ_2_PERIOD, &reg_period);
-        irqtester_fe310_fire_2(g_dev_cp);
+        irqtester_fe310_set_reg(g_dev_irqt, VAL_IRQ_2_NUM_REP, &reg_num);
+        irqtester_fe310_set_reg(g_dev_irqt, VAL_IRQ_2_PERIOD, &reg_period);
+        irqtester_fe310_fire_2(g_dev_irqt);
     }
 
 

@@ -37,15 +37,6 @@ static int uart_fpgazynq_init(struct device *dev)
 {
 	//const struct uart_fpgazynq_device_config * const cfg = DEV_CFG(dev);
 
-	// debug
-	u32_t reg = (u32_t) uart_fpgazynq_poll_out;
-	// write pointer p_mem to a5
-	__asm__ volatile("mv a5, %0" :: "r" (reg));
-	__asm__ volatile("li a5, 42");
-	// load mem at p_mem to a4
-	__asm__ volatile("csrw mepc,a5");
-
-
 	return 0;
 }
 

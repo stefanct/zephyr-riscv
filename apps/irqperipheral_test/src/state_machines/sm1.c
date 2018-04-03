@@ -15,9 +15,6 @@
 #include "sm_common.h"
 
 
-// ugly: todo remove driver pointer from public driver interface
-struct device * g_dev_cp;
-
 //#define SM1_ENABLE
 #ifdef SM1_ENABLE
 
@@ -113,11 +110,11 @@ static void sm1_speed_up_after_warmup(){
         // speed up after reset a few times
         // give icache chance to fetch handlers
         struct DrvValue_uint reg_period;
-        irqtester_fe310_get_reg(g_dev_cp, VAL_IRQ_1_PERIOD, &reg_period);
+        irqtester_fe310_get_reg(g_dev_irqt, VAL_IRQ_1_PERIOD, &reg_period);
         u32_t before = reg_period.payload;
 
         reg_period.payload=period_1_after_warmup;
-        irqtester_fe310_set_reg(g_dev_cp, VAL_IRQ_1_PERIOD, &reg_period);
+        irqtester_fe310_set_reg(g_dev_irqt, VAL_IRQ_1_PERIOD, &reg_period);
         printk("DEBUG: Speed up period 1 %u -> %u cpu cyles written to IRQ_1 reg \n", before, period_1_after_warmup);
     }
 }

@@ -2,6 +2,8 @@
 #include "state_manager.h"
 #include "log_perf.h"
 #include "sm2_tasks.h"
+#include "globals.h"
+
 /*
  *  Current plans:
  *  - a batch shares a common irq and hw buffer registers
@@ -190,7 +192,7 @@ void sm2_task_calc_cfo_1(struct ActionArg const * arg){
         user_data_arr_cfo[user - 1][i_cfo_buf] = cfo_val_res;
         cfo.payload = cfo_val_res;
         // todo: own setters for uint / int / bool -> perf
-        irqtester_fe310_set_reg_uint_fast(g_dev_cp, write_reg, &cfo);  
+        irqtester_fe310_set_reg_uint_fast(g_dev_irqt, write_reg, &cfo);  
         
     }
     // idx for cfo_arr
@@ -227,7 +229,7 @@ void sm2_task_bench_basic_ops(){
     }
     for(int i=0; i < num_bench_writes; i++){
         val.payload = val_res;
-        irqtester_fe310_set_reg_uint_fast(g_dev_cp, write_reg, &val);
+        irqtester_fe310_set_reg_uint_fast(g_dev_irqt, write_reg, &val);
     }
     for(int i=0; i< num_bench_jumps; i++){
         // avoids being optimized away

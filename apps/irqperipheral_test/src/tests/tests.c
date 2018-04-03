@@ -102,10 +102,7 @@ void test_hw_rev_1_basic_1(struct device * dev){
 	*/
 
 	// clean up
-	val.payload = 0; 
-	enable.payload = enable_on_enter;
-	irqtester_fe310_set_reg(dev, VAL_IRQ_0_VALUE, &val);
-	irqtester_fe310_set_reg(dev, VAL_IRQ_0_ENABLE, &enable);
+	irqtester_fe310_reset_hw(dev);
 	
 }
 
@@ -126,7 +123,7 @@ void irq_handler_clear_irq_1(void){
 void test_hw_rev_2_basic_1(struct device * dev){
 
 	u32_t NUM_FIRE_1 = 3;
-	u32_t PERIOD_FIRE_1 = 1000000;  // clock cycles
+	u32_t PERIOD_FIRE_1 = 100000;  // clock cycles
 	dev_cp = dev; // store to static var to have access
 
 	// configure an interrupt
@@ -201,6 +198,8 @@ void test_hw_rev_2_basic_1(struct device * dev){
 	// we did clear the interrupt, so status should be unchanged
 	test_assert(status_1.payload == NUM_FIRE_1);
 
+	irqtester_fe310_reset_hw(dev);
+
 	// reset to default handlers
 	irqtester_fe310_register_callback(dev, IRQ_1, _irq_gen_handler);
 	irqtester_fe310_register_callback(dev, IRQ_2, _irq_gen_handler);
@@ -272,7 +271,7 @@ void test_hw_rev_3_basic_1(struct device * dev){
 			// clear
 			val.payload = i+1;
 			irqtester_fe310_set_reg(dev, VAL_DSP_3_CLEAR_ID, &val);
-			printkv(2, "Successfully polled counter_id %u in t= %u cycles since irq, timeout= %i \n", counter_reg, t_end - t_start, timeout);
+			printkv(3, "Successfully polled counter_id %u in t= %u cycles since irq, timeout= %i \n", counter_reg, t_end - t_start, timeout);
 
 		}
 		else{
@@ -320,7 +319,7 @@ void test_hw_rev_3_basic_1(struct device * dev){
 			// dont clear
 			irqtester_fe310_get_reg(dev, VAL_DSP_3_STATUS, &status_3);
 			irqtester_fe310_get_reg(dev, VAL_DSP_3_CLEAR_ID, &val);
-			printkv(2, "Successfully polled with no clear counter_id %u, status_3 %i, clear_id= %i \n", counter_reg, status_3.payload, val.payload);
+			printkv(3, "Successfully polled with no clear counter_id %u, status_3 %i, clear_id= %i \n", counter_reg, status_3.payload, val.payload);
 
 		}
 		else{
@@ -337,19 +336,7 @@ void test_hw_rev_3_basic_1(struct device * dev){
 
 	printkv(2, "get_reg status_3: %i \n", status_3.payload);
 
-	// need to clean up input regs
-	reset.payload = 1;
-	irqtester_fe310_set_reg(dev, VAL_DSP_3_RESET, &reset);
-	reset.payload = 0;
-	irqtester_fe310_set_reg(dev, VAL_DSP_3_RESET, &reset);
-	
-	// avoid clearing of non zero id at next usage
-	val.payload = 0;
-	irqtester_fe310_set_reg(dev, VAL_DSP_3_CLEAR_ID, &val);
-
-	// delay = 0 will deactivate polling device
-	delay.payload = 0;
-	irqtester_fe310_set_reg(dev, VAL_DSP_3_DELAY, &delay);
+	irqtester_fe310_reset_hw(dev);
 }
 
 
@@ -382,7 +369,7 @@ void test_interrupt_timing(struct device * dev, int timing_res[], int num_runs, 
 
 	dev_cp = dev; // store to static var to have access
 
-	printk("Make sure that non-default irq handler is installed to driver! \n");
+	printkv(2, "Make sure that non-default irq handler is installed to driver! \n");
 
 	u32_t delta_cyc;
 
@@ -420,6 +407,7 @@ void test_interrupt_timing(struct device * dev, int timing_res[], int num_runs, 
 	}
 
 	test_warn_on_new_error();
+	irqtester_fe310_reset_hw(dev);
 
 }
 
@@ -455,7 +443,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 			return;
 	}
 	
-	printk("DEBUG: queue: %i, fifo: %i, semArr:%i , valflag: %i, valflag plus queue: %i \n",
+	printkv(3, "DEBUG: queue: %i, fifo: %i, semArr:%i , valflag: %i, valflag plus queue: %i \n",
 				use_queue, use_fifo, use_semArr, use_valflag, use_valflag_plus_queue);
 	if(use_valflag + use_queue + use_fifo + use_semArr + use_valflag_plus_queue != 1){
 		printk("ERROR: Invalid mode %i \n", mode);
@@ -519,7 +507,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 				if(p_evt == NULL || i == i_limit)
 					break;
 				evt = *p_evt;
-				printkv(2, "Discarding fifo element %p. Event [cleared, val_id, val_type, event_type, irq_id]: %i, %i, %i, %i, %i \n" \
+				printkv(3, "Discarding fifo element %p. Event [cleared, val_id, val_type, event_type, irq_id]: %i, %i, %i, %i, %i \n" \
 					,evt._reserved, evt.cleared, evt.val_id, evt.val_type, evt.event_type, evt.irq_id);
 				
 				i++;
@@ -645,7 +633,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 			if(verbose>1){
 				struct DrvValue_uint val;
 				irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &val);
-				printk("Polled value (id: %i): %i updated at %u cyc \n", val._super.id_name, val.payload, val._super.time_cyc);
+				printkv(3, "Polled value (id: %i): %i updated at %u cyc \n", val._super.id_name, val.payload, val._super.time_cyc);
 			}
 		}
 
@@ -682,7 +670,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 			if(verbose>1){
 				struct DrvValue_uint val;
 				irqtester_fe310_get_val(VAL_IRQ_0_PERVAL, &val);
-				printk("Polled value (id: %i): %i updated at %u cyc \n", val._super.id_name, val.payload, val._super.time_cyc);
+				printkv(3, "Polled value (id: %i): %i updated at %u cyc \n", val._super.id_name, val.payload, val._super.time_cyc);
 			}
 		}
 
@@ -703,13 +691,16 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 	}
 
 	test_warn_on_new_error();
+	irqtester_fe310_reset_hw(dev);
 	
 }
 
 static void irq_handler_clear_irq_2(void){
 	irqtester_fe310_clear_1(dev_cp);
 }
+
 // test for a given delta_cyc (single value), whether interrupts can be cleared in time
+// note: only for a single value, can't observe cache warmup
 void test_irq_throughput_1(struct device * dev, int delta_cyc, int * status_res, int num_runs){
 
 	dev_cp = dev; // store to static var to have access
@@ -849,10 +840,7 @@ void test_irq_throughput_2(struct device * dev, int period_cyc, int num_runs, in
 	//}
 	
 	
-	reg_num.payload = 0;
-	reg_period.payload= 0;
-	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
-	irqtester_fe310_set_reg(dev, VAL_IRQ_1_PERIOD, &reg_period);
+	irqtester_fe310_reset_hw(dev);
 	irqtester_fe310_unregister_callback(dev, IRQ_1);
 
 	// print array
@@ -873,8 +861,6 @@ void test_irq_throughput_2(struct device * dev, int period_cyc, int num_runs, in
 void test_poll_throughput_1(struct device * dev, int period_cyc, int num_runs, int status_arr[], int len){
 
 	u32_t period_poll = period_cyc;
-	// number of sucessfully polled events
-
 	
 	if(len != num_runs){
 		printk("ERROR: num_runs should equal len of status_arr \n");
@@ -969,21 +955,24 @@ void test_poll_throughput_1(struct device * dev, int period_cyc, int num_runs, i
 
 }
 
-
+// @brief: 	Fire irq to run through SM. Use together with an action handler
+//			that saves the accumulated sum of state_ids in VAL_IRQ_0_PERVAL
 void test_state_mng_1(struct device * dev, int sum_expect){
-
+	printkv(3, "DEBUG: Entering test_state_mng_1 \n");
 	// fire irq1, should trigger a single run through complete SM
     struct DrvValue_uint reg_num = {.payload=1};
+	struct DrvValue_uint reg_period = {.payload=200};
 	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
+	// even for only 1 repetition, never set period <= 1
+	irqtester_fe310_set_reg(dev, VAL_IRQ_1_PERIOD, &reg_period);
 	irqtester_fe310_fire_1(dev);
-	struct DrvValue_uint res_perval;
+	struct DrvValue_uint res_perval = {.payload=0};;
+
 	// after run through, sm will be in idle state, 
 	// ready to give back control to threads of higher prio
 
 	int timeout = 10; // ms
 	while(res_perval.payload != sum_expect && timeout > 0){
-		// firing is not so reliable.. so keep doing
-		irqtester_fe310_fire_1(dev);
 		// hand off to state_manager thread
 		// wait instead yield, since prio of this thread is higher than state_manager
 		k_sleep(1);
@@ -992,6 +981,9 @@ void test_state_mng_1(struct device * dev, int sum_expect){
 		// state machine returns to IDLE
 		// registered action writes state_sum to perval
 		irqtester_fe310_get_reg(dev, VAL_IRQ_0_PERVAL, &res_perval);
+		//printkv(3, "DEBUG: Waiting for SM reset. Timeout %i, SM alive %i, state %i, state_sum %i \n", 
+		//	  timeout, state_mng_is_running(), state_mng_get_current(), res_perval.payload);
+		
 	}
 	
 	// if called from test_state_mng_2, perval is set in registered sm action
@@ -1000,14 +992,79 @@ void test_state_mng_1(struct device * dev, int sum_expect){
 		printkv(1, "WARNING: test_state_mng_1 assert failed. timeout %i, perval %i \n",
 				timeout, res_perval.payload);
 	}
-	printkv(2, "DEBUG: Finshed SM cycle. SM alive %i, state %i, state_sum %i \n", 
+	printkv(3, "DEBUG: Finshed SM cycle. SM alive %i, state %i, state_sum %i \n", 
 			  state_mng_is_running(), state_mng_get_current(), res_perval.payload);
-	// reset
-	res_perval.payload = 0;
-	irqtester_fe310_set_reg(dev, VAL_IRQ_0_VALUE, &res_perval);
+	
+	irqtester_fe310_reset_hw(dev);
 	
 	test_warn_on_new_error();
 	
+}
+
+#include <uart.h>
+// tests whether last received char == test_ch
+int test_uart_print_rx_buf(struct device * dev, char * test_ch){
+	unsigned char char_in;
+	char * name = dev->config->name;
+	if(0 == uart_poll_in(dev, &char_in)){
+		
+		printkv(2, "%s received: %c", name, char_in);
+		while(0 == uart_poll_in(dev, &char_in)){
+			printkv(2, "%c", char_in);
+		}
+		printkv(2, "\n");
+	}
+	if(*test_ch == char_in)
+		return 0;
+	//printk("%s failed\n", name);
+	return 1;
+	
+}
+
+// send chars over uart and receive afterwards
+// connect uart0 tx (pin J58 PMOD1_1) with uart0/1 rx (pin PMOD1_0 / pin PMOD1_2)
+void test_uart_1(struct device * dev0, struct device * dev1){
+	int j=48;  // ASCII: 0
+	printkv(2, "UART0 Poll out test: \n");
+
+	// slow, nice output for verbosity > 2
+	int t_wait_ms = 1;
+	int n_runs = 2;
+	if(print_get_verbosity() > 2){
+		t_wait_ms = 200;
+		n_runs = 50;
+	}
+
+	// save error count
+	int err_save = test_get_err_count();
+
+	for(int n=0; n<n_runs; n++){
+
+		unsigned char write_char = j;
+		
+		if(write_char + j < 126){	// last printable char in ASCII
+			// repeat char
+			for(int i=0; i<10; i++){
+				uart_poll_out(dev0, write_char);
+				k_sleep(t_wait_ms);
+				printkv(2, "%c", write_char);
+			}
+			printkv(2, "\n");
+			int res = 0;
+			res += test_uart_print_rx_buf(dev0, &write_char);	// print all rx
+			res += test_uart_print_rx_buf(dev1, &write_char);	// print all rx
+			if(res > 1)
+				test_assert(0);	// > 1 uart rx have failed
+			
+			j++;
+		}
+		else
+			j = 32; // first printable char in ASCII
+	}
+
+	// short output if verb = 1
+	printkv(1, "UART0 Poll out test... "); 
+	printkv(1, (test_get_err_count() == err_save ? "ok\n" : "failed\n"));
 }
 
 
@@ -1086,18 +1143,18 @@ void print_analyze_timing(int timing[], int len, int verbosity){
 		global_max_cyc = delta_max;
 	int delta_avg = calc_avg_arr(timing, len, true); // ignore timer overflow vals
 
-	printk("Reaction out of %i runs in cpu cycles [avg/min/max]: %i/%i/%i \n",
+	printkv(verbosity, "Reaction out of %i runs in cpu cycles [avg/min/max]: %i/%i/%i \n",
 		 len, delta_avg, delta_min, delta_max);
-	printk("Reaction out of %i runs in us [avg/min/max]: %i/%i/%i \n",
+	printkv(verbosity, "Reaction out of %i runs in us [avg/min/max]: %i/%i/%i \n",
 		 len, CYCLES_CYC_2_US(delta_avg), 
 		 CYCLES_CYC_2_US(delta_min),
 		 CYCLES_CYC_2_US(delta_max));
 
-	printkv(1, "Detailed reaction in cycles: \n {[");
+	printkv(verbosity, "Detailed reaction in cycles: \n {[");
 	for(int i=0; i < len; i++){
-		printkv(1, "%i, ", timing[i]);
+		printkv(verbosity, "%i, ", timing[i]);
 	}
-	printkv(1, "]} \n");
+	printkv(verbosity, "]} \n");
 
 }
 

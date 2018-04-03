@@ -9,14 +9,10 @@
 
 #include <device.h>
 
-// ugly global, get rid of by cleaning up driver API
-extern struct device * g_dev_cp;
-
 // todo: 
 // - refine naming convention for all global namespace items
 //   st. values and functions visibale to the outside
 //   are unique in namespace and share leading identifier eg. IRQT_tet
-// - introduce irq ids
 
 
 /** List all available values with naming convention
@@ -123,6 +119,8 @@ struct DrvValue_bool{
 
 
 // todo: clearify which functions need 'struct device * dev' param
+
+int irqtester_fe310_reset_hw(struct device *dev);
 
 int irqtester_fe310_get_val(irqt_val_id_t id_name, void * res);
 int irqtester_fe310_get_val_uint(irqt_val_id_t id, void * res_value);

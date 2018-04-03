@@ -6,6 +6,7 @@
 #include "irqtestperipheral.h"
 #include "utils.h"
 #include "log_perf.h"
+#include "globals.h"
 
 
 #ifndef TEST_MINIMAL
@@ -58,7 +59,7 @@ void sm_com_clear_valflags(){
     //u8_t substate = state_cur->cur_subs_idx;
 
     // clear flag, such that requested in next substate again
-    irqtester_fe310_clear_all_valflags(g_dev_cp);
+    irqtester_fe310_clear_all_valflags(g_dev_irqt);
 }
 
 // invoke in STATE_END
@@ -125,8 +126,8 @@ void sm_com_check_clear_status(){
 
     struct DrvValue_uint status_1;
     struct DrvValue_uint status_2;
-	irqtester_fe310_get_reg(g_dev_cp, VAL_IRQ_1_STATUS, &status_1);
-    irqtester_fe310_get_reg(g_dev_cp, VAL_IRQ_2_STATUS, &status_2);
+	irqtester_fe310_get_reg(g_dev_irqt, VAL_IRQ_1_STATUS, &status_1);
+    irqtester_fe310_get_reg(g_dev_irqt, VAL_IRQ_2_STATUS, &status_2);
 
 
     if(status_1.payload != status_1_stamp){

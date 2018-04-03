@@ -3,12 +3,14 @@
 #include <misc/printk.h>
 #include <device.h>
 
+#include "globals.h"
 #include "irqtestperipheral.h"
 #include "tests/test_runners.h"
 #include "tests/tests.h"
 #include "cycles.h"
 #include "log_perf.h"
 #include "utils.h"
+#include "globals.h"
 
 #include "state_manager.h"
 #ifndef TEST_MINIMAL
@@ -17,7 +19,7 @@
 #include "state_machines/sm1.h"
 
 
-#include <uart.h>
+
 
 // set driver names in Kconfig
 #define IRQTESTER_DRV_NAME "irqtester0"
@@ -76,7 +78,7 @@ void print_kernel_info(){
 	#endif
 	u32_t t_rtc = k_cycle_get_32();
 	u32_t t_cyc = get_cycle_32();
-	printk("Boot finished at rtc / cycles: [%u / %u] \n", t_rtc, t_cyc);
+	printk("Boot finished on %s at rtc / cycles: [%u / %u] \n", CONFIG_ARCH, t_rtc, t_cyc);
 	printk("Kernel Config Info:" \
 		"\nMain thread @%p prio: %i \nTimeslicing: %i \nPreempt: %i \nIRQ_offloading: %i\n", 
 		k_current_get(), CONFIG_MAIN_THREAD_PRIORITY, PRINT_CONFIG_TIMESLICING,
@@ -89,73 +91,34 @@ void print_kernel_info(){
 	#endif // TEST_MINIMAL
 }
 
-// make static to keep handle after main thread is done
-static struct device *d_irqt;
-static struct device *d_uart0;
-static struct device *d_uart1;
+// vars main declaration in globals.h, define here
+struct device * g_dev_irqt;
+struct device * g_dev_uart0;
+struct device * g_dev_uart1;
 void load_drivers(){
 	// get driver handles
-	d_irqt = device_get_binding(IRQTESTER_DRV_NAME);
+	g_dev_irqt = device_get_binding(IRQTESTER_DRV_NAME);
 
-	d_uart0 = device_get_binding(UART1_DRV_NAME);
-	d_uart1 = device_get_binding(UART2_DRV_NAME);
+	g_dev_uart0 = device_get_binding(UART1_DRV_NAME);
+	g_dev_uart1 = device_get_binding(UART2_DRV_NAME);
 
-	if (!d_irqt) {
+	if (!g_dev_irqt) {
 		printk("Cannot find driver %s!\n", IRQTESTER_DRV_NAME);
 		return;
 	}
 
-	if (!d_uart0) {
+	if (!g_dev_uart0) {
 		printk("Cannot find driver %s!\n", UART1_DRV_NAME);
 		return;
 	}
-	if (!d_uart1) {
+	if (!g_dev_uart1) {
 		printk("Cannot find driver %s!\n", UART2_DRV_NAME);
 		return;
 	}
 
 }
 
-void uart_print_rx_buf(struct device * dev){
-	unsigned char char_in;
-	if(0 == uart_poll_in(dev, &char_in)){
-		unsigned char name[6];
-		if(dev == d_uart0) strcpy(&name, "UART0");
-		else if(dev == d_uart1) strcpy(&name, "UART1");
-		else strcpy(&name, "UARTX");
 
-		printk("%s received: %c", name, char_in);
-		while(0 == uart_poll_in(dev, &char_in)){
-			printk("%c", char_in);
-		}
-		printk("\n");
-	}
-	
-}
-
-void uart_test1(){
-	int j=48;  // ASCII: 0
-	printk("UART0 Poll out test: \n");
-	while(1){
-
-		unsigned char write_char = j;
-		
-		if(write_char + j < 126){	// last printable char in ASCII
-			// repeat char
-			for(int i=0; i<10; i++){
-				uart_poll_out(d_uart0, write_char);
-				k_sleep(200);
-				printk("%c", write_char);
-			}
-			printk("\n");
-			uart_print_rx_buf(d_uart1);	// print all rx
-			uart_print_rx_buf(d_uart0);	// print all rx
-			j++;
-		}
-		else
-			j = 32; // first printable char in ASCII
-	}
-}
 
 void main(void)
 {	
@@ -176,74 +139,68 @@ void main(void)
 	 *    -> set CONFIG_APP_LOG_PERF_BUFFER_DEPTH=0 to deactivate
 	 */
 
-
+	bool quick_test = true;
 
 	print_kernel_info();
 	print_device_drivers();
 	load_drivers();
 
-	uart_test1();
-
-	printk("Starting irqtester test for hw rev. %i on arch: %s\n", IRQTESTER_HW_REV, CONFIG_ARCH);
-
-
-	
-
-	irqtester_fe310_enable(d_irqt);
 	print_set_verbosity(1);
+
+	/* rx/tx test for uart0 */
+	test_uart_1(g_dev_uart0, g_dev_uart1);
+	
+	printk("Starting irqtester test for hw rev. %i\n", IRQTESTER_HW_REV);
+	irqtester_fe310_enable(g_dev_irqt);
+	
+	/* basic irqt hardware check */
+	run_test_hw_basic_1(g_dev_irqt);	
+	/* isr up-passing */
+	if(!quick_test)
+		run_test_timing_rx(g_dev_irqt);
+
+	/* irq troughput tests (inaccurate!) */
+	if(!quick_test){
+		run_test_irq_throughput_1(g_dev_irqt);
+		run_test_irq_throughput_2(g_dev_irqt);
+	}
+	run_test_irq_throughput_3_autoadj(g_dev_irqt);
 	
 
-	//test_uint_overflow();
-	// todo: irqt hardware doesn't work without test here
-	run_test_hw_basic_1(d_irqt);	
+	/* state_manager basic test */
+	if(!quick_test)
+		run_test_state_mng_1(g_dev_irqt);
 
-	//run_test_timing_rx(d_irqt);
-
-	// test basic functionality
-
-	//run_test_irq_throughput_1(d_irqt);
-	//run_test_irq_throughput_2(d_irqt);
-
-	// todo: buggy on zc706 (not fe310)
-	//run_test_irq_throughput_3_autoadj(d_irqt);
-	//PRINT_LOG_BUFF();
-
-	//run_test_poll_throughput_1_autoadj(d_irqt);
+	/* state_manager throughputs (inccurate!) */
+	//run_test_sm1_throughput_1(g_dev_irqt);	// irq1 (reset) throughput
+	//run_test_sm_throughput_2(g_dev_irqt, 1);	// irq2 (val updt) throughput for sm1
+	//run_test_sm_throughput_2(g_dev_irqt, 2);	// irq2 (val updt) throughput for sm2
 	
+	/* benchmark of state_manager, used for execution time model calibration */
+	//run_test_sm2_action_perf_3(g_dev_irqt);
 
-	// TODO: on zc706: fails if not run test_hw_basic_1 first!?
-	//run_test_state_mng_1(d_irqt);
-	//run_test_state_mng_2(d_irqt);
-	//run_test_sm1_throughput_1(d_irqt);
-	//PRINT_LOG_BUFF();
-	//run_test_sm_throughput_2(d_irqt, 1);
-	//run_test_sm_throughput_2(d_irqt, 2);
-	//run_test_sm2_action_perf_3(d_irqt);
-	//run_test_sm2_action_prof_4(d_irqt);
+	/* used for profiling state_manager */
+	//run_test_sm2_action_prof_4(g_dev_irqt);
 	//PRINT_LOG_BUFF();
 	
 
+	/* continous bench timing of state_manager critical loop */
 	int i=0;
-	bool abort = false;
+	int n_runs = 10;
+	global_max_cyc = -1;
+	print_set_verbosity(2);
 	do{
 		i++;
-		printk("Entering cycle %i. Global max %i \n", i, global_max_cyc);
+		run_test_state_mng_2(g_dev_irqt);
+		printk("[%i] main() loop, global max %i \n", i, global_max_cyc);
 
-		
-		// timing
-		//run_test_timing_rx(d_irqt);
-		//run_test_min_timing_rx(d_irqt);
-		//run_test_state_mng_1(d_irqt);
-		run_test_state_mng_2(d_irqt);
-
-	}while(!abort);
+	}while(i < n_runs);
 	
 
 	printk("Total uptime / init time  %u ms \n", k_uptime_get_32());
 	printk("***** Main thread: I'm done here... Goodbye! ***** \n");
 	while(1){
 		k_yield();
-		// for some reason crashes when exiting main thread, must define threads in main?
 	}
 	return; // end main thread
 }

@@ -30,7 +30,8 @@ static int verbosity_thresh = -1;
 
 
 void print_set_verbosity(int verb){
-    printk("DEBUG: Set verb to %i \n", verb);
+    if(verb > 1)
+        printk("INFO: Set printkv verbosity to %i \n", verb);
     verbosity_thresh = verb;
 }
 

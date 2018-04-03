@@ -185,7 +185,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 	}
 
 	warn_on_new_error();
-	
+	irqtester_fe310_reset_hw(dev);
 }
 
 

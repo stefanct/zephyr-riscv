@@ -19,6 +19,7 @@
 #include "states.h"
 #include "utils.h"
 #include "cycles.h"
+#include "globals.h"
 
 #define STATE_MNG_QUEUE_RX_DEPTH 5
 // log using Switch_Event and Wait_Event
@@ -105,6 +106,7 @@ static void handle_time_goal_start(struct State * state, int t_left);
 static void handle_time_goal_end(struct State * state, int t_left);
 static bool handle_vals_ready(struct State * state);
 static int state_mng_check_vals_ready(struct State * state);
+static void state_mng_purge_evt_log();
     
 
 
@@ -229,6 +231,8 @@ void state_mng_init(struct device * dev){
     else
         SYS_LOG_WRN("Can't set NULL as device");
 
+    // in case state_mng ran before this new init
+    state_mng_purge_evt_log();
     init_done = true;
 
     /*
@@ -275,14 +279,21 @@ u8_t state_mng_get_current_subs(){
 int state_mng_get_switch_events(struct Switch_Event * buf, int len_buf){
 
     int j_found = 0;
+    int j_buf = 0;
     for(int i=0; i<LEN_ARRAY(log_switch_evts); i++){
         if(log_switch_evts[i].from_state != _NIL_CYCLE_STATE){  // filter out empty events
             if(j_found < len_buf)
-                buf[j_found] = log_switch_evts[i];
+                buf[j_buf++] = log_switch_evts[i];
             j_found++;
         }
     }
-    if(j_found < len_buf)
+
+    // write un-init value
+    struct Switch_Event uninit = {.from_state = _NIL_CYCLE_STATE, .to_state = _NIL_CYCLE_STATE};
+    for(int i = j_buf; i < len_buf; i++)
+        buf[i] = uninit;
+
+    if(j_found <= len_buf)
         return 0;
 
     return 1;
@@ -1188,6 +1199,29 @@ static void mes_perf(struct State * state, int mode){
 #endif
 }
 
+/**
+ * @brief Empty event log
+ */ 
+static void state_mng_purge_evt_log(){
+
+    for(int i = 0; i<STATE_MNG_LOG_EVENTS_DEPTH; i++){
+        struct Switch_Event empty = {.from_state = _NIL_CYCLE_STATE,
+            .to_state = _NIL_CYCLE_STATE, .t_delta_cyc=0, .t_cyc=0};
+        log_switch_evts[i] = empty;
+    }
+
+    for(int i = 0; i<STATE_MNG_LOG_EVENTS_DEPTH; i++){
+        struct Switch_Event empty = {.from_state = _NIL_CYCLE_STATE,
+            .to_state = _NIL_CYCLE_STATE};
+        log_switch_evts[i] = empty;
+    }
+
+
+    for(int i = 0; i<STATE_MNG_LOG_EVENTS_DEPTH; i++){
+        struct Perf_Event empty = {.state = _NIL_CYCLE_STATE};
+        log_perf_evts[i] = empty;
+    }
+}
 
 /**
  * @brief Search whether val_id is in array.

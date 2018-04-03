@@ -15,6 +15,7 @@ void test_print_report(int verbosity);
 int test_get_err_count();
 int test_get_err_stamp();
 void test_set_err_count(int num_err);
+void test_set_enable_print_warn(bool enabled);
 void test_reset();
 
 #endif
