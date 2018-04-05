@@ -48,6 +48,11 @@ void sm_com_set_val_uptd_per_cycle(int val){
  */
 
 
+void sm_com_print_state(){
+    printk("[%i] SM in state %i \n", state_mng_get_time_delta(), state_mng_get_current());
+
+}
+
 // invoke in STATE_UL
 void sm_com_clear_valflags(){
     // dummy load of value
@@ -173,6 +178,7 @@ void sm_com_handle_timing_goal_end(struct State * state, int t_left){
                 state_mng_get_time_delta(), state->timing_goal_end, state->id_name, state->cur_subs_idx);
     }
 }
+
 
 bool sm_com_handle_fail_rval_ul(struct State * state_cur){
     
@@ -313,4 +319,4 @@ void sm_com_print_report(){
 
 }
 
-#endif TEST_MINIMAL
+#endif //TEST_MINIMAL

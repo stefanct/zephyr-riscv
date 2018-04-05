@@ -26,6 +26,8 @@ void test_poll_throughput_1(struct device * dev, int period_cyc, int num_runs, i
 
 void test_state_mng_1(struct device * dev, int sum_expect);
 
+void test_uart_1(struct device * dev0, struct device * dev1);
+
 
 void print_analyze_timing(int timing[], int len, int verbosity);
 

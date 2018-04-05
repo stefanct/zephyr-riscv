@@ -24,11 +24,11 @@
 #define STATE_MNG_QUEUE_RX_DEPTH 5
 // log using Switch_Event and Wait_Event
 // fast way to log
-#define STATE_MNG_LOG_EVENTS_DEPTH 32  // 0 to deactivate log 
+#define STATE_MNG_LOG_EVENTS_DEPTH CONFIG_APP_SM_LOG_DEPTH  // 0 to deactivate log 
 // can log using LOG_PERF
 // LOG_PERF is faster than SYS_LOG
 // but still slow! (~ 5000 cyc)
-//#define STATE_MNG_LOG_PERF  
+#define STATE_MNG_LOG_PERF  
 
 #define LEN_ARRAY(x) \
 	((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
@@ -98,10 +98,8 @@ static void mes_perf(struct State * state, int mode);
 // forward devlare internal functions
 static struct State * switch_state(struct State * current, struct SMEvent * evt);
 static int gather_events(struct SMEvent * res_evt);
-static int check_time_goal(struct State * state, int mode, int * t_left);
 static void check_time_goal_start(struct State * state, int * t_left);
 static void check_time_goal_end(struct State * state, int * t_left);
-static void handle_time_goal(struct State * state, int mode, int t_left);
 static void handle_time_goal_start(struct State * state, int t_left);
 static void handle_time_goal_end(struct State * state, int t_left);
 static bool handle_vals_ready(struct State * state);
@@ -155,7 +153,7 @@ void state_mng_print_state_config(){
 
     SYS_LOG_INF("State config:");
 
-    for(int i=0; i<_NUM_CYCLE_STATES; i++){
+    for(int i=_NIL_CYCLE_STATE + 1; i<_NUM_CYCLE_STATES; i++){
         struct State * state_cur = &(_states[i]);
         int j = 0;
         do{
@@ -199,9 +197,10 @@ void state_mng_print_state_config(){
 void state_mng_print_transition_table_config(){
 
     SYS_LOG_INF("Transition table config:");
-    for(int i=0; i<_NUM_CYCLE_STATES; i++){
+    for(int i=_NIL_CYCLE_STATE + 1; i<_NUM_CYCLE_STATES; i++){
         struct State * state_cur = &(_states[i]);
-        SYS_LOG_INF("State %i transitions:", state_cur->id_name); 
+
+        SYS_LOG_INF("State %i%s transitions:", i, (i != state_cur->id_name ? " <disabled>" : "")); 
 
         char string[80];
         cycle_state_id_t * tt_line = transition_table[i];
@@ -386,7 +385,7 @@ int state_mng_purge_registered_actions(cycle_state_id_t state_id){
  */ 
 int state_mng_purge_registered_actions_all(){
     int res = 0;
-    for(int i=0; i<_NUM_CYCLE_STATES; i++){
+    for(int i=_NIL_CYCLE_STATE + 1; i<_NUM_CYCLE_STATES; i++){
         int res_cur = state_mng_purge_registered_actions(i);
         if(res_cur != 0)    // safe if error return code
             res = res_cur;
@@ -421,11 +420,6 @@ int state_mng_start(){
  * @brief Entry function for state machine (FSM) loop. 
  *        Should be invoked as thread; do NOT call.
  * 
- * Todo:
- * - either use hw with dynamic branch prediction (btb != None) or
- *   optimize state_mng_run such that no branch misprediction in loop.
- *   Currently, mispredictions due to likely() problem (see below)
- * 
  * Notes:
  * - FE310: Freedom/With1TinyCore sets btb = None -> no dynamic branch prediction 
  * - For static optimization, from ISA: Assume that backward branches 
@@ -459,6 +453,7 @@ void state_mng_run(void){
     }
     
     _state_cur = state_mng_id_2_state(CYCLE_STATE_IDLE);
+    atomic_set(&state_cur_id, CYCLE_STATE_IDLE);
     // debug to start witouth irq
     // _state_cur = state_mng_id_2_state(CYCLE_STATE_START);
 
@@ -476,7 +471,7 @@ void state_mng_run(void){
         bool skip_actions = false;
         int time_left_cyc = 0;
         struct SMEvent event = {.id_name=_CYCLE_DEFAULT_EVT}; // empty event container
-       
+
         check_time_goal_start(_state_cur, &time_left_cyc);
         handle_time_goal_start(_state_cur, time_left_cyc);
      
@@ -490,7 +485,6 @@ void state_mng_run(void){
         }
         // measure performance of actions, after waiting done
         mes_perf(_state_cur, 0);
-
         // fire registered 'action' callbacks
         if(likely(!skip_actions && _state_cur->action != NULL)) 
             _state_cur->action(_state_cur->id_name);
@@ -551,7 +545,7 @@ int state_mng_register_action(cycle_state_id_t state_id, void (*func)(struct Act
     int i_free = STATES_CBS_PER_ACTION_MAX;
     
     for(int i=0; i<STATES_CBS_PER_ACTION_MAX; i++){
-        void (*cb)(void) = _cb_funcs[state_id][i]; // get currrent callback function
+        void (*cb)(struct ActionArg const *) = _cb_funcs[state_id][i]; // get currrent callback function
         if(cb == NULL){
             i_free = i;     
             break;     
@@ -643,7 +637,7 @@ void state_mng_print_evt_log(){
         u8_t from_sub_id = log_switch_evts[i].from_substate;
         u32_t t_delta = log_switch_evts[i].t_delta_cyc;
         u32_t t_cyc = log_switch_evts[i].t_cyc;
-        u32_t t_last = log_switch_evts[(i-1)%STATE_MNG_LOG_EVENTS_DEPTH].t_cyc;
+        u32_t t_last = (i>0 ? log_switch_evts[(i-1)%STATE_MNG_LOG_EVENTS_DEPTH].t_cyc : 0);
         
         SYS_LOG_DBG("[%u / %u] Switching %i.%u -> %i.%u after %u cyc", t_delta, t_cyc,
             from_id, from_sub_id, to_id, to_sub_id, t_cyc - t_last);
@@ -721,7 +715,7 @@ static struct State * switch_state(struct State * current, struct SMEvent * evt)
     
     if(unlikely(evt_id >= _NUM_CYCLE_EVENTS || current->id_name >= _NUM_CYCLE_STATES)){
         SYS_LOG_ERR("Invalid event id %i or current state id %i", current->id_name, evt_id);
-        return NULL;
+        return _NIL_CYCLE_STATE;
     }
 
     // substate logic
@@ -806,8 +800,9 @@ static struct State * switch_state(struct State * current, struct SMEvent * evt)
 
     // debug
     //if(state_mng_get_current() == CYCLE_STATE_IDLE)
-    //    SYS_LOG_DBG("IDLE returning next id %i, state %p", next_id, state_mng_id_2_state(next_id));
-
+    //SYS_LOG_DBG("current id %i, next id %i, state %p", current->id_name, next_id, state_mng_id_2_state(next_id));
+ 
+    // attention: need to switch in calling routine
     return state_mng_id_2_state(next_id);
 } 
 
@@ -818,7 +813,7 @@ static struct State * switch_state(struct State * current, struct SMEvent * evt)
  * 
  */
 struct State * state_mng_id_2_state(cycle_state_id_t id_name){
-    if(unlikely(id_name > _NUM_CYCLE_STATES)){
+    if(unlikely(id_name > _NUM_CYCLE_STATES || id_name == _NIL_CYCLE_STATE)){
         SYS_LOG_ERR("Requested invalid state_id: %i", id_name);
         return NULL;
     }
@@ -1058,6 +1053,7 @@ int state_mng_get_timing_goal(struct State * state, u8_t substate, int mode){
  * @param mode:     0: check start goal, 1:end goal
  * @return          0: goal in future, 1: goal missed, 2: goal exactly hit
  */
+/*
 static int check_time_goal(struct State * state, int mode, int * t_left){
 
     *t_left = 0;
@@ -1073,9 +1069,9 @@ static int check_time_goal(struct State * state, int mode, int * t_left){
 
     // attention: delta and goal are both time differences since timestamp_reset 
     if(delta_cyc > goal){
-        /*SYS_LOG_WRN("Timing goal %i = %i cyc missed for state %i, now: %i", \
-                mode, goal, state->id_name, delta_cyc);
-        */
+        //SYS_LOG_WRN("Timing goal %i = %i cyc missed for state %i, now: %i", \
+        //        mode, goal, state->id_name, delta_cyc);
+        
         return 1;
     }  
     else if(delta_cyc < goal)
@@ -1083,6 +1079,7 @@ static int check_time_goal(struct State * state, int mode, int * t_left){
     else
         return 2;
 }
+*/
 
 /**
  * @brief Helper to be called from check_time_goal_start() or _end()
@@ -1123,6 +1120,7 @@ static void check_time_goal_end(struct State * state, int * t_left){
  * @param t_left:   result from check_time_goal()
  * @param mode:     0: check start goal, 1:end goal
  */
+/*
 static void handle_time_goal(struct State * state, int mode, int t_left){
     // fire state callback if available
     switch(mode){
@@ -1139,6 +1137,7 @@ static void handle_time_goal(struct State * state, int mode, int t_left){
     }
     
 }
+*/
 
 /** 
  * @param t_left:   result from check_time_goal()

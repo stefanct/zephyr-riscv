@@ -1,3 +1,9 @@
+/**
+ * @file
+ * @brief Implementation of State Machine SM2.
+ * Used for tests simulating running the cow wirless protocol.
+ */
+
 #include "sm_common.h"
 #include "cycles.h"
 #include "state_manager.h"
@@ -11,10 +17,11 @@
 
 #ifndef TEST_MINIMAL
 
+// variables to be configured by sm2_config()
 static int num_substates; // = num of batches
 static int num_user_batch;
 static int num_users;
-static void (*ul_action_1)(void);
+static void (*ul_action_1)(struct ActionArg const *);
 
 /**
  * Stuff to change for creating a new SM:
@@ -22,7 +29,6 @@ static void (*ul_action_1)(void);
  * - define actions in own file. Need to keep track of users there
  * - define irq handlers which deliver DrvEvents up to state_manager
  */
-
 
 
 /**
@@ -33,7 +39,6 @@ static void (*ul_action_1)(void);
  * Create on stack here to save memory.
  * ----------------------------------------------------------------------------
  */
-
 static struct State sm2_idle 
     = {.id_name = CYCLE_STATE_IDLE,     .default_next_state = CYCLE_STATE_IDLE};
 static struct State sm2_start 
@@ -68,8 +73,6 @@ static struct State sm2_states[_NUM_CYCLE_STATES];
 static cycle_state_id_t sm2_tt[_NUM_CYCLE_STATES][_NUM_CYCLE_EVENTS];
 
 
-
-
 /**
  * Define actions for SM2, are cbs called from state_mng_run()
  * see also sm2_tasks.h
@@ -78,11 +81,12 @@ static cycle_state_id_t sm2_tt[_NUM_CYCLE_STATES][_NUM_CYCLE_EVENTS];
 
 // allow higher prio thread to take over, if not driven by irq1
 // should keep idling below 1/10000
+/*
 static void sm2_yield(){
     if(sm_com_get_i_run() % 10000 == 0)
         k_yield();
 }
-
+*/
 
 
 /**
@@ -91,34 +95,36 @@ static void sm2_yield(){
  */
 
 static void config_handlers(){
+
+    // 1. requested values handlers, checked in state_manager::state_mng_check_vals_ready()
+    states_set_handler_reqval(sm2_states, CYCLE_STATE_UL, sm_com_handle_fail_rval_ul);
     
-    // timing handlers, checked in state_manager::check_time_goal
+    // 2. timing handlers, checked in state_manager::check_time_goal
     // start: wait for timing goal
     // end:   warn if missed
-    //sm2_dl_config.handle_t_goal_start = sm_com_handle_timing_goal_start; 
-    sm2_dl_config.handle_t_goal_end = sm_com_handle_timing_goal_end;
-    //sm2_dl.handle_t_goal_start = sm_com_handle_timing_goal_start; 
-    sm2_dl.handle_t_goal_end = sm_com_handle_timing_goal_end;
-    //sm2_ul_config.handle_t_goal_start = sm_com_handle_timing_goal_start;
-    sm2_ul_config.handle_t_goal_end = sm_com_handle_timing_goal_end;
-    //sm2_ul.handle_t_goal_start = sm_com_handle_timing_goal_start;
-    sm2_ul.handle_t_goal_end = sm_com_handle_timing_goal_end;
-    //sm2_rl_config.handle_t_goal_start = sm_com_handle_timing_goal_start;
-    sm2_rl_config.handle_t_goal_end = sm_com_handle_timing_goal_end;
-    //sm2_rl.handle_t_goal_start = sm_com_handle_timing_goal_start;
-    sm2_rl.handle_t_goal_end = sm_com_handle_timing_goal_end;
-    sm2_end.handle_t_goal_end = sm_com_handle_timing_goal_end;
 
-    // requested values handlers, checked in state_manager::state_mng_check_vals_ready()
-    //sm2_ul.handle_val_rfail = sm_com_handle_fail_rval_ul;
+    //states_set_handler_timing_goal_start(sm2_states, CYCLE_STATE_DL_CONFIG, sm_com_handle_timing_goal_start); 
+    states_set_handler_timing_goal_end(sm2_states, CYCLE_STATE_DL_CONFIG, sm_com_handle_timing_goal_end);
+    //states_set_handler_timing_goal_start(sm2_states, CYCLE_STATE_DL, sm_com_handle_timing_goal_start); 
+    states_set_handler_timing_goal_end(sm2_states, CYCLE_STATE_DL, sm_com_handle_timing_goal_end);
+    //states_set_handler_timing_goal_start(sm2_states, CYCLE_STATE_UL_CONFIG, sm_com_handle_timing_goal_start;
+    states_set_handler_timing_goal_end(sm2_states, CYCLE_STATE_UL_CONFIG, sm_com_handle_timing_goal_end);
+    //states_set_handler_timing_goal_start(sm2_states, CYCLE_STATE_UL, sm_com_handle_timing_goal_start);
+    states_set_handler_timing_goal_end(sm2_states, CYCLE_STATE_UL, sm_com_handle_timing_goal_end);
+    //states_set_handler_timing_goal_start(sm2_states, CYCLE_STATE_RL_CONFIG, sm_com_handle_timing_goal_start);
+    states_set_handler_timing_goal_end(sm2_states, CYCLE_STATE_RL_CONFIG, sm_com_handle_timing_goal_end);
+    //states_set_handler_timing_goal_start(sm2_states, CYCLE_STATE_RL, sm_com_handle_timing_goal_start);
+    states_set_handler_timing_goal_end(sm2_states, CYCLE_STATE_RL, sm_com_handle_timing_goal_end);
+
+    states_set_handler_timing_goal_end(sm2_states, CYCLE_STATE_END, sm_com_handle_timing_goal_end);
 }
 
 
 // Attention: acts on states defined here, not states in sm2_states array
 static void config_timing_goals(int period_irq1_us, int period_irq2_us, int num_substates){
     
-    int t_irq1_cyc = 65 * period_irq1_us;
-    int t_irq2_cyc = 65 * period_irq2_us;
+    int t_irq1_cyc = CYCLES_US_2_CYC(period_irq1_us);
+    int t_irq2_cyc = CYCLES_US_2_CYC(period_irq2_us);
 
     // all durations in cyc
     int frac_trx_config = 10;
@@ -129,9 +135,9 @@ static void config_timing_goals(int period_irq1_us, int period_irq2_us, int num_
     int t_state_cfg = t_cfg / 3;             // duration of single ul_config, ...
     int t_substate = (num_substates == 0 ? 0 : t_state_trx / num_substates); 
         
-    printk("State trx duration %i us / %i cyc \n", t_state_trx / 65, t_state_trx);   
-    printk("State cfg duration %i us / %i cyc \n", t_state_cfg / 65, t_state_cfg);  
-    printk("Substate trx duration %i us / %i cyc \n", t_substate / 65, t_substate);   
+    printk("State trx duration %i us / %i cyc \n", CYCLES_CYC_2_US(t_state_trx), t_state_trx);   
+    printk("State cfg duration %i us / %i cyc \n", CYCLES_CYC_2_US(t_state_cfg), t_state_cfg);  
+    printk("Substate trx duration %i us / %i cyc \n", CYCLES_CYC_2_US(t_substate), t_substate);   
 
     // currently: assume substates only in UL
     sm2_dl_config.timing_goal_start = 0;    // 0 isn't handled, START state is before 
@@ -156,11 +162,11 @@ static void config_timing_goals(int period_irq1_us, int period_irq2_us, int num_
     // make sure last end is < T(protocol cycle)
     if(sm2_end.timing_goal_end > t_irq1_cyc)
         printk("WARNING: STATE_END timing_goal_end %i us > period_1 %i us \n", 
-            sm2_end.timing_goal_end / 65, period_irq1_us);
+            CYCLES_CYC_2_US(sm2_end.timing_goal_end), period_irq1_us);
 
      if(t_substate < t_irq2_cyc){
         printk("WARNING: substate duration %i us < period_2 %i us \n", 
-            t_substate / 65, period_irq2_us);    
+            CYCLES_CYC_2_US(t_substate), period_irq2_us);    
      }
 }
 
@@ -206,7 +212,7 @@ static void sm2_appconfig(){
  */
 
 
-void sm2_config(int users, int usr_per_batch, void (*ul_task)(void), int param, int pos_param){
+void sm2_config(int users, int usr_per_batch, void (*ul_task)(struct ActionArg const*), int param, int pos_param){
     num_substates = users / usr_per_batch;
     num_user_batch = usr_per_batch;
     num_users = users;
@@ -256,15 +262,12 @@ void sm2_init(struct device * dev, int period_irq1_us, int period_irq2_us){
 
     printk("SM2 initializing: \n" \
            "period_1: %i us, %i cyc, period_2: %i us, %i cyc\n",
-            period_irq1_us, 65*period_irq1_us, period_irq2_us, 65*period_irq2_us);
+            period_irq1_us, CYCLES_US_2_CYC(period_irq1_us), period_irq2_us, CYCLES_US_2_CYC(period_irq2_us));
 
     // additional config to states defined above
     if(period_irq2_us != 0){
         config_timing_goals(period_irq1_us, period_irq2_us, num_substates);
     }
-    // deactivate for profiling
-    config_handlers();
-    states_configure_substates(&sm2_ul, num_substates, 0);
 
     // transfer into and init state array
     sm2_states[CYCLE_STATE_IDLE] = sm2_idle;
@@ -281,13 +284,17 @@ void sm2_init(struct device * dev, int period_irq1_us, int period_irq2_us){
     for(int i=0; i<_NUM_CYCLE_STATES; i++){
         sm2_tt[i][CYCLE_EVENT_RESET_IRQ] = CYCLE_STATE_START;   
     }
+    // act on sm_states defined above
+    config_handlers();
+    states_configure_substates(&sm2_ul, num_substates, 0);
+
     // pass sm2 config to state manager
     state_mng_configure(sm2_states, (cycle_state_id_t *)sm2_tt, _NUM_CYCLE_STATES, _NUM_CYCLE_EVENTS);
 
     // mainly register actions for different states
     sm2_appconfig();
    
-    // state config done, print
+    // state config done, dbg-print
     state_mng_print_state_config();
     state_mng_print_transition_table_config();
 
@@ -319,8 +326,8 @@ void sm2_run(){
 void sm2_fire_irqs(int period_irq1_us, int period_irq2_us){
     // program IRQ1 and IRQ2 to fire periodically
     // todo: hw support for infinite repetitions?
-    u32_t period_1_cyc = period_irq1_us * 65; // x * ~1000 us
-    u32_t period_2_cyc = period_irq2_us * 65;
+    u32_t period_1_cyc = CYCLES_US_2_CYC(period_irq1_us); // x * ~1000 us
+    u32_t period_2_cyc = CYCLES_US_2_CYC(period_irq2_us);
     // fire once to start running even if irq1 disabled
     u32_t num_irq_1 = (period_1_cyc == 0 ? 1 : UINT32_MAX);
 

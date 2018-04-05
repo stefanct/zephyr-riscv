@@ -14,6 +14,7 @@
 #include "state_machines/sm1.h"
 #include "state_machines/sm2_tasks.h"
 #include "state_machines/sm2.h"
+#include "../state_machines/sm_common.h"
 #include "test_suite.h"
 #include "cycles.h"
 #include "profiler.h"
@@ -190,11 +191,6 @@ void run_test_timing_rx(struct device * dev){
     printkv(2, "INFO: End of noload. Resetting error count to %i \n", test_get_err_count());
     test_set_enable_print_warn(true);
     print_dash_line(2);
-
-    // restore default handler
-    irqtester_fe310_register_callback(dev, IRQ_0, _irq_gen_handler);
-    irqtester_fe310_register_callback(dev, IRQ_1, _irq_gen_handler);
-    irqtester_fe310_register_callback(dev, IRQ_2, _irq_gen_handler);
 
     test_print_report(2); 
 
@@ -623,9 +619,9 @@ void run_test_state_mng_1(struct device * dev){
     state_mng_register_action(CYCLE_STATE_IDLE, action_test_mng_1, NULL, 0);
     state_mng_register_action(CYCLE_STATE_START, action_test_mng_1, NULL, 0);
     state_mng_register_action(CYCLE_STATE_END, action_test_mng_1, NULL, 0);
+    //state_mng_register_action(CYCLE_STATE_END, sm_com_print_state, NULL, 0);
+    //state_mng_register_action(CYCLE_STATE_END, sm_com_mes_mperf, NULL, 0);
 
-    // irq handler to send up reset event
-    irqtester_fe310_register_callback(dev, IRQ_1, _irq_1_handler_0);
     state_mng_init(dev);
 
     // for debug state config done, print
@@ -660,12 +656,11 @@ void run_test_state_mng_1(struct device * dev){
     */
     state_mng_abort();
     state_mng_purge_registered_actions_all();
-    irqtester_fe310_register_callback(dev, IRQ_1, _irq_gen_handler);
-
 
     // print for dbg
-    //state_mng_print_evt_log();
+    state_mng_print_evt_log();
     //test_print_report(0);
+    PRINT_LOG_BUFF(2);
 
     int num_err = test_get_err_count();
     test_reset();
@@ -685,7 +680,6 @@ void run_test_state_mng_1(struct device * dev){
  */
 void run_test_state_mng_2(struct device * dev){
    
-    #include "../state_machines/sm_common.h"
     //todo: include substate logic in test
     const int num_runs = 10;     // high values may silently overflow stack!
     const int num_states = 3;    // see state_manager auto config 	
@@ -714,10 +708,8 @@ void run_test_state_mng_2(struct device * dev){
     state_mng_register_action(CYCLE_STATE_START, action_test_mng_1, NULL, 0);
     state_mng_register_action(CYCLE_STATE_END, action_test_mng_1, NULL, 0);
     // only activate for debug, not benchmark
-    //state_mng_register_action(CYCLE_STATE_END, sm_com_mes_mperf, NULL, 0);
+    state_mng_register_action(CYCLE_STATE_END, sm_com_mes_mperf, NULL, 0);
 
-    // irq handler to send up reset event
-    irqtester_fe310_register_callback(dev, IRQ_1, _irq_1_handler_0);
     state_mng_init(dev);
 
     // for debug state config done, print
@@ -744,12 +736,11 @@ void run_test_state_mng_2(struct device * dev){
 
     state_mng_abort();
     state_mng_purge_registered_actions_all();
-    irqtester_fe310_register_callback(dev, IRQ_1, _irq_gen_handler);
     
     // print for dbg
     state_mng_print_evt_log();
     //test_print_report(1);
-    PRINT_LOG_BUFF();
+    PRINT_LOG_BUFF(2);
 
     // get log
     int retval_log = state_mng_get_switch_events(log_buf, sizeof(log_buf)/sizeof(log_buf[0]));
@@ -906,19 +897,17 @@ void run_test_sm_throughput_2(struct device * dev, int id_sm){
         k_sleep(RUN_T_MS);
         
         printk("DEBUG: Woke up again. Trying to stop SM1. \n");
+        // stop firing
+        irqtester_fe310_reset_hw(dev);
         // shut down and clean thread
-        // to stop counting, register clear only cb
-        irqtester_fe310_register_callback(dev, IRQ_2, _irq_2_handler_1);
         state_mng_abort();
         k_yield(); // if cooperative main_thread, give sm control to quit thread
         state_mng_purge_registered_actions_all();
-        // stop firing
-        struct DrvValue_uint reg_num = {.payload=0};
-    	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
-        irqtester_fe310_set_reg(dev, VAL_IRQ_2_NUM_REP, &reg_num);
+   
+
 
         state_mng_print_evt_log();
-        PRINT_LOG_BUFF();
+        PRINT_LOG_BUFF(1);
         sm1_print_report();
         sm1_reset();
  
@@ -994,21 +983,18 @@ void run_test_sm2_action_perf_3(struct device * dev){
         printkv(3, "DEBUG: test_runner going to sleep... \n");
         k_sleep(t_per_run_ms);
         printkv(3, "DEBUG: Woke up again. Trying to stop SM2. \n");
-        // shut down and clean thread
-        // to stop counting, register clear only cb
-        irqtester_fe310_register_callback(dev, IRQ_2, _irq_2_handler_1);
+
+        irqtester_fe310_reset_hw(dev);
+
         state_mng_abort();
         k_sleep(1); // if cooperative main_thread, give sm control to quit thread
         state_mng_purge_registered_actions_all();
-        // stop firing
-        struct DrvValue_uint reg_num = {.payload=0};
-    	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
-        irqtester_fe310_set_reg(dev, VAL_IRQ_2_NUM_REP, &reg_num);
+
 
         
 
         state_mng_print_evt_log();
-        PRINT_LOG_BUFF();
+        PRINT_LOG_BUFF(1);
         sm2_print_report();
         sm2_reset();
  
@@ -1078,24 +1064,18 @@ void run_test_sm2_action_prof_4(struct device * dev){
             profiler_start();
         //}
         k_sleep(t_per_run_ms);
+        irqtester_fe310_reset_hw(dev);
 
         profiler_stop();
         printk("DEBUG: Woke up again. Trying to stop SM2. \n");
         // shut down and clean thread
-        // to stop counting, register clear only cb
-        irqtester_fe310_register_callback(dev, IRQ_2, _irq_2_handler_1);
+
         state_mng_abort();
         k_sleep(1); // if cooperative main_thread, give sm control to quit thread
-        state_mng_purge_registered_actions_all();
-        // stop firing
-        struct DrvValue_uint reg_num = {.payload=0};
-    	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
-        irqtester_fe310_set_reg(dev, VAL_IRQ_2_NUM_REP, &reg_num);
-
-        
+        state_mng_purge_registered_actions_all();        
 
         state_mng_print_evt_log();
-        PRINT_LOG_BUFF();
+        PRINT_LOG_BUFF(1);
         sm2_print_report();
         sm2_reset();
  

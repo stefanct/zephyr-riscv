@@ -211,7 +211,7 @@ void sm2_task_print_cfo_stat(){
 void sm2_task_bench_basic_ops(){
     irqt_val_id_t read_reg  = VAL_IRQ_0_PERVAL;
     irqt_val_id_t write_reg = VAL_DSP_3_CLEAR_ID;
-    int read_arr_irx = 0;
+
     
     struct DrvValue_uint val;
     u32_t val_in = 42;
@@ -220,8 +220,6 @@ void sm2_task_bench_basic_ops(){
     for(int i=0; i < num_bench_loads; i++){
         irqtester_fe310_get_val_uint(read_reg, &val);
         val_in = val.payload;
-        // test
-        //val_in = irqtester_fe310_get_val_uint_raw_2(read_arr_irx);
 
     }
     for(int i=0; i < num_bench_macs; i++){

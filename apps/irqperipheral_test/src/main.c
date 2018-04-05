@@ -123,30 +123,30 @@ void load_drivers(){
 void main(void)
 {	
 	/**
-	 * Printing policy:
-	 * - available: 
-	 * a) logging (SYS_LOG_<>), b) (verbsoity controlled) printkv, c) buffered LOG_PERF
-	 * - usage:
-	 * a) stuff that runs periodcially in productive coe
-	 * 	  -> can be thrown out of code with kconfig
-	 * b) stuff in tests that is not run periodiclly
-	 * 	  -> can control vai print_set_verbosity 
+	 * Printing policy
+	 * a) logging (SYS_LOG_<>) 
+	 *    stuff that should vanish in time-critical builds
+	 * 	  -> can be thrown out of code by Kconfig/logging
+	 * b) (verbsoity controlled) printkv 
+	 *    stuff in tests that is not time critical
+	 * 	  -> can control via print_set_verbosity 
 	 *    -> stays in binary, even when vebosity set to not show
 	 * 	  -> productive code should avoid compiling test code anyway
-	 * c) stuff inside periodically run code
+	 * c) buffered LOG_PERF
+	 *    stuff inside time-critical code that needs to be printed for debug
 	 *    -> logs to buffer and prints after run
 	 *    -> still slower than not printing, better than serial out
 	 *    -> set CONFIG_APP_LOG_PERF_BUFFER_DEPTH=0 to deactivate
 	 */
 
-	bool quick_test = true;
+	bool quick_test = false;
 
 	print_kernel_info();
 	print_device_drivers();
 	load_drivers();
 
 	print_set_verbosity(1);
-
+	
 	/* rx/tx test for uart0 */
 	test_uart_1(g_dev_uart0, g_dev_uart1);
 	
@@ -159,14 +159,15 @@ void main(void)
 	if(!quick_test)
 		run_test_timing_rx(g_dev_irqt);
 
+
 	/* irq troughput tests (inaccurate!) */
 	if(!quick_test){
+		//run_test_irq_throughput_3_autoadj(g_dev_irqt);	// todo: hangs with logging on
+		//run_test_irq_throughput_2(g_dev_irqt);
 		run_test_irq_throughput_1(g_dev_irqt);
-		run_test_irq_throughput_2(g_dev_irqt);
 	}
-	run_test_irq_throughput_3_autoadj(g_dev_irqt);
 	
-
+	
 	/* state_manager basic test */
 	if(!quick_test)
 		run_test_state_mng_1(g_dev_irqt);
@@ -182,7 +183,9 @@ void main(void)
 	/* used for profiling state_manager */
 	//run_test_sm2_action_prof_4(g_dev_irqt);
 	//PRINT_LOG_BUFF();
-	
+
+	/* template sm */
+	//sm_t_run();
 
 	/* continous bench timing of state_manager critical loop */
 	int i=0;

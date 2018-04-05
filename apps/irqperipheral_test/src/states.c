@@ -1,6 +1,7 @@
 #ifndef TEST_MINIMAL
 #include "states.h"
 #include "state_manager.h"
+#include "utils.h"
 
 #define SYS_LOG_DOMAIN "States"  
 #define SYS_LOG_LEVEL SYS_LOG_LEVEL_DEBUG
@@ -126,6 +127,9 @@ void states_configure_custom(struct State * states, cycle_state_id_t * transitio
 /**
  * @brief: Configure given state with serial substates.
  * todo: make safe while sm running
+ * 
+ * @param num_substates: number of times the state is repeated
+ * @param timing_summand: usually 0
  */
 void states_configure_substates(struct State * state, u8_t num_substates, u8_t timing_summand){
     if(num_substates < 1){
@@ -177,5 +181,36 @@ int states_get_timing_goal_end(struct State * state, u8_t substate){
     return result;
 }
 
+int states_set_handler_timing_goal_start(struct State state_arr[], cycle_state_id_t id, void(*handler)(struct State *, int)){
+    struct State * state = states_get(state_arr, id);
+    if(state->handle_t_goal_start != NULL)
+        SYS_LOG_WRN("Overwriting timing goal start handler for state %i", id);
+    state->handle_t_goal_start = handler;
 
-#endif // TEST_MINIMAL
+    return 0;
+}
+
+int states_set_handler_timing_goal_end(struct State state_arr[], cycle_state_id_t id, void(*handler)(struct State *, int)){
+    struct State * state = states_get(state_arr, id);
+    if(state->handle_t_goal_end != NULL)
+        SYS_LOG_WRN("Overwriting timing goal end handler for state %i", id);
+    state->handle_t_goal_end = handler;
+
+    return 0;
+}
+
+int states_set_handler_reqval(struct State state_arr[], cycle_state_id_t id, bool(*handler)(struct State *)){
+    struct State * state = states_get(state_arr, id);
+    if(state->handle_val_rfail != NULL)
+        SYS_LOG_WRN("Overwriting failed requested value handler for state %i", id);
+    state->handle_val_rfail = handler;
+
+    return 0;
+}
+
+struct State * states_get(struct State state_arr[], cycle_state_id_t id){
+    return &(state_arr[id]);
+}
+
+#endif
+

@@ -7,6 +7,7 @@ obj-y += state_machines/sm_common.o
 obj-y += state_machines/sm1.o
 obj-y += state_machines/sm2.o
 obj-y += state_machines/sm2_tasks.o
+obj-y += state_machines/sm_template.o
 
 obj-y += tests/test_runners.o
 obj-y += tests/tests.o

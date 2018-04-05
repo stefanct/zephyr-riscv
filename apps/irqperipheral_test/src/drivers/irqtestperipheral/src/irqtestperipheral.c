@@ -4,11 +4,14 @@
  *  Singleton, only register one instance with kernel!
  */
 
-// todo: 
-// - public functions should probably have a device param to differentiate between instances
-// - decide whether pure singleton or move static vars to data
-// - driver verbosity for debugging, implement via define, for reduced footprint
+/* Well-tested index magic in id_2_ functions that gcc doesn't get
+   -> disable compiler warnings*/
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
 
+#if IRQT_FAST_ID2IDX > 0
+#warning "Fast id2idx functions enabled. No bound checking on indices!"
+#endif
 
 #include "irqtestperipheral.h"
 #include <soc.h>
@@ -43,15 +46,6 @@
 
 // below should actually be set by kconfig and end up in auoconf.h
 #define CONFIG_IRQTESTER_FE310_0_PRIORITY 	FE310_PLIC_MAX_PRIORITY
-
-
-
-
-
-
-#if IRQT_FAST_ID2IDX > 0
-#warning "Fast id2idx functions enabled. No bound checking on indices!"
-#endif
 
 
 /*
@@ -367,7 +361,7 @@ void _irq_gen_handler(void){
 	/* own implementation 
 	 * read values from hardware registers and send up DrvEvents
 	 */
-	struct DrvValue_uint val_uint;
+	struct DrvValue_uint val_uint = {.payload = 0};
 	//struct DrvValue_bool val_bool;
 
 	irqt_irq_id_t irq_id = _get_irq_id();
@@ -379,6 +373,7 @@ void _irq_gen_handler(void){
 	struct DrvEvent evt_irq_gen   = {.val_id=_NIL_VAL, .event_type=EVT_T_IRQ, .irq_id=irq_id};
 
 	// note: switch statement bad for branch prediction
+	SYS_LOG_DBG("Generic IRQ %i handler invoked.", irq_id);
 	switch(irq_id){
 		case IRQ_0:
 			// write into internal data pools 
@@ -502,8 +497,8 @@ void _irq_0_handler_2(void){
 	/* own implementation 
 	 * read values from hardware registers and send up DrvEvents
 	 */
-	struct DrvValue_uint perval_0;
-	struct DrvValue_bool enable;
+	struct DrvValue_uint perval_0 = {.payload = 0};
+	struct DrvValue_bool enable= {.payload = 0};
 	irqtester_fe310_get_reg(dev, VAL_IRQ_0_PERVAL, &perval_0);
 	irqtester_fe310_get_reg(dev, VAL_IRQ_0_ENABLE, &enable);
 	
@@ -645,11 +640,12 @@ void _irq_1_handler_0(void){
 	// clear irq hardware on hw rev 2
 	irqtester_fe310_clear_1(dev);
 
-	// dbg
+	/* dbg
 	   u32_t reg = 5;
 		__asm__ volatile("csrr t0, mtvec"); 
 		__asm__ volatile("csrw mtvec, %0" :: "r" (reg)); 
 		__asm__ volatile("csrw mtvec, t0"); 
+	*/
 }
 
 // hand optimized handler irq1, queue, no clear
@@ -731,7 +727,12 @@ int irqtester_fe310_reset_hw(struct device *dev){
 	volatile struct irqtester_fe310_1_t *irqt_1 = DEV_REGS_1(dev);
 	volatile struct irqtester_fe310_2_t *irqt_2 = DEV_REGS_2(dev);
 	volatile struct irqtester_fe310_3_t *irqt_3 = DEV_REGS_3(dev);
-	//return;
+
+	// disable all irqs
+	irqtester_fe310_unregister_callback(dev, IRQ_0);
+	irqtester_fe310_unregister_callback(dev, IRQ_1);
+	irqtester_fe310_unregister_callback(dev, IRQ_2);
+	
 	irqt_0->value_0		= 0;
 	irqt_0->fire_0   	= 0;
 	
@@ -759,6 +760,11 @@ int irqtester_fe310_reset_hw(struct device *dev){
 	irqt_3->reset_3		= 1;
 	irqt_3->reset_3		= 0;
 	irqt_3->ready_3		= 0;
+
+	// install default generic handler
+	irqtester_fe310_register_callback(dev, 0, _irq_gen_handler);
+	irqtester_fe310_register_callback(dev, 1, _irq_gen_handler);
+	irqtester_fe310_register_callback(dev, 2, _irq_gen_handler);
 	
 	return 0;
 }
@@ -1858,8 +1864,6 @@ void irqtester_fe310_fire_1(struct device *dev){
 	irqt_1->fire_1 = 1;
 	// reset
 	irqt_1->fire_1 = 0;
-
-	return 0;
 	
 	//#define IRQ1_FIRE  0x201D
 	//reg_write_short(IRQ1_FIRE, 1);
@@ -1994,3 +1998,6 @@ static void irqtester_fe310_cfg_0(void)
 #endif // CONFIG_FE310_IRQT_DRIVER
 
 /**@endcond*/
+
+// re-enable -Warray-bounds
+#pragma GCC diagnostic pop

@@ -200,10 +200,6 @@ void test_hw_rev_2_basic_1(struct device * dev){
 
 	irqtester_fe310_reset_hw(dev);
 
-	// reset to default handlers
-	irqtester_fe310_register_callback(dev, IRQ_1, _irq_gen_handler);
-	irqtester_fe310_register_callback(dev, IRQ_2, _irq_gen_handler);
-
 }
 
 void test_hw_rev_3_basic_1(struct device * dev){
@@ -495,7 +491,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 			}
 			delta_cyc = get_cycle_32() - start_cyc;
 
-			if(verbose>1)
+			if(verbose>3)
 				irqtester_fe310_dbgprint_event(dev, p_evt);
 
 			// purge fifo, since only interessted in reaction till first msg
@@ -532,7 +528,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 				continue;
 			}
 			delta_cyc = get_cycle_32() - start_cyc;
-			if(verbose>1)
+			if(verbose>3)
 				irqtester_fe310_dbgprint_event(dev, &evt);
 
 			// purge array since only interessted in reaction till first msg
@@ -578,7 +574,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 				continue;
 			}
 			delta_cyc = get_cycle_32() - start_cyc;
-			if(verbose>1)
+			if(verbose>3)
 				irqtester_fe310_dbgprint_event(dev, &evt);
 			k_msgq_purge(&drv_q_rx);  // throw away all but first msg
 
@@ -659,7 +655,7 @@ void test_rx_timing(struct device * dev, int timing_res[], int num_runs, int mod
 				test_assert(0);
 				printk("Valflag message got lost \n");
 			}
-			if(verbose>1)
+			if(verbose>3)
 				irqtester_fe310_dbgprint_event(dev, &evt);
 
 			// throw away all but first msg
@@ -727,7 +723,7 @@ void test_irq_throughput_1(struct device * dev, int delta_cyc, int * status_res,
 	
 	*status_res = status_1.payload; 
 
-	// note: curently status can't be cleared for next run
+	irqtester_fe310_reset_hw(dev);
 
 }
 
@@ -823,9 +819,9 @@ void test_irq_throughput_2(struct device * dev, int period_cyc, int num_runs, in
 	struct DrvValue_uint reg_period = {.payload=period_cyc};	
 	//struct DrvValue_uint status_1;
 
+	irqtester_fe310_register_callback(dev, IRQ_1, irq_handler_clear_and_check);
 	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
 	irqtester_fe310_set_reg(dev, VAL_IRQ_1_PERIOD, &reg_period);
-	irqtester_fe310_register_callback(dev, IRQ_1, irq_handler_clear_and_check);
 
 	irqtester_fe310_fire_1(dev);
 
@@ -841,7 +837,6 @@ void test_irq_throughput_2(struct device * dev, int period_cyc, int num_runs, in
 	
 	
 	irqtester_fe310_reset_hw(dev);
-	irqtester_fe310_unregister_callback(dev, IRQ_1);
 
 	// print array
     //for(int i=0; i<num_runs; i++){
@@ -959,6 +954,9 @@ void test_poll_throughput_1(struct device * dev, int period_cyc, int num_runs, i
 //			that saves the accumulated sum of state_ids in VAL_IRQ_0_PERVAL
 void test_state_mng_1(struct device * dev, int sum_expect){
 	printkv(3, "DEBUG: Entering test_state_mng_1 \n");
+
+	// irq handler to send up reset event
+    irqtester_fe310_register_callback(dev, IRQ_1, _irq_1_handler_0);
 	// fire irq1, should trigger a single run through complete SM
     struct DrvValue_uint reg_num = {.payload=1};
 	struct DrvValue_uint reg_period = {.payload=200};
@@ -975,12 +973,14 @@ void test_state_mng_1(struct device * dev, int sum_expect){
 	while(res_perval.payload != sum_expect && timeout > 0){
 		// hand off to state_manager thread
 		// wait instead yield, since prio of this thread is higher than state_manager
-		k_sleep(1);
+		k_sleep(5);
 		timeout--;
 		// after firing, this thread should gain control again when 
 		// state machine returns to IDLE
 		// registered action writes state_sum to perval
 		irqtester_fe310_get_reg(dev, VAL_IRQ_0_PERVAL, &res_perval);
+		// fire not totally reliable, so repeat
+		irqtester_fe310_fire_1(dev);
 		//printkv(3, "DEBUG: Waiting for SM reset. Timeout %i, SM alive %i, state %i, state_sum %i \n", 
 		//	  timeout, state_mng_is_running(), state_mng_get_current(), res_perval.payload);
 		

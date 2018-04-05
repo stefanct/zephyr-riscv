@@ -72,8 +72,14 @@ void states_configure_custom(struct State * states, cycle_state_id_t * transitio
                                 struct State cust_states[], cycle_state_id_t * cust_tt, int len_states, int len_events);
 void states_configure_substates(struct State * state, u8_t num_substates, u8_t timing_summand);
 
+struct State * states_get(struct State state_arr[], cycle_state_id_t id);
 int states_get_timing_goal_start(struct State * state, u8_t substate);
 int states_get_timing_goal_end(struct State * state, u8_t substate);
+
+int states_set_handler_timing_goal_start(struct State state_arr[], cycle_state_id_t id, void(*handler)(struct State *, int));
+int states_set_handler_timing_goal_end(struct State state_arr[], cycle_state_id_t id, void(*handler)(struct State *, int));
+int states_set_handler_reqval(struct State state_arr[], cycle_state_id_t id, bool(*handler)(struct State *));
+ 
 
 void states_print_state(struct State * state);
 

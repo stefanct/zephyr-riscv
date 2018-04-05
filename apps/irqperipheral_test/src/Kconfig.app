@@ -22,3 +22,7 @@ menuconfig APP_LOG_PERF_STRING_LEN
 menuconfig APP_PROFILER_BUF_DEPTH
 	int "Size of buffer for profiling. Set 0 for best perf."
 	default 0
+
+menuconfig APP_SM_LOG_DEPTH
+	int "Size of log event buffer of state_manager. Set 0 for best perf."
+	default 32

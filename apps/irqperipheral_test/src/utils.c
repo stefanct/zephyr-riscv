@@ -181,8 +181,9 @@ void printk_framed(int verbosity, const char *fmt, ...){
     va_list args;
 	va_start(args, fmt);
 
-    if(!do_print(verbosity, false))
+    if(!do_print(verbosity, false)){
         return;
+    }
 
 	size_t str_length = vsnprintk(NULL, 0, fmt, args);
 	//printk("DEBUG: Length of string %i \n", str_length);
@@ -289,7 +290,7 @@ void print_arr_uint(int verbosity, u32_t arr[], int len){
 }
 
 
-void dbg_read_mem(u32_t * p_mem){
+u32_t dbg_read_mem(u32_t * p_mem){
 	u32_t reg;
 	// write pointer p_mem to a5
 	__asm__ volatile("mv a5, %0" :: "r" (p_mem));

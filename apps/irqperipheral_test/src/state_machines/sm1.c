@@ -1,8 +1,7 @@
 /**
- * Implementation of State Machine SM1.
- * See notes 20171218.
- * Mainly for tests and benchmarking (no workload). See SM1 for extension with tasks.
- * 
+ * @file
+ * @brief Implementation of State Machine SM1.
+ * Deprecated, mainly for old tests and benchmarking (no workload).
  */
 
 #include "sm1.h"
@@ -175,15 +174,15 @@ static void config_handlers(){
 // Attention: acts on states defined here, not states in sm1_states array
 static void config_timing_goals(int period_irq1_us, int period_irq2_us, int num_substates){
     
-    int period_irq1_cyc = 65 * period_irq1_us;
-    int period_irq2_cyc = 65 * period_irq2_us;
+    int period_irq1_cyc = CYCLES_US_2_CYC(period_irq1_us);
+    int period_irq2_cyc = CYCLES_US_2_CYC(period_irq2_us);
  
     //sint num_tot_states = 3 + num_substates;
     int t_state = period_irq1_cyc / 3 - num_substates;  // duration of ul, dl or rl 
     int t_substate = (num_substates == 0 ? 0 : t_state / num_substates); 
 
-    printk("State duration %i us / %i cyc \n", t_state / 65, t_state);   
-    printk("Substate duration %i us / %i cyc \n", t_substate / 65, t_substate);   
+    printk("State duration %i us / %i cyc \n", CYCLES_CYC_2_US(t_state), t_state);   
+    printk("Substate duration %i us / %i cyc \n", CYCLES_CYC_2_US(t_substate), t_substate);   
 
     // todo: check!
     sm1_dl.timing_goal_start = 0;
@@ -202,11 +201,11 @@ static void config_timing_goals(int period_irq1_us, int period_irq2_us, int num_
     // make sure last end is < T(protocol cycle)
     if(sm1_end.timing_goal_end > period_irq1_cyc)
         printk("WARNING: STATE_END timing_goal_end %i us > period_1 %i us \n", 
-            sm1_end.timing_goal_end / 65, period_irq1_us);
+            CYCLES_CYC_2_US(sm1_end.timing_goal_end), period_irq1_us);
 
      if(t_substate < period_irq2_cyc){
         printk("WARNING: substate duration %i us < period_2 %i us \n", 
-            t_substate / 65, period_irq2_us);    
+            CYCLES_CYC_2_US(t_substate), period_irq2_us);    
      }
 }
 
@@ -224,7 +223,7 @@ void sm1_run(struct device * dev, int period_irq1_us, int period_irq2_us){
     printk_framed(0, "Now running state machine sm1");
     print_dash_line(0);
     printk("period_1: %i us, %i cyc, period_2: %i us, %i cyc\n", 
-            period_irq1_us, 65*period_irq1_us, period_irq2_us, 65*period_irq2_us);
+            period_irq1_us, CYCLES_US_2_CYC(period_irq1_us), period_irq2_us, CYCLES_US_2_CYC(period_irq2_us);
 
     
     
@@ -297,8 +296,8 @@ void sm1_run(struct device * dev, int period_irq1_us, int period_irq2_us){
 	
     // program IRQ1 and IRQ2 to fire periodically
     // todo: hw support for infinite repetitions?
-    u32_t period_1_cyc = period_irq1_us * 65; // x * ~1000 us
-    u32_t period_2_cyc = period_irq2_us * 65;
+    u32_t period_1_cyc = CYCLES_US_2_CYC(period_irq1_us); // x * ~1000 us
+    u32_t period_2_cyc = CYCLES_US_2_CYC(period_irq2_us);
 
     // for first few runs, reset irq will be slower
     // to warm up icache

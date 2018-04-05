@@ -34,7 +34,7 @@ void save_to_intbuf(int id, int msg);
     save_to_intbuf(id, x)
 #endif
 
-#define PRINT_LOG_BUFF() do{\
-    print_buff(); \
+#define PRINT_LOG_BUFF(verb) do{\
+    print_buff(verb); \
 }while(0)
 #endif

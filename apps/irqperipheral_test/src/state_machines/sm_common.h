@@ -5,6 +5,7 @@
 #include "states.h"
 
 // actions
+void sm_com_print_state();
 void sm_com_clear_valflags();
 void sm_com_update_counter();
 void sm_com_check_val_updates();

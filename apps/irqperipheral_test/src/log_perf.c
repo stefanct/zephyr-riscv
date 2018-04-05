@@ -16,6 +16,12 @@ static int i_log_call;
 static int i_logint_call;
 
 void print_to_buf(const char *fmt, ...){
+
+    #if(LOG_PERF_BUFFER_DEPTH == 0)
+        return;
+    #else
+    
+
     va_list args;
     va_start(args, fmt);
 
@@ -23,12 +29,18 @@ void print_to_buf(const char *fmt, ...){
     i_log_call++; 
 
     va_end(args);
+    #endif
 }
 
 void save_to_intbuf(int id, int msg){
+    #if(LOG_PERF_BUFFER_DEPTH == 0)
+    return;
+    #else
+
     log_intbuff[i_logint_call % LOG_PERF_BUFFER_DEPTH][0] = id;
     log_intbuff[i_logint_call % LOG_PERF_BUFFER_DEPTH][1] = msg;
     i_logint_call++; 
+    #endif
 }
 
 static void purge_buff(){
@@ -42,19 +54,23 @@ static void purge_buff(){
     i_log_call = 0;
 }
 
-void print_buff(){
+void print_buff(int verb){
+    #if(LOG_PERF_BUFFER_DEPTH == 0)
+        printkv(1, "WARNING: Printing zero-sized log buffer. Check Kconfig. \n");
+        return;
+    #endif
+
     int len = (i_log_call < LOG_PERF_BUFFER_DEPTH ? i_log_call : LOG_PERF_BUFFER_DEPTH); 
-    int len_int = (i_logint_call < LOG_PERF_BUFFER_DEPTH ? i_logint_call : LOG_PERF_BUFFER_DEPTH); 
-    
+    int len_int = (i_logint_call < LOG_PERF_BUFFER_DEPTH ? i_logint_call : LOG_PERF_BUFFER_DEPTH);   
 
     //printk("i_log_calls %u \n", i_log_call);
-    SYS_LOG_DBG("Printing LOG_PERF buffer: \n");
+    printkv(verb, "Printing LOG_PERF buffer: \n");
     for(int i=0; i<len; i++){
-        SYS_LOG_DBG("%s\n", log_buff[i]);
+        printkv(verb, "%s\n", log_buff[i]);
     }
-    SYS_LOG_DBG("Printing LOG_PERF int buffer: \n");
+    printkv(verb, "Printing LOG_PERF int buffer: \n");
     for(int i=0; i<len_int; i++){
-        SYS_LOG_DBG("[%i] %i\n", log_intbuff[i][0], log_intbuff[i][1]);
+        printkv(verb, "[%i] %i\n", log_intbuff[i][0], log_intbuff[i][1]);
     } 
 
     purge_buff();
