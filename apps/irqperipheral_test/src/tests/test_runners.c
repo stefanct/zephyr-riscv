@@ -655,12 +655,15 @@ void run_test_state_mng_1(struct device * dev){
     k_sleep(100);   // hand of
     */
     state_mng_abort();
-    state_mng_purge_registered_actions_all();
 
     // print for dbg
-    state_mng_print_evt_log();
+    if(print_get_verbosity() > 1)
+        state_mng_print_evt_log();
     //test_print_report(0);
-    PRINT_LOG_BUFF(2);
+    //PRINT_LOG_BUFF(2);
+
+    state_mng_reset();
+    
 
     int num_err = test_get_err_count();
     test_reset();
@@ -735,20 +738,23 @@ void run_test_state_mng_2(struct device * dev){
     }
 
     state_mng_abort();
-    state_mng_purge_registered_actions_all();
-    
+
     // print for dbg
-    state_mng_print_evt_log();
-    //test_print_report(1);
-    PRINT_LOG_BUFF(2);
+    if(print_get_verbosity() > 1)
+        state_mng_print_evt_log();
+    //test_print_report(0);
+    //PRINT_LOG_BUFF(2);
 
     // get log
     int retval_log = state_mng_get_switch_events(log_buf, sizeof(log_buf)/sizeof(log_buf[0]));
-    state_purge_switch_events();
+    state_mng_reset();
     
     if(0 != retval_log){
         test_assert(0); // to small buf
-        printkv(0, "WARNING: state manager test 2, too small buffer \n");
+        if(retval_log == 1)
+            printkv(0, "WARNING: state manager test 2, too small buffer \n");
+        if(retval_log == 2)
+            printkv(0, "WARNING: state manager test 2, state_mng event log disabled. \n");
     }  
 
 
@@ -818,16 +824,17 @@ void run_test_sm1_throughput_1(struct device * dev){
         k_sleep(RUN_T_MS);
         
         printk("DEBUG: Woke up again. Trying to stop SM1. \n");
-        // shut down and clean thread
         state_mng_abort();
-        state_mng_purge_registered_actions_all();
-        // stop firing
-        struct DrvValue_uint reg_num = {.payload=0};
-    	irqtester_fe310_set_reg(dev, VAL_IRQ_1_NUM_REP, &reg_num);
 
 
-        state_mng_print_evt_log();
-        sm1_print_report();
+        // print for dbg
+        if(print_get_verbosity() > 1){
+            state_mng_print_evt_log();
+            sm1_print_report();
+        }
+        //test_print_report(0);
+        //PRINT_LOG_BUFF(2);
+          
         sm1_reset();
  
         cur_t_us -= dt_us;
@@ -857,6 +864,7 @@ void run_test_sm_throughput_2(struct device * dev, int id_sm){
     int RUN_T_MS = 1000;
 
     int cur_t_us = period_irq1_us / start_divisor;
+    int min_t_us = 25;  // safety
    
 
 
@@ -872,7 +880,12 @@ void run_test_sm_throughput_2(struct device * dev, int id_sm){
 
     int cur_divisor = start_divisor;
     for(int i=0; i<NUM_TS; i++){
-       
+        
+        // avoid non integer fractions between irq1/2
+        cur_t_us = period_irq1_us / cur_divisor;
+        if(cur_t_us <= min_t_us)
+            break;
+
         // spins until state_mng_start() invoked
         k_tid_t my_tid = k_thread_create(&thread_sm1_data, thread_sm1_stack,
                             K_THREAD_STACK_SIZEOF(thread_sm1_stack), (void (*)(void *, void *, void *))state_mng_run,
@@ -880,32 +893,30 @@ void run_test_sm_throughput_2(struct device * dev, int id_sm){
                             thread_sm1_prio, 0, K_NO_WAIT);
         printk("state_manager thread @ %p started\n", my_tid);
 
-        // avoid non integer fractions between irq1/2
-        cur_t_us = period_irq1_us / cur_divisor;
         switch(id_sm){
             case 1:
-                 sm1_run(dev, cur_t_us * cur_divisor, cur_t_us);
-                 break;
+                sm1_run(dev, cur_t_us * cur_divisor, cur_t_us);
+                break;
             case 2:
-                 sm2_run(dev, cur_t_us * cur_divisor, cur_t_us, 1, NULL);
-                 break;
+                sm2_config(16, 8, NULL, 0, 0);    // mac
+                sm2_init(dev, cur_t_us * cur_divisor, cur_t_us);
+                sm2_run();
+                sm2_fire_irqs(cur_t_us * cur_divisor, cur_t_us);
+                break;
             default:
                 printk("Error: Unknown sm id: %i", id_sm);
                 return;
         }
-        printk("DEBUG: test_sm1_throughput_1 going to sleep... \n");
+        printk("DEBUG: test_sm_throughput_2 going to sleep... \n");
         k_sleep(RUN_T_MS);
         
-        printk("DEBUG: Woke up again. Trying to stop SM1. \n");
+        printk("DEBUG: Woke up again. Trying to stop SM. \n");
         // stop firing
         irqtester_fe310_reset_hw(dev);
         // shut down and clean thread
         state_mng_abort();
         k_yield(); // if cooperative main_thread, give sm control to quit thread
-        state_mng_purge_registered_actions_all();
-   
-
-
+ 
         state_mng_print_evt_log();
         PRINT_LOG_BUFF(1);
         sm1_print_report();
@@ -965,13 +976,14 @@ void run_test_sm2_action_perf_3(struct device * dev){
         //sm2_config(32, param, sm2_task_calc_cfo_1, 1, 0);
 
         // for model calibration
-        //sm2_config(32, 8, sm2_task_bench_basic_ops, param, 0);    // mac
+        sm2_config(32, 8, sm2_task_bench_basic_ops, param, 0);    // mac
         //sm2_config(32, 8, sm2_task_bench_basic_ops, param, 1);    // read
         //sm2_config(32, 8, sm2_task_bench_basic_ops, param, 2);    // write
         //sm2_config(32, 8, sm2_task_bench_basic_ops, param, 3);    // jump
-        //sm2_config(param, param, sm2_task_calc_cfo_1, 1, 0);      // t_ov_act
-        sm2_config(param, param, sm2_task_calc_cfo_1, 1, 0);        // calib N=f
+        //sm2_config(param, param, sm2_task_calc_cfo_1, 1, 0);      // t_ov_act, deprecated
+        //sm2_config(param, param, sm2_task_calc_cfo_1, 1, 0);      // calib N=f
         //sm2_config(param, 4, sm2_task_calc_cfo_1, 1, 0);          // calib f=4
+        //sm2_config(32, param, sm2_task_calc_cfo_1, 1, 0);           // calib N=32
   
         
         state_mng_purge_filter_state();
@@ -1071,8 +1083,7 @@ void run_test_sm2_action_prof_4(struct device * dev){
         // shut down and clean thread
 
         state_mng_abort();
-        k_sleep(1); // if cooperative main_thread, give sm control to quit thread
-        state_mng_purge_registered_actions_all();        
+        k_sleep(1); // if cooperative main_thread, give sm control to quit thread 
 
         state_mng_print_evt_log();
         PRINT_LOG_BUFF(1);

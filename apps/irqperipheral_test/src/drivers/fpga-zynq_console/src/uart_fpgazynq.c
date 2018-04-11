@@ -1,3 +1,19 @@
+/**
+ * @file
+ * @brief Driver for console output to fpga-zynq's frontend server (fesvr)
+ * 
+ * Requires
+ * - tohost/fromhost symbols which must be set in hostSym.S and the linking script!
+ * - set in kconfig menugconfig: 
+ * 		- application drivers / fpga-zynq serial driver
+ * 		- device drivers / console / "use UART for console" 
+ * 		- device drivers / console / "device name" = CONFIG_UART_FPGAZYNQ_NAME
+ * - this driver automatically sets drivers / serial. Ignore settings in menuconfig there.
+ *   selecting "serial" causes a warning (STM32F4X...), ignore.
+ * You can check whether correct hook is installer in uart_console_init().
+ */
+ 
+
 #include <kernel.h>
 #include <arch/cpu.h>
 #include <uart.h>
@@ -11,7 +27,7 @@
 	((struct uart_fpgazynq_data * const)(dev)->driver_data)
 
 
-// todo: check whether dummy values are strcitly necesarry
+// todo: check whether dummy values are stictly necesarry
 struct uart_fpgazynq_device_config {
 	int dummy; 
 };
@@ -57,19 +73,6 @@ static struct uart_fpgazynq_data uart_fpgazynq_data_0 = {
 	.dummy = 0
 };
 
-
-
-/**
- * This driver requires
- * - tohost/fromhost symbols which must be set in hostSym.S and the linking script!
- * - set in kconfig menugconfig: 
- * 		- application drivers / fpga-zynq serial driver
- * 		- device drivers / console / "use UART for console" 
- * 		- device drivers / console / "device name" = CONFIG_UART_FPGAZYNQ_NAME
- * - this driver automatically sets drivers / serial. Ignore settings in menuconfig there.
- *   selecting "serial" causes a warning (STM32F4X...), ignore 
- * You can check whether correct hook is installer in uart_console_init()
- */
 
 #if CONFIG_FPGAZYNQ_UART_DRIVER
 

@@ -93,6 +93,9 @@ void states_configure_auto(struct State * states, cycle_state_id_t * transition_
 void states_configure_custom(struct State * states, cycle_state_id_t * transition_table, void * action, \
                                 struct State cust_states[], cycle_state_id_t * cust_tt, int len_states, int len_events){
     
+    // todo: currently, states and trantsition_table configured eg. in sm2.c as static
+    // -> waste of memory, but state_manager crashes if declared on stack
+
     // cast to pointers to array with correct dimensions
     struct State (*states_p)[_NUM_CYCLE_STATES]  = (struct State (*)[_NUM_CYCLE_STATES])states;
     cycle_state_id_t (*tt_p)[_NUM_CYCLE_STATES][_NUM_CYCLE_EVENTS] = (cycle_state_id_t (*)[_NUM_CYCLE_STATES][_NUM_CYCLE_EVENTS]) transition_table;

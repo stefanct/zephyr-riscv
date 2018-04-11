@@ -1,4 +1,4 @@
-# Kconfig - application dirver configuration options
+# Kconfig - application configuration options
 # this Kconfig file has to be sourced in <root>/Kconfig.zephyr
 
 
@@ -13,6 +13,8 @@ menuconfig APP_DRIVERS
 if APP_DRIVERS
 # currently app drivers have to live in application dir
 # might consider building drivers as libs instead
+# todo: this is ugly, since duplicated driver in apps/hello
+# uses Kconfig values defined in apps/irqperipheral_test
 source "apps/irqperipheral_test/src/drivers/*/Kconfig.*"
 endif
 

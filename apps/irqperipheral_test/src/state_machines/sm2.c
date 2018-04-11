@@ -1,9 +1,3 @@
-/**
- * @file
- * @brief Implementation of State Machine SM2.
- * Used for tests simulating running the cow wirless protocol.
- */
-
 #include "sm_common.h"
 #include "cycles.h"
 #include "state_manager.h"
@@ -12,7 +6,6 @@
 #include "utils.h"
 #include "log_perf.h"
 #include "sm2_tasks.h"
-#include "sm1.h" // debug only
 #include "globals.h"
 
 #ifndef TEST_MINIMAL
@@ -22,13 +15,6 @@ static int num_substates; // = num of batches
 static int num_user_batch;
 static int num_users;
 static void (*ul_action_1)(struct ActionArg const *);
-
-/**
- * Stuff to change for creating a new SM:
- * - create file like this to create states (coupled to states.h::cycle_state_id_t)
- * - define actions in own file. Need to keep track of users there
- * - define irq handlers which deliver DrvEvents up to state_manager
- */
 
 
 /**
@@ -64,12 +50,10 @@ static struct State sm2_states[_NUM_CYCLE_STATES];
 
 
 /**
- * Define transition table for SM2
- * First column (default event is set automatically)
- * Need only to define non-default events
+ * Define transition table for SM1
+ * First column: default event, is set automatically
  * ----------------------------------------------------------------------------
  */
-
 static cycle_state_id_t sm2_tt[_NUM_CYCLE_STATES][_NUM_CYCLE_EVENTS];
 
 
@@ -184,8 +168,10 @@ static void sm2_appconfig(){
     state_mng_register_action(CYCLE_STATE_DL   , sm_com_clear_valflags, NULL, 0);
 
     // simulate requesting of a value, which is cleared in STATE_UL and every substate
-    irqt_val_id_t reqvals_ul[] = {VAL_IRQ_0_PERVAL};
-    state_mng_register_action(CYCLE_STATE_UL   , ul_action_1, reqvals_ul, 1);
+    // disable for benchmarking (otherwise will wait on irq2)
+    //irqt_val_id_t reqvals_ul[] = {VAL_IRQ_0_PERVAL};
+    state_mng_register_action(CYCLE_STATE_UL   , ul_action_1, NULL, 0);
+    //state_mng_register_action(CYCLE_STATE_UL   , ul_action_1, reqvals_ul, 1);
 
     //state_mng_register_action(CYCLE_STATE_UL   , sm_com_clear_valflags, reqvals_ul, 1);
     
@@ -198,7 +184,7 @@ static void sm2_appconfig(){
 
     state_mng_register_action(CYCLE_STATE_END  , sm_com_check_last_state, NULL, 0);
     // state_mng_register_action(CYCLE_STATE_END  , sm_com_check_clear_status, NULL, 0);
-    // state_mng_register_action(CYCLE_STATE_END  , sm_com_check_val_updates, NULL, 0);
+    state_mng_register_action(CYCLE_STATE_END  , sm_com_check_val_updates, NULL, 0);
     state_mng_register_action(CYCLE_STATE_END  , sm_com_update_counter, NULL, 0);
     state_mng_register_action(CYCLE_STATE_END  , sm_com_mes_mperf, NULL, 0);
     // for profiling (no wait for IRQ1) (NOT WORKING AS EXPECTED)
@@ -224,7 +210,7 @@ void sm2_config(int users, int usr_per_batch, void (*ul_task)(struct ActionArg c
 
     if(users % usr_per_batch != 0){
         num_substates += 1;
-        printk("WARNING: Fraction num_users / usr_per_batch non-integer. Setting num_substates= %i\n ", num_substates);
+        printk("WARNING: Fraction num_users / usr_per_batch non-integer. Setting num_substates= %i\n", num_substates);
     }
 
     if(ul_task != NULL){
@@ -269,6 +255,9 @@ void sm2_init(struct device * dev, int period_irq1_us, int period_irq2_us){
         config_timing_goals(period_irq1_us, period_irq2_us, num_substates);
     }
 
+    // act on sm_states defined above
+    states_configure_substates(&sm2_ul, num_substates, 0);
+
     // transfer into and init state array
     sm2_states[CYCLE_STATE_IDLE] = sm2_idle;
     sm2_states[CYCLE_STATE_START] = sm2_start;
@@ -284,9 +273,9 @@ void sm2_init(struct device * dev, int period_irq1_us, int period_irq2_us){
     for(int i=0; i<_NUM_CYCLE_STATES; i++){
         sm2_tt[i][CYCLE_EVENT_RESET_IRQ] = CYCLE_STATE_START;   
     }
-    // act on sm_states defined above
+    // act on state_array
     config_handlers();
-    states_configure_substates(&sm2_ul, num_substates, 0);
+    
 
     // pass sm2 config to state manager
     state_mng_configure(sm2_states, (cycle_state_id_t *)sm2_tt, _NUM_CYCLE_STATES, _NUM_CYCLE_EVENTS);
@@ -315,11 +304,11 @@ void sm2_run(){
    
     // start the sm thread, created in main()
 	if(0 != state_mng_start()){
-        printk("ERROR: Couldn't start sm2. Issue with thread. Aborting...");
+        printk("ERROR: Couldn't start sm2. Issue with thread. Aborting...\n");
         return;
     }
     
-    printk("DEBUG: SM2 offhanding to state manager thread \n");
+    //printk("DEBUG: SM2 offhanding to state manager thread \n");
 }
 
 // start signals (irqs) needed to drive sm
@@ -363,6 +352,7 @@ void sm2_print_report(){
 
 void sm2_reset(){
     sm_com_reset();
+    state_mng_reset();
 }
 
 #endif //TEST_MINIMAL

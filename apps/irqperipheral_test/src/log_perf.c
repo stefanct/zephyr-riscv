@@ -3,6 +3,9 @@
 #include <misc/printk.h>
 #include <logging/sys_log.h>
 
+#define SYS_LOG_DOMAIN "log_perf"  
+#include <logging/sys_log.h>
+
 #ifndef TEST_MINMAL
 
 
@@ -56,7 +59,7 @@ static void purge_buff(){
 
 void print_buff(int verb){
     #if(LOG_PERF_BUFFER_DEPTH == 0)
-        printkv(1, "WARNING: Printing zero-sized log buffer. Check Kconfig. \n");
+        SYS_LOG_WRN("Printing zero-sized log buffer. Check Kconfig. \n");
         return;
     #endif
 

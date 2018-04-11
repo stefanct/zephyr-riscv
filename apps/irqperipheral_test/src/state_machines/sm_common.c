@@ -186,14 +186,15 @@ bool sm_com_handle_fail_rval_ul(struct State * state_cur){
     // allows to ignore missing requested values for substates, eg.
     // if different substates share same irq / ready flag
     u8_t substate = state_cur->cur_subs_idx;
+    if(substate == 1)
+        ; // stub
 
     bool timeout = state_mng_wait_vals_ready(state_cur);
 
     if(timeout){
         num_fail_reqval++;
-        u32_t end = get_cycle_32();
         LOG_PERF("[%u / %u] Timeout requesting value in state %i.%u", 
-                state_mng_get_time_delta(), end, state_cur->id_name, substate);
+                state_mng_get_time_delta(), get_cycle_32(), state_cur->id_name, substate);
     }
 
     // slow, so only for debugging

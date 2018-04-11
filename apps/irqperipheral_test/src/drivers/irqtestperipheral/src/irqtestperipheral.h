@@ -122,11 +122,14 @@ struct DrvValue_bool{
 
 int irqtester_fe310_reset_hw(struct device *dev);
 
+// get values from driver memory (from slow to fast)
 int irqtester_fe310_get_val(irqt_val_id_t id_name, void * res);
 int irqtester_fe310_get_val_uint(irqt_val_id_t id, void * res_value);
 u32_t irqtester_fe310_get_val_uint_raw(irqt_val_id_t id);
+// get hw register
 int irqtester_fe310_get_reg(struct device * dev, irqt_val_id_t id, void * res_val);
 
+// set hw register from slow to fast
 int irqtester_fe310_set_reg(struct device * dev, irqt_val_id_t id, void * set_value);
 int irqtester_fe310_set_reg_fast(struct device * dev, irqt_val_id_t id, void * set_val);
 int irqtester_fe310_set_reg_uint_fast(struct device * dev, irqt_val_id_t id, void * set_val);
@@ -155,44 +158,21 @@ int irqtester_fe310_fire_2(struct device *dev);
 void irqtester_fe310_clear_1(struct device *dev);
 void irqtester_fe310_clear_2(struct device *dev);
 
-// semi private
 int irqtester_fe310_register_callback(struct device *dev, irqt_irq_id_t irq_id, void (*cb)(void));
 int irqtester_fe310_unregister_callback(struct device *dev, irqt_irq_id_t irq_id);
 
-
-
-
-// todo: make private
-/*
-int irqtester_fe310_set_value(struct device *dev, unsigned int val);
-
-
-
-int irqtester_fe310_get_value(struct device *dev, unsigned int * res);
-
-int irqtester_fe310_get_status(struct device *dev, unsigned int * res);
-*/
 int irqtester_fe310_enable(struct device *dev);
-int irqtester_fe310_get_perval(struct device *dev, unsigned int * res);
-int irqtester_fe310_get_enable(struct device *dev, bool * res);
 int irqtester_fe310_disable(struct device *dev);
 
+// deprecated, to be removed still used in some tests
+// better use generic getters
+int irqtester_fe310_get_perval(struct device *dev, unsigned int * res);
+int irqtester_fe310_get_enable(struct device *dev, bool * res);
 
-// for tests only, todo: make static inline
-void _irq_gen_handler(void);
 
-void _irq_0_handler_1(void);
-void _irq_0_handler_2(void);
-void _irq_0_handler_3(void);
-void _irq_0_handler_4(void);
-void _irq_0_handler_5(void);
-void _irq_0_handler_6(void);
-
-void _irq_1_handler_0(void);
-void _irq_1_handler_1(void);
-
-void _irq_2_handler_0(void);
-void _irq_2_handler_1(void);
-
+// enable in menuconfig
+#ifdef CONFIG_FE310_IRQT_TEST_ISRS
+#include "test_handlers.h"
+#endif
 
 #endif

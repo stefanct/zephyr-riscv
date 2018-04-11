@@ -1,7 +1,18 @@
 /**
  * @file
- * @brief  Generic logic for running a state machine. Concrete implementation 
- *         happens elsewhere.
+ * @brief  Logic for running a state machine. 
+ *
+ * Modified table-based, event-driven state machine from here
+ * http://www.pezzino.ch/state-machine-in-c/
+ * - actions are not connected to transitions but the single states
+ * - events are gathered over the whole current state
+ *   highest prio event determines transitions
+ * - if no event: default transition is defined for every state
+ * 
+ * Currently:
+ * - Singleton, don't use to set up >1 state machines.
+ * - Designed to be only or cooperative thread. Behaviour unclear if not.
+ * 
  */
 
 #ifndef STATE_MANAGER_H
@@ -19,7 +30,7 @@ typedef enum{
     _NUM_WAIT_REASON
 }sm_wait_reason_t;
 
-
+/// used for logging
 struct Switch_Event{
     cycle_state_id_t from_state;
     u8_t from_substate;
@@ -29,7 +40,7 @@ struct Switch_Event{
     u32_t t_delta_cyc;  // time since sm reset
 };
 
-/// used for fast logging
+/// used for logging
 struct Wait_Event{
     cycle_state_id_t state;
     u8_t substate;
@@ -37,7 +48,7 @@ struct Wait_Event{
     sm_wait_reason_t reason;
 };
 
-/// user for measuring performance of actions
+/// used easuring performance of actions
 /// (Can use switch events, too.)
 struct Perf_Event{
     cycle_state_id_t state;
@@ -49,6 +60,7 @@ struct Perf_Event{
 // todo: all threadsafe, repeated call safe?
 
 // control
+int state_mng_reset();
 void state_mng_configure(struct State cust_states[], cycle_state_id_t * cust_tt, int len_states, int len_events);
 void state_mng_init(struct device * dev);
 void state_mng_run(void);   

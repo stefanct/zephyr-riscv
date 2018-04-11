@@ -1,6 +1,3 @@
-// Stripped down version from riscv-tools/riscv-tests/benchmark/common
-// See LICENSE for license details.
-
 #include "syscalls.h"
 #include <stdint.h>
 #include <string.h>

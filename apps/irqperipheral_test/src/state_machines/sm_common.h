@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Common functions shared for by different state machine implementations
+ */
+
 #ifndef SM_COMMON_H
 #define SM_COMMON_H
 

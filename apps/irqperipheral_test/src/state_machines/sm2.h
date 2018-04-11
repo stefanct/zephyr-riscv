@@ -1,7 +1,7 @@
 /**
  * @file
- * @brief   Implementation of State Machine SM2.
- *          For testing and benchmarkin with workload (actions).
+ * @brief Implementation of State Machine SM2.
+ * Used for tests simulating running the cow wirless protocol.
  */
 
 

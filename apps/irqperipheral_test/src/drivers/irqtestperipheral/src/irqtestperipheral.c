@@ -343,10 +343,7 @@ static inline void flag_event_rx(struct device * dev, struct DrvEvent *evt){
  * 	 ISR can't be preempted by other ISR.
  * 
  */
-// todo: optimize isr parts, avoid non inline function calls
-// make getters inline
-// make static
-void _irq_gen_handler(void){
+static void _irq_gen_handler(void){
 
 	#ifndef TEST_MINIMAL
 
@@ -373,7 +370,7 @@ void _irq_gen_handler(void){
 	struct DrvEvent evt_irq_gen   = {.val_id=_NIL_VAL, .event_type=EVT_T_IRQ, .irq_id=irq_id};
 
 	// note: switch statement bad for branch prediction
-	SYS_LOG_DBG("Generic IRQ %i handler invoked.", irq_id);
+	//SYS_LOG_DBG("Generic IRQ %i handler invoked.", irq_id);
 	switch(irq_id){
 		case IRQ_0:
 			// write into internal data pools 
@@ -437,281 +434,14 @@ void _irq_gen_handler(void){
 	
 }
 
-// uses direct getters
-void _irq_0_handler_1(void){
-
-	// todo: for new hardware revision: signal irq cleared to hw
-
-	/* generic part */
-	struct device * dev = DEV();
-	if(dev == NULL)
-		return;	// safety first
-
-	/* own implementation 
-	 * read values from hardware registers and send up DrvEvents
-	 */
-	u32_t perval_0;
-	bool enable;
-	irqtester_fe310_get_perval(dev, &perval_0);
-	irqtester_fe310_get_enable(dev, &enable);
-	
-
-	// write into internal data pools 
-	u32_t now_cyc = get_cycle_32();
-	_values_uint[id_2_index(VAL_IRQ_0_PERVAL)].payload = perval_0;
-	_values_uint[id_2_index(VAL_IRQ_0_PERVAL)]._super.time_cyc = now_cyc; 
-
-	_values_bool[id_2_index(VAL_IRQ_0_ENABLE)].payload = enable;
-	_values_bool[id_2_index(VAL_IRQ_0_ENABLE)]._super.time_cyc = now_cyc;
-
-	// issue events to queue
-	struct DrvEvent evt_perval = {.val_id=VAL_IRQ_0_PERVAL, .val_type=VAL_T_INT, .event_type=EVT_T_VAL_UPDATE};
-	struct DrvEvent evt_enable = {.val_id=VAL_IRQ_0_ENABLE, .val_type=VAL_T_BOOL, .event_type=EVT_T_VAL_UPDATE};
-
-	// inefficient to test bit here, but this is a default ISR for testing only
-	if(test_any_send_flag(dev)){
-		send_event_rx(dev, &evt_perval);
-		send_event_rx(dev, &evt_enable);
-	}
-	if(test_flag(dev, IRQT_VALFLAGS_RX_ENABLED)){
-		flag_event_rx(dev, &evt_perval);
-		flag_event_rx(dev, &evt_enable);	
-	}
-
-}
-
-// uses generic getters
-// often arround 15 cycles slower than direct getters (84 vs 67)
-// sometimes also faster (cache influenece?)
-void _irq_0_handler_2(void){
-
-	// todo: for new hardware revision: signal irq cleared to hw
-
-	/* generic part */
-	struct device * dev = DEV();
-	if(dev == NULL)
-		return;	// safety first
-
-	#ifndef TEST_MINIMAL
-
-	/* own implementation 
-	 * read values from hardware registers and send up DrvEvents
-	 */
-	struct DrvValue_uint perval_0 = {.payload = 0};
-	struct DrvValue_bool enable= {.payload = 0};
-	irqtester_fe310_get_reg(dev, VAL_IRQ_0_PERVAL, &perval_0);
-	irqtester_fe310_get_reg(dev, VAL_IRQ_0_ENABLE, &enable);
-	
-
-	// write into internal data pools 
-	u32_t now_cyc = get_cycle_32();
-	_values_uint[id_2_index(VAL_IRQ_0_PERVAL)].payload = perval_0.payload;
-	_values_uint[id_2_index(VAL_IRQ_0_PERVAL)]._super.time_cyc = now_cyc; 
-
-	_values_bool[id_2_index(VAL_IRQ_0_ENABLE)].payload = enable.payload;
-	_values_bool[id_2_index(VAL_IRQ_0_ENABLE)]._super.time_cyc = now_cyc;
-
-	// issue events to queue
-	struct DrvEvent evt_perval = {.val_id=VAL_IRQ_0_PERVAL, .val_type=VAL_T_INT, .event_type=EVT_T_VAL_UPDATE};
-	struct DrvEvent evt_enable = {.val_id=VAL_IRQ_0_ENABLE, .val_type=VAL_T_BOOL, .event_type=EVT_T_VAL_UPDATE};
-
-	// inefficient to test bit here, but this is a default ISR for testing only
-	if(test_any_send_flag(dev)){
-		send_event_rx(dev, &evt_perval);
-		send_event_rx(dev, &evt_enable);
-	}
-	if(test_flag(dev, IRQT_VALFLAGS_RX_ENABLED)){
-		flag_event_rx(dev, &evt_perval);
-		flag_event_rx(dev, &evt_enable);	
-	}
-	#endif
-}
-
-// don't copy into memory pools, just notify
-void _irq_0_handler_3(void){
-
-	// todo: for new hardware revision: signal irq cleared to hw
-
-	/* generic part */
-	struct device * dev = DEV();
-	if(dev == NULL)
-		return;	// safety first
-
-	#ifndef TEST_MINIMAL 
-	/* own implementation 
-	 * read values from hardware registers and send up DrvEvents
-	 */
-	struct DrvValue_uint perval_0;
-	struct DrvValue_bool enable;
-	irqtester_fe310_get_reg(dev, VAL_IRQ_0_PERVAL, &perval_0);
-	irqtester_fe310_get_reg(dev, VAL_IRQ_0_ENABLE, &enable);
-	
-
-	/* write into internal data pools */
-	//u32_t now_cyc = get_cycle_32(); // might be written into event
-	/*
-	_values_uint[id_2_index(VAL_IRQ_0_PERVAL)].payload = perval_0.payload;
-	_values_uint[id_2_index(VAL_IRQ_0_PERVAL)]._super.time_cyc = now_cyc; 
-
-	_values_bool[id_2_index(VAL_IRQ_0_ENABLE)].payload = enable.payload;
-	_values_bool[id_2_index(VAL_IRQ_0_ENABLE)]._super.time_cyc = now_cyc;
-	*/
-
-	// issue events to queue
-	struct DrvEvent evt_perval = {.val_id=VAL_IRQ_0_PERVAL, .val_type=VAL_T_INT, .event_type=EVT_T_VAL_UPDATE};
-	struct DrvEvent evt_enable = {.val_id=VAL_IRQ_0_ENABLE, .val_type=VAL_T_BOOL, .event_type=EVT_T_VAL_UPDATE};
-
-	// inefficient to test bit here, but this is a default ISR for testing only
-	if(test_any_send_flag(dev)){
-		send_event_rx(dev, &evt_perval);
-		send_event_rx(dev, &evt_enable);
-	}
-	if(test_flag(dev, IRQT_VALFLAGS_RX_ENABLED)){
-		flag_event_rx(dev, &evt_perval);
-		flag_event_rx(dev, &evt_enable);	
-	}
-	#endif
-}
-
-// minimal handler, just set flag
-void _irq_0_handler_4(void){
-	struct device * dev = DEV();
-	struct irqtester_fe310_data * data = DEV_DATA(dev);
-
-	atomic_set_bit(data->_valflags_rx, VAL_IRQ_0_PERVAL);
-}
-
-
-// hand optimized handler, flag + queue
-void _irq_0_handler_5(void){
-
-	struct device * dev = DEV();
-	struct irqtester_fe310_data * data = DEV_DATA(dev);
-
-	/* own implementation 
-	 * read values from hardware registers and send up DrvEvents
-	 */
-	int perval_0;
-	irqtester_fe310_get_perval(dev, &perval_0);
-	
-	// write into internal data pools 
-	// no timing support
-	_values_uint[VAL_IRQ_0_PERVAL - 1].payload = perval_0; // only works for uint type values
-	struct DrvEvent evt_irq0   = {.val_id=_NIL_VAL, .event_type=EVT_T_IRQ, .irq_id=IRQ_0};
-
-	// manually inlining send, flag functions
-	k_msgq_put(data->_queue_rx, &evt_irq0, K_NO_WAIT);
-	atomic_set_bit(data->_valflags_rx, VAL_IRQ_0_PERVAL);
-}
-// hand optimized handler irq0, flag only
-void _irq_0_handler_6(void){
-
-	struct device * dev = DEV();
-	struct irqtester_fe310_data * data = DEV_DATA(dev);
-
-	/* own implementation 
-	 * read values from hardware registers and send up DrvEvents
-	 */
-	int perval_0;
-	irqtester_fe310_get_perval(dev, &perval_0);
-	
-	// write into internal data pools 
-	// no timing support
-	_values_uint[VAL_IRQ_0_PERVAL - 1].payload = perval_0; // only works for uint type values
-
-	// manually inlining send, flag functions
-	atomic_set_bit(data->_valflags_rx, VAL_IRQ_0_PERVAL);
-}
-
-// hand optimized handler irq1, queue 
-void _irq_1_handler_0(void){
-
-	struct device * dev = DEV();
-	struct irqtester_fe310_data * data = DEV_DATA(dev);
-
-	struct DrvEvent evt_irq1   = {.val_id=_NIL_VAL, .event_type=EVT_T_IRQ, .irq_id=IRQ_1, .prio=1};
-
-	// manually inlining send, flag functions
-	//if(0 != k_msgq_put(data->_queue_rx, &evt_irq1, K_NO_WAIT))
-	//	SYS_LOG_WRN("Couln't send event irq1 to driver queue");
-	k_msgq_put(data->_queue_rx, &evt_irq1, K_NO_WAIT);
-	//SYS_LOG_WRN("IRQ1");
-
-	// clear irq hardware on hw rev 2
-	irqtester_fe310_clear_1(dev);
-
-	/* dbg
-	   u32_t reg = 5;
-		__asm__ volatile("csrr t0, mtvec"); 
-		__asm__ volatile("csrw mtvec, %0" :: "r" (reg)); 
-		__asm__ volatile("csrw mtvec, t0"); 
-	*/
-}
-
-// hand optimized handler irq1, queue, no clear
-void _irq_1_handler_1(void){
-
-	struct device * dev = DEV();
-	struct irqtester_fe310_data * data = DEV_DATA(dev);
-
-	struct DrvEvent evt_irq1   = {.val_id=_NIL_VAL, .event_type=EVT_T_IRQ, .irq_id=IRQ_1};
-
-	// manually inlining send, flag functions
-	k_msgq_put(data->_queue_rx, &evt_irq1, K_NO_WAIT);
-
-}
-
-// hand optimized handler irq2, valflag and load FAKE value
-void _irq_2_handler_0(void){
-
-	struct device * dev = DEV();
-	struct irqtester_fe310_data * data = DEV_DATA(dev);
-
-	
-	// just to simulate timing
-	//int perval_0;
-	//irqtester_fe310_get_perval(dev, &perval_0);
-	
-	// fake value with static counter
-	static u32_t count_irq2;
-	count_irq2++;
-	_values_uint[VAL_IRQ_0_PERVAL - 1].payload = count_irq2; // only works for uint type values
-	
-	// logging: slow
-	//if(!atomic_test_bit(data->_valflags_rx, VAL_IRQ_0_PERVAL))
-	//	LOG_PERF("[%u] Set perval valflag", get_cycle_32());
-
-	// manually inlining send, flag functions
-	atomic_set_bit(data->_valflags_rx, VAL_IRQ_0_PERVAL);
-
-	irqtester_fe310_clear_2(dev);
-}
-
-void _irq_2_handler_1(void){
-
-	struct device * dev = DEV();
-	struct irqtester_fe310_data * data = DEV_DATA(dev);
-
-	/* own implementation 
-	 * read values from hardware registers and send up DrvEvents
-	 */
-
-	// manually inlining send, flag functions
-	atomic_set_bit(data->_valflags_rx, VAL_IRQ_0_PERVAL);
-
-	irqtester_fe310_clear_2(dev);
-}
-
-
-
-
+#ifdef CONFIG_FE310_IRQT_TEST_ISRS
+#include "test_handlers.c"
+#endif
 
 /*
  * Public function available to applications. 
  * ----------------------------------------------------------------------------
  */
-
-
 
 /**
  * @brief Reset all hw regs but 'enable' to 0.
@@ -733,6 +463,8 @@ int irqtester_fe310_reset_hw(struct device *dev){
 	irqtester_fe310_unregister_callback(dev, IRQ_1);
 	irqtester_fe310_unregister_callback(dev, IRQ_2);
 	
+	// hw has no switch to stop internal counters,
+	// no no way to guarantee no irq goes off after this reset
 	irqt_0->value_0		= 0;
 	irqt_0->fire_0   	= 0;
 	
@@ -845,16 +577,14 @@ int irqtester_fe310_get_val(irqt_val_id_t id, void * res_value){
  * @brief Thread safe generic (by id) getter for values of uint type from driver memory pools.
  * 
  * Doesn't read from registers; an irq is needed to load regs into driver mem.
+ * 
  * @param id: id of value to get
  * @param res_value: pointer to a DrvValue_uint struct. 
- * @param always 0
+ * @return always 0
  */ 
 int irqtester_fe310_get_val_uint(irqt_val_id_t id, void * res_value){
 	
 	// we only read data -> thread safe without synchronization
-
-	//irqt_val_type_t type = VAL_T_UINT;
-
 
 	/* enter CRITICAL SECTION
 	 * ISRs write to internal value pools
@@ -976,6 +706,13 @@ int irqtester_fe310_set_reg_fast(struct device * dev, irqt_val_id_t id, void * s
 	return retval;
 }
 
+/**
+ * @brief Thread un-safe generic (by id) setter for hw regs of uint type.
+ * 
+ * @param id: id of reg to set
+ * @param res_value: pointer to a DrvValue_uint struct for result
+ * @return 0 on success. 2: Address for given reg id unkown
+ */ 
 int irqtester_fe310_set_reg_uint_fast(struct device * dev, irqt_val_id_t id, void * set_val){
 	int retval = 0;
 	
@@ -1738,28 +1475,8 @@ int irqtester_fe310_unregister_callback(struct device *dev, irqt_irq_id_t irq_id
  * ----------------------------------------------------------------------------
  */
 
-/* DEPRECATED
-int irqtester_fe310_set_value(struct device *dev, unsigned int val)
-{	
-	volatile struct irqtester_fe310_0_t *irqt_0 = DEV_REGS_0(dev);
+/* DEPRECATED, still in some test */
 
-	irqt_0->value_0 = val;
-	//printk("Setting value_0 %i to %p \n", val, &(irqt_0->value_0));
-	//printk("value_0: %i \n", irqt_0->value_0);
-
-	return 0;
-}
-
-int irqtester_fe310_get_value(struct device *dev, unsigned int * res)
-{	
-	volatile struct irqtester_fe310_0_t *irqt_0 = DEV_REGS_0(dev);
-
-	*res = irqt_0->value_0;
-	//printk("Getting value_0 %i from %p \n", *res, &(irqt_0->value_0));
-
-	return 0;
-}
-*/
 int irqtester_fe310_get_enable(struct device *dev, bool * res)
 {	
 	volatile struct irqtester_fe310_0_t *irqt_0 = DEV_REGS_0(dev);
@@ -1777,26 +1494,11 @@ inline int irqtester_fe310_get_perval(struct device *dev, unsigned int * res)
 
 	return 0;
 }
-/*
-int irqtester_fe310_get_status(struct device *dev, unsigned int * res)
-{	
-	volatile struct irqtester_fe310_0_t *irqt_0 = DEV_REGS_0(dev);
 
-	*res = irqt_0->status_0;
-
-	return 0;
-}
-
-int irqtester_fe310_set_enable(struct device *dev, bool val)
-{	
-	volatile struct irqtester_fe310_0_t *irqt_0 = DEV_REGS_0(dev);
-
-	irqt_0->enable = val;
-
-	return 0;
-}
-*/
-
+/**
+ * @brief Allow output from irqtestperipheral (IRQs or values).
+ * 
+ */
 int irqtester_fe310_enable(struct device *dev)
 {	
 	volatile struct irqtester_fe310_0_t *irqt_0 = DEV_REGS_0(dev);
@@ -1806,6 +1508,10 @@ int irqtester_fe310_enable(struct device *dev)
 	return 0;
 }
 
+/**
+ * @brief Set all outputs from irqtestperipheral (IRQs or values) to 0.
+ * 
+ */
 int irqtester_fe310_disable(struct device *dev)
 {	
 	volatile struct irqtester_fe310_0_t *irqt_0 = DEV_REGS_0(dev);

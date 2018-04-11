@@ -1,9 +1,3 @@
-/**
- * @file
- * @brief Implementation of State Machine SM1.
- * Deprecated, mainly for old tests and benchmarking (no workload).
- */
-
 #include "sm1.h"
 #include "cycles.h"
 #include "state_manager.h"
@@ -12,6 +6,7 @@
 #include "utils.h"
 #include "log_perf.h"
 #include "sm_common.h"
+#include "globals.h"
 
 
 //#define SM1_ENABLE
@@ -70,12 +65,6 @@ static u32_t timing_cyc_start[SM1_TIMING_BUFFER_DEPTH];
 static u32_t timing_cyc_end[SM1_TIMING_BUFFER_DEPTH];
 
 
-
-
-
-
-
-
 static u32_t period_1_after_warmup;
 
 
@@ -100,24 +89,6 @@ void sm1_print_cycles(){
 
 
 }
-
-// invoke in STATE_START
-static void sm1_speed_up_after_warmup(){
-    if(sm_com_get_i_run() > 5)
-        return;
-    else if(sm_com_get_i_run() == 4){
-        // speed up after reset a few times
-        // give icache chance to fetch handlers
-        struct DrvValue_uint reg_period;
-        irqtester_fe310_get_reg(g_dev_irqt, VAL_IRQ_1_PERIOD, &reg_period);
-        u32_t before = reg_period.payload;
-
-        reg_period.payload=period_1_after_warmup;
-        irqtester_fe310_set_reg(g_dev_irqt, VAL_IRQ_1_PERIOD, &reg_period);
-        printk("DEBUG: Speed up period 1 %u -> %u cpu cyles written to IRQ_1 reg \n", before, period_1_after_warmup);
-    }
-}
-
 
 
 // invoke in STATE_START STATE_END
@@ -223,7 +194,7 @@ void sm1_run(struct device * dev, int period_irq1_us, int period_irq2_us){
     printk_framed(0, "Now running state machine sm1");
     print_dash_line(0);
     printk("period_1: %i us, %i cyc, period_2: %i us, %i cyc\n", 
-            period_irq1_us, CYCLES_US_2_CYC(period_irq1_us), period_irq2_us, CYCLES_US_2_CYC(period_irq2_us);
+            period_irq1_us, CYCLES_US_2_CYC(period_irq1_us), period_irq2_us, CYCLES_US_2_CYC(period_irq2_us));
 
     
     
@@ -361,6 +332,7 @@ void sm1_print_report(){
 
 void sm1_reset(){
     sm_com_reset();
+    state_mng_reset();
 }
 
 #endif

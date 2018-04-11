@@ -1,3 +1,9 @@
+/**
+ *  @file
+ *  @brief Actions for sm2
+ * 
+ */
+
 #ifndef SM2_TASKS
 #define SM2_TASKS
 

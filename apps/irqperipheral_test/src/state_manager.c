@@ -1,13 +1,3 @@
-/**
- *  @brief
- *  @author:
- *  
- * Currently:
- * - Singleton, don't use to set up >1 state machines.
- * - Designed to be only or cooperative thread. Behaviour unclear if not.
- * 
- */
-
 #ifndef TEST_MINIMAL
 #include "state_manager.h"
 #include "irqtestperipheral.h"
@@ -25,26 +15,14 @@
 // log using Switch_Event and Wait_Event
 // fast way to log
 #define STATE_MNG_LOG_EVENTS_DEPTH CONFIG_APP_SM_LOG_DEPTH  // 0 to deactivate log 
-// can log using LOG_PERF
-// LOG_PERF is faster than SYS_LOG
-// but still slow! (~ 5000 cyc)
-#define STATE_MNG_LOG_PERF  
+// debug, can log using LOG_PERF (faster than SYS_LOG)
+// still slow! (~ 5000 cyc)
+//#define STATE_MNG_LOG_PERF  
 
 #define LEN_ARRAY(x) \
 	((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
 	// call only on arrays defined in scope
 
-
-/* modified table-based, event-driven state machine from here
- * http://www.pezzino.ch/state-machine-in-c/
- * - actions are not connected to transitions but the single states
- * - events are gathered over the whole current state
- *   highest prio event determines transitions
- * - if no event: default transition is defined for every state
- */ 
-
-// todo:
-// 
 
 enum{
     ABORT_LOOP,
@@ -150,9 +128,10 @@ void state_mng_configure(struct State cust_states[], cycle_state_id_t * cust_tt,
  * @brief Print info for all states configured to state_manager
  */
 void state_mng_print_state_config(){
+    #ifdef CONFIG_SYS_LOG
 
     SYS_LOG_INF("State config:");
-
+    
     for(int i=_NIL_CYCLE_STATE + 1; i<_NUM_CYCLE_STATES; i++){
         struct State * state_cur = &(_states[i]);
         int j = 0;
@@ -189,12 +168,14 @@ void state_mng_print_state_config(){
             j++;
         }while(j <= state_cur->max_subs_idx);
     }
+    #endif //CONFIG_SYS_LOG
 }
 
 /**
  * @brief Print transition table as configured to state_manager
  */
 void state_mng_print_transition_table_config(){
+    #ifdef CONFIG_SYS_LOG
 
     SYS_LOG_INF("Transition table config:");
     for(int i=_NIL_CYCLE_STATE + 1; i<_NUM_CYCLE_STATES; i++){
@@ -208,6 +189,8 @@ void state_mng_print_transition_table_config(){
         
         SYS_LOG_INF("-> %s", string);
     }
+
+    #endif // CONFIG_SYS_LOG
 }
 
 /**
@@ -273,9 +256,12 @@ u8_t state_mng_get_current_subs(){
  * @brief Thread-unsafe getter of switch events
  *        Call ONLY if SM is certain not to switch state.
  * 
- * @return 0 on success. 1 if buf is too small, return data truncated
+ * @return 0 on success. 1: buf is too small, return data truncated. 2: events disabled 
  */
 int state_mng_get_switch_events(struct Switch_Event * buf, int len_buf){
+    
+    if(LEN_ARRAY(log_switch_evts) == 0)
+        return 2;
 
     int j_found = 0;
     int j_buf = 0;
@@ -298,6 +284,9 @@ int state_mng_get_switch_events(struct Switch_Event * buf, int len_buf){
     return 1;
 }
 
+/**
+ * @brief Clear logged switch events.
+ */
 int state_purge_switch_events(){
     struct Switch_Event empty = {.from_state = _NIL_CYCLE_STATE,
          .to_state = _NIL_CYCLE_STATE, .t_delta_cyc=0, .t_cyc=0};
@@ -309,8 +298,8 @@ int state_purge_switch_events(){
 
 
 /**
- * Add a state_id to the logging filter.
- * Only added states are logged by events.
+ * @brief Add a state_id to the logging filter.
+ *        Only added states are logged by events.
  * 
  * @return 0 on sucess, 1 if filter array full
  */
@@ -324,6 +313,9 @@ int state_mng_add_filter_state(cycle_state_id_t state_id){
     return 1;
 }
 
+/**
+ * @brief Clear any set filter. Will log for every state after.
+ */
 int state_mng_purge_filter_state(){
     for(int i=0; i<LEN_ARRAY(log_filter); i++){
         log_filter[i] = _NIL_CYCLE_STATE;
@@ -336,6 +328,11 @@ int state_mng_purge_filter_state(){
  * @brief Send signal to abort running state machine.
  */ 
 int state_mng_abort(){
+    if(!state_mng_is_running()){
+        SYS_LOG_WRN("Received abort, but state manager has already stopped.");
+        return 0;
+    }
+    
     atomic_set_bit(&flags, ABORT_LOOP);
     SYS_LOG_DBG("Received abort. Expect state manager to stop momentarily...");
     // send dummy event to driver queue to continue if waiting in IDLE
@@ -351,6 +348,46 @@ int state_mng_abort(){
         SYS_LOG_WRN("Didn't shut down in time.");
         return 1;
     }
+    return 0;
+}
+
+/**
+ * @brief Deconstructor. Clean up all internal data structs.
+ * @return 0 on sucees, 1: failed; still running
+ * 
+ */
+int state_mng_reset(){
+
+    if(state_mng_is_running()){
+        SYS_LOG_WRN("Can't reset running state machine. Call .abort() first.");
+        return 1;
+    }
+
+    // driver
+    irqtester_fe310_purge_rx(irqt_dev); // disable sending events up
+    k_msgq_purge(&queue_rx_driver);     // clear all events still stored
+    
+    // internal data 
+    state_mng_purge_evt_log();
+    init_done = false;
+    state_mng_purge_registered_actions_all();
+
+    struct State empty = {.id_name=_NIL_CYCLE_STATE};
+    for(int i=0; i<_NUM_CYCLE_STATES; i++){
+        _states[i] = empty;
+        for(int j=0; j<_NUM_CYCLE_EVENTS; j++){
+            transition_table[i][j] = _NIL_CYCLE_STATE;
+        }
+    }
+
+    _state_cur = NULL;
+    atomic_set(&state_cur_id, _NIL_CYCLE_STATE);
+
+    irqt_dev = NULL;
+    timestamp_reset = 0;
+        
+    SYS_LOG_DBG("state_mng reset");
+
     return 0;
 }
 
@@ -626,6 +663,8 @@ int state_mng_register_action(cycle_state_id_t state_id, void (*func)(struct Act
  * @brief Print logged switch, wait and performance mes. events
  */ 
 void state_mng_print_evt_log(){
+     #ifdef CONFIG_SYS_LOG
+
     SYS_LOG_DBG("Last %i switch events:", STATE_MNG_LOG_EVENTS_DEPTH);
     for(int i = 0; i<STATE_MNG_LOG_EVENTS_DEPTH; i++){
         #if STATE_MNG_LOG_EVENTS_DEPTH != 0 // just for compiler zero-div warning, unnecessary
@@ -637,8 +676,10 @@ void state_mng_print_evt_log(){
         u8_t from_sub_id = log_switch_evts[i].from_substate;
         u32_t t_delta = log_switch_evts[i].t_delta_cyc;
         u32_t t_cyc = log_switch_evts[i].t_cyc;
-        u32_t t_last = (i>0 ? log_switch_evts[(i-1)%STATE_MNG_LOG_EVENTS_DEPTH].t_cyc : 0);
-        
+        u32_t t_last = t_cyc; // no last event
+        if(log_switch_evts[(i-1)%STATE_MNG_LOG_EVENTS_DEPTH].from_state != _NIL_CYCLE_STATE)
+            t_last = log_switch_evts[(i-1)%STATE_MNG_LOG_EVENTS_DEPTH].t_cyc;
+
         SYS_LOG_DBG("[%u / %u] Switching %i.%u -> %i.%u after %u cyc", t_delta, t_cyc,
             from_id, from_sub_id, to_id, to_sub_id, t_cyc - t_last);
        #endif
@@ -665,6 +706,8 @@ void state_mng_print_evt_log(){
         SYS_LOG_DBG("Actions for state %i.%u took %u cyc", id, sub_id, t_action);
     }
 
+    #endif // CONFIG_SYS_LOG
+
 }
 
 /**
@@ -673,7 +716,6 @@ void state_mng_print_evt_log(){
  * @return  idx of buffer last written
  * 
  */
-
 int state_mng_pull_perf_action(int res_buf[], int idx_buf, int len){
 
     // fill in with fitting values form event log
@@ -758,10 +800,10 @@ static struct State * switch_state(struct State * current, struct SMEvent * evt)
             static u32_t i_switch;  // attention: log corruption if overflows
             u32_t t_delta = state_mng_get_time_delta();
             u32_t t_cyc = get_cycle_32();
-            /* dbg
+            /* dbg, to see switch in chipscope by writes to mtvec
             u32_t reg = i_switch;
             __asm__ volatile("csrw mtvec, %0" :: "r" (reg)); 
-            void __irq_wrapper();
+            void __irq_wrapper(); // declare only
             reg = __irq_wrapper;
             __asm__ volatile("csrw mtvec, %0" :: "r" (reg)); 
             */
@@ -773,9 +815,7 @@ static struct State * switch_state(struct State * current, struct SMEvent * evt)
             s_evt_p->to_state = next_id;
             s_evt_p->to_substate = next_subs;
              
-            //SYS_LOG_DBG("[%u / %u] Switching %i.%u -> %i.%u", s_evt_p->t_delta_cyc, s_evt_p->t_cyc,
-            //   s_evt_p->from_state, s_evt_p->from_substate, s_evt_p->to_state, s_evt_p->to_substate);
-              
+        
         #ifdef STATE_MNG_LOG_PERF
             // log only if t_last is available
             if(i_switch > (i_switch-1) % STATE_MNG_LOG_EVENTS_DEPTH){
@@ -920,7 +960,9 @@ static int state_mng_check_vals_ready(struct State * state){
  * 
  * Todo: currently busy waiting. Replace.
  */
+#if STATE_MNG_LOG_EVENTS_DEPTH > 0
 static u32_t i_wait_evts;
+#endif
 bool state_mng_wait_vals_ready(struct State * state){
     
     bool timeout = false;
@@ -932,6 +974,7 @@ bool state_mng_wait_vals_ready(struct State * state){
         u32_t t_start_cyc = get_cycle_32();
     #endif
 
+    // busy wait here
     while(!ready && !timeout){
         ready = state_mng_check_vals_ready(state);
         // todo: safety margin, such that timeout doesn't lead to fail of timing goal

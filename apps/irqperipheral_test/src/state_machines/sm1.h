@@ -1,3 +1,9 @@
+/**
+ * @file
+ * @brief Implementation of State Machine SM1.
+ * Deprecated, mainly for old tests and benchmarking (no workload).
+ */
+
 #ifndef SM1_H
 #define SM1_H
 

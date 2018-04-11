@@ -27,3 +27,8 @@ config FE310_IRQT_IRQ_0_PIN
 	help 
 	As given in rocket interrupt map
 
+config FE310_IRQT_TEST_ISRS
+	bool "Enable additional test IRQ handlers"
+	depends on FE310_IRQT_DRIVER
+	default 1
+

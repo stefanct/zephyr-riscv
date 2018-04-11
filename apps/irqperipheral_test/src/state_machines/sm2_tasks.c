@@ -1,15 +1,10 @@
+
 #include "sm2_tasks.h"
 #include "state_manager.h"
 #include "log_perf.h"
 #include "sm2_tasks.h"
 #include "globals.h"
 
-/*
- *  Current plans:
- *  - a batch shares a common irq and hw buffer registers
- *      and corresponds to a substate
- * 
- */
 
 #define SM2_CFO_ARR_DEPTH 1
 #define SM2_NUM_USRS_PER_BATCH_MAX 32
@@ -65,8 +60,8 @@ void sm2_config_bench(int num_macs, int num_loads, int num_writes, int num_jumps
     num_bench_writes = num_writes;
     num_bench_jumps = num_jumps;
 
-    printk("Debug: Configuring task benchmark. num macs: %i, loads: %i, writes: %i , jumps %i\n",
-                num_macs, num_loads, num_writes, num_jumps);
+    //printk("Debug: Configuring task benchmark. num macs: %i, loads: %i, writes: %i , jumps %i\n",
+    //            num_macs, num_loads, num_writes, num_jumps);
 }
 
 
@@ -201,6 +196,7 @@ void sm2_task_calc_cfo_1(struct ActionArg const * arg){
         i_cfo_buf = 0;
 
 }
+
 
 // do in END state, if enough time?
 void sm2_task_print_cfo_stat(){

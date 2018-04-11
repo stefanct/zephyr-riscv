@@ -166,26 +166,28 @@ void main(void)
 		//run_test_irq_throughput_2(g_dev_irqt);
 		run_test_irq_throughput_1(g_dev_irqt);
 	}
-	
-	
+		
 	/* state_manager basic test */
 	if(!quick_test)
 		run_test_state_mng_1(g_dev_irqt);
 
-	/* state_manager throughputs (inccurate!) */
+	/* template sm */
+	//sm_t_run();
+
+	/* state_manager throughputs 
+	   make sure to #define SM1_ENABLE in sm1.c
+	*/
+	//print_set_verbosity(2);
 	//run_test_sm1_throughput_1(g_dev_irqt);	// irq1 (reset) throughput
 	//run_test_sm_throughput_2(g_dev_irqt, 1);	// irq2 (val updt) throughput for sm1
 	//run_test_sm_throughput_2(g_dev_irqt, 2);	// irq2 (val updt) throughput for sm2
-	
+
+
 	/* benchmark of state_manager, used for execution time model calibration */
 	//run_test_sm2_action_perf_3(g_dev_irqt);
 
 	/* used for profiling state_manager */
 	//run_test_sm2_action_prof_4(g_dev_irqt);
-	//PRINT_LOG_BUFF();
-
-	/* template sm */
-	//sm_t_run();
 
 	/* continous bench timing of state_manager critical loop */
 	int i=0;
@@ -195,7 +197,7 @@ void main(void)
 	do{
 		i++;
 		run_test_state_mng_2(g_dev_irqt);
-		printk("[%i] main() loop, global max %i \n", i, global_max_cyc);
+		printk("[%i/%i] in main loop, global max %i \n", i, n_run, global_max_cyc);
 
 	}while(i < n_runs);
 	
