@@ -127,9 +127,10 @@ Then, set:
 ### Board default values
 
 If you modified parameters of the rocket configuration (eg. memory size), you may need to alter some of the board's default kernel configuration values.
-They are are mainly set in 
+They are are set in 
 - `boards/riscv32/zc706/zc706_defconfig`
 - `arch/riscv32/soc/riscv-privilege/zc706/Kconfig.defconfig.series`
+- `boards/riscv32/.broken/zc706/board.h`
 
 In addition, there are prj.conf files in every application dir to overwrite default values. This mechanism might be helpful, if you have multiple configurations of your rocket chip running on the same board.
 
@@ -140,6 +141,46 @@ After compilation, it is good practice to check in the application's `outdir/zc7
 In this repo, also apps can define Kconfig parameters by sourcing their Kconfig files in `Kconfig.zephyr` and `apps/Kconfig`. This allows to set global constants (with prefix `CONFIG_`) that can be 
 easily altered by `make menuconfig`. Since drivers (eg. the fake serial driver for fesvr) live currently in the application dir, also their parameters are set in the same way. 
 
+
+<a name="port"></a> Porting to different development boards
+------------------
+
+For developers who need to port to a different development running a RISC-V core, it might be instructive to learn what was necessary for the Xilinx zc706 port.
+Compare changes from the original `fe310` files to the modified `zc706` ones.
+
+- Create a duplicate folder of `arch/riscv32/soc/riscv-privilege/fe310` and change the following files
+    - `Kconfig.defconfig.series`:
+        Insert hardware characteristics like memory base addresses and sizes
+    - `Kconfig.series`:
+        Create own config switch
+    - `Kconfig.soc`:
+        Create own config switch
+    - `linker.ld`:
+        Link to modified linking script (see below for details)
+    - `soc.h`:
+        Insert hardware characteristics for peripherals
+    
+- Create a duplicate folder of `boards/riscv32/fe310` and change the following files
+    - `boards/riscv32/.broken/zc706/board.h`:
+        If needed, change values for periphery
+    - `Kconfig.board`:
+        Create own config switch
+    - `Kconfig.defconfig`:
+        Create own config switch
+    - `<board>_defconfig`:
+        Rename default values to own config switches. Keep values that refer to drivers that should be used without modification.
+
+- Modify the following `Kconfig` files to use drivers from fe310 by adding your own config switches.
+    - `drivers/interrupt_controller/Kconfig`
+    - `drivers/serial/Kconfig.fe310`
+
+- Create a duplicate folder of `/include/arch/riscv32/fe310` and modify the following files:
+
+    - `asm_inline.h` to include your copy of `asm_inline_gcc.h`
+    - `linker.ld` may stay the same if you have access to the serial periphery of your RISC-V SoC. If you rely on tethered console output via fpga-zynq's frontend server (fesvr), you need to add the `tohost/fromhost` symbols as done in `include/arch/riscv32/zc706/linker.ld`. 
+    Console output to fesvr additionaly requires the driver in `apps/hello/drivers/fpga-zynq_concolse` and the accoding Kconfig [changes](#kconfig).
+    
+- Modify `/include/arch/riscv32/arch.h` to include your `asm_inline.h` depending on your config switch.
 
 <a name="irqt"></a> IrqTestPeripheral app
 -------------------
@@ -255,6 +296,8 @@ Incredients of `sm_template.c`:
         printk("Error while starting state_manager \n");
         return;
     }
+    // caveat: time till IDLE state must be smaller than irq1 period
+    // can only return control to main thread in IDLE state
     sm_t_fire_irqs(200000); // us
     ```
     - Give control to the state_manager thread
@@ -263,15 +306,16 @@ Incredients of `sm_template.c`:
     
     ```
     - Stop the thread. You should see the printed output of the registered action in the console. In addition, you may access the event log. To this end, mind to enable logging in Kconfig.
+    
     ```C
     state_mng_abort();
 
     // reset and stop firing
     irqtester_fe310_reset_hw(g_dev_irqt);
-    // clean up sm
-    state_mng_purge_registered_actions_all();
     // see (via logging) state_manager log
     state_mng_print_evt_log();
+    // clean up sm
+    state_mng_reset();
     ```
 
 4. Optional: Timing goals (see eg. `sm2.c::config_timing_goals()`)
@@ -282,3 +326,66 @@ Incredients of `sm_template.c`:
 
    - If an action within in a state requires certain input values from the irqt driver, it can check whether they have been flagged already available. Therefore: 1. Speficy the `DrvValue`  by its `id_name` when registering the action. 2. Set a handler via `states_set_handler_reqval()`. Handlers should return `bool` to indicate whether task actions should be skipped. For example, `sm_common::sm_com_handle_fail_rval_ul()` waits on values until the timing goal of the state is reached and warns, if the value didn't become available.  
 
+
+### Execution time model
+
+We created a model to estimate the execution time of a FSM (in particular `sm2`) for wireless protocols, as described (HERE LINK). 
+
+1. To obtain all the experimental values to calibrate this model `test_runners.c::run_test_sm2_action_perf_3()` is used. Turn logging on and configure the `state_manager` to have a sufficiently big `CONFIG_APP_SM_LOG_DEPTH`.
+
+    - kappa_mac / kappa_read / kappa_write:
+        Uncomment and run one by one:
+        ```C
+        sm2_config(32, 8,   sm2_task_bench_basic_ops, param, 0);  // mac
+        //sm2_config(32, 8, sm2_task_bench_basic_ops, param, 1);  // read
+        //sm2_config(32, 8, sm2_task_bench_basic_ops, param, 2);  // write  
+        ```
+        Will result benchmark values for actions in state `CYCLE_STATE_UL` for varying number of mac / read / write operations. Kappa is given by a the slope of linear fit.
+
+    - t_1, t_2, t_3
+
+        Uncomment and run one by one:
+        ```C
+        sm2_config(param, param, sm2_task_calc_cfo_1, 1, 0);    // calib N=f
+        //sm2_config(param, 4, sm2_task_calc_cfo_1, 1, 0);      // calib f=4
+        //sm2_config(32, param, sm2_task_calc_cfo_1, 1, 0);     // calib N=32
+        ```
+        Will result benchmark values for switch events from and to state `CYCLE_STATE_UL` for varying N_users and f_batch.
+        Note that the model estimates the whole state, so substate times are to be summed.
+        Strictly, sampling the whole (N, f) parameter space and 2D fitting the
+        model with open parameters t_1, t_2 and t_3 is best.
+        Empirically, exact enough results are obtained by the three sampling curves defined above. 
+        Drop data points with non-integer values N/f.
+
+    - T_isr
+
+        Measure the average ISR time by chipscoping the PC.
+
+
+2. The model is calculated and plotted by the origin sheet in (LINK). 
+    You can find the fits for the calibration parameters above inside there, too.
+
+    - Fits for kappa_mac, etc: 
+    
+        See sheet and plot for `Calib_task_basic_bench`. If you modifes values, switch to the plot, hit the yellow lock in the top left corner and run `re-calculate`. Alternatively, you may start the fit from scratch by runing `Analysis: Fitting: Linear Fit (Open Dialog...)`.
+
+    - Fits for t_1, t_2, t_3: 
+    
+        See sheet and plot for `Calib2D_t_ul_cfo`. If you modifes values, switch to the plot, hit the yellow lock in the top left corner and run `re-calculate`. Alternatively, you may start the fit from scratch by runing `Analysis: Fitting: Nonlinear Surface Fit`. The custom fit function should be available as `BWRC_Cow_SM2`. If not, just create a new one defined as `y=N/f*(t1+f*t2+t3)+N*t_kappa_sum`. 
+
+        Fitting with 3 parameters can be flimsy. Try to start with the old fitting parameters and try to fix one of the parameters, as soon as you found a reasonable value. Also, adding more data points will help.
+        Note that the `t_kappa_sum` parameter  has to be fixed to the value automatically calculated in the sheet.
+
+    - Plotting the model:
+
+        If you found all the parameters, go to the `Params` tab of any scenario sheet(eg. Sc1). After entering, the sheet will recalculate automatically the model set in the `Est_2D_All` tab and replot `Sc1_state` and `Sc1_overhead`. 
+
+    - Equations:
+
+        Don't be confused that the equations in the sheet are given a little more explicitly than in the report (ADD LINK). Indeed, those are completely equivalent formulations. The following correspondance may help:
+
+        | Name <br> report| Name <br> orign sheet| Cell <br> Params tab |
+        | ----------------|:--------------------:| --------------------:|
+        | t_1             | t_ov_cal_1           | B1                   |
+        | t_2             | c_cal_N              | B4                   |
+        | t_3             | t_ov_act_cfo_1<br>+ t_ov_cal_2 | A3<br>+ B5 |
