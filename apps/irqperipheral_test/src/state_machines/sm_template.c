@@ -7,33 +7,13 @@
  * - define own irq handlers which deliver DrvEvents up to state_manager
  */
 
-
+//#define SMT_ENABLE   // enable compilation
+#ifdef SMT_ENABLE
 #include <zephyr.h>
 #include "globals.h"
 #include "states.h"
 #include "state_manager.h"
 #include "cycles.h"
-
-/**
- * Define states for SM1
- * Currently, this is tightly coupled to cycle_state_id_t and cycle_event_id_t
- * declared in states.h
- * ----------------------------------------------------------------------------
- */
-static struct State sm_t_idle 
-= {.id_name = CYCLE_STATE_IDLE, .default_next_state = CYCLE_STATE_IDLE};
-static struct State sm_t_start 
-= {.id_name = CYCLE_STATE_START, .default_next_state = CYCLE_STATE_END};
-static struct State sm_t_end 
-= {.id_name = CYCLE_STATE_END, .default_next_state = CYCLE_STATE_IDLE};
-
-/**
- * Define transition table for SM1
- * First column: default event, is set automatically
- * ----------------------------------------------------------------------------
- */
-static struct State sm_t_states[_NUM_CYCLE_STATES];
-static cycle_state_id_t sm_t_tt[_NUM_CYCLE_STATES][_NUM_CYCLE_EVENTS];
 
 // create thread
 K_THREAD_STACK_DEFINE(thread_sm_t_stack, 3000);
@@ -72,6 +52,27 @@ static void action_hello(){
  * ----------------------------------------------------------------------------
  */
 void sm_t_run(){
+    /**
+     * Define states for SMT
+     * Currently, this is tightly coupled to cycle_state_id_t and cycle_event_id_t
+     * declared in states.h
+     * ----------------------------------------------------------------------------
+     */
+    struct State sm_t_idle 
+    = {.id_name = CYCLE_STATE_IDLE, .default_next_state = CYCLE_STATE_IDLE};
+    struct State sm_t_start 
+    = {.id_name = CYCLE_STATE_START, .default_next_state = CYCLE_STATE_END};
+    struct State sm_t_end 
+    = {.id_name = CYCLE_STATE_END, .default_next_state = CYCLE_STATE_IDLE};
+
+    /**
+     * Define transition table for SM1
+     * First column: default event, is set automatically
+     * ----------------------------------------------------------------------------
+     */
+    struct State sm_t_states[_NUM_CYCLE_STATES] = {_NIL_CYCLE_STATE}; 
+    cycle_state_id_t sm_t_tt[_NUM_CYCLE_STATES][_NUM_CYCLE_EVENTS];
+
     // init state array
     sm_t_states[CYCLE_STATE_IDLE] = sm_t_idle;
     sm_t_states[CYCLE_STATE_START] = sm_t_start;
@@ -119,3 +120,6 @@ void sm_t_run(){
     state_mng_reset();
 
 }
+
+
+#endif // SMT_ENABLE

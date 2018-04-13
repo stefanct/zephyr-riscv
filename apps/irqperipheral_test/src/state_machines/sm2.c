@@ -17,45 +17,6 @@ static int num_users;
 static void (*ul_action_1)(struct ActionArg const *);
 
 
-/**
- * Define states for SM2
- * Currently, this is tightly coupled to cycle_state_id_t and cycle_event_id_t
- * declared in states.h
- * Todo: state_manager copies into own _states and transition_table array.
- * Create on stack here to save memory.
- * ----------------------------------------------------------------------------
- */
-static struct State sm2_idle 
-    = {.id_name = CYCLE_STATE_IDLE,     .default_next_state = CYCLE_STATE_IDLE};
-static struct State sm2_start 
-    = {.id_name = CYCLE_STATE_START,    .default_next_state = CYCLE_STATE_DL_CONFIG};
-static struct State sm2_dl_config 
-    = {.id_name = CYCLE_STATE_DL_CONFIG,.default_next_state = CYCLE_STATE_DL};
-static struct State sm2_dl 
-    = {.id_name = CYCLE_STATE_DL,       .default_next_state = CYCLE_STATE_UL_CONFIG};
-static struct State sm2_ul_config 
-    = {.id_name = CYCLE_STATE_UL_CONFIG,.default_next_state = CYCLE_STATE_UL};
-static struct State sm2_ul 
-    = {.id_name = CYCLE_STATE_UL,       .default_next_state = CYCLE_STATE_RL_CONFIG};
-static struct State sm2_rl_config
-    = {.id_name = CYCLE_STATE_RL_CONFIG,.default_next_state = CYCLE_STATE_RL};
-static struct State sm2_rl 
-    = {.id_name = CYCLE_STATE_RL,   .default_next_state = CYCLE_STATE_END};
-static struct State sm2_end 
-  //  = {.id_name = CYCLE_STATE_END,  .default_next_state = CYCLE_STATE_START};   // for profiling
-    = {.id_name = CYCLE_STATE_END,  .default_next_state = CYCLE_STATE_IDLE};    
-
-// state array, init in run()
-static struct State sm2_states[_NUM_CYCLE_STATES];
-
-
-/**
- * Define transition table for SM1
- * First column: default event, is set automatically
- * ----------------------------------------------------------------------------
- */
-static cycle_state_id_t sm2_tt[_NUM_CYCLE_STATES][_NUM_CYCLE_EVENTS];
-
 
 /**
  * Define actions for SM2, are cbs called from state_mng_run()
@@ -78,34 +39,34 @@ static void sm2_yield(){
  * ----------------------------------------------------------------------------
  */
 
-static void config_handlers(){
-
+static void config_handlers(struct State sm_arr[]){
+    
     // 1. requested values handlers, checked in state_manager::state_mng_check_vals_ready()
-    states_set_handler_reqval(sm2_states, CYCLE_STATE_UL, sm_com_handle_fail_rval_ul);
+    states_set_handler_reqval(sm_arr, CYCLE_STATE_UL, sm_com_handle_fail_rval_ul);
     
     // 2. timing handlers, checked in state_manager::check_time_goal
     // start: wait for timing goal
     // end:   warn if missed
 
-    //states_set_handler_timing_goal_start(sm2_states, CYCLE_STATE_DL_CONFIG, sm_com_handle_timing_goal_start); 
-    states_set_handler_timing_goal_end(sm2_states, CYCLE_STATE_DL_CONFIG, sm_com_handle_timing_goal_end);
-    //states_set_handler_timing_goal_start(sm2_states, CYCLE_STATE_DL, sm_com_handle_timing_goal_start); 
-    states_set_handler_timing_goal_end(sm2_states, CYCLE_STATE_DL, sm_com_handle_timing_goal_end);
-    //states_set_handler_timing_goal_start(sm2_states, CYCLE_STATE_UL_CONFIG, sm_com_handle_timing_goal_start;
-    states_set_handler_timing_goal_end(sm2_states, CYCLE_STATE_UL_CONFIG, sm_com_handle_timing_goal_end);
-    //states_set_handler_timing_goal_start(sm2_states, CYCLE_STATE_UL, sm_com_handle_timing_goal_start);
-    states_set_handler_timing_goal_end(sm2_states, CYCLE_STATE_UL, sm_com_handle_timing_goal_end);
-    //states_set_handler_timing_goal_start(sm2_states, CYCLE_STATE_RL_CONFIG, sm_com_handle_timing_goal_start);
-    states_set_handler_timing_goal_end(sm2_states, CYCLE_STATE_RL_CONFIG, sm_com_handle_timing_goal_end);
-    //states_set_handler_timing_goal_start(sm2_states, CYCLE_STATE_RL, sm_com_handle_timing_goal_start);
-    states_set_handler_timing_goal_end(sm2_states, CYCLE_STATE_RL, sm_com_handle_timing_goal_end);
+    //states_set_handler_timing_goal_start(sm_arr, CYCLE_STATE_DL_CONFIG, sm_com_handle_timing_goal_start); 
+    states_set_handler_timing_goal_end(sm_arr, CYCLE_STATE_DL_CONFIG, sm_com_handle_timing_goal_end);
+    //states_set_handler_timing_goal_start(sm_arr, CYCLE_STATE_DL, sm_com_handle_timing_goal_start); 
+    states_set_handler_timing_goal_end(sm_arr, CYCLE_STATE_DL, sm_com_handle_timing_goal_end);
+    //states_set_handler_timing_goal_start(sm_arr, CYCLE_STATE_UL_CONFIG, sm_com_handle_timing_goal_start;
+    states_set_handler_timing_goal_end(sm_arr, CYCLE_STATE_UL_CONFIG, sm_com_handle_timing_goal_end);
+    //states_set_handler_timing_goal_start(sm_arr, CYCLE_STATE_UL, sm_com_handle_timing_goal_start);
+    states_set_handler_timing_goal_end(sm_arr, CYCLE_STATE_UL, sm_com_handle_timing_goal_end);
+    //states_set_handler_timing_goal_start(sm_arr, CYCLE_STATE_RL_CONFIG, sm_com_handle_timing_goal_start);
+    states_set_handler_timing_goal_end(sm_arr, CYCLE_STATE_RL_CONFIG, sm_com_handle_timing_goal_end);
+    //states_set_handler_timing_goal_start(sm_arr, CYCLE_STATE_RL, sm_com_handle_timing_goal_start);
+    states_set_handler_timing_goal_end(sm_arr, CYCLE_STATE_RL, sm_com_handle_timing_goal_end);
 
-    states_set_handler_timing_goal_end(sm2_states, CYCLE_STATE_END, sm_com_handle_timing_goal_end);
+    states_set_handler_timing_goal_end(sm_arr, CYCLE_STATE_END, sm_com_handle_timing_goal_end);
+    
 }
 
 
-// Attention: acts on states defined here, not states in sm2_states array
-static void config_timing_goals(int period_irq1_us, int period_irq2_us, int num_substates){
+static void config_timing_goals(struct State sm_arr[], int period_irq1_us, int period_irq2_us, int num_substates){
     
     int t_irq1_cyc = CYCLES_US_2_CYC(period_irq1_us);
     int t_irq2_cyc = CYCLES_US_2_CYC(period_irq2_us);
@@ -124,34 +85,35 @@ static void config_timing_goals(int period_irq1_us, int period_irq2_us, int num_
     printk("Substate trx duration %i us / %i cyc \n", CYCLES_CYC_2_US(t_substate), t_substate);   
 
     // currently: assume substates only in UL
-    sm2_dl_config.timing_goal_start = 0;    // 0 isn't handled, START state is before 
-    sm2_dl_config.timing_goal_end = t_state_cfg;
-    sm2_dl.timing_goal_start = sm2_dl_config.timing_goal_end;
-    sm2_dl.timing_goal_end   = sm2_dl.timing_goal_start + t_state_trx;
+    sm_arr[CYCLE_STATE_DL_CONFIG].timing_goal_start = 0;    // 0 isn't handled, START state is before 
+    sm_arr[CYCLE_STATE_DL_CONFIG].timing_goal_end = t_state_cfg;
+    sm_arr[CYCLE_STATE_DL].timing_goal_start = sm_arr[CYCLE_STATE_DL_CONFIG].timing_goal_end;
+    sm_arr[CYCLE_STATE_DL].timing_goal_end   = sm_arr[CYCLE_STATE_DL].timing_goal_start + t_state_trx;
 
-    sm2_ul_config.timing_goal_start = sm2_dl.timing_goal_end;
-    sm2_ul_config.timing_goal_end = sm2_ul_config.timing_goal_start + t_state_cfg;
-    sm2_ul.timing_goal_start = sm2_ul_config.timing_goal_end;
+    sm_arr[CYCLE_STATE_UL_CONFIG].timing_goal_start = sm_arr[CYCLE_STATE_DL].timing_goal_end;
+    sm_arr[CYCLE_STATE_UL_CONFIG].timing_goal_end = sm_arr[CYCLE_STATE_UL_CONFIG].timing_goal_start + t_state_cfg;
+    sm_arr[CYCLE_STATE_UL].timing_goal_start = sm_arr[CYCLE_STATE_UL_CONFIG].timing_goal_end;
     // if substates, end of first substate
-    sm2_ul.timing_goal_end   = sm2_ul.timing_goal_start + (num_substates == 0 ? t_state_trx : t_substate);  
-    int t_state_ul = sm2_ul.timing_goal_end - sm2_ul.timing_goal_start;
+    sm_arr[CYCLE_STATE_UL].timing_goal_end   = sm_arr[CYCLE_STATE_UL].timing_goal_start + (num_substates == 0 ? t_state_trx : t_substate);  
+    int t_state_ul = sm_arr[CYCLE_STATE_UL].timing_goal_end - sm_arr[CYCLE_STATE_UL].timing_goal_start;
 
-    sm2_rl_config.timing_goal_start = sm2_ul.timing_goal_start + (num_substates == 0 ? t_state_trx : num_substates * (t_state_ul));
-    sm2_rl_config.timing_goal_end = sm2_rl_config.timing_goal_start + t_state_cfg;
-    sm2_rl.timing_goal_start = sm2_rl_config.timing_goal_end;
-    sm2_rl.timing_goal_end   = sm2_rl.timing_goal_start + t_state_trx;
+    sm_arr[CYCLE_STATE_RL_CONFIG].timing_goal_start = sm_arr[CYCLE_STATE_UL].timing_goal_start + (num_substates == 0 ? t_state_trx : num_substates * (t_state_ul));
+    sm_arr[CYCLE_STATE_RL_CONFIG].timing_goal_end = sm_arr[CYCLE_STATE_RL_CONFIG].timing_goal_start + t_state_cfg;
+    sm_arr[CYCLE_STATE_RL].timing_goal_start = sm_arr[CYCLE_STATE_RL_CONFIG].timing_goal_end;
+    sm_arr[CYCLE_STATE_RL].timing_goal_end   = sm_arr[CYCLE_STATE_RL].timing_goal_start + t_state_trx;
 
-    sm2_end.timing_goal_end = sm2_rl.timing_goal_end;
+    sm_arr[CYCLE_STATE_END].timing_goal_end = sm_arr[CYCLE_STATE_RL].timing_goal_end;
 
     // make sure last end is < T(protocol cycle)
-    if(sm2_end.timing_goal_end > t_irq1_cyc)
+    if(sm_arr[CYCLE_STATE_END].timing_goal_end > t_irq1_cyc)
         printk("WARNING: STATE_END timing_goal_end %i us > period_1 %i us \n", 
-            CYCLES_CYC_2_US(sm2_end.timing_goal_end), period_irq1_us);
+            CYCLES_CYC_2_US(sm_arr[CYCLE_STATE_END].timing_goal_end), period_irq1_us);
 
-     if(t_substate < t_irq2_cyc){
-        printk("WARNING: substate duration %i us < period_2 %i us \n", 
-            CYCLES_CYC_2_US(t_substate), period_irq2_us);    
-     }
+    if(t_substate < t_irq2_cyc){
+    printk("WARNING: substate duration %i us < period_2 %i us \n", 
+        CYCLES_CYC_2_US(t_substate), period_irq2_us);    
+    }
+    
 }
 
 // config that is tied to an upper level (not sm itself) and could
@@ -244,21 +206,40 @@ void sm2_config(int users, int usr_per_batch, void (*ul_task)(struct ActionArg c
 }
 
 
+
 void sm2_init(struct device * dev, int period_irq1_us, int period_irq2_us){
 
-    printk("SM2 initializing: \n" \
-           "period_1: %i us, %i cyc, period_2: %i us, %i cyc\n",
-            period_irq1_us, CYCLES_US_2_CYC(period_irq1_us), period_irq2_us, CYCLES_US_2_CYC(period_irq2_us));
 
-    // additional config to states defined above
-    if(period_irq2_us != 0){
-        config_timing_goals(period_irq1_us, period_irq2_us, num_substates);
-    }
+    /**
+     * Define states for SM2
+     * Currently, this is tightly coupled to cycle_state_id_t and cycle_event_id_t
+     * declared in states.h
+     * ----------------------------------------------------------------------------
+     */
+    struct State sm2_idle 
+    = {.id_name = CYCLE_STATE_IDLE,     .default_next_state = CYCLE_STATE_IDLE};
+    struct State sm2_start 
+    = {.id_name = CYCLE_STATE_START,    .default_next_state = CYCLE_STATE_DL_CONFIG};
+    struct State sm2_dl_config 
+    = {.id_name = CYCLE_STATE_DL_CONFIG,.default_next_state = CYCLE_STATE_DL};
+    struct State sm2_dl 
+    = {.id_name = CYCLE_STATE_DL,       .default_next_state = CYCLE_STATE_UL_CONFIG};
+    struct State sm2_ul_config 
+    = {.id_name = CYCLE_STATE_UL_CONFIG,.default_next_state = CYCLE_STATE_UL};
+    struct State sm2_ul 
+    = {.id_name = CYCLE_STATE_UL,       .default_next_state = CYCLE_STATE_RL_CONFIG};
+    struct State sm2_rl_config
+    = {.id_name = CYCLE_STATE_RL_CONFIG,.default_next_state = CYCLE_STATE_RL};
+    struct State sm2_rl 
+    = {.id_name = CYCLE_STATE_RL,   .default_next_state = CYCLE_STATE_END};
+    //  struct State sm2_test 
+    //    = {.id_name = CYCLE_STATE_TEST,   .default_next_state = CYCLE_STATE_END};
+    struct State sm2_end 
+    //  = {.id_name = CYCLE_STATE_END,  .default_next_state = CYCLE_STATE_START};   // for profiling
+    = {.id_name = CYCLE_STATE_END,  .default_next_state = CYCLE_STATE_IDLE};    
 
-    // act on sm_states defined above
-    states_configure_substates(&sm2_ul, num_substates, 0);
-
-    // transfer into and init state array
+    // state array
+    struct State sm2_states[_NUM_CYCLE_STATES] = {_NIL_CYCLE_STATE};    
     sm2_states[CYCLE_STATE_IDLE] = sm2_idle;
     sm2_states[CYCLE_STATE_START] = sm2_start;
     sm2_states[CYCLE_STATE_DL_CONFIG] = sm2_dl_config;
@@ -268,13 +249,35 @@ void sm2_init(struct device * dev, int period_irq1_us, int period_irq2_us){
     sm2_states[CYCLE_STATE_RL_CONFIG] = sm2_rl_config;
     sm2_states[CYCLE_STATE_RL] = sm2_rl;
     sm2_states[CYCLE_STATE_END] = sm2_end;
+
+    /**
+     * Define transition table for SM1
+     * First column: default event, is set automatically
+     * ----------------------------------------------------------------------------
+     */
+    cycle_state_id_t sm2_tt[_NUM_CYCLE_STATES][_NUM_CYCLE_EVENTS];
+
+
+    printk("SM2 initializing: \n" \
+           "period_1: %i us, %i cyc, period_2: %i us, %i cyc\n",
+            period_irq1_us, CYCLES_US_2_CYC(period_irq1_us), period_irq2_us, CYCLES_US_2_CYC(period_irq2_us));
+
+    // additional config to states defined above
+    if(period_irq2_us != 0){
+        config_timing_goals(sm2_states, period_irq1_us, period_irq2_us, num_substates);
+    }
+
+    // act on sm_states defined above
+    states_configure_substates(&sm2_ul, num_substates, 0);
+
+   
     // init transition table
     // all resets lead to start state
     for(int i=0; i<_NUM_CYCLE_STATES; i++){
         sm2_tt[i][CYCLE_EVENT_RESET_IRQ] = CYCLE_STATE_START;   
     }
     // act on state_array
-    config_handlers();
+    config_handlers(sm2_states);
     
 
     // pass sm2 config to state manager

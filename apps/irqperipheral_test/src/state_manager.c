@@ -12,11 +12,9 @@
 #include "globals.h"
 
 #define STATE_MNG_QUEUE_RX_DEPTH 5
-// log using Switch_Event and Wait_Event
-// fast way to log
+// log using Switch_Event, Wait_Event and Perf_Event
 #define STATE_MNG_LOG_EVENTS_DEPTH CONFIG_APP_SM_LOG_DEPTH  // 0 to deactivate log 
-// debug, can log using LOG_PERF (faster than SYS_LOG)
-// still slow! (~ 5000 cyc)
+// debug, can log using LOG_PERF (still slow vs logging events)
 //#define STATE_MNG_LOG_PERF  
 
 #define LEN_ARRAY(x) \
@@ -59,7 +57,7 @@ static struct State _states[_NUM_CYCLE_STATES];
 static void(* _cb_funcs[_NUM_CYCLE_STATES][STATES_CBS_PER_ACTION_MAX])(struct ActionArg const *);
 
 
-static atomic_t state_cur_id;               // save to read from outside, use get_state()
+static atomic_t state_cur_id;       // save to read from outside, use get_state()
 static struct State * _state_cur;   // don't read from outside thread
 static struct device * irqt_dev;
 K_MSGQ_DEFINE(queue_rx_driver, sizeof(struct DrvEvent), STATE_MNG_QUEUE_RX_DEPTH, 4); // is static
@@ -332,7 +330,7 @@ int state_mng_abort(){
         SYS_LOG_WRN("Received abort, but state manager has already stopped.");
         return 0;
     }
-    
+
     atomic_set_bit(&flags, ABORT_LOOP);
     SYS_LOG_DBG("Received abort. Expect state manager to stop momentarily...");
     // send dummy event to driver queue to continue if waiting in IDLE

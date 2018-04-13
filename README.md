@@ -189,14 +189,14 @@ The `apps/irqperipheral_test` application is meant as an example how to interact
 
 ### Doxygen documentation
 
-There is a (incomplete) doxygen documentation available. You can look at it opening
+There is a doxygen documentation of the most important code parts available. You can look at it opening
 `apps/irqperipheral_test/doc/html/files.html` in your browser.
 
 To regenerate the documentation, you may use
 
     $ doxywizard
 
-and load the settings file `apps/irqperipheral_test/doc/Doxyfile` before hitting `Run/Run doxygen`.
+and load the settings file `apps/irqperipheral_test/doc/doxy/Doxyfile` before hitting `Run/Run doxygen`.
 
 
 ### Benchmarks
@@ -240,19 +240,19 @@ Incredients of `sm_template.c`:
    - First, define your `State` structs. All available `id_name`s are defined in `states.h`. You need to specify a `default_next_state` to which the FSM will switch next. If the same state should be repeated for a fixed number of times, use the substate logic provided by `states_configure_substates()`.
     
     ```C
-    static struct State sm_t_idle 
+    struct State sm_t_idle 
     = {.id_name = CYCLE_STATE_IDLE, .default_next_state = CYCLE_STATE_IDLE};
-    static struct State sm_t_start 
+    struct State sm_t_start 
     = {.id_name = CYCLE_STATE_START, .default_next_state = CYCLE_STATE_END};
-    static struct State sm_t_end 
+    struct State sm_t_end 
     = {.id_name = CYCLE_STATE_END, .default_next_state = CYCLE_STATE_IDLE};
 
     ```
    - Also, you need arrays to hold all states and the transition table of the state machine.
 
     ```C
-    static struct State sm_t_states[_NUM_CYCLE_STATES];
-    static cycle_state_id_t sm_t_tt[_NUM_CYCLE_STATES][_NUM_CYCLE_EVENTS];
+    struct State sm_t_states[_NUM_CYCLE_STATES];
+    cycle_state_id_t sm_t_tt[_NUM_CYCLE_STATES][_NUM_CYCLE_EVENTS];
     ```
 
    - Fill your state array and transition table and configure the `state_manger` via `state_mng_configure()` to use it.
@@ -329,7 +329,7 @@ Incredients of `sm_template.c`:
 
 ### Execution time model
 
-We created a model to estimate the execution time of a FSM (in particular `sm2`) for wireless protocols, as described (HERE LINK). 
+We created a model to estimate the execution time of a FSM (in particular `sm2`) for wireless protocols, as described `apps/irqperipheral_test/doc/report/Report_Towards_a RISC-V_platform_with_integrated_radio_IP.pdf`. 
 
 1. To obtain all the experimental values to calibrate this model `test_runners.c::run_test_sm2_action_perf_3()` is used. Turn logging on and configure the `state_manager` to have a sufficiently big `CONFIG_APP_SM_LOG_DEPTH`.
 
@@ -362,7 +362,7 @@ We created a model to estimate the execution time of a FSM (in particular `sm2`)
         Measure the average ISR time by chipscoping the PC.
 
 
-2. The model is calculated and plotted by the origin sheet in (LINK). 
+2. The model is calculated and plotted by the origin sheet in `apps/irqperipheral_test/doc/report/Model_exc_time_sm2_stripped.opj`. 
     You can find the fits for the calibration parameters above inside there, too.
 
     - Fits for kappa_mac, etc: 
@@ -382,7 +382,7 @@ We created a model to estimate the execution time of a FSM (in particular `sm2`)
 
     - Equations:
 
-        Don't be confused that the equations in the sheet are given a little more explicitly than in the report (ADD LINK). Indeed, those are completely equivalent formulations. The following correspondance may help:
+        Don't be confused that the equations in the sheet are given a little more explicitly than in the report. Indeed, those are completely equivalent formulations. The following correspondance may help:
 
         | Name <br> report| Name <br> orign sheet| Cell <br> Params tab |
         | ----------------|:--------------------:| --------------------:|

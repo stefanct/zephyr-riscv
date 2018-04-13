@@ -2,7 +2,9 @@
 /**
  * @file 
  * @brief  Implements a performance logging method which prints
- *          to a fifo string buffer instead of uart.
+ *         to a fifo string buffer instead of uart.
+ * 
+ * Faster than SYS_LOG (UART), but still slow! (~ 5000 cyc)
  */
 
 #ifndef LOG_PERF_H
