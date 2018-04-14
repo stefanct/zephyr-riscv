@@ -329,7 +329,7 @@ Incredients of `sm_template.c`:
 
 ### Execution time model
 
-We created a model to estimate the execution time of a FSM (in particular `sm2`) for wireless protocols, as described `apps/irqperipheral_test/doc/report/Report_Towards_a RISC-V_platform_with_integrated_radio_IP.pdf`. 
+We created a model to estimate the execution time of a FSM (in particular `sm2`) for wireless protocols, as described in `apps/irqperipheral_test/doc/report/Report_Towards_a RISC-V_platform_with_integrated_radio_IP.pdf`. 
 
 1. To obtain all the experimental values to calibrate this model `test_runners.c::run_test_sm2_action_perf_3()` is used. Turn logging on and configure the `state_manager` to have a sufficiently big `CONFIG_APP_SM_LOG_DEPTH`.
 
@@ -362,7 +362,7 @@ We created a model to estimate the execution time of a FSM (in particular `sm2`)
         Measure the average ISR time by chipscoping the PC.
 
 
-2. The model is calculated and plotted by the origin sheet in `apps/irqperipheral_test/doc/report/Model_exc_time_sm2_stripped.opj`. 
+2. The model is calculated and plotted by the origin sheet in `apps/irqperipheral_test/doc/report/Model_exc_time_sm2.opj`. 
     You can find the fits for the calibration parameters above inside there, too.
 
     - Fits for kappa_mac, etc: 

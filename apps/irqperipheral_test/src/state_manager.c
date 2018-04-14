@@ -40,7 +40,11 @@ struct SMEvent{
 static struct Switch_Event log_switch_evts[STATE_MNG_LOG_EVENTS_DEPTH];
 static struct Perf_Event log_perf_evts[STATE_MNG_LOG_EVENTS_DEPTH];
 static struct Wait_Event log_wait_evts[STATE_MNG_LOG_EVENTS_DEPTH];
+#if STATE_MNG_LOG_EVENTS_DEPTH > 0
 static cycle_state_id_t log_filter[_NUM_CYCLE_STATES] = {_NIL_CYCLE_STATE};   // log_filter[0] = _NIL_CYCLE_STATE => no filter
+#else
+static cycle_state_id_t log_filter[] = {};  // throw out all for loops over log_filter
+#endif
 
 
 /// defines next state id_name on event

@@ -232,8 +232,6 @@ void sm2_init(struct device * dev, int period_irq1_us, int period_irq2_us){
     = {.id_name = CYCLE_STATE_RL_CONFIG,.default_next_state = CYCLE_STATE_RL};
     struct State sm2_rl 
     = {.id_name = CYCLE_STATE_RL,   .default_next_state = CYCLE_STATE_END};
-    //  struct State sm2_test 
-    //    = {.id_name = CYCLE_STATE_TEST,   .default_next_state = CYCLE_STATE_END};
     struct State sm2_end 
     //  = {.id_name = CYCLE_STATE_END,  .default_next_state = CYCLE_STATE_START};   // for profiling
     = {.id_name = CYCLE_STATE_END,  .default_next_state = CYCLE_STATE_IDLE};    
@@ -249,7 +247,7 @@ void sm2_init(struct device * dev, int period_irq1_us, int period_irq2_us){
     sm2_states[CYCLE_STATE_RL_CONFIG] = sm2_rl_config;
     sm2_states[CYCLE_STATE_RL] = sm2_rl;
     sm2_states[CYCLE_STATE_END] = sm2_end;
-
+    
     /**
      * Define transition table for SM1
      * First column: default event, is set automatically

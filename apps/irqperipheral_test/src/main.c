@@ -171,7 +171,8 @@ void main(void)
 	if(!quick_test)
 		run_test_state_mng_1(g_dev_irqt);
 
-	/* template sm */
+	/* template sm 
+	   make sure to #define SMT_ENABLE in sm_template.c */
 	//sm_t_run();
 
 	/* state_manager throughputs 
@@ -197,7 +198,7 @@ void main(void)
 	do{
 		i++;
 		run_test_state_mng_2(g_dev_irqt);
-		printk("[%i/%i] in main loop, global max %i \n", i, n_run, global_max_cyc);
+		printk("[%i/%i] in main loop, global max %i \n", i, n_runs, global_max_cyc);
 
 	}while(i < n_runs);
 	
