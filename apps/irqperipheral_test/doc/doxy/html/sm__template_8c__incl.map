@@ -1,0 +1,7 @@
+<map id="/home/timo/Software/zephyr&#45;riscv_dev/apps/irqperipheral_test/src/state_machines/sm_template.c" name="/home/timo/Software/zephyr&#45;riscv_dev/apps/irqperipheral_test/src/state_machines/sm_template.c">
+<area shape="rect" id="node3" href="$globals_8h.html" title="Global shared variables, mainly devices handles. " alt="" coords="317,199,391,225"/>
+<area shape="rect" id="node5" href="$states_8h.html" title="define state machine &#39;state&#39; struct and configure to state_manager " alt="" coords="106,199,175,225"/>
+<area shape="rect" id="node7" href="$state__manager_8h.html" title="Generic logic for running a state machine. Concrete implementation happens elsewhere. " alt="" coords="5,124,124,151"/>
+<area shape="rect" id="node8" href="$cycles_8h.html" title="Deal with riscv32 hardware cpu cycles. " alt="" coords="251,124,321,151"/>
+<area shape="rect" id="node6" href="$irqtestperipheral_8h.html" title="low&#45;level driver functions to interact with hardware " alt="" coords="55,273,181,300"/>
+</map>

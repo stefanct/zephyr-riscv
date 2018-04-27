@@ -1,0 +1,5 @@
+<map id="irqtester_fe310_clear_2" name="irqtester_fe310_clear_2">
+<area shape="rect" id="node2" href="$tests_8c.html#a1b66895966dbe4f866074ac85e344bd7" title="reg_write_short" alt="" coords="220,5,331,32"/>
+<area shape="rect" id="node3" href="$irqtestperipheral_8c.html#ab157fe508c290d5e05fc878db1c936f0" title="irqtester_fe310_irq\l_handler" alt="" coords="211,57,340,98"/>
+<area shape="rect" id="node4" href="$irqtestperipheral_8c.html#abda9b87261994cc7417d4db872faa8f2" title="_get_irq_id" alt="" coords="388,64,473,91"/>
+</map>

@@ -1,0 +1,329 @@
+\hypertarget{states_8h}{}\section{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/states.h File Reference}
+\label{states_8h}\index{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/states.\+h@{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/states.\+h}}
+
+
+define state machine \textquotesingle{}state\textquotesingle{} struct and configure to state\+\_\+manager  
+
+
+{\ttfamily \#include $<$zephyr.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}irqtestperipheral.\+h\char`\"{}}\\*
+Include dependency graph for states.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=246pt]{states_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{states_8h__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{struct_state}{State}
+\item 
+struct \hyperlink{struct_action_arg}{Action\+Arg}
+\begin{DoxyCompactList}\small\item\em struct passed to any registered action as argument \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{states_8h_ac7f2a6758dc88e00b49c5d4152ef468e}{S\+T\+A\+T\+E\+S\+\_\+\+R\+E\+Q\+\_\+\+V\+A\+L\+S\+\_\+\+M\+AX}~5
+\item 
+\#define \hyperlink{states_8h_a4caabc1e1bc029254d541e7185b76e81}{S\+T\+A\+T\+E\+S\+\_\+\+C\+B\+S\+\_\+\+P\+E\+R\+\_\+\+A\+C\+T\+I\+O\+N\+\_\+\+M\+AX}~5
+\item 
+\#define \hyperlink{states_8h_acff3c70dbdb08c38afa20f7a22766ee9}{S\+T\+A\+T\+E\+S\+\_\+\+D\+I\+S\+\_\+\+S\+U\+B\+S\+T\+A\+T\+ES}~0
+\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} \{ \\*
+\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252a3ca35f1a6cab96ed4125ef85fa8a3284}{\+\_\+\+N\+I\+L\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+TE}, 
+\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252a67062d628f2116e8bad738c83c02f713}{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+I\+D\+LE}, 
+\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252ad97049c2f2d67bd40610b61c02dcc3be}{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+S\+T\+A\+RT}, 
+\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252adfd3bd5af20e0859042ecdfd3e20e9ab}{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+D\+L\+\_\+\+C\+O\+N\+F\+IG}, 
+\\*
+\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252a13c528c8260cc4257bf7323be2b33395}{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+DL}, 
+\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252afb34916cef7f1263f4e4e9af26a6b54c}{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+U\+L\+\_\+\+C\+O\+N\+F\+IG}, 
+\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252a6f8c23f0784c07e151310ca8a83b325a}{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+UL}, 
+\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252aa4b742f8bac54e97f9332bdfa2dc9b35}{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+R\+L\+\_\+\+C\+O\+N\+F\+IG}, 
+\\*
+\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252a62fdeb263f57db221c35ab1e4f5f341b}{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+RL}, 
+\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252af4b0570a7974917db137e591c1876bf7}{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+E\+ND}, 
+\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252a3dec1b1ee677da041bba8ecf1c1d5937}{\+\_\+\+N\+U\+M\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+ES}
+ \}\begin{DoxyCompactList}\small\item\em declares all possible states (.id\+\_\+names) of a state manager \end{DoxyCompactList}
+\item 
+enum \hyperlink{states_8h_a1956f5c4955f21ca67d43209bc162438}{cycle\+\_\+event\+\_\+id\+\_\+t} \{ \hyperlink{states_8h_a1956f5c4955f21ca67d43209bc162438a36ee0122f1ab3bf0742b489a3604d7b1}{\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+D\+E\+F\+A\+U\+L\+T\+\_\+\+E\+VT}, 
+\hyperlink{states_8h_a1956f5c4955f21ca67d43209bc162438ae0078aa69816dfbf77cb6d784a0f755a}{C\+Y\+C\+L\+E\+\_\+\+E\+V\+E\+N\+T\+\_\+\+R\+E\+S\+E\+T\+\_\+\+I\+RQ}, 
+\hyperlink{states_8h_a1956f5c4955f21ca67d43209bc162438a741cae12c7b3223f6c27accc992eb486}{\+\_\+\+N\+U\+M\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+E\+V\+E\+N\+TS}
+ \}\begin{DoxyCompactList}\small\item\em declares all possible events (state\+\_\+manager.\+c\+::\+S\+M\+Event) causing transitions \end{DoxyCompactList}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{states_8h_aa82cad408bf1ac59990bc6d57ff3c754}{states\+\_\+configure\+\_\+auto} (struct \hyperlink{struct_state}{State} $\ast$states, \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} $\ast$\hyperlink{state__manager_8c_a6c3f9ff327a0ce006ef0e4c32a777392}{transition\+\_\+table}, void $\ast$action)
+\begin{DoxyCompactList}\small\item\em \+: Set up state array and transition table automatically. \end{DoxyCompactList}\item 
+void \hyperlink{states_8h_ab91bddfe86c489fa92acdb50882b265c}{states\+\_\+configure\+\_\+custom} (struct \hyperlink{struct_state}{State} $\ast$states, \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} $\ast$\hyperlink{state__manager_8c_a6c3f9ff327a0ce006ef0e4c32a777392}{transition\+\_\+table}, void $\ast$action, struct \hyperlink{struct_state}{State} cust\+\_\+states\mbox{[}$\,$\mbox{]}, \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} $\ast$cust\+\_\+tt, int len\+\_\+states, int len\+\_\+events)
+\begin{DoxyCompactList}\small\item\em \+: Set up state array and transition table of state manager by customnly deployed arrays. \end{DoxyCompactList}\item 
+void \hyperlink{states_8h_a01408135407e1ba1e5a0c0d1fa1aa690}{states\+\_\+configure\+\_\+substates} (struct \hyperlink{struct_state}{State} $\ast$state, u8\+\_\+t \hyperlink{sm2_8c_af2fd083d05fffd13451f34aba145c165}{num\+\_\+substates}, u8\+\_\+t timing\+\_\+summand)
+\begin{DoxyCompactList}\small\item\em \+: Configure given state with serial substates. todo\+: make safe while sm running \end{DoxyCompactList}\item 
+struct \hyperlink{struct_state}{State} $\ast$ \hyperlink{states_8h_a80390a0004562d1df0d2fcc943272c01}{states\+\_\+get} (struct \hyperlink{struct_state}{State} state\+\_\+arr\mbox{[}$\,$\mbox{]}, \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} id)
+\item 
+int \hyperlink{states_8h_a929b4a51a89985cc96784e74126c2183}{states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+start} (struct \hyperlink{struct_state}{State} $\ast$state, u8\+\_\+t substate)
+\item 
+int \hyperlink{states_8h_a361b2485c761518f8667f9f1a055e47c}{states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+end} (struct \hyperlink{struct_state}{State} $\ast$state, u8\+\_\+t substate)
+\item 
+int \hyperlink{states_8h_aea1268d1f1934c140cfff0e7316e963b}{states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+start} (struct \hyperlink{struct_state}{State} state\+\_\+arr\mbox{[}$\,$\mbox{]}, \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} id, void($\ast$handler)(struct \hyperlink{struct_state}{State} $\ast$, int))
+\item 
+int \hyperlink{states_8h_ae5df354b700722ddcd0e02f20c75fe7f}{states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+end} (struct \hyperlink{struct_state}{State} state\+\_\+arr\mbox{[}$\,$\mbox{]}, \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} id, void($\ast$handler)(struct \hyperlink{struct_state}{State} $\ast$, int))
+\item 
+int \hyperlink{states_8h_a21840ee4cc20b4ebdef96b9946340736}{states\+\_\+set\+\_\+handler\+\_\+reqval} (struct \hyperlink{struct_state}{State} state\+\_\+arr\mbox{[}$\,$\mbox{]}, \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} id, bool($\ast$handler)(struct \hyperlink{struct_state}{State} $\ast$))
+\item 
+void \hyperlink{states_8h_afa641d1990cd8152c94a2c44a50635e1}{states\+\_\+print\+\_\+state} (struct \hyperlink{struct_state}{State} $\ast$state)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+define state machine \textquotesingle{}state\textquotesingle{} struct and configure to state\+\_\+manager 
+
+
+
+\subsection{Macro Definition Documentation}
+\index{states.\+h@{states.\+h}!S\+T\+A\+T\+E\+S\+\_\+\+C\+B\+S\+\_\+\+P\+E\+R\+\_\+\+A\+C\+T\+I\+O\+N\+\_\+\+M\+AX@{S\+T\+A\+T\+E\+S\+\_\+\+C\+B\+S\+\_\+\+P\+E\+R\+\_\+\+A\+C\+T\+I\+O\+N\+\_\+\+M\+AX}}
+\index{S\+T\+A\+T\+E\+S\+\_\+\+C\+B\+S\+\_\+\+P\+E\+R\+\_\+\+A\+C\+T\+I\+O\+N\+\_\+\+M\+AX@{S\+T\+A\+T\+E\+S\+\_\+\+C\+B\+S\+\_\+\+P\+E\+R\+\_\+\+A\+C\+T\+I\+O\+N\+\_\+\+M\+AX}!states.\+h@{states.\+h}}
+\subsubsection[{\texorpdfstring{S\+T\+A\+T\+E\+S\+\_\+\+C\+B\+S\+\_\+\+P\+E\+R\+\_\+\+A\+C\+T\+I\+O\+N\+\_\+\+M\+AX}{STATES_CBS_PER_ACTION_MAX}}]{\setlength{\rightskip}{0pt plus 5cm}\#define S\+T\+A\+T\+E\+S\+\_\+\+C\+B\+S\+\_\+\+P\+E\+R\+\_\+\+A\+C\+T\+I\+O\+N\+\_\+\+M\+AX~5}\hypertarget{states_8h_a4caabc1e1bc029254d541e7185b76e81}{}\label{states_8h_a4caabc1e1bc029254d541e7185b76e81}
+\index{states.\+h@{states.\+h}!S\+T\+A\+T\+E\+S\+\_\+\+D\+I\+S\+\_\+\+S\+U\+B\+S\+T\+A\+T\+ES@{S\+T\+A\+T\+E\+S\+\_\+\+D\+I\+S\+\_\+\+S\+U\+B\+S\+T\+A\+T\+ES}}
+\index{S\+T\+A\+T\+E\+S\+\_\+\+D\+I\+S\+\_\+\+S\+U\+B\+S\+T\+A\+T\+ES@{S\+T\+A\+T\+E\+S\+\_\+\+D\+I\+S\+\_\+\+S\+U\+B\+S\+T\+A\+T\+ES}!states.\+h@{states.\+h}}
+\subsubsection[{\texorpdfstring{S\+T\+A\+T\+E\+S\+\_\+\+D\+I\+S\+\_\+\+S\+U\+B\+S\+T\+A\+T\+ES}{STATES_DIS_SUBSTATES}}]{\setlength{\rightskip}{0pt plus 5cm}\#define S\+T\+A\+T\+E\+S\+\_\+\+D\+I\+S\+\_\+\+S\+U\+B\+S\+T\+A\+T\+ES~0}\hypertarget{states_8h_acff3c70dbdb08c38afa20f7a22766ee9}{}\label{states_8h_acff3c70dbdb08c38afa20f7a22766ee9}
+\index{states.\+h@{states.\+h}!S\+T\+A\+T\+E\+S\+\_\+\+R\+E\+Q\+\_\+\+V\+A\+L\+S\+\_\+\+M\+AX@{S\+T\+A\+T\+E\+S\+\_\+\+R\+E\+Q\+\_\+\+V\+A\+L\+S\+\_\+\+M\+AX}}
+\index{S\+T\+A\+T\+E\+S\+\_\+\+R\+E\+Q\+\_\+\+V\+A\+L\+S\+\_\+\+M\+AX@{S\+T\+A\+T\+E\+S\+\_\+\+R\+E\+Q\+\_\+\+V\+A\+L\+S\+\_\+\+M\+AX}!states.\+h@{states.\+h}}
+\subsubsection[{\texorpdfstring{S\+T\+A\+T\+E\+S\+\_\+\+R\+E\+Q\+\_\+\+V\+A\+L\+S\+\_\+\+M\+AX}{STATES_REQ_VALS_MAX}}]{\setlength{\rightskip}{0pt plus 5cm}\#define S\+T\+A\+T\+E\+S\+\_\+\+R\+E\+Q\+\_\+\+V\+A\+L\+S\+\_\+\+M\+AX~5}\hypertarget{states_8h_ac7f2a6758dc88e00b49c5d4152ef468e}{}\label{states_8h_ac7f2a6758dc88e00b49c5d4152ef468e}
+
+
+\subsection{Enumeration Type Documentation}
+\index{states.\+h@{states.\+h}!cycle\+\_\+event\+\_\+id\+\_\+t@{cycle\+\_\+event\+\_\+id\+\_\+t}}
+\index{cycle\+\_\+event\+\_\+id\+\_\+t@{cycle\+\_\+event\+\_\+id\+\_\+t}!states.\+h@{states.\+h}}
+\subsubsection[{\texorpdfstring{cycle\+\_\+event\+\_\+id\+\_\+t}{cycle_event_id_t}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf cycle\+\_\+event\+\_\+id\+\_\+t}}\hypertarget{states_8h_a1956f5c4955f21ca67d43209bc162438}{}\label{states_8h_a1956f5c4955f21ca67d43209bc162438}
+
+
+declares all possible events (state\+\_\+manager.\+c\+::\+S\+M\+Event) causing transitions 
+
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+D\+E\+F\+A\+U\+L\+T\+\_\+\+E\+VT@{\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+D\+E\+F\+A\+U\+L\+T\+\_\+\+E\+VT}!states.\+h@{states.\+h}}\index{states.\+h@{states.\+h}!\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+D\+E\+F\+A\+U\+L\+T\+\_\+\+E\+VT@{\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+D\+E\+F\+A\+U\+L\+T\+\_\+\+E\+VT}}\item[{\em 
+\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+D\+E\+F\+A\+U\+L\+T\+\_\+\+E\+VT\hypertarget{states_8h_a1956f5c4955f21ca67d43209bc162438a36ee0122f1ab3bf0742b489a3604d7b1}{}\label{states_8h_a1956f5c4955f21ca67d43209bc162438a36ee0122f1ab3bf0742b489a3604d7b1}
+}]\index{C\+Y\+C\+L\+E\+\_\+\+E\+V\+E\+N\+T\+\_\+\+R\+E\+S\+E\+T\+\_\+\+I\+RQ@{C\+Y\+C\+L\+E\+\_\+\+E\+V\+E\+N\+T\+\_\+\+R\+E\+S\+E\+T\+\_\+\+I\+RQ}!states.\+h@{states.\+h}}\index{states.\+h@{states.\+h}!C\+Y\+C\+L\+E\+\_\+\+E\+V\+E\+N\+T\+\_\+\+R\+E\+S\+E\+T\+\_\+\+I\+RQ@{C\+Y\+C\+L\+E\+\_\+\+E\+V\+E\+N\+T\+\_\+\+R\+E\+S\+E\+T\+\_\+\+I\+RQ}}\item[{\em 
+C\+Y\+C\+L\+E\+\_\+\+E\+V\+E\+N\+T\+\_\+\+R\+E\+S\+E\+T\+\_\+\+I\+RQ\hypertarget{states_8h_a1956f5c4955f21ca67d43209bc162438ae0078aa69816dfbf77cb6d784a0f755a}{}\label{states_8h_a1956f5c4955f21ca67d43209bc162438ae0078aa69816dfbf77cb6d784a0f755a}
+}]\index{\+\_\+\+N\+U\+M\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+E\+V\+E\+N\+TS@{\+\_\+\+N\+U\+M\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+E\+V\+E\+N\+TS}!states.\+h@{states.\+h}}\index{states.\+h@{states.\+h}!\+\_\+\+N\+U\+M\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+E\+V\+E\+N\+TS@{\+\_\+\+N\+U\+M\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+E\+V\+E\+N\+TS}}\item[{\em 
+\+\_\+\+N\+U\+M\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+E\+V\+E\+N\+TS\hypertarget{states_8h_a1956f5c4955f21ca67d43209bc162438a741cae12c7b3223f6c27accc992eb486}{}\label{states_8h_a1956f5c4955f21ca67d43209bc162438a741cae12c7b3223f6c27accc992eb486}
+}]\end{description}
+\end{Desc}
+\index{states.\+h@{states.\+h}!cycle\+\_\+state\+\_\+id\+\_\+t@{cycle\+\_\+state\+\_\+id\+\_\+t}}
+\index{cycle\+\_\+state\+\_\+id\+\_\+t@{cycle\+\_\+state\+\_\+id\+\_\+t}!states.\+h@{states.\+h}}
+\subsubsection[{\texorpdfstring{cycle\+\_\+state\+\_\+id\+\_\+t}{cycle_state_id_t}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf cycle\+\_\+state\+\_\+id\+\_\+t}}\hypertarget{states_8h_a9e0ef0bc98a491d55216d9485e562252}{}\label{states_8h_a9e0ef0bc98a491d55216d9485e562252}
+
+
+declares all possible states (.id\+\_\+names) of a state manager 
+
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{\+\_\+\+N\+I\+L\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+TE@{\+\_\+\+N\+I\+L\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+TE}!states.\+h@{states.\+h}}\index{states.\+h@{states.\+h}!\+\_\+\+N\+I\+L\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+TE@{\+\_\+\+N\+I\+L\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+TE}}\item[{\em 
+\+\_\+\+N\+I\+L\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+TE\hypertarget{states_8h_a9e0ef0bc98a491d55216d9485e562252a3ca35f1a6cab96ed4125ef85fa8a3284}{}\label{states_8h_a9e0ef0bc98a491d55216d9485e562252a3ca35f1a6cab96ed4125ef85fa8a3284}
+}]\index{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+I\+D\+LE@{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+I\+D\+LE}!states.\+h@{states.\+h}}\index{states.\+h@{states.\+h}!C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+I\+D\+LE@{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+I\+D\+LE}}\item[{\em 
+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+I\+D\+LE\hypertarget{states_8h_a9e0ef0bc98a491d55216d9485e562252a67062d628f2116e8bad738c83c02f713}{}\label{states_8h_a9e0ef0bc98a491d55216d9485e562252a67062d628f2116e8bad738c83c02f713}
+}]\index{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+S\+T\+A\+RT@{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+S\+T\+A\+RT}!states.\+h@{states.\+h}}\index{states.\+h@{states.\+h}!C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+S\+T\+A\+RT@{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+S\+T\+A\+RT}}\item[{\em 
+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+S\+T\+A\+RT\hypertarget{states_8h_a9e0ef0bc98a491d55216d9485e562252ad97049c2f2d67bd40610b61c02dcc3be}{}\label{states_8h_a9e0ef0bc98a491d55216d9485e562252ad97049c2f2d67bd40610b61c02dcc3be}
+}]\index{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+D\+L\+\_\+\+C\+O\+N\+F\+IG@{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+D\+L\+\_\+\+C\+O\+N\+F\+IG}!states.\+h@{states.\+h}}\index{states.\+h@{states.\+h}!C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+D\+L\+\_\+\+C\+O\+N\+F\+IG@{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+D\+L\+\_\+\+C\+O\+N\+F\+IG}}\item[{\em 
+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+D\+L\+\_\+\+C\+O\+N\+F\+IG\hypertarget{states_8h_a9e0ef0bc98a491d55216d9485e562252adfd3bd5af20e0859042ecdfd3e20e9ab}{}\label{states_8h_a9e0ef0bc98a491d55216d9485e562252adfd3bd5af20e0859042ecdfd3e20e9ab}
+}]\index{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+DL@{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+DL}!states.\+h@{states.\+h}}\index{states.\+h@{states.\+h}!C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+DL@{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+DL}}\item[{\em 
+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+DL\hypertarget{states_8h_a9e0ef0bc98a491d55216d9485e562252a13c528c8260cc4257bf7323be2b33395}{}\label{states_8h_a9e0ef0bc98a491d55216d9485e562252a13c528c8260cc4257bf7323be2b33395}
+}]\index{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+U\+L\+\_\+\+C\+O\+N\+F\+IG@{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+U\+L\+\_\+\+C\+O\+N\+F\+IG}!states.\+h@{states.\+h}}\index{states.\+h@{states.\+h}!C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+U\+L\+\_\+\+C\+O\+N\+F\+IG@{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+U\+L\+\_\+\+C\+O\+N\+F\+IG}}\item[{\em 
+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+U\+L\+\_\+\+C\+O\+N\+F\+IG\hypertarget{states_8h_a9e0ef0bc98a491d55216d9485e562252afb34916cef7f1263f4e4e9af26a6b54c}{}\label{states_8h_a9e0ef0bc98a491d55216d9485e562252afb34916cef7f1263f4e4e9af26a6b54c}
+}]\index{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+UL@{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+UL}!states.\+h@{states.\+h}}\index{states.\+h@{states.\+h}!C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+UL@{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+UL}}\item[{\em 
+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+UL\hypertarget{states_8h_a9e0ef0bc98a491d55216d9485e562252a6f8c23f0784c07e151310ca8a83b325a}{}\label{states_8h_a9e0ef0bc98a491d55216d9485e562252a6f8c23f0784c07e151310ca8a83b325a}
+}]\index{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+R\+L\+\_\+\+C\+O\+N\+F\+IG@{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+R\+L\+\_\+\+C\+O\+N\+F\+IG}!states.\+h@{states.\+h}}\index{states.\+h@{states.\+h}!C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+R\+L\+\_\+\+C\+O\+N\+F\+IG@{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+R\+L\+\_\+\+C\+O\+N\+F\+IG}}\item[{\em 
+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+R\+L\+\_\+\+C\+O\+N\+F\+IG\hypertarget{states_8h_a9e0ef0bc98a491d55216d9485e562252aa4b742f8bac54e97f9332bdfa2dc9b35}{}\label{states_8h_a9e0ef0bc98a491d55216d9485e562252aa4b742f8bac54e97f9332bdfa2dc9b35}
+}]\index{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+RL@{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+RL}!states.\+h@{states.\+h}}\index{states.\+h@{states.\+h}!C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+RL@{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+RL}}\item[{\em 
+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+RL\hypertarget{states_8h_a9e0ef0bc98a491d55216d9485e562252a62fdeb263f57db221c35ab1e4f5f341b}{}\label{states_8h_a9e0ef0bc98a491d55216d9485e562252a62fdeb263f57db221c35ab1e4f5f341b}
+}]\index{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+E\+ND@{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+E\+ND}!states.\+h@{states.\+h}}\index{states.\+h@{states.\+h}!C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+E\+ND@{C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+E\+ND}}\item[{\em 
+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+E\+\_\+\+E\+ND\hypertarget{states_8h_a9e0ef0bc98a491d55216d9485e562252af4b0570a7974917db137e591c1876bf7}{}\label{states_8h_a9e0ef0bc98a491d55216d9485e562252af4b0570a7974917db137e591c1876bf7}
+}]\index{\+\_\+\+N\+U\+M\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+ES@{\+\_\+\+N\+U\+M\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+ES}!states.\+h@{states.\+h}}\index{states.\+h@{states.\+h}!\+\_\+\+N\+U\+M\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+ES@{\+\_\+\+N\+U\+M\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+ES}}\item[{\em 
+\+\_\+\+N\+U\+M\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+ES\hypertarget{states_8h_a9e0ef0bc98a491d55216d9485e562252a3dec1b1ee677da041bba8ecf1c1d5937}{}\label{states_8h_a9e0ef0bc98a491d55216d9485e562252a3dec1b1ee677da041bba8ecf1c1d5937}
+}]\end{description}
+\end{Desc}
+
+
+\subsection{Function Documentation}
+\index{states.\+h@{states.\+h}!states\+\_\+configure\+\_\+auto@{states\+\_\+configure\+\_\+auto}}
+\index{states\+\_\+configure\+\_\+auto@{states\+\_\+configure\+\_\+auto}!states.\+h@{states.\+h}}
+\subsubsection[{\texorpdfstring{states\+\_\+configure\+\_\+auto(struct State $\ast$states, cycle\+\_\+state\+\_\+id\+\_\+t $\ast$transition\+\_\+table, void $\ast$action)}{states_configure_auto(struct State *states, cycle_state_id_t *transition_table, void *action)}}]{\setlength{\rightskip}{0pt plus 5cm}void states\+\_\+configure\+\_\+auto (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{states, }
+\item[{{\bf cycle\+\_\+state\+\_\+id\+\_\+t} $\ast$}]{transition\+\_\+table, }
+\item[{void $\ast$}]{action}
+\end{DoxyParamCaption}
+)}\hypertarget{states_8h_aa82cad408bf1ac59990bc6d57ff3c754}{}\label{states_8h_aa82cad408bf1ac59990bc6d57ff3c754}
+
+
+\+: Set up state array and transition table automatically. 
+
+Uses auto SM states hard-\/coded in \hyperlink{states_8c}{states.\+c}. Is used for tests/benchs with a minimal critical loop. Registers a (default) action handler to every state, which is a function that is responsible to fire all registered callbacks. \index{states.\+h@{states.\+h}!states\+\_\+configure\+\_\+custom@{states\+\_\+configure\+\_\+custom}}
+\index{states\+\_\+configure\+\_\+custom@{states\+\_\+configure\+\_\+custom}!states.\+h@{states.\+h}}
+\subsubsection[{\texorpdfstring{states\+\_\+configure\+\_\+custom(struct State $\ast$states, cycle\+\_\+state\+\_\+id\+\_\+t $\ast$transition\+\_\+table, void $\ast$action, struct State cust\+\_\+states[], cycle\+\_\+state\+\_\+id\+\_\+t $\ast$cust\+\_\+tt, int len\+\_\+states, int len\+\_\+events)}{states_configure_custom(struct State *states, cycle_state_id_t *transition_table, void *action, struct State cust_states[], cycle_state_id_t *cust_tt, int len_states, int len_events)}}]{\setlength{\rightskip}{0pt plus 5cm}void states\+\_\+configure\+\_\+custom (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{states, }
+\item[{{\bf cycle\+\_\+state\+\_\+id\+\_\+t} $\ast$}]{transition\+\_\+table, }
+\item[{void $\ast$}]{action, }
+\item[{struct {\bf State}}]{cust\+\_\+states\mbox{[}$\,$\mbox{]}, }
+\item[{{\bf cycle\+\_\+state\+\_\+id\+\_\+t} $\ast$}]{cust\+\_\+tt, }
+\item[{int}]{len\+\_\+states, }
+\item[{int}]{len\+\_\+events}
+\end{DoxyParamCaption}
+)}\hypertarget{states_8h_ab91bddfe86c489fa92acdb50882b265c}{}\label{states_8h_ab91bddfe86c489fa92acdb50882b265c}
+
+
+\+: Set up state array and transition table of state manager by customnly deployed arrays. 
+
+Registers a default action handler to every state, which is a function that is responsible to fire all registered callbacks. Non thread safe, never call if sm running
+
+
+\begin{DoxyParams}{Parameters}
+{\em states} & Pointer to state\+\_\+manager state array. \\
+\hline
+{\em transition\+\_\+table} & Pointer to state\+\_\+manager transition\+\_\+table. \\
+\hline
+{\em action} & Function pointer (void-\/2-\/void) to default action, usually state manager action dispatcher. \\
+\hline
+{\em cust\+\_\+states\mbox{[}$\,$\mbox{]}} & All states to be configured to state machine. Must be static var. todo\+: really? Copying into sm? \\
+\hline
+{\em cust\+\_\+tt\mbox{[}$\,$\mbox{]}} & Transition table to be configure to state machine. Must be static var. \\
+\hline
+\end{DoxyParams}
+\index{states.\+h@{states.\+h}!states\+\_\+configure\+\_\+substates@{states\+\_\+configure\+\_\+substates}}
+\index{states\+\_\+configure\+\_\+substates@{states\+\_\+configure\+\_\+substates}!states.\+h@{states.\+h}}
+\subsubsection[{\texorpdfstring{states\+\_\+configure\+\_\+substates(struct State $\ast$state, u8\+\_\+t num\+\_\+substates, u8\+\_\+t timing\+\_\+summand)}{states_configure_substates(struct State *state, u8_t num_substates, u8_t timing_summand)}}]{\setlength{\rightskip}{0pt plus 5cm}void states\+\_\+configure\+\_\+substates (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{state, }
+\item[{u8\+\_\+t}]{num\+\_\+substates, }
+\item[{u8\+\_\+t}]{timing\+\_\+summand}
+\end{DoxyParamCaption}
+)}\hypertarget{states_8h_a01408135407e1ba1e5a0c0d1fa1aa690}{}\label{states_8h_a01408135407e1ba1e5a0c0d1fa1aa690}
+
+
+\+: Configure given state with serial substates. todo\+: make safe while sm running 
+
+
+\begin{DoxyParams}{Parameters}
+{\em num\+\_\+substates} & number of times the state is repeated \\
+\hline
+{\em timing\+\_\+summand} & usually 0 \\
+\hline
+\end{DoxyParams}
+\index{states.\+h@{states.\+h}!states\+\_\+get@{states\+\_\+get}}
+\index{states\+\_\+get@{states\+\_\+get}!states.\+h@{states.\+h}}
+\subsubsection[{\texorpdfstring{states\+\_\+get(struct State state\+\_\+arr[], cycle\+\_\+state\+\_\+id\+\_\+t id)}{states_get(struct State state_arr[], cycle_state_id_t id)}}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf State}$\ast$ states\+\_\+get (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State}}]{state\+\_\+arr\mbox{[}$\,$\mbox{]}, }
+\item[{{\bf cycle\+\_\+state\+\_\+id\+\_\+t}}]{id}
+\end{DoxyParamCaption}
+)}\hypertarget{states_8h_a80390a0004562d1df0d2fcc943272c01}{}\label{states_8h_a80390a0004562d1df0d2fcc943272c01}
+\index{states.\+h@{states.\+h}!states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+end@{states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+end}}
+\index{states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+end@{states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+end}!states.\+h@{states.\+h}}
+\subsubsection[{\texorpdfstring{states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+end(struct State $\ast$state, u8\+\_\+t substate)}{states_get_timing_goal_end(struct State *state, u8_t substate)}}]{\setlength{\rightskip}{0pt plus 5cm}int states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+end (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{state, }
+\item[{u8\+\_\+t}]{substate}
+\end{DoxyParamCaption}
+)}\hypertarget{states_8h_a361b2485c761518f8667f9f1a055e47c}{}\label{states_8h_a361b2485c761518f8667f9f1a055e47c}
+\index{states.\+h@{states.\+h}!states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+start@{states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+start}}
+\index{states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+start@{states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+start}!states.\+h@{states.\+h}}
+\subsubsection[{\texorpdfstring{states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+start(struct State $\ast$state, u8\+\_\+t substate)}{states_get_timing_goal_start(struct State *state, u8_t substate)}}]{\setlength{\rightskip}{0pt plus 5cm}int states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+start (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{state, }
+\item[{u8\+\_\+t}]{substate}
+\end{DoxyParamCaption}
+)}\hypertarget{states_8h_a929b4a51a89985cc96784e74126c2183}{}\label{states_8h_a929b4a51a89985cc96784e74126c2183}
+\index{states.\+h@{states.\+h}!states\+\_\+print\+\_\+state@{states\+\_\+print\+\_\+state}}
+\index{states\+\_\+print\+\_\+state@{states\+\_\+print\+\_\+state}!states.\+h@{states.\+h}}
+\subsubsection[{\texorpdfstring{states\+\_\+print\+\_\+state(struct State $\ast$state)}{states_print_state(struct State *state)}}]{\setlength{\rightskip}{0pt plus 5cm}void states\+\_\+print\+\_\+state (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{state}
+\end{DoxyParamCaption}
+)}\hypertarget{states_8h_afa641d1990cd8152c94a2c44a50635e1}{}\label{states_8h_afa641d1990cd8152c94a2c44a50635e1}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{states_8h_afa641d1990cd8152c94a2c44a50635e1_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{states.\+h@{states.\+h}!states\+\_\+set\+\_\+handler\+\_\+reqval@{states\+\_\+set\+\_\+handler\+\_\+reqval}}
+\index{states\+\_\+set\+\_\+handler\+\_\+reqval@{states\+\_\+set\+\_\+handler\+\_\+reqval}!states.\+h@{states.\+h}}
+\subsubsection[{\texorpdfstring{states\+\_\+set\+\_\+handler\+\_\+reqval(struct State state\+\_\+arr[], cycle\+\_\+state\+\_\+id\+\_\+t id, bool($\ast$handler)(struct State $\ast$))}{states_set_handler_reqval(struct State state_arr[], cycle_state_id_t id, bool(*handler)(struct State *))}}]{\setlength{\rightskip}{0pt plus 5cm}int states\+\_\+set\+\_\+handler\+\_\+reqval (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State}}]{state\+\_\+arr\mbox{[}$\,$\mbox{]}, }
+\item[{{\bf cycle\+\_\+state\+\_\+id\+\_\+t}}]{id, }
+\item[{bool($\ast$)(struct {\bf State} $\ast$)}]{handler}
+\end{DoxyParamCaption}
+)}\hypertarget{states_8h_a21840ee4cc20b4ebdef96b9946340736}{}\label{states_8h_a21840ee4cc20b4ebdef96b9946340736}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=277pt]{states_8h_a21840ee4cc20b4ebdef96b9946340736_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{states.\+h@{states.\+h}!states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+end@{states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+end}}
+\index{states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+end@{states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+end}!states.\+h@{states.\+h}}
+\subsubsection[{\texorpdfstring{states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+end(struct State state\+\_\+arr[], cycle\+\_\+state\+\_\+id\+\_\+t id, void($\ast$handler)(struct State $\ast$, int))}{states_set_handler_timing_goal_end(struct State state_arr[], cycle_state_id_t id, void(*handler)(struct State *, int))}}]{\setlength{\rightskip}{0pt plus 5cm}int states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+end (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State}}]{state\+\_\+arr\mbox{[}$\,$\mbox{]}, }
+\item[{{\bf cycle\+\_\+state\+\_\+id\+\_\+t}}]{id, }
+\item[{void($\ast$)(struct {\bf State} $\ast$, int)}]{handler}
+\end{DoxyParamCaption}
+)}\hypertarget{states_8h_ae5df354b700722ddcd0e02f20c75fe7f}{}\label{states_8h_ae5df354b700722ddcd0e02f20c75fe7f}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=277pt]{states_8h_ae5df354b700722ddcd0e02f20c75fe7f_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{states.\+h@{states.\+h}!states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+start@{states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+start}}
+\index{states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+start@{states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+start}!states.\+h@{states.\+h}}
+\subsubsection[{\texorpdfstring{states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+start(struct State state\+\_\+arr[], cycle\+\_\+state\+\_\+id\+\_\+t id, void($\ast$handler)(struct State $\ast$, int))}{states_set_handler_timing_goal_start(struct State state_arr[], cycle_state_id_t id, void(*handler)(struct State *, int))}}]{\setlength{\rightskip}{0pt plus 5cm}int states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+start (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State}}]{state\+\_\+arr\mbox{[}$\,$\mbox{]}, }
+\item[{{\bf cycle\+\_\+state\+\_\+id\+\_\+t}}]{id, }
+\item[{void($\ast$)(struct {\bf State} $\ast$, int)}]{handler}
+\end{DoxyParamCaption}
+)}\hypertarget{states_8h_aea1268d1f1934c140cfff0e7316e963b}{}\label{states_8h_aea1268d1f1934c140cfff0e7316e963b}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=277pt]{states_8h_aea1268d1f1934c140cfff0e7316e963b_cgraph}
+\end{center}
+\end{figure}
+
+

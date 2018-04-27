@@ -1,0 +1,279 @@
+\hypertarget{syscalls_8c}{}\section{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/drivers/fpga-\/zynq\+\_\+console/src/com\+\_\+fesvr/syscalls.c File Reference}
+\label{syscalls_8c}\index{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/drivers/fpga-\/zynq\+\_\+console/src/com\+\_\+fesvr/syscalls.\+c@{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/drivers/fpga-\/zynq\+\_\+console/src/com\+\_\+fesvr/syscalls.\+c}}
+{\ttfamily \#include \char`\"{}syscalls.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$stdint.\+h$>$}\\*
+{\ttfamily \#include $<$string.\+h$>$}\\*
+{\ttfamily \#include $<$stdarg.\+h$>$}\\*
+{\ttfamily \#include $<$stdio.\+h$>$}\\*
+{\ttfamily \#include $<$limits.\+h$>$}\\*
+{\ttfamily \#include $<$kernel.\+h$>$}\\*
+{\ttfamily \#include $<$kernel\+\_\+structs.\+h$>$}\\*
+{\ttfamily \#include $<$inttypes.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}util.\+h\char`\"{}}\\*
+Include dependency graph for syscalls.\+c\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{syscalls_8c__incl}
+\end{center}
+\end{figure}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{syscalls_8c_aa7425a6f80dc9c0ec789079cb6547542}{S\+Y\+S\+\_\+write}~64
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+static uintptr\+\_\+t \hyperlink{syscalls_8c_ae77bdb2f6ff0addff487d9829635999f}{syscall} (uintptr\+\_\+t which, uint64\+\_\+t arg0, uint64\+\_\+t arg1, uint64\+\_\+t arg2)
+\item 
+void \hyperlink{syscalls_8c_a93b9cf91f7623d6d8b100a3693d6d5e4}{\+\_\+\+\_\+attribute\+\_\+\+\_\+} ((noreturn))
+\item 
+uintptr\+\_\+t \hyperlink{syscalls_8c_aeb0fee7e25692380f5346f304f4b6e5a}{\+\_\+\+\_\+attribute\+\_\+\+\_\+} ((weak))
+\item 
+void \hyperlink{syscalls_8c_a7b17e5913b7dff48eec9ba3976ccfd3c}{exit} (int code)
+\item 
+void \hyperlink{syscalls_8c_ac54f53dc342019e8db34f4aa581a5792}{abort} ()
+\item 
+void \hyperlink{syscalls_8c_a2c232df4171975e520968ab9d6eea808}{printstr} (const char $\ast$s)
+\item 
+int \hyperlink{syscalls_8c_a96309354255db4e97ae7aea3a9874b91}{putchar\+\_\+2} (int ch)
+\item 
+void \hyperlink{syscalls_8c_a14dbeec7c4499cc6660a804cd69d2546}{printhex} (uint64\+\_\+t x)
+\item 
+static void \hyperlink{syscalls_8c_ad321bdb456d9be4ac65a8d5aba299be7}{printnum} (void($\ast$putch)(int, void $\ast$$\ast$), void $\ast$$\ast$putdat, unsigned long long num, unsigned base, int width, int padc)
+\item 
+static unsigned long long \hyperlink{syscalls_8c_a934736e8473edc7ac3a20c613ae5f732}{getuint} (va\+\_\+list $\ast$ap, int lflag)
+\item 
+static long long \hyperlink{syscalls_8c_a7b1e12e09f757ca234758afb4d704db8}{getint} (va\+\_\+list $\ast$ap, int lflag)
+\item 
+size\+\_\+t \hyperlink{syscalls_8c_a35dfa13e23fa51201d41c6bc3e20aae1}{strlen\+\_\+2} (const char $\ast$s)
+\item 
+size\+\_\+t \hyperlink{syscalls_8c_a7bd978e4981a80586c5b3a0dac22f0f2}{strnlen} (const char $\ast$s, size\+\_\+t n)
+\item 
+static void \hyperlink{syscalls_8c_a9dee5275dde68dd7e6546e93aa5ad639}{vprintfmt} (void($\ast$putch)(int, void $\ast$$\ast$), void $\ast$$\ast$putdat, const char $\ast$fmt, va\+\_\+list ap)
+\item 
+int \hyperlink{syscalls_8c_a37707a50cca88a28b765ce77ac1403e9}{printfsvr} (const char $\ast$fmt,...)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+volatile uint64\+\_\+t \hyperlink{syscalls_8c_af4f0dc2fd18f5eccacc4ac0317972b29}{tohost}
+\item 
+volatile uint64\+\_\+t \hyperlink{syscalls_8c_a085cadbd59d5d173ab2621f7ebeedce3}{fromhost}
+\end{DoxyCompactItemize}
+
+
+\subsection{Macro Definition Documentation}
+\index{syscalls.\+c@{syscalls.\+c}!S\+Y\+S\+\_\+write@{S\+Y\+S\+\_\+write}}
+\index{S\+Y\+S\+\_\+write@{S\+Y\+S\+\_\+write}!syscalls.\+c@{syscalls.\+c}}
+\subsubsection[{\texorpdfstring{S\+Y\+S\+\_\+write}{SYS_write}}]{\setlength{\rightskip}{0pt plus 5cm}\#define S\+Y\+S\+\_\+write~64}\hypertarget{syscalls_8c_aa7425a6f80dc9c0ec789079cb6547542}{}\label{syscalls_8c_aa7425a6f80dc9c0ec789079cb6547542}
+
+
+\subsection{Function Documentation}
+\index{syscalls.\+c@{syscalls.\+c}!\+\_\+\+\_\+attribute\+\_\+\+\_\+@{\+\_\+\+\_\+attribute\+\_\+\+\_\+}}
+\index{\+\_\+\+\_\+attribute\+\_\+\+\_\+@{\+\_\+\+\_\+attribute\+\_\+\+\_\+}!syscalls.\+c@{syscalls.\+c}}
+\subsubsection[{\texorpdfstring{\+\_\+\+\_\+attribute\+\_\+\+\_\+((noreturn))}{__attribute__((noreturn))}}]{\setlength{\rightskip}{0pt plus 5cm}void \+\_\+\+\_\+attribute\+\_\+\+\_\+ (
+\begin{DoxyParamCaption}
+\item[{(noreturn)}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{syscalls_8c_a93b9cf91f7623d6d8b100a3693d6d5e4}{}\label{syscalls_8c_a93b9cf91f7623d6d8b100a3693d6d5e4}
+\index{syscalls.\+c@{syscalls.\+c}!\+\_\+\+\_\+attribute\+\_\+\+\_\+@{\+\_\+\+\_\+attribute\+\_\+\+\_\+}}
+\index{\+\_\+\+\_\+attribute\+\_\+\+\_\+@{\+\_\+\+\_\+attribute\+\_\+\+\_\+}!syscalls.\+c@{syscalls.\+c}}
+\subsubsection[{\texorpdfstring{\+\_\+\+\_\+attribute\+\_\+\+\_\+((weak))}{__attribute__((weak))}}]{\setlength{\rightskip}{0pt plus 5cm}int \+\_\+\+\_\+attribute\+\_\+\+\_\+ (
+\begin{DoxyParamCaption}
+\item[{(weak)}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{syscalls_8c_aeb0fee7e25692380f5346f304f4b6e5a}{}\label{syscalls_8c_aeb0fee7e25692380f5346f304f4b6e5a}
+\index{syscalls.\+c@{syscalls.\+c}!abort@{abort}}
+\index{abort@{abort}!syscalls.\+c@{syscalls.\+c}}
+\subsubsection[{\texorpdfstring{abort()}{abort()}}]{\setlength{\rightskip}{0pt plus 5cm}void abort (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{syscalls_8c_ac54f53dc342019e8db34f4aa581a5792}{}\label{syscalls_8c_ac54f53dc342019e8db34f4aa581a5792}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=186pt]{syscalls_8c_ac54f53dc342019e8db34f4aa581a5792_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{syscalls.\+c@{syscalls.\+c}!exit@{exit}}
+\index{exit@{exit}!syscalls.\+c@{syscalls.\+c}}
+\subsubsection[{\texorpdfstring{exit(int code)}{exit(int code)}}]{\setlength{\rightskip}{0pt plus 5cm}void exit (
+\begin{DoxyParamCaption}
+\item[{int}]{code}
+\end{DoxyParamCaption}
+)}\hypertarget{syscalls_8c_a7b17e5913b7dff48eec9ba3976ccfd3c}{}\label{syscalls_8c_a7b17e5913b7dff48eec9ba3976ccfd3c}
+\index{syscalls.\+c@{syscalls.\+c}!getint@{getint}}
+\index{getint@{getint}!syscalls.\+c@{syscalls.\+c}}
+\subsubsection[{\texorpdfstring{getint(va\+\_\+list $\ast$ap, int lflag)}{getint(va_list *ap, int lflag)}}]{\setlength{\rightskip}{0pt plus 5cm}static long long getint (
+\begin{DoxyParamCaption}
+\item[{va\+\_\+list $\ast$}]{ap, }
+\item[{int}]{lflag}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{syscalls_8c_a7b1e12e09f757ca234758afb4d704db8}{}\label{syscalls_8c_a7b1e12e09f757ca234758afb4d704db8}
+\index{syscalls.\+c@{syscalls.\+c}!getuint@{getuint}}
+\index{getuint@{getuint}!syscalls.\+c@{syscalls.\+c}}
+\subsubsection[{\texorpdfstring{getuint(va\+\_\+list $\ast$ap, int lflag)}{getuint(va_list *ap, int lflag)}}]{\setlength{\rightskip}{0pt plus 5cm}static unsigned long long getuint (
+\begin{DoxyParamCaption}
+\item[{va\+\_\+list $\ast$}]{ap, }
+\item[{int}]{lflag}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{syscalls_8c_a934736e8473edc7ac3a20c613ae5f732}{}\label{syscalls_8c_a934736e8473edc7ac3a20c613ae5f732}
+\index{syscalls.\+c@{syscalls.\+c}!printfsvr@{printfsvr}}
+\index{printfsvr@{printfsvr}!syscalls.\+c@{syscalls.\+c}}
+\subsubsection[{\texorpdfstring{printfsvr(const char $\ast$fmt,...)}{printfsvr(const char *fmt,...)}}]{\setlength{\rightskip}{0pt plus 5cm}int printfsvr (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{fmt, }
+\item[{}]{...}
+\end{DoxyParamCaption}
+)}\hypertarget{syscalls_8c_a37707a50cca88a28b765ce77ac1403e9}{}\label{syscalls_8c_a37707a50cca88a28b765ce77ac1403e9}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{syscalls_8c_a37707a50cca88a28b765ce77ac1403e9_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{syscalls.\+c@{syscalls.\+c}!printhex@{printhex}}
+\index{printhex@{printhex}!syscalls.\+c@{syscalls.\+c}}
+\subsubsection[{\texorpdfstring{printhex(uint64\+\_\+t x)}{printhex(uint64_t x)}}]{\setlength{\rightskip}{0pt plus 5cm}void printhex (
+\begin{DoxyParamCaption}
+\item[{uint64\+\_\+t}]{x}
+\end{DoxyParamCaption}
+)}\hypertarget{syscalls_8c_a14dbeec7c4499cc6660a804cd69d2546}{}\label{syscalls_8c_a14dbeec7c4499cc6660a804cd69d2546}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{syscalls_8c_a14dbeec7c4499cc6660a804cd69d2546_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{syscalls.\+c@{syscalls.\+c}!printnum@{printnum}}
+\index{printnum@{printnum}!syscalls.\+c@{syscalls.\+c}}
+\subsubsection[{\texorpdfstring{printnum(void($\ast$putch)(int, void $\ast$$\ast$), void $\ast$$\ast$putdat, unsigned long long num, unsigned base, int width, int padc)}{printnum(void(*putch)(int, void **), void **putdat, unsigned long long num, unsigned base, int width, int padc)}}]{\setlength{\rightskip}{0pt plus 5cm}static void printnum (
+\begin{DoxyParamCaption}
+\item[{void($\ast$)(int, void $\ast$$\ast$)}]{putch, }
+\item[{void $\ast$$\ast$}]{putdat, }
+\item[{unsigned long long}]{num, }
+\item[{unsigned}]{base, }
+\item[{int}]{width, }
+\item[{int}]{padc}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{syscalls_8c_ad321bdb456d9be4ac65a8d5aba299be7}{}\label{syscalls_8c_ad321bdb456d9be4ac65a8d5aba299be7}
+\index{syscalls.\+c@{syscalls.\+c}!printstr@{printstr}}
+\index{printstr@{printstr}!syscalls.\+c@{syscalls.\+c}}
+\subsubsection[{\texorpdfstring{printstr(const char $\ast$s)}{printstr(const char *s)}}]{\setlength{\rightskip}{0pt plus 5cm}void printstr (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{s}
+\end{DoxyParamCaption}
+)}\hypertarget{syscalls_8c_a2c232df4171975e520968ab9d6eea808}{}\label{syscalls_8c_a2c232df4171975e520968ab9d6eea808}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{syscalls_8c_a2c232df4171975e520968ab9d6eea808_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{syscalls.\+c@{syscalls.\+c}!putchar\+\_\+2@{putchar\+\_\+2}}
+\index{putchar\+\_\+2@{putchar\+\_\+2}!syscalls.\+c@{syscalls.\+c}}
+\subsubsection[{\texorpdfstring{putchar\+\_\+2(int ch)}{putchar_2(int ch)}}]{\setlength{\rightskip}{0pt plus 5cm}int putchar\+\_\+2 (
+\begin{DoxyParamCaption}
+\item[{int}]{ch}
+\end{DoxyParamCaption}
+)}\hypertarget{syscalls_8c_a96309354255db4e97ae7aea3a9874b91}{}\label{syscalls_8c_a96309354255db4e97ae7aea3a9874b91}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=331pt]{syscalls_8c_a96309354255db4e97ae7aea3a9874b91_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{syscalls.\+c@{syscalls.\+c}!strlen\+\_\+2@{strlen\+\_\+2}}
+\index{strlen\+\_\+2@{strlen\+\_\+2}!syscalls.\+c@{syscalls.\+c}}
+\subsubsection[{\texorpdfstring{strlen\+\_\+2(const char $\ast$s)}{strlen_2(const char *s)}}]{\setlength{\rightskip}{0pt plus 5cm}size\+\_\+t strlen\+\_\+2 (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{s}
+\end{DoxyParamCaption}
+)}\hypertarget{syscalls_8c_a35dfa13e23fa51201d41c6bc3e20aae1}{}\label{syscalls_8c_a35dfa13e23fa51201d41c6bc3e20aae1}
+\index{syscalls.\+c@{syscalls.\+c}!strnlen@{strnlen}}
+\index{strnlen@{strnlen}!syscalls.\+c@{syscalls.\+c}}
+\subsubsection[{\texorpdfstring{strnlen(const char $\ast$s, size\+\_\+t n)}{strnlen(const char *s, size_t n)}}]{\setlength{\rightskip}{0pt plus 5cm}size\+\_\+t strnlen (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{s, }
+\item[{size\+\_\+t}]{n}
+\end{DoxyParamCaption}
+)}\hypertarget{syscalls_8c_a7bd978e4981a80586c5b3a0dac22f0f2}{}\label{syscalls_8c_a7bd978e4981a80586c5b3a0dac22f0f2}
+\index{syscalls.\+c@{syscalls.\+c}!syscall@{syscall}}
+\index{syscall@{syscall}!syscalls.\+c@{syscalls.\+c}}
+\subsubsection[{\texorpdfstring{syscall(uintptr\+\_\+t which, uint64\+\_\+t arg0, uint64\+\_\+t arg1, uint64\+\_\+t arg2)}{syscall(uintptr_t which, uint64_t arg0, uint64_t arg1, uint64_t arg2)}}]{\setlength{\rightskip}{0pt plus 5cm}static uintptr\+\_\+t syscall (
+\begin{DoxyParamCaption}
+\item[{uintptr\+\_\+t}]{which, }
+\item[{uint64\+\_\+t}]{arg0, }
+\item[{uint64\+\_\+t}]{arg1, }
+\item[{uint64\+\_\+t}]{arg2}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{syscalls_8c_ae77bdb2f6ff0addff487d9829635999f}{}\label{syscalls_8c_ae77bdb2f6ff0addff487d9829635999f}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=236pt]{syscalls_8c_ae77bdb2f6ff0addff487d9829635999f_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{syscalls.\+c@{syscalls.\+c}!vprintfmt@{vprintfmt}}
+\index{vprintfmt@{vprintfmt}!syscalls.\+c@{syscalls.\+c}}
+\subsubsection[{\texorpdfstring{vprintfmt(void($\ast$putch)(int, void $\ast$$\ast$), void $\ast$$\ast$putdat, const char $\ast$fmt, va\+\_\+list ap)}{vprintfmt(void(*putch)(int, void **), void **putdat, const char *fmt, va_list ap)}}]{\setlength{\rightskip}{0pt plus 5cm}static void vprintfmt (
+\begin{DoxyParamCaption}
+\item[{void($\ast$)(int, void $\ast$$\ast$)}]{putch, }
+\item[{void $\ast$$\ast$}]{putdat, }
+\item[{const char $\ast$}]{fmt, }
+\item[{va\+\_\+list}]{ap}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{syscalls_8c_a9dee5275dde68dd7e6546e93aa5ad639}{}\label{syscalls_8c_a9dee5275dde68dd7e6546e93aa5ad639}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=225pt]{syscalls_8c_a9dee5275dde68dd7e6546e93aa5ad639_cgraph}
+\end{center}
+\end{figure}
+
+
+
+
+\subsection{Variable Documentation}
+\index{syscalls.\+c@{syscalls.\+c}!fromhost@{fromhost}}
+\index{fromhost@{fromhost}!syscalls.\+c@{syscalls.\+c}}
+\subsubsection[{\texorpdfstring{fromhost}{fromhost}}]{\setlength{\rightskip}{0pt plus 5cm}volatile uint64\+\_\+t fromhost}\hypertarget{syscalls_8c_a085cadbd59d5d173ab2621f7ebeedce3}{}\label{syscalls_8c_a085cadbd59d5d173ab2621f7ebeedce3}
+\index{syscalls.\+c@{syscalls.\+c}!tohost@{tohost}}
+\index{tohost@{tohost}!syscalls.\+c@{syscalls.\+c}}
+\subsubsection[{\texorpdfstring{tohost}{tohost}}]{\setlength{\rightskip}{0pt plus 5cm}volatile uint64\+\_\+t tohost}\hypertarget{syscalls_8c_af4f0dc2fd18f5eccacc4ac0317972b29}{}\label{syscalls_8c_af4f0dc2fd18f5eccacc4ac0317972b29}

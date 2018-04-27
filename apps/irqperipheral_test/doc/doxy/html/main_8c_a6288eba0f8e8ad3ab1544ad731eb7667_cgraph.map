@@ -1,0 +1,51 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$main_8c.html#ab108687134898bcfd0bd23956e74fe9d" title="print_kernel_info" alt="" coords="574,5,691,32"/>
+<area shape="rect" id="node4" href="$drivers_2fpga-zynq__console_2src_2main_8c.html#addac945d30228d08bf924de4f324d15e" title="print_device_drivers" alt="" coords="121,2133,259,2160"/>
+<area shape="rect" id="node6" href="$main_8c.html#a7501a11f3b74b676df64fe525bae0ea3" title="load_drivers" alt="" coords="144,2184,236,2211"/>
+<area shape="rect" id="node7" href="$utils_8c.html#af36dba4eccdbae5ab5fd15efded7b473" title="print_set_verbosity" alt="" coords="124,2235,256,2261"/>
+<area shape="rect" id="node8" href="$tests_8c.html#aef32f70b46355eee7432a3189817be6d" title="test_uart_1" alt="" coords="147,2083,233,2109"/>
+<area shape="rect" id="node14" href="$irqtestperipheral_8h.html#a9b978b9ecaa55f14088968af1ef734e4" title="irqtester_fe310_enable" alt="" coords="113,2285,267,2312"/>
+<area shape="rect" id="node15" href="$test__runners_8c.html#a7341d04eab2441711bf38faaa4aaf54f" title=": Basic checks for irqtestperipehral hardware. " alt="" coords="117,1348,263,1375"/>
+<area shape="rect" id="node26" href="$test__runners_8c.html#a8ec1e1e2b04814b8b52bb6056f1f53b8" title=": Benchmark for differnt ways to implement up&#45;pasing in ISRs. Software measurement: Use for trends..." alt="" coords="125,867,255,893"/>
+<area shape="rect" id="node40" href="$test__runners_8c.html#a8bf813841ba6b241587e7a43bd4ee87e" title=": easy irq throughput test, each irq period at a time. " alt="" coords="104,436,276,463"/>
+<area shape="rect" id="node42" href="$test__runners_8c.html#aec6499676bb3f0a7807018e85a715e14" title="run_test_state_mng_1" alt="" coords="115,1956,265,1983"/>
+<area shape="rect" id="node50" href="$test__runners_8c.html#ade3a980f5f8445a9998f96508f09ca24" title=": Benchmark time to run from reset once trough auto conf sm (&quot;critical loop&quot;). " alt="" coords="115,2032,265,2059"/>
+<area shape="rect" id="node3" href="$cycles_8c.html#a6e9f891bc6d1b4849bd701cca50ef426" title="read lower 32 bits of cycle csr register " alt="" coords="760,335,859,361"/>
+<area shape="rect" id="node5" href="$drivers_2fpga-zynq__console_2src_2main_8c.html#a42ee756b94eb5db2d5cd4d4c4bd73cee" title="device_list_get" alt="" coords="360,2631,469,2657"/>
+<area shape="rect" id="node9" href="$utils_8c.html#a1ae3605bfc857c7511287b5b181c6c54" title=": printk if given verbosity &gt;= set verbosity threshold. " alt="" coords="779,1399,840,1425"/>
+<area shape="rect" id="node10" href="$utils_8c.html#a1874e5dd974c6f85928e5da4437b8516" title="print_get_verbosity" alt="" coords="349,2428,481,2455"/>
+<area shape="rect" id="node11" href="$test__suite_8c.html#a9631a918ec25b67b9c88d608c962b956" title="test_get_err_count" alt="" coords="349,1905,480,1932"/>
+<area shape="rect" id="node12" href="$tests_8c.html#ad49ebb6290deac20eacb498e75da2300" title="test_uart_print_rx_buf" alt="" coords="559,2580,707,2607"/>
+<area shape="rect" id="node13" href="$test__suite_8c.html#aca28e88c15724c892057de2ac19d670c" title="test_assert" alt="" coords="589,1449,676,1476"/>
+<area shape="rect" id="node16" href="$test__suite_8c.html#ab89fbb465413f5edb0ed7a5250df74e5" title="test_reset" alt="" coords="375,1449,455,1476"/>
+<area shape="rect" id="node17" href="$utils_8c.html#a837767c06145c9dc0d34b536813c36c1" title="print_time_banner" alt="" coords="352,1095,477,1121"/>
+<area shape="rect" id="node18" href="$utils_8c.html#a938b2809d318f940f04a5a4588b188f7" title="prints string in the center of console with | at beginning and end of line. " alt="" coords="582,1120,683,1147"/>
+<area shape="rect" id="node19" href="$utils_8c.html#ac145fb3e03aef9c2c79f781997444002" title="Print dash line. " alt="" coords="578,1171,687,1197"/>
+<area shape="rect" id="node20" href="$tests_8c.html#a32713b62fdf039d4772219dfd46d87b6" title="test_hw_rev_1_basic_1" alt="" coords="335,1399,494,1425"/>
+<area shape="rect" id="node22" href="$test__suite_8c.html#a56b71528349e98c9046124126e64cd20" title="test_print_report" alt="" coords="357,1196,473,1223"/>
+<area shape="rect" id="node23" href="$tests_8c.html#abd1cc667ddb04e059ca7cffb91c35651" title="test_hw_rev_2_basic_1" alt="" coords="335,487,494,513"/>
+<area shape="rect" id="node25" href="$tests_8c.html#ac99d224b737dcf7d14aa1c5afb8b4113" title="test_hw_rev_3_basic_1" alt="" coords="335,1348,494,1375"/>
+<area shape="rect" id="node21" href="$irqtestperipheral_8c.html#a987670a27b50999e651f384e6b04e582" title="Non&#45;thread safe, generic getter for device (output) registers. Only works for regs which are loaded t..." alt="" coords="553,335,712,361"/>
+<area shape="rect" id="node24" href="$irqtestperipheral_8h.html#a614e7ce299e6946db0551c3e393093ce" title="irqtester_fe310_register\l_callback" alt="" coords="553,437,712,478"/>
+<area shape="rect" id="node27" href="$utils_8c.html#a86caec4831219d5525827df3243ca2bc" title="print_banner" alt="" coords="368,588,461,615"/>
+<area shape="rect" id="node28" href="$tests_8c.html#a9599f43845d16d6a178311e408590064" title="irq_handler_mes_time" alt="" coords="558,81,707,108"/>
+<area shape="rect" id="node29" href="$tests_8c.html#a2f582a13b67a78a417b5d6abb832ff82" title="test_interrupt_timing" alt="" coords="345,791,485,817"/>
+<area shape="rect" id="node30" href="$tests_8c.html#ad5bf75d2fd8b172e00d1178329311ced" title="print_analyze_timing" alt="" coords="344,1804,485,1831"/>
+<area shape="rect" id="node31" href="$test__handlers_8c.html#a607d0caba5be8a909239953628929b82" title="_irq_0_handler_1" alt="" coords="573,132,693,159"/>
+<area shape="rect" id="node32" href="$tests_8c.html#a5ee2f901271b16dd2ab37327b50cab79" title="test_rx_timing" alt="" coords="363,993,467,1020"/>
+<area shape="rect" id="node33" href="$test__handlers_8c.html#ab72a8eb156de3f56d27a7564fa4d7af8" title="_irq_0_handler_2" alt="" coords="355,183,475,209"/>
+<area shape="rect" id="node34" href="$test__handlers_8c.html#a39fa585079587829dce803e6d91ed01f" title="_irq_0_handler_5" alt="" coords="355,740,475,767"/>
+<area shape="rect" id="node35" href="$test__suite_8c.html#a026489240479bb5ed7ac26c6fdf431b2" title="test_get_err_stamp" alt="" coords="347,841,482,868"/>
+<area shape="rect" id="node36" href="$test__suite_8c.html#a0803e096ec821d2d951278ea5d35ca1c" title="test_set_enable_print_warn" alt="" coords="324,892,505,919"/>
+<area shape="rect" id="node37" href="$test__handlers_8c.html#acfd1ee2e2566799320b1c04ff4a5e3b9" title="_irq_0_handler_3" alt="" coords="355,284,475,311"/>
+<area shape="rect" id="node38" href="$test__handlers_8c.html#aae253df1724c61a9d4a1b3531ba9c8d7" title="_irq_0_handler_4" alt="" coords="355,943,475,969"/>
+<area shape="rect" id="node39" href="$test__suite_8c.html#a1b090cbd972f75a22650383315be0e79" title="test_set_err_count" alt="" coords="349,689,480,716"/>
+<area shape="rect" id="node41" href="$tests_8c.html#a6ab4e7ee369485b87cbcc3d15cacdc5a" title="test_irq_throughput_1" alt="" coords="341,335,488,361"/>
+<area shape="rect" id="node43" href="$state__manager_8c.html#aaf434b7fdff6d2b471af6385d8572dd4" title="Either use default config of states and transition table or set custom one. " alt="" coords="343,2057,486,2084"/>
+<area shape="rect" id="node44" href="$state__manager_8c.html#a23138a410f4f70b62e02f4d58aa111b6" title="Register an action to be executed in a certain state. Specify values this action will request from ir..." alt="" coords="348,2109,481,2150"/>
+<area shape="rect" id="node45" href="$test__runners_8c.html#a45ff47c3d8c87b5cc539f33a0d7af033" title="action_test_mng_1" alt="" coords="349,1956,481,1983"/>
+<area shape="rect" id="node46" href="$state__manager_8c.html#ad3cde1fa185470108d73b735b4125b92" title="Initialize. Mainly set up irqt driver. " alt="" coords="361,2175,468,2201"/>
+<area shape="rect" id="node47" href="$state__manager_8c.html#a325177709e375347f313b77ad1a2bf56" title="Entry function for state machine (FSM) loop. Should be invoked as thread; do NOT call. " alt="" coords="361,2225,469,2252"/>
+<area shape="rect" id="node48" href="$state__manager_8c.html#a639d174691e15c20411092f5f548b7fc" title="Send signal to start running state machine. " alt="" coords="357,2007,473,2033"/>
+<area shape="rect" id="node49" href="$tests_8c.html#a9dc69a36a2b245085b70293546decc13" title="test_state_mng_1" alt="" coords="351,1652,478,1679"/>
+</map>

@@ -1,0 +1,86 @@
+\hypertarget{util_8h}{}\section{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/drivers/fpga-\/zynq\+\_\+console/src/com\+\_\+fesvr/util.h File Reference}
+\label{util_8h}\index{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/drivers/fpga-\/zynq\+\_\+console/src/com\+\_\+fesvr/util.\+h@{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/drivers/fpga-\/zynq\+\_\+console/src/com\+\_\+fesvr/util.\+h}}
+{\ttfamily \#include $<$stdint.\+h$>$}\\*
+Include dependency graph for util.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=214pt]{util_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=214pt]{util_8h__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{util_8h_ad072c9a7fa6508417f73e3e24943d89f}{static\+\_\+assert}(cond)~switch(0) \{ case 0\+: case !!(long)(cond)\+: ; \}
+\item 
+\#define \hyperlink{util_8h_ad3edcac6b9bfb0ad2ba9460be0c8d91b}{stringify\+\_\+1}(s)~\#s
+\item 
+\#define \hyperlink{util_8h_ad21edfbf3d91d1af380e8d842e35960f}{stringify}(s)~\hyperlink{util_8h_ad3edcac6b9bfb0ad2ba9460be0c8d91b}{stringify\+\_\+1}(s)
+\item 
+\#define \hyperlink{util_8h_aa2330e5664997c21b60a1aec2d1665ef}{stats}(code,  iter)
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{util_8h_a20f94d410fddf3860ae674314f91e75b}{set\+Stats} (int enable)
+\end{DoxyCompactItemize}
+
+
+\subsection{Macro Definition Documentation}
+\index{util.\+h@{util.\+h}!static\+\_\+assert@{static\+\_\+assert}}
+\index{static\+\_\+assert@{static\+\_\+assert}!util.\+h@{util.\+h}}
+\subsubsection[{\texorpdfstring{static\+\_\+assert}{static_assert}}]{\setlength{\rightskip}{0pt plus 5cm}\#define static\+\_\+assert(
+\begin{DoxyParamCaption}
+\item[{}]{cond}
+\end{DoxyParamCaption}
+)~switch(0) \{ case 0\+: case !!(long)(cond)\+: ; \}}\hypertarget{util_8h_ad072c9a7fa6508417f73e3e24943d89f}{}\label{util_8h_ad072c9a7fa6508417f73e3e24943d89f}
+\index{util.\+h@{util.\+h}!stats@{stats}}
+\index{stats@{stats}!util.\+h@{util.\+h}}
+\subsubsection[{\texorpdfstring{stats}{stats}}]{\setlength{\rightskip}{0pt plus 5cm}\#define stats(
+\begin{DoxyParamCaption}
+\item[{}]{code, }
+\item[{}]{iter}
+\end{DoxyParamCaption}
+)}\hypertarget{util_8h_aa2330e5664997c21b60a1aec2d1665ef}{}\label{util_8h_aa2330e5664997c21b60a1aec2d1665ef}
+{\bfseries Value\+:}
+\begin{DoxyCode}
+\textcolor{keywordflow}{do} \{ \(\backslash\)
+    unsigned \textcolor{keywordtype}{long} \_c = -read\_csr(mcycle), \_i = -read\_csr(minstret); \(\backslash\)
+    code; \(\backslash\)
+    \_c += read\_csr(mcycle), \_i += read\_csr(minstret); \(\backslash\)
+    if (cid == 0) \(\backslash\)
+      printf(\textcolor{stringliteral}{"\(\backslash\)n%s: %ld cycles, %ld.%ld cycles/iter, %ld.%ld CPI\(\backslash\)n"}, \(\backslash\)
+             \hyperlink{util_8h_ad21edfbf3d91d1af380e8d842e35960f}{stringify}(code), \_c, \_c/iter, 10*\_c/iter%10, \_c/\_i, 10*\_c/\_i%10); \(\backslash\)
+  \} \textcolor{keywordflow}{while}(0)
+\end{DoxyCode}
+\index{util.\+h@{util.\+h}!stringify@{stringify}}
+\index{stringify@{stringify}!util.\+h@{util.\+h}}
+\subsubsection[{\texorpdfstring{stringify}{stringify}}]{\setlength{\rightskip}{0pt plus 5cm}\#define stringify(
+\begin{DoxyParamCaption}
+\item[{}]{s}
+\end{DoxyParamCaption}
+)~{\bf stringify\+\_\+1}(s)}\hypertarget{util_8h_ad21edfbf3d91d1af380e8d842e35960f}{}\label{util_8h_ad21edfbf3d91d1af380e8d842e35960f}
+\index{util.\+h@{util.\+h}!stringify\+\_\+1@{stringify\+\_\+1}}
+\index{stringify\+\_\+1@{stringify\+\_\+1}!util.\+h@{util.\+h}}
+\subsubsection[{\texorpdfstring{stringify\+\_\+1}{stringify_1}}]{\setlength{\rightskip}{0pt plus 5cm}\#define stringify\+\_\+1(
+\begin{DoxyParamCaption}
+\item[{}]{s}
+\end{DoxyParamCaption}
+)~\#s}\hypertarget{util_8h_ad3edcac6b9bfb0ad2ba9460be0c8d91b}{}\label{util_8h_ad3edcac6b9bfb0ad2ba9460be0c8d91b}
+
+
+\subsection{Function Documentation}
+\index{util.\+h@{util.\+h}!set\+Stats@{set\+Stats}}
+\index{set\+Stats@{set\+Stats}!util.\+h@{util.\+h}}
+\subsubsection[{\texorpdfstring{set\+Stats(int enable)}{setStats(int enable)}}]{\setlength{\rightskip}{0pt plus 5cm}void set\+Stats (
+\begin{DoxyParamCaption}
+\item[{int}]{enable}
+\end{DoxyParamCaption}
+)}\hypertarget{util_8h_a20f94d410fddf3860ae674314f91e75b}{}\label{util_8h_a20f94d410fddf3860ae674314f91e75b}

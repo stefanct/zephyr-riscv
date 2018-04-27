@@ -1,0 +1,5 @@
+<map id="sm_com_print_state" name="sm_com_print_state">
+<area shape="rect" id="node2" href="$state__manager_8c.html#a14b1648ed43b1f50b64c2618dc2f827e" title="Calcs the time since start state. " alt="" coords="201,5,341,47"/>
+<area shape="rect" id="node4" href="$state__manager_8c.html#a202929756c8c3b71de406e0b407db9c1" title="Thread&#45;safe getter of current state id. " alt="" coords="193,71,348,98"/>
+<area shape="rect" id="node3" href="$cycles_8c.html#a6e9f891bc6d1b4849bd701cca50ef426" title="read lower 32 bits of cycle csr register " alt="" coords="396,13,495,39"/>
+</map>

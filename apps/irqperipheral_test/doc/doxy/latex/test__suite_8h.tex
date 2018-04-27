@@ -1,0 +1,116 @@
+\hypertarget{test__suite_8h}{}\section{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/tests/test\+\_\+suite.h File Reference}
+\label{test__suite_8h}\index{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/tests/test\+\_\+suite.\+h@{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/tests/test\+\_\+suite.\+h}}
+
+
+Keep track of test errors.  
+
+
+{\ttfamily \#include $<$zephyr.\+h$>$}\\*
+Include dependency graph for test\+\_\+suite.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=198pt]{test__suite_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{test__suite_8h__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{test__suite_8h_aca28e88c15724c892057de2ac19d670c}{test\+\_\+assert} (bool expression)
+\item 
+void \hyperlink{test__suite_8h_a7b1cb2acb5936c7782a71aea1ecdc5b4}{test\+\_\+warn\+\_\+on\+\_\+new\+\_\+error} (void)
+\item 
+void \hyperlink{test__suite_8h_a56b71528349e98c9046124126e64cd20}{test\+\_\+print\+\_\+report} (int verbosity)
+\item 
+int \hyperlink{test__suite_8h_a9631a918ec25b67b9c88d608c962b956}{test\+\_\+get\+\_\+err\+\_\+count} ()
+\item 
+int \hyperlink{test__suite_8h_a026489240479bb5ed7ac26c6fdf431b2}{test\+\_\+get\+\_\+err\+\_\+stamp} ()
+\item 
+void \hyperlink{test__suite_8h_a1b090cbd972f75a22650383315be0e79}{test\+\_\+set\+\_\+err\+\_\+count} (int num\+\_\+err)
+\item 
+void \hyperlink{test__suite_8h_a0803e096ec821d2d951278ea5d35ca1c}{test\+\_\+set\+\_\+enable\+\_\+print\+\_\+warn} (bool enabled)
+\item 
+void \hyperlink{test__suite_8h_ab89fbb465413f5edb0ed7a5250df74e5}{test\+\_\+reset} ()
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Keep track of test errors. 
+
+
+
+\subsection{Function Documentation}
+\index{test\+\_\+suite.\+h@{test\+\_\+suite.\+h}!test\+\_\+assert@{test\+\_\+assert}}
+\index{test\+\_\+assert@{test\+\_\+assert}!test\+\_\+suite.\+h@{test\+\_\+suite.\+h}}
+\subsubsection[{\texorpdfstring{test\+\_\+assert(bool expression)}{test_assert(bool expression)}}]{\setlength{\rightskip}{0pt plus 5cm}void test\+\_\+assert (
+\begin{DoxyParamCaption}
+\item[{bool}]{expression}
+\end{DoxyParamCaption}
+)}\hypertarget{test__suite_8h_aca28e88c15724c892057de2ac19d670c}{}\label{test__suite_8h_aca28e88c15724c892057de2ac19d670c}
+\index{test\+\_\+suite.\+h@{test\+\_\+suite.\+h}!test\+\_\+get\+\_\+err\+\_\+count@{test\+\_\+get\+\_\+err\+\_\+count}}
+\index{test\+\_\+get\+\_\+err\+\_\+count@{test\+\_\+get\+\_\+err\+\_\+count}!test\+\_\+suite.\+h@{test\+\_\+suite.\+h}}
+\subsubsection[{\texorpdfstring{test\+\_\+get\+\_\+err\+\_\+count()}{test_get_err_count()}}]{\setlength{\rightskip}{0pt plus 5cm}int test\+\_\+get\+\_\+err\+\_\+count (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{test__suite_8h_a9631a918ec25b67b9c88d608c962b956}{}\label{test__suite_8h_a9631a918ec25b67b9c88d608c962b956}
+\index{test\+\_\+suite.\+h@{test\+\_\+suite.\+h}!test\+\_\+get\+\_\+err\+\_\+stamp@{test\+\_\+get\+\_\+err\+\_\+stamp}}
+\index{test\+\_\+get\+\_\+err\+\_\+stamp@{test\+\_\+get\+\_\+err\+\_\+stamp}!test\+\_\+suite.\+h@{test\+\_\+suite.\+h}}
+\subsubsection[{\texorpdfstring{test\+\_\+get\+\_\+err\+\_\+stamp()}{test_get_err_stamp()}}]{\setlength{\rightskip}{0pt plus 5cm}int test\+\_\+get\+\_\+err\+\_\+stamp (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{test__suite_8h_a026489240479bb5ed7ac26c6fdf431b2}{}\label{test__suite_8h_a026489240479bb5ed7ac26c6fdf431b2}
+\index{test\+\_\+suite.\+h@{test\+\_\+suite.\+h}!test\+\_\+print\+\_\+report@{test\+\_\+print\+\_\+report}}
+\index{test\+\_\+print\+\_\+report@{test\+\_\+print\+\_\+report}!test\+\_\+suite.\+h@{test\+\_\+suite.\+h}}
+\subsubsection[{\texorpdfstring{test\+\_\+print\+\_\+report(int verbosity)}{test_print_report(int verbosity)}}]{\setlength{\rightskip}{0pt plus 5cm}void test\+\_\+print\+\_\+report (
+\begin{DoxyParamCaption}
+\item[{int}]{verbosity}
+\end{DoxyParamCaption}
+)}\hypertarget{test__suite_8h_a56b71528349e98c9046124126e64cd20}{}\label{test__suite_8h_a56b71528349e98c9046124126e64cd20}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{test__suite_8h_a56b71528349e98c9046124126e64cd20_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{test\+\_\+suite.\+h@{test\+\_\+suite.\+h}!test\+\_\+reset@{test\+\_\+reset}}
+\index{test\+\_\+reset@{test\+\_\+reset}!test\+\_\+suite.\+h@{test\+\_\+suite.\+h}}
+\subsubsection[{\texorpdfstring{test\+\_\+reset()}{test_reset()}}]{\setlength{\rightskip}{0pt plus 5cm}void test\+\_\+reset (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{test__suite_8h_ab89fbb465413f5edb0ed7a5250df74e5}{}\label{test__suite_8h_ab89fbb465413f5edb0ed7a5250df74e5}
+\index{test\+\_\+suite.\+h@{test\+\_\+suite.\+h}!test\+\_\+set\+\_\+enable\+\_\+print\+\_\+warn@{test\+\_\+set\+\_\+enable\+\_\+print\+\_\+warn}}
+\index{test\+\_\+set\+\_\+enable\+\_\+print\+\_\+warn@{test\+\_\+set\+\_\+enable\+\_\+print\+\_\+warn}!test\+\_\+suite.\+h@{test\+\_\+suite.\+h}}
+\subsubsection[{\texorpdfstring{test\+\_\+set\+\_\+enable\+\_\+print\+\_\+warn(bool enabled)}{test_set_enable_print_warn(bool enabled)}}]{\setlength{\rightskip}{0pt plus 5cm}void test\+\_\+set\+\_\+enable\+\_\+print\+\_\+warn (
+\begin{DoxyParamCaption}
+\item[{bool}]{enabled}
+\end{DoxyParamCaption}
+)}\hypertarget{test__suite_8h_a0803e096ec821d2d951278ea5d35ca1c}{}\label{test__suite_8h_a0803e096ec821d2d951278ea5d35ca1c}
+\index{test\+\_\+suite.\+h@{test\+\_\+suite.\+h}!test\+\_\+set\+\_\+err\+\_\+count@{test\+\_\+set\+\_\+err\+\_\+count}}
+\index{test\+\_\+set\+\_\+err\+\_\+count@{test\+\_\+set\+\_\+err\+\_\+count}!test\+\_\+suite.\+h@{test\+\_\+suite.\+h}}
+\subsubsection[{\texorpdfstring{test\+\_\+set\+\_\+err\+\_\+count(int num\+\_\+err)}{test_set_err_count(int num_err)}}]{\setlength{\rightskip}{0pt plus 5cm}void test\+\_\+set\+\_\+err\+\_\+count (
+\begin{DoxyParamCaption}
+\item[{int}]{num\+\_\+err}
+\end{DoxyParamCaption}
+)}\hypertarget{test__suite_8h_a1b090cbd972f75a22650383315be0e79}{}\label{test__suite_8h_a1b090cbd972f75a22650383315be0e79}
+\index{test\+\_\+suite.\+h@{test\+\_\+suite.\+h}!test\+\_\+warn\+\_\+on\+\_\+new\+\_\+error@{test\+\_\+warn\+\_\+on\+\_\+new\+\_\+error}}
+\index{test\+\_\+warn\+\_\+on\+\_\+new\+\_\+error@{test\+\_\+warn\+\_\+on\+\_\+new\+\_\+error}!test\+\_\+suite.\+h@{test\+\_\+suite.\+h}}
+\subsubsection[{\texorpdfstring{test\+\_\+warn\+\_\+on\+\_\+new\+\_\+error(void)}{test_warn_on_new_error(void)}}]{\setlength{\rightskip}{0pt plus 5cm}void test\+\_\+warn\+\_\+on\+\_\+new\+\_\+error (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{test__suite_8h_a7b1cb2acb5936c7782a71aea1ecdc5b4}{}\label{test__suite_8h_a7b1cb2acb5936c7782a71aea1ecdc5b4}

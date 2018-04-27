@@ -1,0 +1,5 @@
+<map id="/home/timo/Software/zephyr&#45;riscv_dev/apps/irqperipheral_test/src/profiler.c" name="/home/timo/Software/zephyr&#45;riscv_dev/apps/irqperipheral_test/src/profiler.c">
+<area shape="rect" id="node2" href="$profiler_8h.html" title="Simple statistical profiler employing periodic IRQ of irqtestperipheral hardware. ..." alt="" coords="5,124,77,151"/>
+<area shape="rect" id="node4" href="$irqtestperipheral_8h.html" title="low&#45;level driver functions to interact with hardware " alt="" coords="101,124,227,151"/>
+<area shape="rect" id="node6" href="$globals_8h.html" title="Global shared variables, mainly devices handles. " alt="" coords="251,124,325,151"/>
+</map>

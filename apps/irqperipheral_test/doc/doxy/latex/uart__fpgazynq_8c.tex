@@ -1,0 +1,157 @@
+\hypertarget{uart__fpgazynq_8c}{}\section{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/drivers/fpga-\/zynq\+\_\+console/src/uart\+\_\+fpgazynq.c File Reference}
+\label{uart__fpgazynq_8c}\index{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/drivers/fpga-\/zynq\+\_\+console/src/uart\+\_\+fpgazynq.\+c@{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/drivers/fpga-\/zynq\+\_\+console/src/uart\+\_\+fpgazynq.\+c}}
+
+
+Driver for console output to fpga-\/zynq\textquotesingle{}s frontend server (fesvr)  
+
+
+{\ttfamily \#include $<$kernel.\+h$>$}\\*
+{\ttfamily \#include $<$arch/cpu.\+h$>$}\\*
+{\ttfamily \#include $<$uart.\+h$>$}\\*
+{\ttfamily \#include $<$board.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}com\+\_\+fesvr/syscalls.\+h\char`\"{}}\\*
+Include dependency graph for uart\+\_\+fpgazynq.\+c\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{uart__fpgazynq_8c__incl}
+\end{center}
+\end{figure}
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structuart__fpgazynq__device__config}{uart\+\_\+fpgazynq\+\_\+device\+\_\+config}
+\item 
+struct \hyperlink{structuart__fpgazynq__data}{uart\+\_\+fpgazynq\+\_\+data}
+\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{uart__fpgazynq_8c_ab5c3864067257693d9bef98c3fe8fc2b}{D\+E\+V\+\_\+\+C\+FG}(dev)
+\item 
+\#define \hyperlink{uart__fpgazynq_8c_aa90b045b0cf3a7fe70c69ba16eb135cc}{D\+E\+V\+\_\+\+D\+A\+TA}(dev)~((struct \hyperlink{structuart__fpgazynq__data}{uart\+\_\+fpgazynq\+\_\+data} $\ast$ const)(dev)-\/$>$driver\+\_\+data)
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+static unsigned char \hyperlink{uart__fpgazynq_8c_a851bc4f05ccf668befa650b3ac66b67a}{uart\+\_\+fpgazynq\+\_\+poll\+\_\+out} (struct device $\ast$dev, unsigned char ch)
+\item 
+static int \hyperlink{uart__fpgazynq_8c_a01a1487127b6b8ee6820644317e20a99}{uart\+\_\+fpgazynq\+\_\+poll\+\_\+in} (struct device $\ast$dev, unsigned char $\ast$c)
+\item 
+static int \hyperlink{uart__fpgazynq_8c_a337b2a239e4474b6b9c191941b6e779d}{uart\+\_\+fpgazynq\+\_\+init} (struct device $\ast$dev)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static const struct uart\+\_\+driver\+\_\+api \hyperlink{uart__fpgazynq_8c_a98a5e63a49f40e30ecc0ec84d4df4364}{uart\+\_\+fpgazynq\+\_\+driver\+\_\+api}
+\item 
+static const struct \hyperlink{structuart__fpgazynq__device__config}{uart\+\_\+fpgazynq\+\_\+device\+\_\+config} \hyperlink{uart__fpgazynq_8c_a419c111714cb72b2b43363326490e957}{uart\+\_\+fpgazynq\+\_\+dev\+\_\+cfg\+\_\+0}
+\item 
+static struct \hyperlink{structuart__fpgazynq__data}{uart\+\_\+fpgazynq\+\_\+data} \hyperlink{uart__fpgazynq_8c_ab03ab7c5621c68576e871a67c76ccd9e}{uart\+\_\+fpgazynq\+\_\+data\+\_\+0}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Driver for console output to fpga-\/zynq\textquotesingle{}s frontend server (fesvr) 
+
+Requires
+\begin{DoxyItemize}
+\item tohost/fromhost symbols which must be set in host\+Sym.\+S and the linking script!
+\item set in kconfig menugconfig\+:
+\begin{DoxyItemize}
+\item application drivers / fpga-\/zynq serial driver
+\item device drivers / console / \char`\"{}use U\+A\+R\+T for console\char`\"{}
+\item device drivers / console / \char`\"{}device name\char`\"{} = C\+O\+N\+F\+I\+G\+\_\+\+U\+A\+R\+T\+\_\+\+F\+P\+G\+A\+Z\+Y\+N\+Q\+\_\+\+N\+A\+ME
+\end{DoxyItemize}
+\item this driver automatically sets drivers / serial. Ignore settings in menuconfig there. selecting \char`\"{}serial\char`\"{} causes a warning (S\+T\+M32\+F4X...), ignore. You can check whether correct hook is installer in uart\+\_\+console\+\_\+init(). 
+\end{DoxyItemize}
+
+\subsection{Macro Definition Documentation}
+\index{uart\+\_\+fpgazynq.\+c@{uart\+\_\+fpgazynq.\+c}!D\+E\+V\+\_\+\+C\+FG@{D\+E\+V\+\_\+\+C\+FG}}
+\index{D\+E\+V\+\_\+\+C\+FG@{D\+E\+V\+\_\+\+C\+FG}!uart\+\_\+fpgazynq.\+c@{uart\+\_\+fpgazynq.\+c}}
+\subsubsection[{\texorpdfstring{D\+E\+V\+\_\+\+C\+FG}{DEV_CFG}}]{\setlength{\rightskip}{0pt plus 5cm}\#define D\+E\+V\+\_\+\+C\+FG(
+\begin{DoxyParamCaption}
+\item[{}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{uart__fpgazynq_8c_ab5c3864067257693d9bef98c3fe8fc2b}{}\label{uart__fpgazynq_8c_ab5c3864067257693d9bef98c3fe8fc2b}
+{\bfseries Value\+:}
+\begin{DoxyCode}
+((\textcolor{keyword}{const} \textcolor{keyword}{struct }\hyperlink{structuart__fpgazynq__device__config}{uart\_fpgazynq\_device\_config} * \textcolor{keyword}{const})  \(\backslash\)
+     (dev)->config->config\_info)
+\end{DoxyCode}
+\index{uart\+\_\+fpgazynq.\+c@{uart\+\_\+fpgazynq.\+c}!D\+E\+V\+\_\+\+D\+A\+TA@{D\+E\+V\+\_\+\+D\+A\+TA}}
+\index{D\+E\+V\+\_\+\+D\+A\+TA@{D\+E\+V\+\_\+\+D\+A\+TA}!uart\+\_\+fpgazynq.\+c@{uart\+\_\+fpgazynq.\+c}}
+\subsubsection[{\texorpdfstring{D\+E\+V\+\_\+\+D\+A\+TA}{DEV_DATA}}]{\setlength{\rightskip}{0pt plus 5cm}\#define D\+E\+V\+\_\+\+D\+A\+TA(
+\begin{DoxyParamCaption}
+\item[{}]{dev}
+\end{DoxyParamCaption}
+)~((struct {\bf uart\+\_\+fpgazynq\+\_\+data} $\ast$ const)(dev)-\/$>$driver\+\_\+data)}\hypertarget{uart__fpgazynq_8c_aa90b045b0cf3a7fe70c69ba16eb135cc}{}\label{uart__fpgazynq_8c_aa90b045b0cf3a7fe70c69ba16eb135cc}
+
+
+\subsection{Function Documentation}
+\index{uart\+\_\+fpgazynq.\+c@{uart\+\_\+fpgazynq.\+c}!uart\+\_\+fpgazynq\+\_\+init@{uart\+\_\+fpgazynq\+\_\+init}}
+\index{uart\+\_\+fpgazynq\+\_\+init@{uart\+\_\+fpgazynq\+\_\+init}!uart\+\_\+fpgazynq.\+c@{uart\+\_\+fpgazynq.\+c}}
+\subsubsection[{\texorpdfstring{uart\+\_\+fpgazynq\+\_\+init(struct device $\ast$dev)}{uart_fpgazynq_init(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}static int uart\+\_\+fpgazynq\+\_\+init (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{uart__fpgazynq_8c_a337b2a239e4474b6b9c191941b6e779d}{}\label{uart__fpgazynq_8c_a337b2a239e4474b6b9c191941b6e779d}
+\index{uart\+\_\+fpgazynq.\+c@{uart\+\_\+fpgazynq.\+c}!uart\+\_\+fpgazynq\+\_\+poll\+\_\+in@{uart\+\_\+fpgazynq\+\_\+poll\+\_\+in}}
+\index{uart\+\_\+fpgazynq\+\_\+poll\+\_\+in@{uart\+\_\+fpgazynq\+\_\+poll\+\_\+in}!uart\+\_\+fpgazynq.\+c@{uart\+\_\+fpgazynq.\+c}}
+\subsubsection[{\texorpdfstring{uart\+\_\+fpgazynq\+\_\+poll\+\_\+in(struct device $\ast$dev, unsigned char $\ast$c)}{uart_fpgazynq_poll_in(struct device *dev, unsigned char *c)}}]{\setlength{\rightskip}{0pt plus 5cm}static int uart\+\_\+fpgazynq\+\_\+poll\+\_\+in (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{unsigned char $\ast$}]{c}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{uart__fpgazynq_8c_a01a1487127b6b8ee6820644317e20a99}{}\label{uart__fpgazynq_8c_a01a1487127b6b8ee6820644317e20a99}
+\index{uart\+\_\+fpgazynq.\+c@{uart\+\_\+fpgazynq.\+c}!uart\+\_\+fpgazynq\+\_\+poll\+\_\+out@{uart\+\_\+fpgazynq\+\_\+poll\+\_\+out}}
+\index{uart\+\_\+fpgazynq\+\_\+poll\+\_\+out@{uart\+\_\+fpgazynq\+\_\+poll\+\_\+out}!uart\+\_\+fpgazynq.\+c@{uart\+\_\+fpgazynq.\+c}}
+\subsubsection[{\texorpdfstring{uart\+\_\+fpgazynq\+\_\+poll\+\_\+out(struct device $\ast$dev, unsigned char ch)}{uart_fpgazynq_poll_out(struct device *dev, unsigned char ch)}}]{\setlength{\rightskip}{0pt plus 5cm}static unsigned char uart\+\_\+fpgazynq\+\_\+poll\+\_\+out (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{unsigned char}]{ch}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{uart__fpgazynq_8c_a851bc4f05ccf668befa650b3ac66b67a}{}\label{uart__fpgazynq_8c_a851bc4f05ccf668befa650b3ac66b67a}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{uart__fpgazynq_8c_a851bc4f05ccf668befa650b3ac66b67a_cgraph}
+\end{center}
+\end{figure}
+
+
+
+
+\subsection{Variable Documentation}
+\index{uart\+\_\+fpgazynq.\+c@{uart\+\_\+fpgazynq.\+c}!uart\+\_\+fpgazynq\+\_\+data\+\_\+0@{uart\+\_\+fpgazynq\+\_\+data\+\_\+0}}
+\index{uart\+\_\+fpgazynq\+\_\+data\+\_\+0@{uart\+\_\+fpgazynq\+\_\+data\+\_\+0}!uart\+\_\+fpgazynq.\+c@{uart\+\_\+fpgazynq.\+c}}
+\subsubsection[{\texorpdfstring{uart\+\_\+fpgazynq\+\_\+data\+\_\+0}{uart_fpgazynq_data_0}}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf uart\+\_\+fpgazynq\+\_\+data} uart\+\_\+fpgazynq\+\_\+data\+\_\+0\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{uart__fpgazynq_8c_ab03ab7c5621c68576e871a67c76ccd9e}{}\label{uart__fpgazynq_8c_ab03ab7c5621c68576e871a67c76ccd9e}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+= \{
+    .dummy = 0
+\}
+\end{DoxyCode}
+\index{uart\+\_\+fpgazynq.\+c@{uart\+\_\+fpgazynq.\+c}!uart\+\_\+fpgazynq\+\_\+dev\+\_\+cfg\+\_\+0@{uart\+\_\+fpgazynq\+\_\+dev\+\_\+cfg\+\_\+0}}
+\index{uart\+\_\+fpgazynq\+\_\+dev\+\_\+cfg\+\_\+0@{uart\+\_\+fpgazynq\+\_\+dev\+\_\+cfg\+\_\+0}!uart\+\_\+fpgazynq.\+c@{uart\+\_\+fpgazynq.\+c}}
+\subsubsection[{\texorpdfstring{uart\+\_\+fpgazynq\+\_\+dev\+\_\+cfg\+\_\+0}{uart_fpgazynq_dev_cfg_0}}]{\setlength{\rightskip}{0pt plus 5cm}const struct {\bf uart\+\_\+fpgazynq\+\_\+device\+\_\+config} uart\+\_\+fpgazynq\+\_\+dev\+\_\+cfg\+\_\+0\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{uart__fpgazynq_8c_a419c111714cb72b2b43363326490e957}{}\label{uart__fpgazynq_8c_a419c111714cb72b2b43363326490e957}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+= \{
+    .dummy = 0
+\}
+\end{DoxyCode}
+\index{uart\+\_\+fpgazynq.\+c@{uart\+\_\+fpgazynq.\+c}!uart\+\_\+fpgazynq\+\_\+driver\+\_\+api@{uart\+\_\+fpgazynq\+\_\+driver\+\_\+api}}
+\index{uart\+\_\+fpgazynq\+\_\+driver\+\_\+api@{uart\+\_\+fpgazynq\+\_\+driver\+\_\+api}!uart\+\_\+fpgazynq.\+c@{uart\+\_\+fpgazynq.\+c}}
+\subsubsection[{\texorpdfstring{uart\+\_\+fpgazynq\+\_\+driver\+\_\+api}{uart_fpgazynq_driver_api}}]{\setlength{\rightskip}{0pt plus 5cm}const struct uart\+\_\+driver\+\_\+api uart\+\_\+fpgazynq\+\_\+driver\+\_\+api\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{uart__fpgazynq_8c_a98a5e63a49f40e30ecc0ec84d4df4364}{}\label{uart__fpgazynq_8c_a98a5e63a49f40e30ecc0ec84d4df4364}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+= \{
+    .poll\_in          = \hyperlink{uart__fpgazynq_8c_a01a1487127b6b8ee6820644317e20a99}{uart\_fpgazynq\_poll\_in},   
+    .poll\_out         = \hyperlink{uart__fpgazynq_8c_a851bc4f05ccf668befa650b3ac66b67a}{uart\_fpgazynq\_poll\_out},
+    .err\_check        = NULL,
+\}
+\end{DoxyCode}

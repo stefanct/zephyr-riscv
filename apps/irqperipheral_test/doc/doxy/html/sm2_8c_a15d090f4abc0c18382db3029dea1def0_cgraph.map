@@ -1,0 +1,18 @@
+<map id="sm2_appconfig" name="sm2_appconfig">
+<area shape="rect" id="node2" href="$state__manager_8c.html#a23138a410f4f70b62e02f4d58aa111b6" title="Register an action to be executed in a certain state. Specify values this action will request from ir..." alt="" coords="193,49,326,90"/>
+<area shape="rect" id="node6" href="$sm__common_8c.html#ab654403e8b7731f077a3c4a13a0c72a4" title="sm_com_check_last_state" alt="" coords="170,115,349,141"/>
+<area shape="rect" id="node8" href="$sm__common_8c.html#ab8383b7d103d200f920cec584344659f" title="sm_com_clear_valflags" alt="" coords="180,267,339,293"/>
+<area shape="rect" id="node15" href="$sm__common_8c.html#a90da654de0fa5c2dc777704bae58b718" title="sm_com_check_val_updates" alt="" coords="164,216,355,243"/>
+<area shape="rect" id="node16" href="$sm__common_8c.html#a2d00cd984a475c4df80da9329bb7b550" title="sm_com_update_counter" alt="" coords="175,165,343,192"/>
+<area shape="rect" id="node17" href="$sm__common_8c.html#a0e9b0500e276c80fbce77bfffe1cd829" title="sm_com_mes_mperf" alt="" coords="187,317,331,344"/>
+<area shape="rect" id="node3" href="$state__manager_8c.html#a6579e86bc3f3de2539796108bfc9a1be" title="Thread&#45;safe getter whether state machine thread is running. " alt="" coords="407,5,556,32"/>
+<area shape="rect" id="node4" href="$state__manager_8c.html#a6c0124042835015818d50d9130c2db76" title="Search whether val_id is in array. " alt="" coords="427,56,536,83"/>
+<area shape="rect" id="node5" href="$state__manager_8c.html#adfd529eaa40008fae50455147470e981" title="Non thread&#45;safe getter of state struct. Call ONLY from state_mng run loop. " alt="" coords="406,107,557,133"/>
+<area shape="rect" id="node7" href="$state__manager_8c.html#a202929756c8c3b71de406e0b407db9c1" title="Thread&#45;safe getter of current state id. " alt="" coords="404,165,559,192"/>
+<area shape="rect" id="node9" href="$irqtestperipheral_8c.html#a46f10c3e9b63404c15f52ab375a28977" title="Thread safe generic (by id) getter for values of generic type from driver memory pools. " alt="" coords="403,216,560,243"/>
+<area shape="rect" id="node14" href="$irqtestperipheral_8c.html#a997c5939bc6f47d246540c69ff49733d" title="Clear all flags. " alt="" coords="410,267,553,309"/>
+<area shape="rect" id="node10" href="$irqtestperipheral_8c.html#aacd45cbca76d5cb252b111e2e064a3e0" title="id_2_type_fast" alt="" coords="611,140,718,167"/>
+<area shape="rect" id="node11" href="$irqtestperipheral_8c.html#a15420b03ab67124ddc6d1b4f63f32309" title="id_2_type" alt="" coords="625,191,704,217"/>
+<area shape="rect" id="node12" href="$irqtestperipheral_8c.html#aae36b616bf3ffc8134b83f3e168bdf0e" title="id_2_index_fast" alt="" coords="608,241,721,268"/>
+<area shape="rect" id="node13" href="$irqtestperipheral_8c.html#a3205d750d033a40f72392b0d638b9070" title="id_2_index" alt="" coords="623,292,707,319"/>
+</map>

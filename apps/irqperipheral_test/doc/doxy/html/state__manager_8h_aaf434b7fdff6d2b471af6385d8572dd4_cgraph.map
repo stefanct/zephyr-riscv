@@ -1,0 +1,7 @@
+<map id="state_mng_configure" name="state_mng_configure">
+<area shape="rect" id="node2" href="$states_8c.html#aa82cad408bf1ac59990bc6d57ff3c754" title=": Set up state array and transition table automatically. " alt="" coords="209,5,360,32"/>
+<area shape="rect" id="node3" href="$state__manager_8c.html#ace9fdd2cfc6f7910283ab2fb0ecbcc80" title="Fires all callbacks stored in internal array. " alt="" coords="196,56,373,83"/>
+<area shape="rect" id="node6" href="$states_8c.html#ab91bddfe86c489fa92acdb50882b265c" title=": Set up state array and transition table of state manager by customnly deployed arrays. " alt="" coords="201,107,369,133"/>
+<area shape="rect" id="node4" href="$state__manager_8c.html#adfd529eaa40008fae50455147470e981" title="Non thread&#45;safe getter of state struct. Call ONLY from state_mng run loop. " alt="" coords="423,31,574,57"/>
+<area shape="rect" id="node5" href="$state__manager_8c.html#a202929756c8c3b71de406e0b407db9c1" title="Thread&#45;safe getter of current state id. " alt="" coords="421,81,576,108"/>
+</map>

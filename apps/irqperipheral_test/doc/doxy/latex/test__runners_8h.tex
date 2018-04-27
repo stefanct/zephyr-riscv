@@ -1,0 +1,356 @@
+\hypertarget{test__runners_8h}{}\section{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/tests/test\+\_\+runners.h File Reference}
+\label{test__runners_8h}\index{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/tests/test\+\_\+runners.\+h@{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/tests/test\+\_\+runners.\+h}}
+
+
+Run different bundled tests and do nice printing.  
+
+
+{\ttfamily \#include $<$device.\+h$>$}\\*
+Include dependency graph for test\+\_\+runners.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=198pt]{test__runners_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=334pt]{test__runners_8h__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \hyperlink{test__runners_8h_a7341d04eab2441711bf38faaa4aaf54f}{run\+\_\+test\+\_\+hw\+\_\+basic\+\_\+1} (struct device $\ast$dev)
+\begin{DoxyCompactList}\small\item\em \+: Basic checks for irqtestperipehral hardware. \end{DoxyCompactList}\item 
+void \hyperlink{test__runners_8h_a8ec1e1e2b04814b8b52bb6056f1f53b8}{run\+\_\+test\+\_\+timing\+\_\+rx} (struct device $\ast$dev)
+\begin{DoxyCompactList}\small\item\em \+: Benchmark for differnt ways to implement up-\/pasing in I\+S\+Rs. Software measurement\+: Use for trends, not absolute numbers. \end{DoxyCompactList}\item 
+void \hyperlink{test__runners_8h_a196c52eef128b49169a1acd673c551a6}{run\+\_\+test\+\_\+min\+\_\+timing\+\_\+rx} (struct device $\ast$dev)
+\begin{DoxyCompactList}\small\item\em stripped down version of run\+\_\+test\+\_\+timing\+\_\+rx \end{DoxyCompactList}\item 
+void \hyperlink{test__runners_8h_aec6499676bb3f0a7807018e85a715e14}{run\+\_\+test\+\_\+state\+\_\+mng\+\_\+1} (struct device $\ast$dev)
+\item 
+void \hyperlink{test__runners_8h_ad0ce242f4176ce34709121424a66b0a8}{run\+\_\+test\+\_\+sm1\+\_\+throughput\+\_\+1} (struct device $\ast$dev)
+\item 
+void \hyperlink{test__runners_8h_a9fa04199c3693909b63ab676ea035a65}{run\+\_\+test\+\_\+sm\+\_\+throughput\+\_\+2} (struct device $\ast$dev, int id\+\_\+sm)
+\begin{DoxyCompactList}\small\item\em \+: Test throughput of irq2 (val update) interrupts. Successively lower period betweeen irq2 interrupts. \end{DoxyCompactList}\item 
+void \hyperlink{test__runners_8h_abc36a2d1a6ec58c9546fa431810d851b}{run\+\_\+test\+\_\+sm2\+\_\+action\+\_\+perf\+\_\+3} (struct device $\ast$dev)
+\begin{DoxyCompactList}\small\item\em \+: \end{DoxyCompactList}\item 
+void \hyperlink{test__runners_8h_a56cb496ce3dcc017f01eca5dc37372dc}{run\+\_\+test\+\_\+sm2\+\_\+action\+\_\+prof\+\_\+4} (struct device $\ast$dev)
+\item 
+void \hyperlink{test__runners_8h_ade3a980f5f8445a9998f96508f09ca24}{run\+\_\+test\+\_\+state\+\_\+mng\+\_\+2} (struct device $\ast$dev)
+\begin{DoxyCompactList}\small\item\em \+: Benchmark time to run from reset once trough auto conf sm (\char`\"{}critical loop\char`\"{}). \end{DoxyCompactList}\item 
+void \hyperlink{test__runners_8h_a8bf813841ba6b241587e7a43bd4ee87e}{run\+\_\+test\+\_\+irq\+\_\+throughput\+\_\+1} (struct device $\ast$dev)
+\begin{DoxyCompactList}\small\item\em \+: easy irq throughput test, each irq period at a time. \end{DoxyCompactList}\item 
+void \hyperlink{test__runners_8h_af1fbdc4469d15c74469b9cc34ab0d35d}{run\+\_\+test\+\_\+irq\+\_\+throughput\+\_\+2} (struct device $\ast$dev)
+\begin{DoxyCompactList}\small\item\em \+: Advanced irq throughput test. Repeat same irq period to see cache warumup. \end{DoxyCompactList}\item 
+int \hyperlink{test__runners_8h_a389166052acab5742ba295eadc990085}{run\+\_\+test\+\_\+irq\+\_\+throughput\+\_\+3\+\_\+autoadj} (struct device $\ast$dev)
+\begin{DoxyCompactList}\small\item\em \+: Advanced irq throughput test, adjusts itself to find minimum \end{DoxyCompactList}\item 
+void \hyperlink{test__runners_8h_aa3b851c29c0bad954318b35659a77614}{run\+\_\+test\+\_\+poll\+\_\+throughput\+\_\+1\+\_\+autoadj} (struct device $\ast$dev)
+\begin{DoxyCompactList}\small\item\em \+: Don\textquotesingle{}t use irqs, try to clear special hw block by polling. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Run different bundled tests and do nice printing. 
+
+
+
+\subsection{Function Documentation}
+\index{test\+\_\+runners.\+h@{test\+\_\+runners.\+h}!run\+\_\+test\+\_\+hw\+\_\+basic\+\_\+1@{run\+\_\+test\+\_\+hw\+\_\+basic\+\_\+1}}
+\index{run\+\_\+test\+\_\+hw\+\_\+basic\+\_\+1@{run\+\_\+test\+\_\+hw\+\_\+basic\+\_\+1}!test\+\_\+runners.\+h@{test\+\_\+runners.\+h}}
+\subsubsection[{\texorpdfstring{run\+\_\+test\+\_\+hw\+\_\+basic\+\_\+1(struct device $\ast$dev)}{run_test_hw_basic_1(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}int run\+\_\+test\+\_\+hw\+\_\+basic\+\_\+1 (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{test__runners_8h_a7341d04eab2441711bf38faaa4aaf54f}{}\label{test__runners_8h_a7341d04eab2441711bf38faaa4aaf54f}
+
+
+\+: Basic checks for irqtestperipehral hardware. 
+
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{test__runners_8h_a7341d04eab2441711bf38faaa4aaf54f_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{test\+\_\+runners.\+h@{test\+\_\+runners.\+h}!run\+\_\+test\+\_\+irq\+\_\+throughput\+\_\+1@{run\+\_\+test\+\_\+irq\+\_\+throughput\+\_\+1}}
+\index{run\+\_\+test\+\_\+irq\+\_\+throughput\+\_\+1@{run\+\_\+test\+\_\+irq\+\_\+throughput\+\_\+1}!test\+\_\+runners.\+h@{test\+\_\+runners.\+h}}
+\subsubsection[{\texorpdfstring{run\+\_\+test\+\_\+irq\+\_\+throughput\+\_\+1(struct device $\ast$dev)}{run_test_irq_throughput_1(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}void run\+\_\+test\+\_\+irq\+\_\+throughput\+\_\+1 (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{test__runners_8h_a8bf813841ba6b241587e7a43bd4ee87e}{}\label{test__runners_8h_a8bf813841ba6b241587e7a43bd4ee87e}
+
+
+\+: easy irq throughput test, each irq period at a time. 
+
+
+\begin{DoxyItemize}
+\item Can\textquotesingle{}t observe cache warumup.
+\item Warning\+: inaccurate, period set for irqt is not exact better use chipscope 
+\end{DoxyItemize}
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{test__runners_8h_a8bf813841ba6b241587e7a43bd4ee87e_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{test\+\_\+runners.\+h@{test\+\_\+runners.\+h}!run\+\_\+test\+\_\+irq\+\_\+throughput\+\_\+2@{run\+\_\+test\+\_\+irq\+\_\+throughput\+\_\+2}}
+\index{run\+\_\+test\+\_\+irq\+\_\+throughput\+\_\+2@{run\+\_\+test\+\_\+irq\+\_\+throughput\+\_\+2}!test\+\_\+runners.\+h@{test\+\_\+runners.\+h}}
+\subsubsection[{\texorpdfstring{run\+\_\+test\+\_\+irq\+\_\+throughput\+\_\+2(struct device $\ast$dev)}{run_test_irq_throughput_2(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}void run\+\_\+test\+\_\+irq\+\_\+throughput\+\_\+2 (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{test__runners_8h_af1fbdc4469d15c74469b9cc34ab0d35d}{}\label{test__runners_8h_af1fbdc4469d15c74469b9cc34ab0d35d}
+
+
+\+: Advanced irq throughput test. Repeat same irq period to see cache warumup. 
+
+
+\begin{DoxyItemize}
+\item Checks whether whole array has OK status (==0)
+\item Warning\+: inaccurate, period set for irqt is not exact better use chipscope 
+\end{DoxyItemize}
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{test__runners_8h_af1fbdc4469d15c74469b9cc34ab0d35d_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{test\+\_\+runners.\+h@{test\+\_\+runners.\+h}!run\+\_\+test\+\_\+irq\+\_\+throughput\+\_\+3\+\_\+autoadj@{run\+\_\+test\+\_\+irq\+\_\+throughput\+\_\+3\+\_\+autoadj}}
+\index{run\+\_\+test\+\_\+irq\+\_\+throughput\+\_\+3\+\_\+autoadj@{run\+\_\+test\+\_\+irq\+\_\+throughput\+\_\+3\+\_\+autoadj}!test\+\_\+runners.\+h@{test\+\_\+runners.\+h}}
+\subsubsection[{\texorpdfstring{run\+\_\+test\+\_\+irq\+\_\+throughput\+\_\+3\+\_\+autoadj(struct device $\ast$dev)}{run_test_irq_throughput_3_autoadj(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}int run\+\_\+test\+\_\+irq\+\_\+throughput\+\_\+3\+\_\+autoadj (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{test__runners_8h_a389166052acab5742ba295eadc990085}{}\label{test__runners_8h_a389166052acab5742ba295eadc990085}
+
+
+\+: Advanced irq throughput test, adjusts itself to find minimum 
+
+
+\begin{DoxyItemize}
+\item Warning\+: inaccurate, period set for irqt is not exact better use chipscope
+\item To deal with cache warmup effect, only check whether status ok (==0) for last repetition at a given irq period. 
+\end{DoxyItemize}
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{test__runners_8h_a389166052acab5742ba295eadc990085_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{test\+\_\+runners.\+h@{test\+\_\+runners.\+h}!run\+\_\+test\+\_\+min\+\_\+timing\+\_\+rx@{run\+\_\+test\+\_\+min\+\_\+timing\+\_\+rx}}
+\index{run\+\_\+test\+\_\+min\+\_\+timing\+\_\+rx@{run\+\_\+test\+\_\+min\+\_\+timing\+\_\+rx}!test\+\_\+runners.\+h@{test\+\_\+runners.\+h}}
+\subsubsection[{\texorpdfstring{run\+\_\+test\+\_\+min\+\_\+timing\+\_\+rx(struct device $\ast$dev)}{run_test_min_timing_rx(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}void run\+\_\+test\+\_\+min\+\_\+timing\+\_\+rx (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{test__runners_8h_a196c52eef128b49169a1acd673c551a6}{}\label{test__runners_8h_a196c52eef128b49169a1acd673c551a6}
+
+
+stripped down version of run\+\_\+test\+\_\+timing\+\_\+rx 
+
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=550pt]{test__runners_8h_a196c52eef128b49169a1acd673c551a6_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{test\+\_\+runners.\+h@{test\+\_\+runners.\+h}!run\+\_\+test\+\_\+poll\+\_\+throughput\+\_\+1\+\_\+autoadj@{run\+\_\+test\+\_\+poll\+\_\+throughput\+\_\+1\+\_\+autoadj}}
+\index{run\+\_\+test\+\_\+poll\+\_\+throughput\+\_\+1\+\_\+autoadj@{run\+\_\+test\+\_\+poll\+\_\+throughput\+\_\+1\+\_\+autoadj}!test\+\_\+runners.\+h@{test\+\_\+runners.\+h}}
+\subsubsection[{\texorpdfstring{run\+\_\+test\+\_\+poll\+\_\+throughput\+\_\+1\+\_\+autoadj(struct device $\ast$dev)}{run_test_poll_throughput_1_autoadj(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}void run\+\_\+test\+\_\+poll\+\_\+throughput\+\_\+1\+\_\+autoadj (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{test__runners_8h_aa3b851c29c0bad954318b35659a77614}{}\label{test__runners_8h_aa3b851c29c0bad954318b35659a77614}
+
+
+\+: Don\textquotesingle{}t use irqs, try to clear special hw block by polling. 
+
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{test__runners_8h_aa3b851c29c0bad954318b35659a77614_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{test\+\_\+runners.\+h@{test\+\_\+runners.\+h}!run\+\_\+test\+\_\+sm1\+\_\+throughput\+\_\+1@{run\+\_\+test\+\_\+sm1\+\_\+throughput\+\_\+1}}
+\index{run\+\_\+test\+\_\+sm1\+\_\+throughput\+\_\+1@{run\+\_\+test\+\_\+sm1\+\_\+throughput\+\_\+1}!test\+\_\+runners.\+h@{test\+\_\+runners.\+h}}
+\subsubsection[{\texorpdfstring{run\+\_\+test\+\_\+sm1\+\_\+throughput\+\_\+1(struct device $\ast$dev)}{run_test_sm1_throughput_1(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}void run\+\_\+test\+\_\+sm1\+\_\+throughput\+\_\+1 (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{test__runners_8h_ad0ce242f4176ce34709121424a66b0a8}{}\label{test__runners_8h_ad0ce242f4176ce34709121424a66b0a8}
+
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{test__runners_8h_ad0ce242f4176ce34709121424a66b0a8_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{test\+\_\+runners.\+h@{test\+\_\+runners.\+h}!run\+\_\+test\+\_\+sm2\+\_\+action\+\_\+perf\+\_\+3@{run\+\_\+test\+\_\+sm2\+\_\+action\+\_\+perf\+\_\+3}}
+\index{run\+\_\+test\+\_\+sm2\+\_\+action\+\_\+perf\+\_\+3@{run\+\_\+test\+\_\+sm2\+\_\+action\+\_\+perf\+\_\+3}!test\+\_\+runners.\+h@{test\+\_\+runners.\+h}}
+\subsubsection[{\texorpdfstring{run\+\_\+test\+\_\+sm2\+\_\+action\+\_\+perf\+\_\+3(struct device $\ast$dev)}{run_test_sm2_action_perf_3(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}void run\+\_\+test\+\_\+sm2\+\_\+action\+\_\+perf\+\_\+3 (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{test__runners_8h_abc36a2d1a6ec58c9546fa431810d851b}{}\label{test__runners_8h_abc36a2d1a6ec58c9546fa431810d851b}
+
+
+\+: 
+
+
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=550pt]{test__runners_8h_abc36a2d1a6ec58c9546fa431810d851b_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{test\+\_\+runners.\+h@{test\+\_\+runners.\+h}!run\+\_\+test\+\_\+sm2\+\_\+action\+\_\+prof\+\_\+4@{run\+\_\+test\+\_\+sm2\+\_\+action\+\_\+prof\+\_\+4}}
+\index{run\+\_\+test\+\_\+sm2\+\_\+action\+\_\+prof\+\_\+4@{run\+\_\+test\+\_\+sm2\+\_\+action\+\_\+prof\+\_\+4}!test\+\_\+runners.\+h@{test\+\_\+runners.\+h}}
+\subsubsection[{\texorpdfstring{run\+\_\+test\+\_\+sm2\+\_\+action\+\_\+prof\+\_\+4(struct device $\ast$dev)}{run_test_sm2_action_prof_4(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}void run\+\_\+test\+\_\+sm2\+\_\+action\+\_\+prof\+\_\+4 (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{test__runners_8h_a56cb496ce3dcc017f01eca5dc37372dc}{}\label{test__runners_8h_a56cb496ce3dcc017f01eca5dc37372dc}
+
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=550pt]{test__runners_8h_a56cb496ce3dcc017f01eca5dc37372dc_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{test\+\_\+runners.\+h@{test\+\_\+runners.\+h}!run\+\_\+test\+\_\+sm\+\_\+throughput\+\_\+2@{run\+\_\+test\+\_\+sm\+\_\+throughput\+\_\+2}}
+\index{run\+\_\+test\+\_\+sm\+\_\+throughput\+\_\+2@{run\+\_\+test\+\_\+sm\+\_\+throughput\+\_\+2}!test\+\_\+runners.\+h@{test\+\_\+runners.\+h}}
+\subsubsection[{\texorpdfstring{run\+\_\+test\+\_\+sm\+\_\+throughput\+\_\+2(struct device $\ast$dev, int id\+\_\+sm)}{run_test_sm_throughput_2(struct device *dev, int id_sm)}}]{\setlength{\rightskip}{0pt plus 5cm}void run\+\_\+test\+\_\+sm\+\_\+throughput\+\_\+2 (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{int}]{id\+\_\+sm}
+\end{DoxyParamCaption}
+)}\hypertarget{test__runners_8h_a9fa04199c3693909b63ab676ea035a65}{}\label{test__runners_8h_a9fa04199c3693909b63ab676ea035a65}
+
+
+\+: Test throughput of irq2 (val update) interrupts. Successively lower period betweeen irq2 interrupts. 
+
+
+\begin{DoxyItemize}
+\item irq1 irq period is fixed
+\item Warning\+: setting irq period is inaccurate 
+\end{DoxyItemize}
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=550pt]{test__runners_8h_a9fa04199c3693909b63ab676ea035a65_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{test\+\_\+runners.\+h@{test\+\_\+runners.\+h}!run\+\_\+test\+\_\+state\+\_\+mng\+\_\+1@{run\+\_\+test\+\_\+state\+\_\+mng\+\_\+1}}
+\index{run\+\_\+test\+\_\+state\+\_\+mng\+\_\+1@{run\+\_\+test\+\_\+state\+\_\+mng\+\_\+1}!test\+\_\+runners.\+h@{test\+\_\+runners.\+h}}
+\subsubsection[{\texorpdfstring{run\+\_\+test\+\_\+state\+\_\+mng\+\_\+1(struct device $\ast$dev)}{run_test_state_mng_1(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}void run\+\_\+test\+\_\+state\+\_\+mng\+\_\+1 (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{test__runners_8h_aec6499676bb3f0a7807018e85a715e14}{}\label{test__runners_8h_aec6499676bb3f0a7807018e85a715e14}
+
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=550pt]{test__runners_8h_aec6499676bb3f0a7807018e85a715e14_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{test\+\_\+runners.\+h@{test\+\_\+runners.\+h}!run\+\_\+test\+\_\+state\+\_\+mng\+\_\+2@{run\+\_\+test\+\_\+state\+\_\+mng\+\_\+2}}
+\index{run\+\_\+test\+\_\+state\+\_\+mng\+\_\+2@{run\+\_\+test\+\_\+state\+\_\+mng\+\_\+2}!test\+\_\+runners.\+h@{test\+\_\+runners.\+h}}
+\subsubsection[{\texorpdfstring{run\+\_\+test\+\_\+state\+\_\+mng\+\_\+2(struct device $\ast$dev)}{run_test_state_mng_2(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}void run\+\_\+test\+\_\+state\+\_\+mng\+\_\+2 (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{test__runners_8h_ade3a980f5f8445a9998f96508f09ca24}{}\label{test__runners_8h_ade3a980f5f8445a9998f96508f09ca24}
+
+
+\+: Benchmark time to run from reset once trough auto conf sm (\char`\"{}critical loop\char`\"{}). 
+
+
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=550pt]{test__runners_8h_ade3a980f5f8445a9998f96508f09ca24_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{test\+\_\+runners.\+h@{test\+\_\+runners.\+h}!run\+\_\+test\+\_\+timing\+\_\+rx@{run\+\_\+test\+\_\+timing\+\_\+rx}}
+\index{run\+\_\+test\+\_\+timing\+\_\+rx@{run\+\_\+test\+\_\+timing\+\_\+rx}!test\+\_\+runners.\+h@{test\+\_\+runners.\+h}}
+\subsubsection[{\texorpdfstring{run\+\_\+test\+\_\+timing\+\_\+rx(struct device $\ast$dev)}{run_test_timing_rx(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}void run\+\_\+test\+\_\+timing\+\_\+rx (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{test__runners_8h_a8ec1e1e2b04814b8b52bb6056f1f53b8}{}\label{test__runners_8h_a8ec1e1e2b04814b8b52bb6056f1f53b8}
+
+
+\+: Benchmark for differnt ways to implement up-\/pasing in I\+S\+Rs. Software measurement\+: Use for trends, not absolute numbers. 
+
+Note\+: on fe310, fifo is unstable. Hangs sometimes. 
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=550pt]{test__runners_8h_a8ec1e1e2b04814b8b52bb6056f1f53b8_cgraph}
+\end{center}
+\end{figure}
+
+

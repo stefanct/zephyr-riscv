@@ -1,0 +1,121 @@
+\hypertarget{cycles_8h}{}\section{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/drivers/common/cycles.h File Reference}
+\label{cycles_8h}\index{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/drivers/common/cycles.\+h@{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/drivers/common/cycles.\+h}}
+
+
+Deal with riscv32 hardware cpu cycles.  
+
+
+{\ttfamily \#include $<$zephyr.\+h$>$}\\*
+Include dependency graph for cycles.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=209pt]{cycles_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{cycles_8h__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{cycles_8h_a7ade2b760aa6a5f5d65cca4d30adee63}{C\+Y\+C\+L\+E\+S\+\_\+\+C\+Y\+C\+\_\+2\+\_\+\+MS}(t\+\_\+cyc)~(t\+\_\+cyc $<$= 1000$\ast$C\+O\+N\+F\+I\+G\+\_\+\+A\+P\+P\+\_\+\+R\+I\+S\+C\+V\+\_\+\+C\+O\+R\+E\+\_\+\+F\+R\+E\+Q\+\_\+\+M\+HZ ? 1 \+: (t\+\_\+cyc / (1000$\ast$C\+O\+N\+F\+I\+G\+\_\+\+A\+P\+P\+\_\+\+R\+I\+S\+C\+V\+\_\+\+C\+O\+R\+E\+\_\+\+F\+R\+E\+Q\+\_\+\+M\+HZ)))
+\begin{DoxyCompactList}\small\item\em Convert cpu cycles to integer milliseconds $>$= 1. \end{DoxyCompactList}\item 
+\#define \hyperlink{cycles_8h_a9e1c6f161f9d0713a85aba42a5642216}{C\+Y\+C\+L\+E\+S\+\_\+\+C\+Y\+C\+\_\+2\+\_\+\+US}(t\+\_\+cyc)~(t\+\_\+cyc $<$= C\+O\+N\+F\+I\+G\+\_\+\+A\+P\+P\+\_\+\+R\+I\+S\+C\+V\+\_\+\+C\+O\+R\+E\+\_\+\+F\+R\+E\+Q\+\_\+\+M\+HZ ? 1 \+: (t\+\_\+cyc / (C\+O\+N\+F\+I\+G\+\_\+\+A\+P\+P\+\_\+\+R\+I\+S\+C\+V\+\_\+\+C\+O\+R\+E\+\_\+\+F\+R\+E\+Q\+\_\+\+M\+HZ)))
+\item 
+\#define \hyperlink{cycles_8h_a70282809bd2123435ba13a5fea81f8ff}{C\+Y\+C\+L\+E\+S\+\_\+\+M\+S\+\_\+2\+\_\+\+C\+YC}(t\+\_\+ms)~(1000$\ast$C\+O\+N\+F\+I\+G\+\_\+\+A\+P\+P\+\_\+\+R\+I\+S\+C\+V\+\_\+\+C\+O\+R\+E\+\_\+\+F\+R\+E\+Q\+\_\+\+M\+HZ $\ast$ t\+\_\+ms)
+\begin{DoxyCompactList}\small\item\em Convert milliseconds to cpu cycles $>$= 1. \end{DoxyCompactList}\item 
+\#define \hyperlink{cycles_8h_a6f50f35dad955420fed104b8b8a0678d}{C\+Y\+C\+L\+E\+S\+\_\+\+U\+S\+\_\+2\+\_\+\+C\+YC}(t\+\_\+ms)~(C\+O\+N\+F\+I\+G\+\_\+\+A\+P\+P\+\_\+\+R\+I\+S\+C\+V\+\_\+\+C\+O\+R\+E\+\_\+\+F\+R\+E\+Q\+\_\+\+M\+HZ $\ast$ t\+\_\+ms)
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+u32\+\_\+t \hyperlink{cycles_8h_a6e9f891bc6d1b4849bd701cca50ef426}{get\+\_\+cycle\+\_\+32} ()
+\begin{DoxyCompactList}\small\item\em read lower 32 bits of cycle csr register \end{DoxyCompactList}\item 
+void \hyperlink{cycles_8h_a8bf6852b90b5cdddf4be52c673ddd590}{cycle\+\_\+busy\+\_\+wait} (u32\+\_\+t t\+\_\+cyc)
+\begin{DoxyCompactList}\small\item\em Wait for at least t\+\_\+cyc cpu cycles. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Deal with riscv32 hardware cpu cycles. 
+
+Extension to macros in sys\+\_\+cloch.\+h for cpu cycle based units. Mind the difference between sysclock (or rtc) cycles and cpu cycles! 
+
+\subsection{Macro Definition Documentation}
+\index{cycles.\+h@{cycles.\+h}!C\+Y\+C\+L\+E\+S\+\_\+\+C\+Y\+C\+\_\+2\+\_\+\+MS@{C\+Y\+C\+L\+E\+S\+\_\+\+C\+Y\+C\+\_\+2\+\_\+\+MS}}
+\index{C\+Y\+C\+L\+E\+S\+\_\+\+C\+Y\+C\+\_\+2\+\_\+\+MS@{C\+Y\+C\+L\+E\+S\+\_\+\+C\+Y\+C\+\_\+2\+\_\+\+MS}!cycles.\+h@{cycles.\+h}}
+\subsubsection[{\texorpdfstring{C\+Y\+C\+L\+E\+S\+\_\+\+C\+Y\+C\+\_\+2\+\_\+\+MS}{CYCLES_CYC_2_MS}}]{\setlength{\rightskip}{0pt plus 5cm}\#define C\+Y\+C\+L\+E\+S\+\_\+\+C\+Y\+C\+\_\+2\+\_\+\+MS(
+\begin{DoxyParamCaption}
+\item[{}]{t\+\_\+cyc}
+\end{DoxyParamCaption}
+)~(t\+\_\+cyc $<$= 1000$\ast$C\+O\+N\+F\+I\+G\+\_\+\+A\+P\+P\+\_\+\+R\+I\+S\+C\+V\+\_\+\+C\+O\+R\+E\+\_\+\+F\+R\+E\+Q\+\_\+\+M\+HZ ? 1 \+: (t\+\_\+cyc / (1000$\ast$C\+O\+N\+F\+I\+G\+\_\+\+A\+P\+P\+\_\+\+R\+I\+S\+C\+V\+\_\+\+C\+O\+R\+E\+\_\+\+F\+R\+E\+Q\+\_\+\+M\+HZ)))}\hypertarget{cycles_8h_a7ade2b760aa6a5f5d65cca4d30adee63}{}\label{cycles_8h_a7ade2b760aa6a5f5d65cca4d30adee63}
+
+
+Convert cpu cycles to integer milliseconds $>$= 1. 
+
+Warning\+: Cpu cycles are less accurate than sysclock cycles! \index{cycles.\+h@{cycles.\+h}!C\+Y\+C\+L\+E\+S\+\_\+\+C\+Y\+C\+\_\+2\+\_\+\+US@{C\+Y\+C\+L\+E\+S\+\_\+\+C\+Y\+C\+\_\+2\+\_\+\+US}}
+\index{C\+Y\+C\+L\+E\+S\+\_\+\+C\+Y\+C\+\_\+2\+\_\+\+US@{C\+Y\+C\+L\+E\+S\+\_\+\+C\+Y\+C\+\_\+2\+\_\+\+US}!cycles.\+h@{cycles.\+h}}
+\subsubsection[{\texorpdfstring{C\+Y\+C\+L\+E\+S\+\_\+\+C\+Y\+C\+\_\+2\+\_\+\+US}{CYCLES_CYC_2_US}}]{\setlength{\rightskip}{0pt plus 5cm}\#define C\+Y\+C\+L\+E\+S\+\_\+\+C\+Y\+C\+\_\+2\+\_\+\+US(
+\begin{DoxyParamCaption}
+\item[{}]{t\+\_\+cyc}
+\end{DoxyParamCaption}
+)~(t\+\_\+cyc $<$= C\+O\+N\+F\+I\+G\+\_\+\+A\+P\+P\+\_\+\+R\+I\+S\+C\+V\+\_\+\+C\+O\+R\+E\+\_\+\+F\+R\+E\+Q\+\_\+\+M\+HZ ? 1 \+: (t\+\_\+cyc / (C\+O\+N\+F\+I\+G\+\_\+\+A\+P\+P\+\_\+\+R\+I\+S\+C\+V\+\_\+\+C\+O\+R\+E\+\_\+\+F\+R\+E\+Q\+\_\+\+M\+HZ)))}\hypertarget{cycles_8h_a9e1c6f161f9d0713a85aba42a5642216}{}\label{cycles_8h_a9e1c6f161f9d0713a85aba42a5642216}
+\index{cycles.\+h@{cycles.\+h}!C\+Y\+C\+L\+E\+S\+\_\+\+M\+S\+\_\+2\+\_\+\+C\+YC@{C\+Y\+C\+L\+E\+S\+\_\+\+M\+S\+\_\+2\+\_\+\+C\+YC}}
+\index{C\+Y\+C\+L\+E\+S\+\_\+\+M\+S\+\_\+2\+\_\+\+C\+YC@{C\+Y\+C\+L\+E\+S\+\_\+\+M\+S\+\_\+2\+\_\+\+C\+YC}!cycles.\+h@{cycles.\+h}}
+\subsubsection[{\texorpdfstring{C\+Y\+C\+L\+E\+S\+\_\+\+M\+S\+\_\+2\+\_\+\+C\+YC}{CYCLES_MS_2_CYC}}]{\setlength{\rightskip}{0pt plus 5cm}\#define C\+Y\+C\+L\+E\+S\+\_\+\+M\+S\+\_\+2\+\_\+\+C\+YC(
+\begin{DoxyParamCaption}
+\item[{}]{t\+\_\+ms}
+\end{DoxyParamCaption}
+)~(1000$\ast$C\+O\+N\+F\+I\+G\+\_\+\+A\+P\+P\+\_\+\+R\+I\+S\+C\+V\+\_\+\+C\+O\+R\+E\+\_\+\+F\+R\+E\+Q\+\_\+\+M\+HZ $\ast$ t\+\_\+ms)}\hypertarget{cycles_8h_a70282809bd2123435ba13a5fea81f8ff}{}\label{cycles_8h_a70282809bd2123435ba13a5fea81f8ff}
+
+
+Convert milliseconds to cpu cycles $>$= 1. 
+
+Warning\+: Cpu cycles are less accurate than sysclock cycles! \index{cycles.\+h@{cycles.\+h}!C\+Y\+C\+L\+E\+S\+\_\+\+U\+S\+\_\+2\+\_\+\+C\+YC@{C\+Y\+C\+L\+E\+S\+\_\+\+U\+S\+\_\+2\+\_\+\+C\+YC}}
+\index{C\+Y\+C\+L\+E\+S\+\_\+\+U\+S\+\_\+2\+\_\+\+C\+YC@{C\+Y\+C\+L\+E\+S\+\_\+\+U\+S\+\_\+2\+\_\+\+C\+YC}!cycles.\+h@{cycles.\+h}}
+\subsubsection[{\texorpdfstring{C\+Y\+C\+L\+E\+S\+\_\+\+U\+S\+\_\+2\+\_\+\+C\+YC}{CYCLES_US_2_CYC}}]{\setlength{\rightskip}{0pt plus 5cm}\#define C\+Y\+C\+L\+E\+S\+\_\+\+U\+S\+\_\+2\+\_\+\+C\+YC(
+\begin{DoxyParamCaption}
+\item[{}]{t\+\_\+ms}
+\end{DoxyParamCaption}
+)~(C\+O\+N\+F\+I\+G\+\_\+\+A\+P\+P\+\_\+\+R\+I\+S\+C\+V\+\_\+\+C\+O\+R\+E\+\_\+\+F\+R\+E\+Q\+\_\+\+M\+HZ $\ast$ t\+\_\+ms)}\hypertarget{cycles_8h_a6f50f35dad955420fed104b8b8a0678d}{}\label{cycles_8h_a6f50f35dad955420fed104b8b8a0678d}
+
+
+\subsection{Function Documentation}
+\index{cycles.\+h@{cycles.\+h}!cycle\+\_\+busy\+\_\+wait@{cycle\+\_\+busy\+\_\+wait}}
+\index{cycle\+\_\+busy\+\_\+wait@{cycle\+\_\+busy\+\_\+wait}!cycles.\+h@{cycles.\+h}}
+\subsubsection[{\texorpdfstring{cycle\+\_\+busy\+\_\+wait(u32\+\_\+t t\+\_\+cyc)}{cycle_busy_wait(u32_t t_cyc)}}]{\setlength{\rightskip}{0pt plus 5cm}void cycle\+\_\+busy\+\_\+wait (
+\begin{DoxyParamCaption}
+\item[{u32\+\_\+t}]{t\+\_\+cyc}
+\end{DoxyParamCaption}
+)}\hypertarget{cycles_8h_a8bf6852b90b5cdddf4be52c673ddd590}{}\label{cycles_8h_a8bf6852b90b5cdddf4be52c673ddd590}
+
+
+Wait for at least t\+\_\+cyc cpu cycles. 
+
+No upper limit of waiting time guaranteed! Busy waiting currently, since no hw timers implemented yet. 
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=279pt]{cycles_8h_a8bf6852b90b5cdddf4be52c673ddd590_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{cycles.\+h@{cycles.\+h}!get\+\_\+cycle\+\_\+32@{get\+\_\+cycle\+\_\+32}}
+\index{get\+\_\+cycle\+\_\+32@{get\+\_\+cycle\+\_\+32}!cycles.\+h@{cycles.\+h}}
+\subsubsection[{\texorpdfstring{get\+\_\+cycle\+\_\+32()}{get_cycle_32()}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t get\+\_\+cycle\+\_\+32 (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{cycles_8h_a6e9f891bc6d1b4849bd701cca50ef426}{}\label{cycles_8h_a6e9f891bc6d1b4849bd701cca50ef426}
+
+
+read lower 32 bits of cycle csr register 
+

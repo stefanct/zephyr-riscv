@@ -1,0 +1,16 @@
+<map id="/home/timo/Software/zephyr&#45;riscv_dev/apps/irqperipheral_test/src/drivers/irqtestperipheral/src/irqtestperipheral.h" name="/home/timo/Software/zephyr&#45;riscv_dev/apps/irqperipheral_test/src/drivers/irqtestperipheral/src/irqtestperipheral.h">
+<area shape="rect" id="node2" href="$irqtestperipheral_8c.html" title="/home/timo/Software\l/zephyr&#45;riscv_dev/apps\l/irqperipheral_test/src\l/drivers/irqtestperipheral\l/src/irqtestperipheral.c" alt="" coords="5,139,167,224"/>
+<area shape="rect" id="node3" href="$main_8c.html" title="/home/timo/Software\l/zephyr&#45;riscv_dev/apps\l/irqperipheral_test/src\l/main.c" alt="" coords="405,391,562,461"/>
+<area shape="rect" id="node4" href="$states_8h.html" title="define state machine &#39;state&#39; struct and configure to state_manager " alt="" coords="546,146,703,217"/>
+<area shape="rect" id="node5" href="$state__manager_8h.html" title="Logic for running a state machine. " alt="" coords="829,272,986,343"/>
+<area shape="rect" id="node6" href="$sm1_8c.html" title="/home/timo/Software\l/zephyr&#45;riscv_dev/apps\l/irqperipheral_test/src\l/state_machines/sm1.c" alt="" coords="39,391,197,461"/>
+<area shape="rect" id="node7" href="$sm2_8c.html" title="/home/timo/Software\l/zephyr&#45;riscv_dev/apps\l/irqperipheral_test/src\l/state_machines/sm2.c" alt="" coords="221,391,380,461"/>
+<area shape="rect" id="node9" href="$sm__common_8c.html" title="/home/timo/Software\l/zephyr&#45;riscv_dev/apps\l/irqperipheral_test/src\l/state_machines/sm_common.c" alt="" coords="586,391,794,461"/>
+<area shape="rect" id="node10" href="$state__manager_8c.html" title="/home/timo/Software\l/zephyr&#45;riscv_dev/apps\l/irqperipheral_test/src\l/state_manager.c" alt="" coords="1402,391,1559,461"/>
+<area shape="rect" id="node12" href="$test__runners_8c.html" title="Functions that bundle running different tests in tests.c. " alt="" coords="1221,391,1378,461"/>
+<area shape="rect" id="node13" href="$tests_8c.html" title="/home/timo/Software\l/zephyr&#45;riscv_dev/apps\l/irqperipheral_test/src\l/tests/tests.c" alt="" coords="1583,391,1741,461"/>
+<area shape="rect" id="node15" href="$profiler_8c.html" title="/home/timo/Software\l/zephyr&#45;riscv_dev/apps\l/irqperipheral_test/src\l/profiler.c" alt="" coords="1213,146,1370,217"/>
+<area shape="rect" id="node11" href="$states_8c.html" title="/home/timo/Software\l/zephyr&#45;riscv_dev/apps\l/irqperipheral_test/src\l/states.c" alt="" coords="818,391,975,461"/>
+<area shape="rect" id="node14" href="$sm__common_8h.html" title="Common functions shared for by different state machine implementations. " alt="" coords="445,272,653,343"/>
+<area shape="rect" id="node8" href="$sm2__tasks_8c.html" title="/home/timo/Software\l/zephyr&#45;riscv_dev/apps\l/irqperipheral_test/src\l/state_machines/sm2_tasks.c" alt="" coords="999,391,1197,461"/>
+</map>

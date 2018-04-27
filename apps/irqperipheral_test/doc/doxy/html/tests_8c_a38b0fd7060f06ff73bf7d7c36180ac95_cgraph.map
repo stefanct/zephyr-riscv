@@ -1,0 +1,11 @@
+<map id="irq_handler_clear_irq_1" name="irq_handler_clear_irq_1">
+<area shape="rect" id="node2" href="$irqtestperipheral_8c.html#a508afd9a858251ac9dbd15fba94e4301" title="Thread safe, generic setter for device registers. Only works for regs which have a driver mem pool en..." alt="" coords="208,81,367,108"/>
+<area shape="rect" id="node8" href="$cycles_8c.html#a6e9f891bc6d1b4849bd701cca50ef426" title="read lower 32 bits of cycle csr register " alt="" coords="238,132,337,159"/>
+<area shape="rect" id="node9" href="$utils_8c.html#a1ae3605bfc857c7511287b5b181c6c54" title=": printk if given verbosity &gt;= set verbosity threshold. " alt="" coords="257,183,318,209"/>
+<area shape="rect" id="node3" href="$irqtestperipheral_8c.html#a1356feef1a2dbd5af9d5f6c19e2d86a6" title="Non&#45;Thread safe, generic setter for device registers. Only works for regs which have a driver mem poo..." alt="" coords="415,74,548,115"/>
+<area shape="rect" id="node4" href="$irqtestperipheral_8c.html#aacd45cbca76d5cb252b111e2e064a3e0" title="id_2_type_fast" alt="" coords="599,5,706,32"/>
+<area shape="rect" id="node5" href="$irqtestperipheral_8c.html#a15420b03ab67124ddc6d1b4f63f32309" title="id_2_type" alt="" coords="613,56,692,83"/>
+<area shape="rect" id="node6" href="$irqtestperipheral_8c.html#aae36b616bf3ffc8134b83f3e168bdf0e" title="id_2_index_fast" alt="" coords="596,107,709,133"/>
+<area shape="rect" id="node7" href="$irqtestperipheral_8c.html#a3205d750d033a40f72392b0d638b9070" title="id_2_index" alt="" coords="611,157,695,184"/>
+<area shape="rect" id="node10" href="$utils_8c.html#a8d7f34af292d60592b179a49baf3c54b" title="do_print" alt="" coords="447,183,515,209"/>
+</map>

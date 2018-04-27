@@ -1,0 +1,340 @@
+\hypertarget{tests_8h}{}\section{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/tests/tests.h File Reference}
+\label{tests_8h}\index{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/tests/tests.\+h@{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/tests/tests.\+h}}
+
+
+Raw functions called from test\+\_\+runners.  
+
+
+{\ttfamily \#include $<$device.\+h$>$}\\*
+Include dependency graph for tests.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=198pt]{tests_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{tests_8h__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{tests_8h_a112438aff63d3e1b7444836767a11481}{test\+\_\+uint\+\_\+overflow} ()
+\item 
+void \hyperlink{tests_8h_a32713b62fdf039d4772219dfd46d87b6}{test\+\_\+hw\+\_\+rev\+\_\+1\+\_\+basic\+\_\+1} (struct device $\ast$dev)
+\item 
+void \hyperlink{tests_8h_abd1cc667ddb04e059ca7cffb91c35651}{test\+\_\+hw\+\_\+rev\+\_\+2\+\_\+basic\+\_\+1} (struct device $\ast$dev)
+\item 
+void \hyperlink{tests_8h_ac99d224b737dcf7d14aa1c5afb8b4113}{test\+\_\+hw\+\_\+rev\+\_\+3\+\_\+basic\+\_\+1} (struct device $\ast$dev)
+\item 
+void \hyperlink{tests_8h_a2f582a13b67a78a417b5d6abb832ff82}{test\+\_\+interrupt\+\_\+timing} (struct device $\ast$dev, int timing\+\_\+res\mbox{[}$\,$\mbox{]}, int num\+\_\+runs, int verbose)
+\item 
+void \hyperlink{tests_8h_a5ee2f901271b16dd2ab37327b50cab79}{test\+\_\+rx\+\_\+timing} (struct device $\ast$dev, int timing\+\_\+res\mbox{[}$\,$\mbox{]}, int num\+\_\+runs, int mode, int verbose)
+\item 
+void \hyperlink{tests_8h_a6ab4e7ee369485b87cbcc3d15cacdc5a}{test\+\_\+irq\+\_\+throughput\+\_\+1} (struct device $\ast$dev, int delta\+\_\+cyc, int $\ast$status\+\_\+res, int num\+\_\+runs)
+\item 
+void \hyperlink{tests_8h_a128069453be8f8650ba3121413763e51}{test\+\_\+irq\+\_\+throughput\+\_\+2} (struct device $\ast$dev, int period\+\_\+cyc, int num\+\_\+runs, int status\+\_\+arr\mbox{[}$\,$\mbox{]}, int len)
+\item 
+void \hyperlink{tests_8h_a93bbb38bbb0cd1e68126900798de255f}{test\+\_\+poll\+\_\+throughput\+\_\+1} (struct device $\ast$dev, int period\+\_\+cyc, int num\+\_\+runs, int status\+\_\+arr\mbox{[}$\,$\mbox{]}, int len)
+\item 
+void \hyperlink{tests_8h_a9dc69a36a2b245085b70293546decc13}{test\+\_\+state\+\_\+mng\+\_\+1} (struct device $\ast$dev, int sum\+\_\+expect)
+\item 
+void \hyperlink{tests_8h_aef32f70b46355eee7432a3189817be6d}{test\+\_\+uart\+\_\+1} (struct device $\ast$dev0, struct device $\ast$dev1)
+\item 
+void \hyperlink{tests_8h_ad5bf75d2fd8b172e00d1178329311ced}{print\+\_\+analyze\+\_\+timing} (int timing\mbox{[}$\,$\mbox{]}, int len, int verbosity)
+\item 
+void \hyperlink{tests_8h_a9599f43845d16d6a178311e408590064}{irq\+\_\+handler\+\_\+mes\+\_\+time} (void)
+\item 
+void \hyperlink{tests_8h_aca28e88c15724c892057de2ac19d670c}{test\+\_\+assert} (bool expression)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+int \hyperlink{tests_8h_abd4779c87a347398043e42d70057a48f}{error\+\_\+count}
+\item 
+int \hyperlink{tests_8h_a650af7c508cf1b2d38284687500a2b3b}{error\+\_\+stamp}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Raw functions called from test\+\_\+runners. 
+
+
+
+\subsection{Function Documentation}
+\index{tests.\+h@{tests.\+h}!irq\+\_\+handler\+\_\+mes\+\_\+time@{irq\+\_\+handler\+\_\+mes\+\_\+time}}
+\index{irq\+\_\+handler\+\_\+mes\+\_\+time@{irq\+\_\+handler\+\_\+mes\+\_\+time}!tests.\+h@{tests.\+h}}
+\subsubsection[{\texorpdfstring{irq\+\_\+handler\+\_\+mes\+\_\+time(void)}{irq_handler_mes_time(void)}}]{\setlength{\rightskip}{0pt plus 5cm}void irq\+\_\+handler\+\_\+mes\+\_\+time (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{tests_8h_a9599f43845d16d6a178311e408590064}{}\label{tests_8h_a9599f43845d16d6a178311e408590064}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=328pt]{tests_8h_a9599f43845d16d6a178311e408590064_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{tests.\+h@{tests.\+h}!print\+\_\+analyze\+\_\+timing@{print\+\_\+analyze\+\_\+timing}}
+\index{print\+\_\+analyze\+\_\+timing@{print\+\_\+analyze\+\_\+timing}!tests.\+h@{tests.\+h}}
+\subsubsection[{\texorpdfstring{print\+\_\+analyze\+\_\+timing(int timing[], int len, int verbosity)}{print_analyze_timing(int timing[], int len, int verbosity)}}]{\setlength{\rightskip}{0pt plus 5cm}void print\+\_\+analyze\+\_\+timing (
+\begin{DoxyParamCaption}
+\item[{int}]{timing\mbox{[}$\,$\mbox{]}, }
+\item[{int}]{len, }
+\item[{int}]{verbosity}
+\end{DoxyParamCaption}
+)}\hypertarget{tests_8h_ad5bf75d2fd8b172e00d1178329311ced}{}\label{tests_8h_ad5bf75d2fd8b172e00d1178329311ced}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{tests_8h_ad5bf75d2fd8b172e00d1178329311ced_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{tests.\+h@{tests.\+h}!test\+\_\+assert@{test\+\_\+assert}}
+\index{test\+\_\+assert@{test\+\_\+assert}!tests.\+h@{tests.\+h}}
+\subsubsection[{\texorpdfstring{test\+\_\+assert(bool expression)}{test_assert(bool expression)}}]{\setlength{\rightskip}{0pt plus 5cm}void test\+\_\+assert (
+\begin{DoxyParamCaption}
+\item[{bool}]{expression}
+\end{DoxyParamCaption}
+)}\hypertarget{tests_8h_aca28e88c15724c892057de2ac19d670c}{}\label{tests_8h_aca28e88c15724c892057de2ac19d670c}
+\index{tests.\+h@{tests.\+h}!test\+\_\+hw\+\_\+rev\+\_\+1\+\_\+basic\+\_\+1@{test\+\_\+hw\+\_\+rev\+\_\+1\+\_\+basic\+\_\+1}}
+\index{test\+\_\+hw\+\_\+rev\+\_\+1\+\_\+basic\+\_\+1@{test\+\_\+hw\+\_\+rev\+\_\+1\+\_\+basic\+\_\+1}!tests.\+h@{tests.\+h}}
+\subsubsection[{\texorpdfstring{test\+\_\+hw\+\_\+rev\+\_\+1\+\_\+basic\+\_\+1(struct device $\ast$dev)}{test_hw_rev_1_basic_1(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}void test\+\_\+hw\+\_\+rev\+\_\+1\+\_\+basic\+\_\+1 (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{tests_8h_a32713b62fdf039d4772219dfd46d87b6}{}\label{tests_8h_a32713b62fdf039d4772219dfd46d87b6}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{tests_8h_a32713b62fdf039d4772219dfd46d87b6_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{tests.\+h@{tests.\+h}!test\+\_\+hw\+\_\+rev\+\_\+2\+\_\+basic\+\_\+1@{test\+\_\+hw\+\_\+rev\+\_\+2\+\_\+basic\+\_\+1}}
+\index{test\+\_\+hw\+\_\+rev\+\_\+2\+\_\+basic\+\_\+1@{test\+\_\+hw\+\_\+rev\+\_\+2\+\_\+basic\+\_\+1}!tests.\+h@{tests.\+h}}
+\subsubsection[{\texorpdfstring{test\+\_\+hw\+\_\+rev\+\_\+2\+\_\+basic\+\_\+1(struct device $\ast$dev)}{test_hw_rev_2_basic_1(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}void test\+\_\+hw\+\_\+rev\+\_\+2\+\_\+basic\+\_\+1 (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{tests_8h_abd1cc667ddb04e059ca7cffb91c35651}{}\label{tests_8h_abd1cc667ddb04e059ca7cffb91c35651}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{tests_8h_abd1cc667ddb04e059ca7cffb91c35651_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{tests.\+h@{tests.\+h}!test\+\_\+hw\+\_\+rev\+\_\+3\+\_\+basic\+\_\+1@{test\+\_\+hw\+\_\+rev\+\_\+3\+\_\+basic\+\_\+1}}
+\index{test\+\_\+hw\+\_\+rev\+\_\+3\+\_\+basic\+\_\+1@{test\+\_\+hw\+\_\+rev\+\_\+3\+\_\+basic\+\_\+1}!tests.\+h@{tests.\+h}}
+\subsubsection[{\texorpdfstring{test\+\_\+hw\+\_\+rev\+\_\+3\+\_\+basic\+\_\+1(struct device $\ast$dev)}{test_hw_rev_3_basic_1(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}void test\+\_\+hw\+\_\+rev\+\_\+3\+\_\+basic\+\_\+1 (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{tests_8h_ac99d224b737dcf7d14aa1c5afb8b4113}{}\label{tests_8h_ac99d224b737dcf7d14aa1c5afb8b4113}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{tests_8h_ac99d224b737dcf7d14aa1c5afb8b4113_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{tests.\+h@{tests.\+h}!test\+\_\+interrupt\+\_\+timing@{test\+\_\+interrupt\+\_\+timing}}
+\index{test\+\_\+interrupt\+\_\+timing@{test\+\_\+interrupt\+\_\+timing}!tests.\+h@{tests.\+h}}
+\subsubsection[{\texorpdfstring{test\+\_\+interrupt\+\_\+timing(struct device $\ast$dev, int timing\+\_\+res[], int num\+\_\+runs, int verbose)}{test_interrupt_timing(struct device *dev, int timing_res[], int num_runs, int verbose)}}]{\setlength{\rightskip}{0pt plus 5cm}void test\+\_\+interrupt\+\_\+timing (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{int}]{timing\+\_\+res\mbox{[}$\,$\mbox{]}, }
+\item[{int}]{num\+\_\+runs, }
+\item[{int}]{verbose}
+\end{DoxyParamCaption}
+)}\hypertarget{tests_8h_a2f582a13b67a78a417b5d6abb832ff82}{}\label{tests_8h_a2f582a13b67a78a417b5d6abb832ff82}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{tests_8h_a2f582a13b67a78a417b5d6abb832ff82_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{tests.\+h@{tests.\+h}!test\+\_\+irq\+\_\+throughput\+\_\+1@{test\+\_\+irq\+\_\+throughput\+\_\+1}}
+\index{test\+\_\+irq\+\_\+throughput\+\_\+1@{test\+\_\+irq\+\_\+throughput\+\_\+1}!tests.\+h@{tests.\+h}}
+\subsubsection[{\texorpdfstring{test\+\_\+irq\+\_\+throughput\+\_\+1(struct device $\ast$dev, int delta\+\_\+cyc, int $\ast$status\+\_\+res, int num\+\_\+runs)}{test_irq_throughput_1(struct device *dev, int delta_cyc, int *status_res, int num_runs)}}]{\setlength{\rightskip}{0pt plus 5cm}void test\+\_\+irq\+\_\+throughput\+\_\+1 (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{int}]{delta\+\_\+cyc, }
+\item[{int $\ast$}]{status\+\_\+res, }
+\item[{int}]{num\+\_\+runs}
+\end{DoxyParamCaption}
+)}\hypertarget{tests_8h_a6ab4e7ee369485b87cbcc3d15cacdc5a}{}\label{tests_8h_a6ab4e7ee369485b87cbcc3d15cacdc5a}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{tests_8h_a6ab4e7ee369485b87cbcc3d15cacdc5a_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{tests.\+h@{tests.\+h}!test\+\_\+irq\+\_\+throughput\+\_\+2@{test\+\_\+irq\+\_\+throughput\+\_\+2}}
+\index{test\+\_\+irq\+\_\+throughput\+\_\+2@{test\+\_\+irq\+\_\+throughput\+\_\+2}!tests.\+h@{tests.\+h}}
+\subsubsection[{\texorpdfstring{test\+\_\+irq\+\_\+throughput\+\_\+2(struct device $\ast$dev, int period\+\_\+cyc, int num\+\_\+runs, int status\+\_\+arr[], int len)}{test_irq_throughput_2(struct device *dev, int period_cyc, int num_runs, int status_arr[], int len)}}]{\setlength{\rightskip}{0pt plus 5cm}void test\+\_\+irq\+\_\+throughput\+\_\+2 (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{int}]{period\+\_\+cyc, }
+\item[{int}]{num\+\_\+runs, }
+\item[{int}]{status\+\_\+arr\mbox{[}$\,$\mbox{]}, }
+\item[{int}]{len}
+\end{DoxyParamCaption}
+)}\hypertarget{tests_8h_a128069453be8f8650ba3121413763e51}{}\label{tests_8h_a128069453be8f8650ba3121413763e51}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{tests_8h_a128069453be8f8650ba3121413763e51_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{tests.\+h@{tests.\+h}!test\+\_\+poll\+\_\+throughput\+\_\+1@{test\+\_\+poll\+\_\+throughput\+\_\+1}}
+\index{test\+\_\+poll\+\_\+throughput\+\_\+1@{test\+\_\+poll\+\_\+throughput\+\_\+1}!tests.\+h@{tests.\+h}}
+\subsubsection[{\texorpdfstring{test\+\_\+poll\+\_\+throughput\+\_\+1(struct device $\ast$dev, int period\+\_\+cyc, int num\+\_\+runs, int status\+\_\+arr[], int len)}{test_poll_throughput_1(struct device *dev, int period_cyc, int num_runs, int status_arr[], int len)}}]{\setlength{\rightskip}{0pt plus 5cm}void test\+\_\+poll\+\_\+throughput\+\_\+1 (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{int}]{period\+\_\+cyc, }
+\item[{int}]{num\+\_\+runs, }
+\item[{int}]{status\+\_\+arr\mbox{[}$\,$\mbox{]}, }
+\item[{int}]{len}
+\end{DoxyParamCaption}
+)}\hypertarget{tests_8h_a93bbb38bbb0cd1e68126900798de255f}{}\label{tests_8h_a93bbb38bbb0cd1e68126900798de255f}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{tests_8h_a93bbb38bbb0cd1e68126900798de255f_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{tests.\+h@{tests.\+h}!test\+\_\+rx\+\_\+timing@{test\+\_\+rx\+\_\+timing}}
+\index{test\+\_\+rx\+\_\+timing@{test\+\_\+rx\+\_\+timing}!tests.\+h@{tests.\+h}}
+\subsubsection[{\texorpdfstring{test\+\_\+rx\+\_\+timing(struct device $\ast$dev, int timing\+\_\+res[], int num\+\_\+runs, int mode, int verbose)}{test_rx_timing(struct device *dev, int timing_res[], int num_runs, int mode, int verbose)}}]{\setlength{\rightskip}{0pt plus 5cm}void test\+\_\+rx\+\_\+timing (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{int}]{timing\+\_\+res\mbox{[}$\,$\mbox{]}, }
+\item[{int}]{num\+\_\+runs, }
+\item[{int}]{mode, }
+\item[{int}]{verbose}
+\end{DoxyParamCaption}
+)}\hypertarget{tests_8h_a5ee2f901271b16dd2ab37327b50cab79}{}\label{tests_8h_a5ee2f901271b16dd2ab37327b50cab79}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{tests_8h_a5ee2f901271b16dd2ab37327b50cab79_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{tests.\+h@{tests.\+h}!test\+\_\+state\+\_\+mng\+\_\+1@{test\+\_\+state\+\_\+mng\+\_\+1}}
+\index{test\+\_\+state\+\_\+mng\+\_\+1@{test\+\_\+state\+\_\+mng\+\_\+1}!tests.\+h@{tests.\+h}}
+\subsubsection[{\texorpdfstring{test\+\_\+state\+\_\+mng\+\_\+1(struct device $\ast$dev, int sum\+\_\+expect)}{test_state_mng_1(struct device *dev, int sum_expect)}}]{\setlength{\rightskip}{0pt plus 5cm}void test\+\_\+state\+\_\+mng\+\_\+1 (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{int}]{sum\+\_\+expect}
+\end{DoxyParamCaption}
+)}\hypertarget{tests_8h_a9dc69a36a2b245085b70293546decc13}{}\label{tests_8h_a9dc69a36a2b245085b70293546decc13}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{tests_8h_a9dc69a36a2b245085b70293546decc13_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{tests.\+h@{tests.\+h}!test\+\_\+uart\+\_\+1@{test\+\_\+uart\+\_\+1}}
+\index{test\+\_\+uart\+\_\+1@{test\+\_\+uart\+\_\+1}!tests.\+h@{tests.\+h}}
+\subsubsection[{\texorpdfstring{test\+\_\+uart\+\_\+1(struct device $\ast$dev0, struct device $\ast$dev1)}{test_uart_1(struct device *dev0, struct device *dev1)}}]{\setlength{\rightskip}{0pt plus 5cm}void test\+\_\+uart\+\_\+1 (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev0, }
+\item[{struct device $\ast$}]{dev1}
+\end{DoxyParamCaption}
+)}\hypertarget{tests_8h_aef32f70b46355eee7432a3189817be6d}{}\label{tests_8h_aef32f70b46355eee7432a3189817be6d}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{tests_8h_aef32f70b46355eee7432a3189817be6d_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{tests.\+h@{tests.\+h}!test\+\_\+uint\+\_\+overflow@{test\+\_\+uint\+\_\+overflow}}
+\index{test\+\_\+uint\+\_\+overflow@{test\+\_\+uint\+\_\+overflow}!tests.\+h@{tests.\+h}}
+\subsubsection[{\texorpdfstring{test\+\_\+uint\+\_\+overflow()}{test_uint_overflow()}}]{\setlength{\rightskip}{0pt plus 5cm}void test\+\_\+uint\+\_\+overflow (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{tests_8h_a112438aff63d3e1b7444836767a11481}{}\label{tests_8h_a112438aff63d3e1b7444836767a11481}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{tests_8h_a112438aff63d3e1b7444836767a11481_cgraph}
+\end{center}
+\end{figure}
+
+
+
+
+\subsection{Variable Documentation}
+\index{tests.\+h@{tests.\+h}!error\+\_\+count@{error\+\_\+count}}
+\index{error\+\_\+count@{error\+\_\+count}!tests.\+h@{tests.\+h}}
+\subsubsection[{\texorpdfstring{error\+\_\+count}{error_count}}]{\setlength{\rightskip}{0pt plus 5cm}int error\+\_\+count}\hypertarget{tests_8h_abd4779c87a347398043e42d70057a48f}{}\label{tests_8h_abd4779c87a347398043e42d70057a48f}
+\index{tests.\+h@{tests.\+h}!error\+\_\+stamp@{error\+\_\+stamp}}
+\index{error\+\_\+stamp@{error\+\_\+stamp}!tests.\+h@{tests.\+h}}
+\subsubsection[{\texorpdfstring{error\+\_\+stamp}{error_stamp}}]{\setlength{\rightskip}{0pt plus 5cm}int error\+\_\+stamp}\hypertarget{tests_8h_a650af7c508cf1b2d38284687500a2b3b}{}\label{tests_8h_a650af7c508cf1b2d38284687500a2b3b}

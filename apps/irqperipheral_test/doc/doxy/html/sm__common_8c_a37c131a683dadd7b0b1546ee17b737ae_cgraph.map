@@ -1,0 +1,6 @@
+<map id="sm_com_print_perf_log" name="sm_com_print_perf_log">
+<area shape="rect" id="node2" href="$state__manager_8c.html#a99bec7ac7a0920d28e9c6886c55d7f92" title="Debug function, likely to be removed. Get and delete all log events for certain id_state. " alt="" coords="211,5,349,47"/>
+<area shape="rect" id="node3" href="$utils_8c.html#adc85b9db1b97d79f6c677e711bd9ceac" title="print_arr_int" alt="" coords="235,71,325,98"/>
+<area shape="rect" id="node4" href="$utils_8c.html#a1ae3605bfc857c7511287b5b181c6c54" title=": printk if given verbosity &gt;= set verbosity threshold. " alt="" coords="397,71,459,98"/>
+<area shape="rect" id="node5" href="$utils_8c.html#a8d7f34af292d60592b179a49baf3c54b" title="do_print" alt="" coords="507,71,575,98"/>
+</map>

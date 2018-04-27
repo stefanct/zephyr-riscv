@@ -1,0 +1,4 @@
+<map id="calc_time_goal" name="calc_time_goal">
+<area shape="rect" id="node2" href="$state__manager_8c.html#a14b1648ed43b1f50b64c2618dc2f827e" title="Calcs the time since start state. " alt="" coords="163,5,303,47"/>
+<area shape="rect" id="node3" href="$cycles_8c.html#a6e9f891bc6d1b4849bd701cca50ef426" title="read lower 32 bits of cycle csr register " alt="" coords="351,13,449,39"/>
+</map>

@@ -1,0 +1,41 @@
+<map id="run_test_sm1_throughput_1" name="run_test_sm1_throughput_1">
+<area shape="rect" id="node2" href="$utils_8c.html#a938b2809d318f940f04a5a4588b188f7" title="prints string in the center of console with | at beginning and end of line. " alt="" coords="267,31,369,57"/>
+<area shape="rect" id="node4" href="$utils_8c.html#ac145fb3e03aef9c2c79f781997444002" title="Print dash line. " alt="" coords="263,132,373,159"/>
+<area shape="rect" id="node6" href="$irqtestperipheral_8c.html#a987670a27b50999e651f384e6b04e582" title="Non&#45;thread safe, generic getter for device (output) registers. Only works for regs which are loaded t..." alt="" coords="239,208,397,235"/>
+<area shape="rect" id="node12" href="$state__manager_8c.html#a325177709e375347f313b77ad1a2bf56" title="Entry function for state machine (FSM) loop. Should be invoked as thread; do NOT call. " alt="" coords="264,588,372,615"/>
+<area shape="rect" id="node35" href="$sm1_8h.html#a11130c64fb5f3ad1e47535a7aea8a2b4" title="sm1_run" alt="" coords="282,639,354,665"/>
+<area shape="rect" id="node36" href="$state__manager_8c.html#a3e6205ccf0b3ad43154513dee0855ad9" title="Send signal to abort running state machine. " alt="" coords="259,436,377,463"/>
+<area shape="rect" id="node37" href="$utils_8c.html#a1874e5dd974c6f85928e5da4437b8516" title="print_get_verbosity" alt="" coords="252,689,384,716"/>
+<area shape="rect" id="node38" href="$state__manager_8c.html#aa9929899641d509a7a471bca571fca5f" title="Print logged switch, wait and performance mes. events. " alt="" coords="236,740,400,767"/>
+<area shape="rect" id="node39" href="$sm1_8h.html#a9c8fdd549595c8750e8b49f342823be1" title="sm1_print_report" alt="" coords="259,791,377,817"/>
+<area shape="rect" id="node40" href="$sm1_8h.html#aff4d3ccd0975e1b5ad53a957531f065b" title="sm1_reset" alt="" coords="277,841,359,868"/>
+<area shape="rect" id="node3" href="$utils_8c.html#a8d7f34af292d60592b179a49baf3c54b" title="do_print" alt="" coords="710,5,778,32"/>
+<area shape="rect" id="node5" href="$utils_8c.html#a1ae3605bfc857c7511287b5b181c6c54" title=": printk if given verbosity &gt;= set verbosity threshold. " alt="" coords="495,31,557,57"/>
+<area shape="rect" id="node7" href="$irqtestperipheral_8c.html#aacd45cbca76d5cb252b111e2e064a3e0" title="id_2_type_fast" alt="" coords="473,81,579,108"/>
+<area shape="rect" id="node8" href="$irqtestperipheral_8c.html#a15420b03ab67124ddc6d1b4f63f32309" title="id_2_type" alt="" coords="487,132,565,159"/>
+<area shape="rect" id="node9" href="$cycles_8c.html#a6e9f891bc6d1b4849bd701cca50ef426" title="read lower 32 bits of cycle csr register " alt="" coords="1072,436,1171,463"/>
+<area shape="rect" id="node10" href="$irqtestperipheral_8c.html#aae36b616bf3ffc8134b83f3e168bdf0e" title="id_2_index_fast" alt="" coords="469,233,583,260"/>
+<area shape="rect" id="node11" href="$irqtestperipheral_8c.html#a3205d750d033a40f72392b0d638b9070" title="id_2_index" alt="" coords="484,284,568,311"/>
+<area shape="rect" id="node13" href="$state__manager_8c.html#a6579e86bc3f3de2539796108bfc9a1be" title="Thread&#45;safe getter whether state machine thread is running. " alt="" coords="451,335,601,361"/>
+<area shape="rect" id="node14" href="$state__manager_8c.html#adfd529eaa40008fae50455147470e981" title="Non thread&#45;safe getter of state struct. Call ONLY from state_mng run loop. " alt="" coords="669,639,819,665"/>
+<area shape="rect" id="node15" href="$irqtestperipheral_8c.html#a9c8c75c9c4603bdccd5bdcf3038d3c49" title="Enable previously registered queue_rx for sending driver events to. " alt="" coords="449,639,603,681"/>
+<area shape="rect" id="node17" href="$irqtestperipheral_8c.html#ab47c9b38275ed5cb45931e907725dc06" title="Reset all objects related to receiving data from this driver. " alt="" coords="661,740,827,767"/>
+<area shape="rect" id="node18" href="$irqtestperipheral_8c.html#ace5f0827eb25f735e652ab09f4cbe3b2" title="Enables flags for indicating load of harware values to driver memory. " alt="" coords="449,757,603,798"/>
+<area shape="rect" id="node19" href="$state__manager_8c.html#ac044c2e9da68e54b823e44ce65380ab2" title="check_time_goal_start" alt="" coords="449,385,603,412"/>
+<area shape="rect" id="node23" href="$state__manager_8c.html#ad3630c54ea4155b6d9038074a2c89750" title="handle_time_goal_start" alt="" coords="448,823,604,849"/>
+<area shape="rect" id="node24" href="$state__manager_8c.html#a219369c437a02377c0728e698a231dac" title="state_mng_check_vals\l_ready" alt="" coords="448,874,604,915"/>
+<area shape="rect" id="node26" href="$state__manager_8c.html#a0f0374dc26dbbc411fa368c513964d46" title="Handle if not all vals rady. " alt="" coords="461,940,591,967"/>
+<area shape="rect" id="node27" href="$state__manager_8c.html#ac147348fdfd1b971d35c92dc5fae1818" title="Measure duration of actions, after waiting in state is done. " alt="" coords="488,487,564,513"/>
+<area shape="rect" id="node29" href="$irqtestperipheral_8c.html#a997c5939bc6f47d246540c69ff49733d" title="Clear all flags. " alt="" coords="455,991,597,1033"/>
+<area shape="rect" id="node30" href="$state__manager_8c.html#a01ec4af8d84ec8af6d062f60f7df11a6" title="check_time_goal_end" alt="" coords="452,436,600,463"/>
+<area shape="rect" id="node32" href="$state__manager_8c.html#a93ffbaf4a4a7a06501ade6b44ee7a0d3" title="handle_time_goal_end" alt="" coords="451,1057,601,1084"/>
+<area shape="rect" id="node33" href="$state__manager_8c.html#a783990c9c8f1bf1514a46e9f3acd01e2" title="Read all events in driver queue and get the one of highest priority. " alt="" coords="474,1108,578,1135"/>
+<area shape="rect" id="node34" href="$state__manager_8c.html#a5652a05c3eb6723ac1867d712baec64d" title="switch_state" alt="" coords="478,537,574,564"/>
+<area shape="rect" id="node16" href="$irqtestperipheral_8c.html#a023df633a0cf154035fced51999c3f66" title="Test whether any flags for event sending are set. This excludes valflags, as they don&#39;t issue events..." alt="" coords="677,689,811,716"/>
+<area shape="rect" id="node20" href="$states_8c.html#a929b4a51a89985cc96784e74126c2183" title="states_get_timing_goal\l_start" alt="" coords="666,269,822,310"/>
+<area shape="rect" id="node21" href="$state__manager_8c.html#a2b68abe1d98d63ac5f06e71df7f4ebe3" title="Helper to be called from check_time_goal_start() or _end() " alt="" coords="689,335,799,361"/>
+<area shape="rect" id="node22" href="$state__manager_8c.html#a14b1648ed43b1f50b64c2618dc2f827e" title="Calcs the time since start state. " alt="" coords="884,429,1024,470"/>
+<area shape="rect" id="node25" href="$irqtestperipheral_8c.html#ae593bcc753fee4064e23b3e290e5f27d" title="Test whether a value was flagged ready to get_val() from driver memory. " alt="" coords="675,874,813,915"/>
+<area shape="rect" id="node28" href="$state__manager_8c.html#a5c8a4f2ce282ae1c2036d80b2b331195" title="Search whether cycle_state_id is in array. " alt="" coords="683,487,805,513"/>
+<area shape="rect" id="node31" href="$states_8c.html#a361b2485c761518f8667f9f1a055e47c" title="states_get_timing_goal_end" alt="" coords="652,385,836,412"/>
+</map>

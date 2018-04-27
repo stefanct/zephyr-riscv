@@ -1,0 +1,51 @@
+<map id="run_test_state_mng_1" name="run_test_state_mng_1">
+<area shape="rect" id="node2" href="$utils_8c.html#ac145fb3e03aef9c2c79f781997444002" title="Print dash line. " alt="" coords="231,56,341,83"/>
+<area shape="rect" id="node3" href="$utils_8c.html#a1ae3605bfc857c7511287b5b181c6c54" title=": printk if given verbosity &gt;= set verbosity threshold. " alt="" coords="487,56,548,83"/>
+<area shape="rect" id="node5" href="$utils_8c.html#a938b2809d318f940f04a5a4588b188f7" title="prints string in the center of console with | at beginning and end of line. " alt="" coords="235,5,337,32"/>
+<area shape="rect" id="node6" href="$test__suite_8c.html#aca28e88c15724c892057de2ac19d670c" title="test_assert" alt="" coords="474,360,561,387"/>
+<area shape="rect" id="node7" href="$state__manager_8c.html#aaf434b7fdff6d2b471af6385d8572dd4" title="Either use default config of states and transition table or set custom one. " alt="" coords="215,1289,357,1316"/>
+<area shape="rect" id="node13" href="$state__manager_8c.html#a23138a410f4f70b62e02f4d58aa111b6" title="Register an action to be executed in a certain state. Specify values this action will request from ir..." alt="" coords="219,273,353,314"/>
+<area shape="rect" id="node16" href="$test__runners_8c.html#a45ff47c3d8c87b5cc539f33a0d7af033" title="action_test_mng_1" alt="" coords="220,157,352,184"/>
+<area shape="rect" id="node20" href="$state__manager_8c.html#ad3cde1fa185470108d73b735b4125b92" title="Initialize. Mainly set up irqt driver. " alt="" coords="233,867,339,893"/>
+<area shape="rect" id="node23" href="$state__manager_8c.html#a325177709e375347f313b77ad1a2bf56" title="Entry function for state machine (FSM) loop. Should be invoked as thread; do NOT call. " alt="" coords="232,1239,340,1265"/>
+<area shape="rect" id="node37" href="$state__manager_8c.html#a639d174691e15c20411092f5f548b7fc" title="Send signal to start running state machine. " alt="" coords="228,411,344,437"/>
+<area shape="rect" id="node38" href="$tests_8c.html#a9dc69a36a2b245085b70293546decc13" title="test_state_mng_1" alt="" coords="223,512,349,539"/>
+<area shape="rect" id="node45" href="$state__manager_8c.html#a3e6205ccf0b3ad43154513dee0855ad9" title="Send signal to abort running state machine. " alt="" coords="227,461,345,488"/>
+<area shape="rect" id="node46" href="$utils_8c.html#a1874e5dd974c6f85928e5da4437b8516" title="print_get_verbosity" alt="" coords="220,1340,352,1367"/>
+<area shape="rect" id="node47" href="$state__manager_8c.html#aa9929899641d509a7a471bca571fca5f" title="Print logged switch, wait and performance mes. events. " alt="" coords="204,1391,368,1417"/>
+<area shape="rect" id="node48" href="$state__manager_8c.html#a531022257e3c5b92029ce2243847d049" title="Deconstructor. Clean up all internal data structs. " alt="" coords="227,689,345,716"/>
+<area shape="rect" id="node49" href="$test__suite_8c.html#a9631a918ec25b67b9c88d608c962b956" title="test_get_err_count" alt="" coords="221,1441,351,1468"/>
+<area shape="rect" id="node50" href="$test__suite_8c.html#ab89fbb465413f5edb0ed7a5250df74e5" title="test_reset" alt="" coords="246,1492,326,1519"/>
+<area shape="rect" id="node4" href="$utils_8c.html#a8d7f34af292d60592b179a49baf3c54b" title="do_print" alt="" coords="715,31,783,57"/>
+<area shape="rect" id="node8" href="$states_8c.html#aa82cad408bf1ac59990bc6d57ff3c754" title=": Set up state array and transition table automatically. " alt="" coords="442,1807,593,1833"/>
+<area shape="rect" id="node9" href="$state__manager_8c.html#ace9fdd2cfc6f7910283ab2fb0ecbcc80" title="Fires all callbacks stored in internal array. " alt="" coords="429,1756,606,1783"/>
+<area shape="rect" id="node12" href="$states_8c.html#ab91bddfe86c489fa92acdb50882b265c" title=": Set up state array and transition table of state manager by customnly deployed arrays. " alt="" coords="433,1857,601,1884"/>
+<area shape="rect" id="node10" href="$state__manager_8c.html#adfd529eaa40008fae50455147470e981" title="Non thread&#45;safe getter of state struct. Call ONLY from state_mng run loop. " alt="" coords="674,1377,825,1404"/>
+<area shape="rect" id="node11" href="$state__manager_8c.html#a202929756c8c3b71de406e0b407db9c1" title="Thread&#45;safe getter of current state id. " alt="" coords="672,1731,827,1757"/>
+<area shape="rect" id="node14" href="$state__manager_8c.html#a6579e86bc3f3de2539796108bfc9a1be" title="Thread&#45;safe getter whether state machine thread is running. " alt="" coords="443,411,592,437"/>
+<area shape="rect" id="node15" href="$state__manager_8c.html#a6c0124042835015818d50d9130c2db76" title="Search whether val_id is in array. " alt="" coords="463,208,572,235"/>
+<area shape="rect" id="node17" href="$irqtestperipheral_8c.html#a508afd9a858251ac9dbd15fba94e4301" title="Thread safe, generic setter for device registers. Only works for regs which have a driver mem pool en..." alt="" coords="438,309,597,336"/>
+<area shape="rect" id="node18" href="$irqtestperipheral_8c.html#a260bbaa36d21fbbf0441d4d15fe1a5e0" title="irqtester_fe310_clear_1" alt="" coords="671,284,828,311"/>
+<area shape="rect" id="node19" href="$test__runners_8c.html#a2467a93cb1b1f39de81e6b5aadf3bd92" title=": Test of state_manager with autoconf SM " alt="" coords="416,157,619,184"/>
+<area shape="rect" id="node21" href="$irqtestperipheral_8c.html#a8b03f7c9aff5996a16845f0e2d1e6937" title="Provide a handle to a queue to receive msgs from the driver there. " alt="" coords="438,918,597,959"/>
+<area shape="rect" id="node22" href="$state__manager_8c.html#aab6938ef1c817b368bcee3fc953dba0f" title="Empty event log. " alt="" coords="432,867,603,893"/>
+<area shape="rect" id="node24" href="$irqtestperipheral_8c.html#a9c8c75c9c4603bdccd5bdcf3038d3c49" title="Enable previously registered queue_rx for sending driver events to. " alt="" coords="441,983,594,1025"/>
+<area shape="rect" id="node25" href="$irqtestperipheral_8c.html#ab47c9b38275ed5cb45931e907725dc06" title="Reset all objects related to receiving data from this driver. " alt="" coords="667,991,832,1017"/>
+<area shape="rect" id="node26" href="$irqtestperipheral_8c.html#ace5f0827eb25f735e652ab09f4cbe3b2" title="Enables flags for indicating load of harware values to driver memory. " alt="" coords="441,1202,594,1243"/>
+<area shape="rect" id="node27" href="$state__manager_8c.html#ac044c2e9da68e54b823e44ce65380ab2" title="check_time_goal_start" alt="" coords="441,1268,594,1295"/>
+<area shape="rect" id="node28" href="$state__manager_8c.html#ad3630c54ea4155b6d9038074a2c89750" title="handle_time_goal_start" alt="" coords="439,1319,595,1345"/>
+<area shape="rect" id="node29" href="$state__manager_8c.html#a219369c437a02377c0728e698a231dac" title="state_mng_check_vals\l_ready" alt="" coords="439,1370,595,1411"/>
+<area shape="rect" id="node30" href="$state__manager_8c.html#a0f0374dc26dbbc411fa368c513964d46" title="Handle if not all vals rady. " alt="" coords="452,1436,583,1463"/>
+<area shape="rect" id="node31" href="$state__manager_8c.html#ac147348fdfd1b971d35c92dc5fae1818" title="Measure duration of actions, after waiting in state is done. " alt="" coords="479,1487,555,1513"/>
+<area shape="rect" id="node32" href="$irqtestperipheral_8c.html#a997c5939bc6f47d246540c69ff49733d" title="Clear all flags. " alt="" coords="446,1538,589,1579"/>
+<area shape="rect" id="node33" href="$state__manager_8c.html#a01ec4af8d84ec8af6d062f60f7df11a6" title="check_time_goal_end" alt="" coords="443,1604,591,1631"/>
+<area shape="rect" id="node34" href="$state__manager_8c.html#a93ffbaf4a4a7a06501ade6b44ee7a0d3" title="handle_time_goal_end" alt="" coords="442,1705,593,1732"/>
+<area shape="rect" id="node35" href="$state__manager_8c.html#a783990c9c8f1bf1514a46e9f3acd01e2" title="Read all events in driver queue and get the one of highest priority. " alt="" coords="465,1151,569,1177"/>
+<area shape="rect" id="node36" href="$state__manager_8c.html#a5652a05c3eb6723ac1867d712baec64d" title="switch_state" alt="" coords="469,1100,565,1127"/>
+<area shape="rect" id="node39" href="$irqtestperipheral_8h.html#a614e7ce299e6946db0551c3e393093ce" title="irqtester_fe310_register\l_callback" alt="" coords="670,534,829,575"/>
+<area shape="rect" id="node40" href="$test__handlers_8c.html#a7b95ef2d0e0116f13685d1d5b284484a" title="_irq_1_handler_0" alt="" coords="457,461,577,488"/>
+<area shape="rect" id="node41" href="$irqtestperipheral_8c.html#a0bd81b8a8b0a9eb85658ffcfe6c0a7e5" title="Need to set regs num_rep_1 and period_1 first. " alt="" coords="444,613,591,640"/>
+<area shape="rect" id="node42" href="$irqtestperipheral_8c.html#a987670a27b50999e651f384e6b04e582" title="Non&#45;thread safe, generic getter for device (output) registers. Only works for regs which are loaded t..." alt="" coords="438,664,597,691"/>
+<area shape="rect" id="node43" href="$irqtestperipheral_8c.html#a1d2af0fa1a30580646c700e462bf063f" title="Reset all hw regs but &#39;enable&#39; to 0. Doesn&#39;t reset internal and output regs! " alt="" coords="433,563,601,589"/>
+<area shape="rect" id="node44" href="$test__suite_8c.html#ab6253891c1ed65a281890a657d672267" title="test_warn_on_new_error" alt="" coords="435,715,599,741"/>
+</map>

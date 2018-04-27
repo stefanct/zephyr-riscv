@@ -1,0 +1,7 @@
+<map id="irqtester_fe310_set_reg" name="irqtester_fe310_set_reg">
+<area shape="rect" id="node2" href="$irqtestperipheral_8c.html#a1356feef1a2dbd5af9d5f6c19e2d86a6" title="Non&#45;Thread safe, generic setter for device registers. Only works for regs which have a driver mem poo..." alt="" coords="212,74,345,115"/>
+<area shape="rect" id="node3" href="$irqtestperipheral_8c.html#aacd45cbca76d5cb252b111e2e064a3e0" title="id_2_type_fast" alt="" coords="397,5,503,32"/>
+<area shape="rect" id="node4" href="$irqtestperipheral_8c.html#a15420b03ab67124ddc6d1b4f63f32309" title="id_2_type" alt="" coords="411,56,489,83"/>
+<area shape="rect" id="node5" href="$irqtestperipheral_8c.html#aae36b616bf3ffc8134b83f3e168bdf0e" title="id_2_index_fast" alt="" coords="393,107,507,133"/>
+<area shape="rect" id="node6" href="$irqtestperipheral_8c.html#a3205d750d033a40f72392b0d638b9070" title="id_2_index" alt="" coords="408,157,492,184"/>
+</map>

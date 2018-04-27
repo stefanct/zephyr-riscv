@@ -1,0 +1,43 @@
+<map id="run_test_hw_basic_1" name="run_test_hw_basic_1">
+<area shape="rect" id="node2" href="$utils_8c.html#a1ae3605bfc857c7511287b5b181c6c54" title=": printk if given verbosity &gt;= set verbosity threshold. " alt="" coords="855,123,917,150"/>
+<area shape="rect" id="node4" href="$test__suite_8c.html#ab89fbb465413f5edb0ed7a5250df74e5" title="test_reset" alt="" coords="224,377,304,403"/>
+<area shape="rect" id="node5" href="$utils_8c.html#a837767c06145c9dc0d34b536813c36c1" title="print_time_banner" alt="" coords="394,73,519,99"/>
+<area shape="rect" id="node6" href="$utils_8c.html#a938b2809d318f940f04a5a4588b188f7" title="prints string in the center of console with | at beginning and end of line. " alt="" coords="617,22,719,49"/>
+<area shape="rect" id="node7" href="$utils_8c.html#ac145fb3e03aef9c2c79f781997444002" title="Print dash line. " alt="" coords="613,73,723,99"/>
+<area shape="rect" id="node8" href="$tests_8c.html#a32713b62fdf039d4772219dfd46d87b6" title="test_hw_rev_1_basic_1" alt="" coords="377,275,536,302"/>
+<area shape="rect" id="node33" href="$test__suite_8c.html#a56b71528349e98c9046124126e64cd20" title="test_print_report" alt="" coords="206,123,322,150"/>
+<area shape="rect" id="node35" href="$tests_8c.html#abd1cc667ddb04e059ca7cffb91c35651" title="test_hw_rev_2_basic_1" alt="" coords="377,655,536,682"/>
+<area shape="rect" id="node40" href="$tests_8c.html#ac99d224b737dcf7d14aa1c5afb8b4113" title="test_hw_rev_3_basic_1" alt="" coords="377,934,536,961"/>
+<area shape="rect" id="node42" href="$test__suite_8c.html#a9631a918ec25b67b9c88d608c962b956" title="test_get_err_count" alt="" coords="199,427,329,454"/>
+<area shape="rect" id="node3" href="$utils_8c.html#a8d7f34af292d60592b179a49baf3c54b" title="do_print" alt="" coords="1065,86,1133,113"/>
+<area shape="rect" id="node9" href="$irqtestperipheral_8c.html#a987670a27b50999e651f384e6b04e582" title="Non&#45;thread safe, generic getter for device (output) registers. Only works for regs which are loaded t..." alt="" coords="1020,533,1179,559"/>
+<area shape="rect" id="node15" href="$test__suite_8c.html#aca28e88c15724c892057de2ac19d670c" title="test_assert" alt="" coords="625,478,711,505"/>
+<area shape="rect" id="node16" href="$irqtestperipheral_8c.html#a508afd9a858251ac9dbd15fba94e4301" title="Thread safe, generic setter for device registers. Only works for regs which have a driver mem pool en..." alt="" coords="807,579,965,606"/>
+<area shape="rect" id="node18" href="$irqtestperipheral_8c.html#a46f10c3e9b63404c15f52ab375a28977" title="Thread safe generic (by id) getter for values of generic type from driver memory pools. " alt="" coords="1021,415,1178,442"/>
+<area shape="rect" id="node19" href="$irqtestperipheral_8c.html#ac1e81dcf0faf4348a6121675f46553ff" title="irqtester_fe310_fire" alt="" coords="601,174,735,201"/>
+<area shape="rect" id="node20" href="$irqtestperipheral_8c.html#a1d2af0fa1a30580646c700e462bf063f" title="Reset all hw regs but &#39;enable&#39; to 0. Doesn&#39;t reset internal and output regs! " alt="" coords="584,883,752,910"/>
+<area shape="rect" id="node10" href="$irqtestperipheral_8c.html#aacd45cbca76d5cb252b111e2e064a3e0" title="id_2_type_fast" alt="" coords="1238,466,1345,493"/>
+<area shape="rect" id="node11" href="$irqtestperipheral_8c.html#a15420b03ab67124ddc6d1b4f63f32309" title="id_2_type" alt="" coords="1252,517,1331,543"/>
+<area shape="rect" id="node12" href="$cycles_8c.html#a6e9f891bc6d1b4849bd701cca50ef426" title="read lower 32 bits of cycle csr register " alt="" coords="1242,1039,1341,1066"/>
+<area shape="rect" id="node13" href="$irqtestperipheral_8c.html#aae36b616bf3ffc8134b83f3e168bdf0e" title="id_2_index_fast" alt="" coords="1235,415,1348,442"/>
+<area shape="rect" id="node14" href="$irqtestperipheral_8c.html#a3205d750d033a40f72392b0d638b9070" title="id_2_index" alt="" coords="1249,567,1333,594"/>
+<area shape="rect" id="node17" href="$irqtestperipheral_8c.html#a1356feef1a2dbd5af9d5f6c19e2d86a6" title="Non&#45;Thread safe, generic setter for device registers. Only works for regs which have a driver mem poo..." alt="" coords="1033,467,1166,508"/>
+<area shape="rect" id="node21" href="$irqtestperipheral_8h.html#a1201d3599bac8d64a4993f9e217c104d" title="irqtester_fe310_unregister\l_callback" alt="" coords="800,1129,972,1171"/>
+<area shape="rect" id="node22" href="$irqtestperipheral_8h.html#a614e7ce299e6946db0551c3e393093ce" title="irqtester_fe310_register\l_callback" alt="" coords="807,783,965,824"/>
+<area shape="rect" id="node23" href="$irqtestperipheral_8c.html#a8b6a6dc9fd115e8c6346549531d43199" title="Default ISR set up in driver init. Serves all IRQs of irqtester. " alt="" coords="826,899,946,926"/>
+<area shape="rect" id="node24" href="$irqtestperipheral_8c.html#abda9b87261994cc7417d4db872faa8f2" title="_get_irq_id" alt="" coords="1404,706,1489,733"/>
+<area shape="rect" id="node25" href="$irqtestperipheral_8c.html#a260bbaa36d21fbbf0441d4d15fe1a5e0" title="irqtester_fe310_clear_1" alt="" coords="1021,634,1178,661"/>
+<area shape="rect" id="node27" href="$irqtestperipheral_8c.html#ac28383949304b588aecac37c6d6ea538" title="irqtester_fe310_clear_2" alt="" coords="1021,685,1178,711"/>
+<area shape="rect" id="node29" href="$irqtestperipheral_8c.html#a023df633a0cf154035fced51999c3f66" title="Test whether any flags for event sending are set. This excludes valflags, as they don&#39;t issue events..." alt="" coords="1032,837,1167,863"/>
+<area shape="rect" id="node30" href="$irqtestperipheral_8c.html#aea8fe973b67fd1364c333f4ba595b6db" title="send_event_rx" alt="" coords="1046,938,1153,965"/>
+<area shape="rect" id="node31" href="$irqtestperipheral_8c.html#a4f458d7df910b1501b2afc15c685dfe2" title="test_flag" alt="" coords="1255,837,1327,863"/>
+<area shape="rect" id="node32" href="$irqtestperipheral_8c.html#a95991437cd831bd6ad077bc6382059ee" title="Sets the (atomic) flag to indicate to higher level applications that event occured. " alt="" coords="1049,786,1149,813"/>
+<area shape="rect" id="node26" href="$tests_8c.html#a1b66895966dbe4f866074ac85e344bd7" title="reg_write_short" alt="" coords="1236,618,1347,645"/>
+<area shape="rect" id="node28" href="$irqtestperipheral_8c.html#ab157fe508c290d5e05fc878db1c936f0" title="irqtester_fe310_irq\l_handler" alt="" coords="1227,669,1356,711"/>
+<area shape="rect" id="node34" href="$utils_8c.html#a8762a947e398a29fe5da2ff7ff212779" title="print_report" alt="" coords="413,123,500,150"/>
+<area shape="rect" id="node36" href="$test__handlers_8c.html#a69a809399f273e00ec31eee0cfc6abdd" title="_irq_1_handler_1" alt="" coords="608,681,728,707"/>
+<area shape="rect" id="node37" href="$irqtestperipheral_8c.html#a0bd81b8a8b0a9eb85658ffcfe6c0a7e5" title="Need to set regs num_rep_1 and period_1 first. " alt="" coords="595,985,741,1011"/>
+<area shape="rect" id="node38" href="$irqtestperipheral_8c.html#a3f0daddddbc00ed4d3195cd85ba1acae" title="Need to set regs num_rep_2 and period_2 first. " alt="" coords="595,427,741,454"/>
+<area shape="rect" id="node39" href="$tests_8c.html#a38b0fd7060f06ff73bf7d7c36180ac95" title="irq_handler_clear_irq_1" alt="" coords="591,579,745,606"/>
+<area shape="rect" id="node41" href="$tests_8c.html#a5c22c62246934baf94d30cb9a68158a4" title="K_SEM_DEFINE" alt="" coords="606,1086,730,1113"/>
+</map>

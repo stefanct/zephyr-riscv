@@ -1,0 +1,1073 @@
+\hypertarget{state__manager_8c}{}\section{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/state\+\_\+manager.c File Reference}
+\label{state__manager_8c}\index{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/state\+\_\+manager.\+c@{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/state\+\_\+manager.\+c}}
+{\ttfamily \#include \char`\"{}state\+\_\+manager.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}irqtestperipheral.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$logging/sys\+\_\+log.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}log\+\_\+perf.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}states.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}utils.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}cycles.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}globals.\+h\char`\"{}}\\*
+Include dependency graph for state\+\_\+manager.\+c\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{state__manager_8c__incl}
+\end{center}
+\end{figure}
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{struct_s_m_event}{S\+M\+Event}
+\begin{DoxyCompactList}\small\item\em Controls switching of state\+\_\+manager states. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{state__manager_8c_ac5b2cb2d6ae6b5526953a00f765a23e4}{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN}~\char`\"{}State\+Manager\char`\"{}
+\item 
+\#define \hyperlink{state__manager_8c_a7e98264d6527b989d179c54a96034c88}{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+EL}~S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+E\+L\+\_\+\+D\+E\+B\+UG
+\item 
+\#define \hyperlink{state__manager_8c_a78bde9177c2751d8bff732c620d8fe12}{S\+T\+A\+T\+E\+\_\+\+M\+N\+G\+\_\+\+Q\+U\+E\+U\+E\+\_\+\+R\+X\+\_\+\+D\+E\+P\+TH}~5
+\item 
+\#define \hyperlink{state__manager_8c_aa6bae9cdbe1acb3ad3cdf5f4b5ba80b7}{S\+T\+A\+T\+E\+\_\+\+M\+N\+G\+\_\+\+L\+O\+G\+\_\+\+E\+V\+E\+N\+T\+S\+\_\+\+D\+E\+P\+TH}~C\+O\+N\+F\+I\+G\+\_\+\+A\+P\+P\+\_\+\+S\+M\+\_\+\+L\+O\+G\+\_\+\+D\+E\+P\+TH
+\item 
+\#define \hyperlink{state__manager_8c_ac85ffac15e6947e9fb5acf752fba7207}{L\+E\+N\+\_\+\+A\+R\+R\+AY}(x)~((sizeof(x)/sizeof(0\mbox{[}x\mbox{]})) / ((size\+\_\+t)(!(sizeof(x) \% sizeof(0\mbox{[}x\mbox{]})))))
+\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \hyperlink{state__manager_8c_a06fc87d81c62e9abb8790b6e5713c55bacc328a04c39d3c20bc288f87c12cb7a1}{A\+B\+O\+R\+T\+\_\+\+L\+O\+OP}, 
+\hyperlink{state__manager_8c_a06fc87d81c62e9abb8790b6e5713c55baa5639ff4eff3f959406116db9e020c44}{T\+H\+R\+E\+A\+D\+\_\+\+R\+U\+N\+N\+I\+NG}, 
+\hyperlink{state__manager_8c_a06fc87d81c62e9abb8790b6e5713c55baae8f7fe4c447de6809ddfcbf2b9254ac}{T\+H\+R\+E\+A\+D\+\_\+\+S\+T\+A\+RT}, 
+\hyperlink{state__manager_8c_a06fc87d81c62e9abb8790b6e5713c55ba8fc1dda1189452b89c9ca7e63fbb06cf}{\+\_\+\+N\+U\+M\+\_\+\+F\+L\+A\+GS}
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{state__manager_8c_a265aa2f1ca809961d9c4376b5f129fd1}{K\+\_\+\+M\+S\+G\+Q\+\_\+\+D\+E\+F\+I\+NE} (queue\+\_\+rx\+\_\+driver, sizeof(struct \hyperlink{struct_drv_event}{Drv\+Event}), \hyperlink{state__manager_8c_a78bde9177c2751d8bff732c620d8fe12}{S\+T\+A\+T\+E\+\_\+\+M\+N\+G\+\_\+\+Q\+U\+E\+U\+E\+\_\+\+R\+X\+\_\+\+D\+E\+P\+TH}, 4)
+\item 
+static void \hyperlink{state__manager_8c_ace9fdd2cfc6f7910283ab2fb0ecbcc80}{\+\_\+default\+\_\+action\+\_\+dispatcher} (\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} state)
+\begin{DoxyCompactList}\small\item\em Fires all callbacks stored in internal array. \end{DoxyCompactList}\item 
+static bool \hyperlink{state__manager_8c_a6c0124042835015818d50d9130c2db76}{is\+\_\+val\+\_\+in\+\_\+array} (\hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5}{irqt\+\_\+val\+\_\+id\+\_\+t} val, \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5}{irqt\+\_\+val\+\_\+id\+\_\+t} $\ast$arr, int len)
+\begin{DoxyCompactList}\small\item\em Search whether val\+\_\+id is in array. \end{DoxyCompactList}\item 
+static bool \hyperlink{state__manager_8c_a5c8a4f2ce282ae1c2036d80b2b331195}{is\+\_\+state\+\_\+in\+\_\+array} (\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} state\+\_\+id, \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} $\ast$arr, int len)
+\begin{DoxyCompactList}\small\item\em Search whether cycle\+\_\+state\+\_\+id is in array. \end{DoxyCompactList}\item 
+static void \hyperlink{state__manager_8c_ac147348fdfd1b971d35c92dc5fae1818}{mes\+\_\+perf} (struct \hyperlink{struct_state}{State} $\ast$state, int mode)
+\begin{DoxyCompactList}\small\item\em Measure duration of actions, after waiting in state is done. \end{DoxyCompactList}\item 
+static struct \hyperlink{struct_state}{State} $\ast$ \hyperlink{state__manager_8c_a5652a05c3eb6723ac1867d712baec64d}{switch\+\_\+state} (struct \hyperlink{struct_state}{State} $\ast$current, struct \hyperlink{struct_s_m_event}{S\+M\+Event} $\ast$evt)
+\item 
+static int \hyperlink{state__manager_8c_a783990c9c8f1bf1514a46e9f3acd01e2}{gather\+\_\+events} (struct \hyperlink{struct_s_m_event}{S\+M\+Event} $\ast$res\+\_\+evt)
+\begin{DoxyCompactList}\small\item\em Read all events in driver queue and get the one of highest priority. \end{DoxyCompactList}\item 
+static void \hyperlink{state__manager_8c_ac044c2e9da68e54b823e44ce65380ab2}{check\+\_\+time\+\_\+goal\+\_\+start} (struct \hyperlink{struct_state}{State} $\ast$state, int $\ast$t\+\_\+left)
+\item 
+static void \hyperlink{state__manager_8c_a01ec4af8d84ec8af6d062f60f7df11a6}{check\+\_\+time\+\_\+goal\+\_\+end} (struct \hyperlink{struct_state}{State} $\ast$state, int $\ast$t\+\_\+left)
+\item 
+static void \hyperlink{state__manager_8c_ad3630c54ea4155b6d9038074a2c89750}{handle\+\_\+time\+\_\+goal\+\_\+start} (struct \hyperlink{struct_state}{State} $\ast$state, int t\+\_\+left)
+\item 
+static void \hyperlink{state__manager_8c_a93ffbaf4a4a7a06501ade6b44ee7a0d3}{handle\+\_\+time\+\_\+goal\+\_\+end} (struct \hyperlink{struct_state}{State} $\ast$state, int t\+\_\+left)
+\item 
+static bool \hyperlink{state__manager_8c_a0f0374dc26dbbc411fa368c513964d46}{handle\+\_\+vals\+\_\+ready} (struct \hyperlink{struct_state}{State} $\ast$state)
+\begin{DoxyCompactList}\small\item\em Handle if not all vals rady. \end{DoxyCompactList}\item 
+static int \hyperlink{state__manager_8c_a219369c437a02377c0728e698a231dac}{state\+\_\+mng\+\_\+check\+\_\+vals\+\_\+ready} (struct \hyperlink{struct_state}{State} $\ast$state)
+\item 
+static void \hyperlink{state__manager_8c_aab6938ef1c817b368bcee3fc953dba0f}{state\+\_\+mng\+\_\+purge\+\_\+evt\+\_\+log} ()
+\begin{DoxyCompactList}\small\item\em Empty event log. \end{DoxyCompactList}\item 
+void \hyperlink{state__manager_8c_aaf434b7fdff6d2b471af6385d8572dd4}{state\+\_\+mng\+\_\+configure} (struct \hyperlink{struct_state}{State} cust\+\_\+states\mbox{[}$\,$\mbox{]}, \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} $\ast$cust\+\_\+tt, int len\+\_\+states, int len\+\_\+events)
+\begin{DoxyCompactList}\small\item\em Either use default config of states and transition table or set custom one. \end{DoxyCompactList}\item 
+void \hyperlink{state__manager_8c_a744449dc98e12eb620477cb63fd52b28}{state\+\_\+mng\+\_\+print\+\_\+state\+\_\+config} ()
+\begin{DoxyCompactList}\small\item\em Print info for all states configured to state\+\_\+manager. \end{DoxyCompactList}\item 
+void \hyperlink{state__manager_8c_a9d289bc2158c8795288230cebd7fe9a0}{state\+\_\+mng\+\_\+print\+\_\+transition\+\_\+table\+\_\+config} ()
+\begin{DoxyCompactList}\small\item\em Print transition table as configured to state\+\_\+manager. \end{DoxyCompactList}\item 
+void \hyperlink{state__manager_8c_ad3cde1fa185470108d73b735b4125b92}{state\+\_\+mng\+\_\+init} (struct device $\ast$dev)
+\begin{DoxyCompactList}\small\item\em Initialize. Mainly set up irqt driver. \end{DoxyCompactList}\item 
+bool \hyperlink{state__manager_8c_a6579e86bc3f3de2539796108bfc9a1be}{state\+\_\+mng\+\_\+is\+\_\+running} ()
+\begin{DoxyCompactList}\small\item\em Thread-\/safe getter whether state machine thread is running. \end{DoxyCompactList}\item 
+\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} \hyperlink{state__manager_8c_a202929756c8c3b71de406e0b407db9c1}{state\+\_\+mng\+\_\+get\+\_\+current} ()
+\begin{DoxyCompactList}\small\item\em Thread-\/safe getter of current state id. \end{DoxyCompactList}\item 
+u8\+\_\+t \hyperlink{state__manager_8c_ac24510f4277596a75f453efad3fc672e}{state\+\_\+mng\+\_\+get\+\_\+current\+\_\+subs} ()
+\begin{DoxyCompactList}\small\item\em Thread-\/unsafe getter of current substate index. Call O\+N\+LY from within state\+\_\+mng run loop. \end{DoxyCompactList}\item 
+int \hyperlink{state__manager_8c_a1aa0ff6d78ad2c2163a185367ea974ee}{state\+\_\+mng\+\_\+get\+\_\+switch\+\_\+events} (struct \hyperlink{struct_switch___event}{Switch\+\_\+\+Event} $\ast$buf, int len\+\_\+buf)
+\begin{DoxyCompactList}\small\item\em Thread-\/unsafe getter of switch events Call O\+N\+LY if SM is certain not to switch state. \end{DoxyCompactList}\item 
+int \hyperlink{state__manager_8c_a33ea26f18b26cb847715f96d8ad844d4}{state\+\_\+purge\+\_\+switch\+\_\+events} ()
+\begin{DoxyCompactList}\small\item\em Clear logged switch events. \end{DoxyCompactList}\item 
+int \hyperlink{state__manager_8c_aa1a7f7a02401d9dc854445091973da82}{state\+\_\+mng\+\_\+add\+\_\+filter\+\_\+state} (\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} state\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Add a state\+\_\+id to the logging filter. Only added states are logged by events. \end{DoxyCompactList}\item 
+int \hyperlink{state__manager_8c_a03de15121808afb76055dcc4bcc39029}{state\+\_\+mng\+\_\+purge\+\_\+filter\+\_\+state} ()
+\begin{DoxyCompactList}\small\item\em Clear any set filter. Will log for every state after. \end{DoxyCompactList}\item 
+int \hyperlink{state__manager_8c_a3e6205ccf0b3ad43154513dee0855ad9}{state\+\_\+mng\+\_\+abort} ()
+\begin{DoxyCompactList}\small\item\em Send signal to abort running state machine. \end{DoxyCompactList}\item 
+int \hyperlink{state__manager_8c_a531022257e3c5b92029ce2243847d049}{state\+\_\+mng\+\_\+reset} ()
+\begin{DoxyCompactList}\small\item\em Deconstructor. Clean up all internal data structs. \end{DoxyCompactList}\item 
+int \hyperlink{state__manager_8c_a5b1fec6a6e513b0d9348268da99d51d8}{state\+\_\+mng\+\_\+purge\+\_\+registered\+\_\+actions} (\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} state\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Clear callback array and reqvalue arrays for a state. \end{DoxyCompactList}\item 
+int \hyperlink{state__manager_8c_a68c4469fd22c45a03b62e0c68261f65c}{state\+\_\+mng\+\_\+purge\+\_\+registered\+\_\+actions\+\_\+all} ()
+\begin{DoxyCompactList}\small\item\em Clear callback array and reqvalue arrays for all states. \end{DoxyCompactList}\item 
+int \hyperlink{state__manager_8c_a639d174691e15c20411092f5f548b7fc}{state\+\_\+mng\+\_\+start} ()
+\begin{DoxyCompactList}\small\item\em Send signal to start running state machine. \end{DoxyCompactList}\item 
+void \hyperlink{state__manager_8c_a325177709e375347f313b77ad1a2bf56}{state\+\_\+mng\+\_\+run} (void)
+\begin{DoxyCompactList}\small\item\em Entry function for state machine (F\+SM) loop. Should be invoked as thread; do N\+OT call. \end{DoxyCompactList}\item 
+int \hyperlink{state__manager_8c_a23138a410f4f70b62e02f4d58aa111b6}{state\+\_\+mng\+\_\+register\+\_\+action} (\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} state\+\_\+id, void($\ast$func)(struct \hyperlink{struct_action_arg}{Action\+Arg} const $\ast$), \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5}{irqt\+\_\+val\+\_\+id\+\_\+t} arr\+\_\+vals\mbox{[}$\,$\mbox{]}, int len)
+\begin{DoxyCompactList}\small\item\em Register an action to be executed in a certain state. Specify values this action will request from irqt driver. \end{DoxyCompactList}\item 
+void \hyperlink{state__manager_8c_aa9929899641d509a7a471bca571fca5f}{state\+\_\+mng\+\_\+print\+\_\+evt\+\_\+log} ()
+\begin{DoxyCompactList}\small\item\em Print logged switch, wait and performance mes. events. \end{DoxyCompactList}\item 
+int \hyperlink{state__manager_8c_a99bec7ac7a0920d28e9c6886c55d7f92}{state\+\_\+mng\+\_\+pull\+\_\+perf\+\_\+action} (int res\+\_\+buf\mbox{[}$\,$\mbox{]}, int idx\+\_\+buf, int len)
+\begin{DoxyCompactList}\small\item\em Debug function, likely to be removed. Get and delete all log events for certain id\+\_\+state. \end{DoxyCompactList}\item 
+struct \hyperlink{struct_state}{State} $\ast$ \hyperlink{state__manager_8c_adfd529eaa40008fae50455147470e981}{state\+\_\+mng\+\_\+id\+\_\+2\+\_\+state} (\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} id\+\_\+name)
+\begin{DoxyCompactList}\small\item\em Non thread-\/safe getter of state struct. Call O\+N\+LY from state\+\_\+mng run loop. \end{DoxyCompactList}\item 
+bool \hyperlink{state__manager_8c_afea4cc94719670e69dcdce35b2ebbec7}{state\+\_\+mng\+\_\+wait\+\_\+vals\+\_\+ready} (struct \hyperlink{struct_state}{State} $\ast$state)
+\begin{DoxyCompactList}\small\item\em Wait until all requested values for state become available. Timeout, if timing goal end of the state is hit. \end{DoxyCompactList}\item 
+void \hyperlink{state__manager_8c_a078801207176f9646b9008c64a66354d}{state\+\_\+mng\+\_\+wait\+\_\+fix} (struct \hyperlink{struct_state}{State} $\ast$state, u32\+\_\+t t\+\_\+fix\+\_\+cyc, \hyperlink{state__manager_8h_ac061587bd504b89ca120f3bb56e6f4e8}{sm\+\_\+wait\+\_\+reason\+\_\+t} reason)
+\begin{DoxyCompactList}\small\item\em Wait for a fixed amount of time. \end{DoxyCompactList}\item 
+u32\+\_\+t \hyperlink{state__manager_8c_a14b1648ed43b1f50b64c2618dc2f827e}{state\+\_\+mng\+\_\+get\+\_\+time\+\_\+delta} ()
+\begin{DoxyCompactList}\small\item\em Calcs the time since start state. \end{DoxyCompactList}\item 
+int \hyperlink{state__manager_8c_a42cf6cb1b0318ed9f9c1a1bbcbcf4db3}{state\+\_\+mng\+\_\+get\+\_\+timing\+\_\+goal} (struct \hyperlink{struct_state}{State} $\ast$state, u8\+\_\+t substate, int mode)
+\begin{DoxyCompactList}\small\item\em Deprecated, use explicit \+\_\+start, \+\_\+end methods. \end{DoxyCompactList}\item 
+static void \hyperlink{state__manager_8c_a2b68abe1d98d63ac5f06e71df7f4ebe3}{calc\+\_\+time\+\_\+goal} (struct \hyperlink{struct_state}{State} $\ast$state, int $\ast$t\+\_\+left, int goal)
+\begin{DoxyCompactList}\small\item\em Helper to be called from \hyperlink{state__manager_8c_ac044c2e9da68e54b823e44ce65380ab2}{check\+\_\+time\+\_\+goal\+\_\+start()} or \+\_\+end() \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static atomic\+\_\+t \hyperlink{state__manager_8c_a24df4b049b3573393c3e4a719ebbefd3}{flags}
+\item 
+static struct \hyperlink{struct_switch___event}{Switch\+\_\+\+Event} \hyperlink{state__manager_8c_a294a5f8143b2099f097455b0387cf4bb}{log\+\_\+switch\+\_\+evts} \mbox{[}\hyperlink{state__manager_8c_aa6bae9cdbe1acb3ad3cdf5f4b5ba80b7}{S\+T\+A\+T\+E\+\_\+\+M\+N\+G\+\_\+\+L\+O\+G\+\_\+\+E\+V\+E\+N\+T\+S\+\_\+\+D\+E\+P\+TH}\mbox{]}
+\begin{DoxyCompactList}\small\item\em for logging \end{DoxyCompactList}\item 
+static struct \hyperlink{struct_perf___event}{Perf\+\_\+\+Event} \hyperlink{state__manager_8c_a3119d733d906cb6752b3b4c7960b3519}{log\+\_\+perf\+\_\+evts} \mbox{[}\hyperlink{state__manager_8c_aa6bae9cdbe1acb3ad3cdf5f4b5ba80b7}{S\+T\+A\+T\+E\+\_\+\+M\+N\+G\+\_\+\+L\+O\+G\+\_\+\+E\+V\+E\+N\+T\+S\+\_\+\+D\+E\+P\+TH}\mbox{]}
+\item 
+static struct \hyperlink{struct_wait___event}{Wait\+\_\+\+Event} \hyperlink{state__manager_8c_a16ece7f2e0a01c1918b08bad208afc04}{log\+\_\+wait\+\_\+evts} \mbox{[}\hyperlink{state__manager_8c_aa6bae9cdbe1acb3ad3cdf5f4b5ba80b7}{S\+T\+A\+T\+E\+\_\+\+M\+N\+G\+\_\+\+L\+O\+G\+\_\+\+E\+V\+E\+N\+T\+S\+\_\+\+D\+E\+P\+TH}\mbox{]}
+\item 
+static \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} \hyperlink{state__manager_8c_a1bc6bb01901f42a8260773aed8948623}{log\+\_\+filter} \mbox{[}$\,$\mbox{]} = \{\}
+\item 
+static \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} \hyperlink{state__manager_8c_a6c3f9ff327a0ce006ef0e4c32a777392}{transition\+\_\+table} \mbox{[}\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252a3dec1b1ee677da041bba8ecf1c1d5937}{\+\_\+\+N\+U\+M\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+ES}\mbox{]}\mbox{[}\hyperlink{states_8h_a1956f5c4955f21ca67d43209bc162438a741cae12c7b3223f6c27accc992eb486}{\+\_\+\+N\+U\+M\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+E\+V\+E\+N\+TS}\mbox{]}
+\begin{DoxyCompactList}\small\item\em defines next state id\+\_\+name on event \end{DoxyCompactList}\item 
+static struct \hyperlink{struct_state}{State} \hyperlink{state__manager_8c_a50cd14f72b74ea7ed5ac3c1f6f3e2171}{\+\_\+states} \mbox{[}\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252a3dec1b1ee677da041bba8ecf1c1d5937}{\+\_\+\+N\+U\+M\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+ES}\mbox{]}
+\begin{DoxyCompactList}\small\item\em lists all available states, must match cycle\+\_\+state\+\_\+id\+\_\+t enum order \end{DoxyCompactList}\item 
+static void($\ast$ \hyperlink{state__manager_8c_ac8f9d916638cc76be4a4a4fcfb2bb6eb}{\+\_\+cb\+\_\+funcs} \mbox{[}\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252a3dec1b1ee677da041bba8ecf1c1d5937}{\+\_\+\+N\+U\+M\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+ES}\mbox{]}\mbox{[}\hyperlink{states_8h_a4caabc1e1bc029254d541e7185b76e81}{S\+T\+A\+T\+E\+S\+\_\+\+C\+B\+S\+\_\+\+P\+E\+R\+\_\+\+A\+C\+T\+I\+O\+N\+\_\+\+M\+AX}\mbox{]})(struct \hyperlink{struct_action_arg}{Action\+Arg} const $\ast$)
+\item 
+static atomic\+\_\+t \hyperlink{state__manager_8c_afc89deb1961ae1f51a8812f5033029bc}{state\+\_\+cur\+\_\+id}
+\item 
+static struct \hyperlink{struct_state}{State} $\ast$ \hyperlink{state__manager_8c_a22ab5941b2917358e146e3c752409d5b}{\+\_\+state\+\_\+cur}
+\item 
+static struct device $\ast$ \hyperlink{state__manager_8c_ad2c3f19ad52119933f1f56d521002004}{irqt\+\_\+dev}
+\item 
+static bool \hyperlink{state__manager_8c_ac28675e9f599e4310cf860d8cd396cea}{init\+\_\+done} = false
+\item 
+static u32\+\_\+t \hyperlink{state__manager_8c_a088412b1bebf7d4730f72d41c47c4709}{timestamp\+\_\+reset}
+\end{DoxyCompactItemize}
+
+
+\subsection{Macro Definition Documentation}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!L\+E\+N\+\_\+\+A\+R\+R\+AY@{L\+E\+N\+\_\+\+A\+R\+R\+AY}}
+\index{L\+E\+N\+\_\+\+A\+R\+R\+AY@{L\+E\+N\+\_\+\+A\+R\+R\+AY}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{L\+E\+N\+\_\+\+A\+R\+R\+AY}{LEN_ARRAY}}]{\setlength{\rightskip}{0pt plus 5cm}\#define L\+E\+N\+\_\+\+A\+R\+R\+AY(
+\begin{DoxyParamCaption}
+\item[{}]{x}
+\end{DoxyParamCaption}
+)~((sizeof(x)/sizeof(0\mbox{[}x\mbox{]})) / ((size\+\_\+t)(!(sizeof(x) \% sizeof(0\mbox{[}x\mbox{]})))))}\hypertarget{state__manager_8c_ac85ffac15e6947e9fb5acf752fba7207}{}\label{state__manager_8c_ac85ffac15e6947e9fb5acf752fba7207}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!S\+T\+A\+T\+E\+\_\+\+M\+N\+G\+\_\+\+L\+O\+G\+\_\+\+E\+V\+E\+N\+T\+S\+\_\+\+D\+E\+P\+TH@{S\+T\+A\+T\+E\+\_\+\+M\+N\+G\+\_\+\+L\+O\+G\+\_\+\+E\+V\+E\+N\+T\+S\+\_\+\+D\+E\+P\+TH}}
+\index{S\+T\+A\+T\+E\+\_\+\+M\+N\+G\+\_\+\+L\+O\+G\+\_\+\+E\+V\+E\+N\+T\+S\+\_\+\+D\+E\+P\+TH@{S\+T\+A\+T\+E\+\_\+\+M\+N\+G\+\_\+\+L\+O\+G\+\_\+\+E\+V\+E\+N\+T\+S\+\_\+\+D\+E\+P\+TH}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{S\+T\+A\+T\+E\+\_\+\+M\+N\+G\+\_\+\+L\+O\+G\+\_\+\+E\+V\+E\+N\+T\+S\+\_\+\+D\+E\+P\+TH}{STATE_MNG_LOG_EVENTS_DEPTH}}]{\setlength{\rightskip}{0pt plus 5cm}\#define S\+T\+A\+T\+E\+\_\+\+M\+N\+G\+\_\+\+L\+O\+G\+\_\+\+E\+V\+E\+N\+T\+S\+\_\+\+D\+E\+P\+TH~C\+O\+N\+F\+I\+G\+\_\+\+A\+P\+P\+\_\+\+S\+M\+\_\+\+L\+O\+G\+\_\+\+D\+E\+P\+TH}\hypertarget{state__manager_8c_aa6bae9cdbe1acb3ad3cdf5f4b5ba80b7}{}\label{state__manager_8c_aa6bae9cdbe1acb3ad3cdf5f4b5ba80b7}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!S\+T\+A\+T\+E\+\_\+\+M\+N\+G\+\_\+\+Q\+U\+E\+U\+E\+\_\+\+R\+X\+\_\+\+D\+E\+P\+TH@{S\+T\+A\+T\+E\+\_\+\+M\+N\+G\+\_\+\+Q\+U\+E\+U\+E\+\_\+\+R\+X\+\_\+\+D\+E\+P\+TH}}
+\index{S\+T\+A\+T\+E\+\_\+\+M\+N\+G\+\_\+\+Q\+U\+E\+U\+E\+\_\+\+R\+X\+\_\+\+D\+E\+P\+TH@{S\+T\+A\+T\+E\+\_\+\+M\+N\+G\+\_\+\+Q\+U\+E\+U\+E\+\_\+\+R\+X\+\_\+\+D\+E\+P\+TH}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{S\+T\+A\+T\+E\+\_\+\+M\+N\+G\+\_\+\+Q\+U\+E\+U\+E\+\_\+\+R\+X\+\_\+\+D\+E\+P\+TH}{STATE_MNG_QUEUE_RX_DEPTH}}]{\setlength{\rightskip}{0pt plus 5cm}\#define S\+T\+A\+T\+E\+\_\+\+M\+N\+G\+\_\+\+Q\+U\+E\+U\+E\+\_\+\+R\+X\+\_\+\+D\+E\+P\+TH~5}\hypertarget{state__manager_8c_a78bde9177c2751d8bff732c620d8fe12}{}\label{state__manager_8c_a78bde9177c2751d8bff732c620d8fe12}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN@{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN}}
+\index{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN@{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN}{SYS_LOG_DOMAIN}}]{\setlength{\rightskip}{0pt plus 5cm}\#define S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN~\char`\"{}State\+Manager\char`\"{}}\hypertarget{state__manager_8c_ac5b2cb2d6ae6b5526953a00f765a23e4}{}\label{state__manager_8c_ac5b2cb2d6ae6b5526953a00f765a23e4}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+EL@{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+EL}}
+\index{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+EL@{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+EL}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+EL}{SYS_LOG_LEVEL}}]{\setlength{\rightskip}{0pt plus 5cm}\#define S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+EL~S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+E\+L\+\_\+\+D\+E\+B\+UG}\hypertarget{state__manager_8c_a7e98264d6527b989d179c54a96034c88}{}\label{state__manager_8c_a7e98264d6527b989d179c54a96034c88}
+
+
+\subsection{Enumeration Type Documentation}
+\subsubsection[{\texorpdfstring{anonymous enum}{anonymous enum}}]{\setlength{\rightskip}{0pt plus 5cm}anonymous enum}\hypertarget{state__manager_8c_a06fc87d81c62e9abb8790b6e5713c55b}{}\label{state__manager_8c_a06fc87d81c62e9abb8790b6e5713c55b}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{A\+B\+O\+R\+T\+\_\+\+L\+O\+OP@{A\+B\+O\+R\+T\+\_\+\+L\+O\+OP}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!A\+B\+O\+R\+T\+\_\+\+L\+O\+OP@{A\+B\+O\+R\+T\+\_\+\+L\+O\+OP}}\item[{\em 
+A\+B\+O\+R\+T\+\_\+\+L\+O\+OP\hypertarget{state__manager_8c_a06fc87d81c62e9abb8790b6e5713c55bacc328a04c39d3c20bc288f87c12cb7a1}{}\label{state__manager_8c_a06fc87d81c62e9abb8790b6e5713c55bacc328a04c39d3c20bc288f87c12cb7a1}
+}]\index{T\+H\+R\+E\+A\+D\+\_\+\+R\+U\+N\+N\+I\+NG@{T\+H\+R\+E\+A\+D\+\_\+\+R\+U\+N\+N\+I\+NG}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!T\+H\+R\+E\+A\+D\+\_\+\+R\+U\+N\+N\+I\+NG@{T\+H\+R\+E\+A\+D\+\_\+\+R\+U\+N\+N\+I\+NG}}\item[{\em 
+T\+H\+R\+E\+A\+D\+\_\+\+R\+U\+N\+N\+I\+NG\hypertarget{state__manager_8c_a06fc87d81c62e9abb8790b6e5713c55baa5639ff4eff3f959406116db9e020c44}{}\label{state__manager_8c_a06fc87d81c62e9abb8790b6e5713c55baa5639ff4eff3f959406116db9e020c44}
+}]\index{T\+H\+R\+E\+A\+D\+\_\+\+S\+T\+A\+RT@{T\+H\+R\+E\+A\+D\+\_\+\+S\+T\+A\+RT}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!T\+H\+R\+E\+A\+D\+\_\+\+S\+T\+A\+RT@{T\+H\+R\+E\+A\+D\+\_\+\+S\+T\+A\+RT}}\item[{\em 
+T\+H\+R\+E\+A\+D\+\_\+\+S\+T\+A\+RT\hypertarget{state__manager_8c_a06fc87d81c62e9abb8790b6e5713c55baae8f7fe4c447de6809ddfcbf2b9254ac}{}\label{state__manager_8c_a06fc87d81c62e9abb8790b6e5713c55baae8f7fe4c447de6809ddfcbf2b9254ac}
+}]\index{\+\_\+\+N\+U\+M\+\_\+\+F\+L\+A\+GS@{\+\_\+\+N\+U\+M\+\_\+\+F\+L\+A\+GS}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!\+\_\+\+N\+U\+M\+\_\+\+F\+L\+A\+GS@{\+\_\+\+N\+U\+M\+\_\+\+F\+L\+A\+GS}}\item[{\em 
+\+\_\+\+N\+U\+M\+\_\+\+F\+L\+A\+GS\hypertarget{state__manager_8c_a06fc87d81c62e9abb8790b6e5713c55ba8fc1dda1189452b89c9ca7e63fbb06cf}{}\label{state__manager_8c_a06fc87d81c62e9abb8790b6e5713c55ba8fc1dda1189452b89c9ca7e63fbb06cf}
+}]\end{description}
+\end{Desc}
+
+
+\subsection{Function Documentation}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!\+\_\+default\+\_\+action\+\_\+dispatcher@{\+\_\+default\+\_\+action\+\_\+dispatcher}}
+\index{\+\_\+default\+\_\+action\+\_\+dispatcher@{\+\_\+default\+\_\+action\+\_\+dispatcher}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{\+\_\+default\+\_\+action\+\_\+dispatcher(cycle\+\_\+state\+\_\+id\+\_\+t state)}{_default_action_dispatcher(cycle_state_id_t state)}}]{\setlength{\rightskip}{0pt plus 5cm}static void \+\_\+default\+\_\+action\+\_\+dispatcher (
+\begin{DoxyParamCaption}
+\item[{{\bf cycle\+\_\+state\+\_\+id\+\_\+t}}]{state}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_ace9fdd2cfc6f7910283ab2fb0ecbcc80}{}\label{state__manager_8c_ace9fdd2cfc6f7910283ab2fb0ecbcc80}
+
+
+Fires all callbacks stored in internal array. 
+
+Use state\+\_\+manager\+::register\+\_\+action() and \+::purge\+\_\+registered\+\_\+action() to access. 
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{state__manager_8c_ace9fdd2cfc6f7910283ab2fb0ecbcc80_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!calc\+\_\+time\+\_\+goal@{calc\+\_\+time\+\_\+goal}}
+\index{calc\+\_\+time\+\_\+goal@{calc\+\_\+time\+\_\+goal}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{calc\+\_\+time\+\_\+goal(struct State $\ast$state, int $\ast$t\+\_\+left, int goal)}{calc_time_goal(struct State *state, int *t_left, int goal)}}]{\setlength{\rightskip}{0pt plus 5cm}static void calc\+\_\+time\+\_\+goal (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{state, }
+\item[{int $\ast$}]{t\+\_\+left, }
+\item[{int}]{goal}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_a2b68abe1d98d63ac5f06e71df7f4ebe3}{}\label{state__manager_8c_a2b68abe1d98d63ac5f06e71df7f4ebe3}
+
+
+Helper to be called from \hyperlink{state__manager_8c_ac044c2e9da68e54b823e44ce65380ab2}{check\+\_\+time\+\_\+goal\+\_\+start()} or \+\_\+end() 
+
+Deprecated, use explicit \+\_\+start, \+\_\+end methods 
+\begin{DoxyParams}{Parameters}
+{\em t\+\_\+left} & if goal met\+: delta in cycles still to goal \\
+\hline
+{\em mode} & 0\+: check start goal, 1\+:end goal \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0\+: goal in future, 1\+: goal missed, 2\+: goal exactly hit 
+\end{DoxyReturn}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{state__manager_8c_a2b68abe1d98d63ac5f06e71df7f4ebe3_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!check\+\_\+time\+\_\+goal\+\_\+end@{check\+\_\+time\+\_\+goal\+\_\+end}}
+\index{check\+\_\+time\+\_\+goal\+\_\+end@{check\+\_\+time\+\_\+goal\+\_\+end}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{check\+\_\+time\+\_\+goal\+\_\+end(struct State $\ast$state, int $\ast$t\+\_\+left)}{check_time_goal_end(struct State *state, int *t_left)}}]{\setlength{\rightskip}{0pt plus 5cm}static void check\+\_\+time\+\_\+goal\+\_\+end (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{state, }
+\item[{int $\ast$}]{t\+\_\+left}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_a01ec4af8d84ec8af6d062f60f7df11a6}{}\label{state__manager_8c_a01ec4af8d84ec8af6d062f60f7df11a6}
+
+\begin{DoxyParams}{Parameters}
+{\em t\+\_\+left} & if goal met\+: delta in cycles still to goal \\
+\hline
+\end{DoxyParams}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{state__manager_8c_a01ec4af8d84ec8af6d062f60f7df11a6_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!check\+\_\+time\+\_\+goal\+\_\+start@{check\+\_\+time\+\_\+goal\+\_\+start}}
+\index{check\+\_\+time\+\_\+goal\+\_\+start@{check\+\_\+time\+\_\+goal\+\_\+start}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{check\+\_\+time\+\_\+goal\+\_\+start(struct State $\ast$state, int $\ast$t\+\_\+left)}{check_time_goal_start(struct State *state, int *t_left)}}]{\setlength{\rightskip}{0pt plus 5cm}static void check\+\_\+time\+\_\+goal\+\_\+start (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{state, }
+\item[{int $\ast$}]{t\+\_\+left}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_ac044c2e9da68e54b823e44ce65380ab2}{}\label{state__manager_8c_ac044c2e9da68e54b823e44ce65380ab2}
+
+\begin{DoxyParams}{Parameters}
+{\em t\+\_\+left} & if goal met\+: delta in cycles still to goal \\
+\hline
+\end{DoxyParams}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{state__manager_8c_ac044c2e9da68e54b823e44ce65380ab2_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!gather\+\_\+events@{gather\+\_\+events}}
+\index{gather\+\_\+events@{gather\+\_\+events}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{gather\+\_\+events(struct S\+M\+Event $\ast$res\+\_\+evt)}{gather_events(struct SMEvent *res_evt)}}]{\setlength{\rightskip}{0pt plus 5cm}static int gather\+\_\+events (
+\begin{DoxyParamCaption}
+\item[{struct {\bf S\+M\+Event} $\ast$}]{res\+\_\+evt}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_a783990c9c8f1bf1514a46e9f3acd01e2}{}\label{state__manager_8c_a783990c9c8f1bf1514a46e9f3acd01e2}
+
+
+Read all events in driver queue and get the one of highest priority. 
+
+If in S\+T\+A\+T\+E\+\_\+\+I\+D\+LE, wait here F\+O\+R\+E\+V\+ER for first drv event. In case of event with same priority, the one later received (higher index in queue) wins.
+
+
+\begin{DoxyParams}{Parameters}
+{\em res\+\_\+evt} & Pointer to state manager event to write result. \\
+\hline
+\end{DoxyParams}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!handle\+\_\+time\+\_\+goal\+\_\+end@{handle\+\_\+time\+\_\+goal\+\_\+end}}
+\index{handle\+\_\+time\+\_\+goal\+\_\+end@{handle\+\_\+time\+\_\+goal\+\_\+end}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{handle\+\_\+time\+\_\+goal\+\_\+end(struct State $\ast$state, int t\+\_\+left)}{handle_time_goal_end(struct State *state, int t_left)}}]{\setlength{\rightskip}{0pt plus 5cm}static void handle\+\_\+time\+\_\+goal\+\_\+end (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{state, }
+\item[{int}]{t\+\_\+left}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_a93ffbaf4a4a7a06501ade6b44ee7a0d3}{}\label{state__manager_8c_a93ffbaf4a4a7a06501ade6b44ee7a0d3}
+
+\begin{DoxyParams}{Parameters}
+{\em t\+\_\+left} & result from check\+\_\+time\+\_\+goal() \\
+\hline
+\end{DoxyParams}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!handle\+\_\+time\+\_\+goal\+\_\+start@{handle\+\_\+time\+\_\+goal\+\_\+start}}
+\index{handle\+\_\+time\+\_\+goal\+\_\+start@{handle\+\_\+time\+\_\+goal\+\_\+start}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{handle\+\_\+time\+\_\+goal\+\_\+start(struct State $\ast$state, int t\+\_\+left)}{handle_time_goal_start(struct State *state, int t_left)}}]{\setlength{\rightskip}{0pt plus 5cm}static void handle\+\_\+time\+\_\+goal\+\_\+start (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{state, }
+\item[{int}]{t\+\_\+left}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_ad3630c54ea4155b6d9038074a2c89750}{}\label{state__manager_8c_ad3630c54ea4155b6d9038074a2c89750}
+Deprecated, use explicit \+\_\+start, \+\_\+end methods 
+\begin{DoxyParams}{Parameters}
+{\em t\+\_\+left} & result from check\+\_\+time\+\_\+goal() \\
+\hline
+{\em mode} & 0\+: check start goal, 1\+:end goal \\
+\hline
+{\em t\+\_\+left} & result from check\+\_\+time\+\_\+goal() \\
+\hline
+\end{DoxyParams}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!handle\+\_\+vals\+\_\+ready@{handle\+\_\+vals\+\_\+ready}}
+\index{handle\+\_\+vals\+\_\+ready@{handle\+\_\+vals\+\_\+ready}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{handle\+\_\+vals\+\_\+ready(struct State $\ast$state)}{handle_vals_ready(struct State *state)}}]{\setlength{\rightskip}{0pt plus 5cm}static bool handle\+\_\+vals\+\_\+ready (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{state}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_a0f0374dc26dbbc411fa368c513964d46}{}\label{state__manager_8c_a0f0374dc26dbbc411fa368c513964d46}
+
+
+Handle if not all vals rady. 
+
+\begin{DoxyReturn}{Returns}
+handler decision to skip actions in run loop. 
+\end{DoxyReturn}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!is\+\_\+state\+\_\+in\+\_\+array@{is\+\_\+state\+\_\+in\+\_\+array}}
+\index{is\+\_\+state\+\_\+in\+\_\+array@{is\+\_\+state\+\_\+in\+\_\+array}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{is\+\_\+state\+\_\+in\+\_\+array(cycle\+\_\+state\+\_\+id\+\_\+t state\+\_\+id, cycle\+\_\+state\+\_\+id\+\_\+t $\ast$arr, int len)}{is_state_in_array(cycle_state_id_t state_id, cycle_state_id_t *arr, int len)}}]{\setlength{\rightskip}{0pt plus 5cm}static bool is\+\_\+state\+\_\+in\+\_\+array (
+\begin{DoxyParamCaption}
+\item[{{\bf cycle\+\_\+state\+\_\+id\+\_\+t}}]{state\+\_\+id, }
+\item[{{\bf cycle\+\_\+state\+\_\+id\+\_\+t} $\ast$}]{arr, }
+\item[{int}]{len}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_a5c8a4f2ce282ae1c2036d80b2b331195}{}\label{state__manager_8c_a5c8a4f2ce282ae1c2036d80b2b331195}
+
+
+Search whether cycle\+\_\+state\+\_\+id is in array. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em irqt\+\_\+val\+\_\+id\+\_\+t} & $\ast$\+: array, assumed to be ordered, st. \+\_\+\+N\+I\+L\+\_\+\+V\+AL occurs only after any value \\
+\hline
+\end{DoxyParams}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!is\+\_\+val\+\_\+in\+\_\+array@{is\+\_\+val\+\_\+in\+\_\+array}}
+\index{is\+\_\+val\+\_\+in\+\_\+array@{is\+\_\+val\+\_\+in\+\_\+array}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{is\+\_\+val\+\_\+in\+\_\+array(irqt\+\_\+val\+\_\+id\+\_\+t val, irqt\+\_\+val\+\_\+id\+\_\+t $\ast$arr, int len)}{is_val_in_array(irqt_val_id_t val, irqt_val_id_t *arr, int len)}}]{\setlength{\rightskip}{0pt plus 5cm}static bool is\+\_\+val\+\_\+in\+\_\+array (
+\begin{DoxyParamCaption}
+\item[{{\bf irqt\+\_\+val\+\_\+id\+\_\+t}}]{val, }
+\item[{{\bf irqt\+\_\+val\+\_\+id\+\_\+t} $\ast$}]{arr, }
+\item[{int}]{len}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_a6c0124042835015818d50d9130c2db76}{}\label{state__manager_8c_a6c0124042835015818d50d9130c2db76}
+
+
+Search whether val\+\_\+id is in array. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em irqt\+\_\+val\+\_\+id\+\_\+t} & $\ast$\+: array, assumed to be ordered, st. \+\_\+\+N\+I\+L\+\_\+\+V\+AL occurs only after any value \\
+\hline
+\end{DoxyParams}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!K\+\_\+\+M\+S\+G\+Q\+\_\+\+D\+E\+F\+I\+NE@{K\+\_\+\+M\+S\+G\+Q\+\_\+\+D\+E\+F\+I\+NE}}
+\index{K\+\_\+\+M\+S\+G\+Q\+\_\+\+D\+E\+F\+I\+NE@{K\+\_\+\+M\+S\+G\+Q\+\_\+\+D\+E\+F\+I\+NE}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{K\+\_\+\+M\+S\+G\+Q\+\_\+\+D\+E\+F\+I\+N\+E(queue\+\_\+rx\+\_\+driver, sizeof(struct Drv\+Event), S\+T\+A\+T\+E\+\_\+\+M\+N\+G\+\_\+\+Q\+U\+E\+U\+E\+\_\+\+R\+X\+\_\+\+D\+E\+P\+T\+H, 4)}{K_MSGQ_DEFINE(queue_rx_driver, sizeof(struct DrvEvent), STATE_MNG_QUEUE_RX_DEPTH, 4)}}]{\setlength{\rightskip}{0pt plus 5cm}K\+\_\+\+M\+S\+G\+Q\+\_\+\+D\+E\+F\+I\+NE (
+\begin{DoxyParamCaption}
+\item[{queue\+\_\+rx\+\_\+driver}]{, }
+\item[{sizeof(struct {\bf Drv\+Event})}]{, }
+\item[{{\bf S\+T\+A\+T\+E\+\_\+\+M\+N\+G\+\_\+\+Q\+U\+E\+U\+E\+\_\+\+R\+X\+\_\+\+D\+E\+P\+TH}}]{, }
+\item[{4}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_a265aa2f1ca809961d9c4376b5f129fd1}{}\label{state__manager_8c_a265aa2f1ca809961d9c4376b5f129fd1}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!mes\+\_\+perf@{mes\+\_\+perf}}
+\index{mes\+\_\+perf@{mes\+\_\+perf}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{mes\+\_\+perf(struct State $\ast$state, int mode)}{mes_perf(struct State *state, int mode)}}]{\setlength{\rightskip}{0pt plus 5cm}static void mes\+\_\+perf (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{state, }
+\item[{int}]{mode}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_ac147348fdfd1b971d35c92dc5fae1818}{}\label{state__manager_8c_ac147348fdfd1b971d35c92dc5fae1818}
+
+
+Measure duration of actions, after waiting in state is done. 
+
+Waiting occurs if a handler of state does so in case of missed time goal or not available requested value
+
+
+\begin{DoxyParams}{Parameters}
+{\em mode} & 0\+: measurement start, 1\+: mes end \\
+\hline
+\end{DoxyParams}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{state__manager_8c_ac147348fdfd1b971d35c92dc5fae1818_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+abort@{state\+\_\+mng\+\_\+abort}}
+\index{state\+\_\+mng\+\_\+abort@{state\+\_\+mng\+\_\+abort}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+abort()}{state_mng_abort()}}]{\setlength{\rightskip}{0pt plus 5cm}int state\+\_\+mng\+\_\+abort (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_a3e6205ccf0b3ad43154513dee0855ad9}{}\label{state__manager_8c_a3e6205ccf0b3ad43154513dee0855ad9}
+
+
+Send signal to abort running state machine. 
+
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=317pt]{state__manager_8c_a3e6205ccf0b3ad43154513dee0855ad9_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+add\+\_\+filter\+\_\+state@{state\+\_\+mng\+\_\+add\+\_\+filter\+\_\+state}}
+\index{state\+\_\+mng\+\_\+add\+\_\+filter\+\_\+state@{state\+\_\+mng\+\_\+add\+\_\+filter\+\_\+state}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+add\+\_\+filter\+\_\+state(cycle\+\_\+state\+\_\+id\+\_\+t state\+\_\+id)}{state_mng_add_filter_state(cycle_state_id_t state_id)}}]{\setlength{\rightskip}{0pt plus 5cm}int state\+\_\+mng\+\_\+add\+\_\+filter\+\_\+state (
+\begin{DoxyParamCaption}
+\item[{{\bf cycle\+\_\+state\+\_\+id\+\_\+t}}]{state\+\_\+id}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_aa1a7f7a02401d9dc854445091973da82}{}\label{state__manager_8c_aa1a7f7a02401d9dc854445091973da82}
+
+
+Add a state\+\_\+id to the logging filter. Only added states are logged by events. 
+
+\begin{DoxyReturn}{Returns}
+0 on sucess, 1 if filter array full 
+\end{DoxyReturn}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+check\+\_\+vals\+\_\+ready@{state\+\_\+mng\+\_\+check\+\_\+vals\+\_\+ready}}
+\index{state\+\_\+mng\+\_\+check\+\_\+vals\+\_\+ready@{state\+\_\+mng\+\_\+check\+\_\+vals\+\_\+ready}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+check\+\_\+vals\+\_\+ready(struct State $\ast$state)}{state_mng_check_vals_ready(struct State *state)}}]{\setlength{\rightskip}{0pt plus 5cm}static int state\+\_\+mng\+\_\+check\+\_\+vals\+\_\+ready (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{state}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_a219369c437a02377c0728e698a231dac}{}\label{state__manager_8c_a219369c437a02377c0728e698a231dac}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=336pt]{state__manager_8c_a219369c437a02377c0728e698a231dac_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+configure@{state\+\_\+mng\+\_\+configure}}
+\index{state\+\_\+mng\+\_\+configure@{state\+\_\+mng\+\_\+configure}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+configure(struct State cust\+\_\+states[], cycle\+\_\+state\+\_\+id\+\_\+t $\ast$cust\+\_\+tt, int len\+\_\+states, int len\+\_\+events)}{state_mng_configure(struct State cust_states[], cycle_state_id_t *cust_tt, int len_states, int len_events)}}]{\setlength{\rightskip}{0pt plus 5cm}void state\+\_\+mng\+\_\+configure (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State}}]{cust\+\_\+states\mbox{[}$\,$\mbox{]}, }
+\item[{{\bf cycle\+\_\+state\+\_\+id\+\_\+t} $\ast$}]{cust\+\_\+tt, }
+\item[{int}]{len\+\_\+states, }
+\item[{int}]{len\+\_\+events}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_aaf434b7fdff6d2b471af6385d8572dd4}{}\label{state__manager_8c_aaf434b7fdff6d2b471af6385d8572dd4}
+
+
+Either use default config of states and transition table or set custom one. 
+
+If you choose to use custom config, make sure that all your data is properly init! Call first \hyperlink{state__manager_8c_aaf434b7fdff6d2b471af6385d8572dd4}{state\+\_\+mng\+\_\+configure()}, then \hyperlink{state__manager_8c_a23138a410f4f70b62e02f4d58aa111b6}{state\+\_\+mng\+\_\+register\+\_\+action()} and \hyperlink{state__manager_8c_ad3cde1fa185470108d73b735b4125b92}{state\+\_\+mng\+\_\+init()}. 
+\begin{DoxyParams}{Parameters}
+{\em cust\+\_\+states} & Custom 1d state array. Set N\+U\+LL to use auto. \\
+\hline
+{\em cust\+\_\+tt} & Custom 2d transition table. Set N\+U\+LL to use auto. \\
+\hline
+{\em len\+\_\+state} & Number of elements in cust\+\_\+states. \\
+\hline
+{\em len\+\_\+events} & Number of configured events in cust\+\_\+tt (second dimension) \\
+\hline
+\end{DoxyParams}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{state__manager_8c_aaf434b7fdff6d2b471af6385d8572dd4_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+get\+\_\+current@{state\+\_\+mng\+\_\+get\+\_\+current}}
+\index{state\+\_\+mng\+\_\+get\+\_\+current@{state\+\_\+mng\+\_\+get\+\_\+current}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+get\+\_\+current()}{state_mng_get_current()}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf cycle\+\_\+state\+\_\+id\+\_\+t} state\+\_\+mng\+\_\+get\+\_\+current (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_a202929756c8c3b71de406e0b407db9c1}{}\label{state__manager_8c_a202929756c8c3b71de406e0b407db9c1}
+
+
+Thread-\/safe getter of current state id. 
+
+\begin{DoxyReturn}{Returns}
+id of current state. 
+\end{DoxyReturn}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+get\+\_\+current\+\_\+subs@{state\+\_\+mng\+\_\+get\+\_\+current\+\_\+subs}}
+\index{state\+\_\+mng\+\_\+get\+\_\+current\+\_\+subs@{state\+\_\+mng\+\_\+get\+\_\+current\+\_\+subs}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+get\+\_\+current\+\_\+subs()}{state_mng_get_current_subs()}}]{\setlength{\rightskip}{0pt plus 5cm}u8\+\_\+t state\+\_\+mng\+\_\+get\+\_\+current\+\_\+subs (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_ac24510f4277596a75f453efad3fc672e}{}\label{state__manager_8c_ac24510f4277596a75f453efad3fc672e}
+
+
+Thread-\/unsafe getter of current substate index. Call O\+N\+LY from within state\+\_\+mng run loop. 
+
+\begin{DoxyReturn}{Returns}
+id of current state. 
+\end{DoxyReturn}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{state__manager_8c_ac24510f4277596a75f453efad3fc672e_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+get\+\_\+switch\+\_\+events@{state\+\_\+mng\+\_\+get\+\_\+switch\+\_\+events}}
+\index{state\+\_\+mng\+\_\+get\+\_\+switch\+\_\+events@{state\+\_\+mng\+\_\+get\+\_\+switch\+\_\+events}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+get\+\_\+switch\+\_\+events(struct Switch\+\_\+\+Event $\ast$buf, int len\+\_\+buf)}{state_mng_get_switch_events(struct Switch_Event *buf, int len_buf)}}]{\setlength{\rightskip}{0pt plus 5cm}int state\+\_\+mng\+\_\+get\+\_\+switch\+\_\+events (
+\begin{DoxyParamCaption}
+\item[{struct {\bf Switch\+\_\+\+Event} $\ast$}]{buf, }
+\item[{int}]{len\+\_\+buf}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_a1aa0ff6d78ad2c2163a185367ea974ee}{}\label{state__manager_8c_a1aa0ff6d78ad2c2163a185367ea974ee}
+
+
+Thread-\/unsafe getter of switch events Call O\+N\+LY if SM is certain not to switch state. 
+
+\begin{DoxyReturn}{Returns}
+0 on success. 1\+: buf is too small, return data truncated. 2\+: events disabled 
+\end{DoxyReturn}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+get\+\_\+time\+\_\+delta@{state\+\_\+mng\+\_\+get\+\_\+time\+\_\+delta}}
+\index{state\+\_\+mng\+\_\+get\+\_\+time\+\_\+delta@{state\+\_\+mng\+\_\+get\+\_\+time\+\_\+delta}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+get\+\_\+time\+\_\+delta()}{state_mng_get_time_delta()}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t state\+\_\+mng\+\_\+get\+\_\+time\+\_\+delta (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_a14b1648ed43b1f50b64c2618dc2f827e}{}\label{state__manager_8c_a14b1648ed43b1f50b64c2618dc2f827e}
+
+
+Calcs the time since start state. 
+
+Warning\+: requires that delta to start state can never $>$ 2$^\wedge$32 cycles. \begin{DoxyReturn}{Returns}
+delta in cpu cycles 
+\end{DoxyReturn}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=295pt]{state__manager_8c_a14b1648ed43b1f50b64c2618dc2f827e_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+get\+\_\+timing\+\_\+goal@{state\+\_\+mng\+\_\+get\+\_\+timing\+\_\+goal}}
+\index{state\+\_\+mng\+\_\+get\+\_\+timing\+\_\+goal@{state\+\_\+mng\+\_\+get\+\_\+timing\+\_\+goal}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+get\+\_\+timing\+\_\+goal(struct State $\ast$state, u8\+\_\+t substate, int mode)}{state_mng_get_timing_goal(struct State *state, u8_t substate, int mode)}}]{\setlength{\rightskip}{0pt plus 5cm}int state\+\_\+mng\+\_\+get\+\_\+timing\+\_\+goal (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{state, }
+\item[{u8\+\_\+t}]{substate, }
+\item[{int}]{mode}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_a42cf6cb1b0318ed9f9c1a1bbcbcf4db3}{}\label{state__manager_8c_a42cf6cb1b0318ed9f9c1a1bbcbcf4db3}
+
+
+Deprecated, use explicit \+\_\+start, \+\_\+end methods. 
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+id\+\_\+2\+\_\+state@{state\+\_\+mng\+\_\+id\+\_\+2\+\_\+state}}
+\index{state\+\_\+mng\+\_\+id\+\_\+2\+\_\+state@{state\+\_\+mng\+\_\+id\+\_\+2\+\_\+state}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+id\+\_\+2\+\_\+state(cycle\+\_\+state\+\_\+id\+\_\+t id\+\_\+name)}{state_mng_id_2_state(cycle_state_id_t id_name)}}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf State}$\ast$ state\+\_\+mng\+\_\+id\+\_\+2\+\_\+state (
+\begin{DoxyParamCaption}
+\item[{{\bf cycle\+\_\+state\+\_\+id\+\_\+t}}]{id\+\_\+name}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_adfd529eaa40008fae50455147470e981}{}\label{state__manager_8c_adfd529eaa40008fae50455147470e981}
+
+
+Non thread-\/safe getter of state struct. Call O\+N\+LY from state\+\_\+mng run loop. 
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+init@{state\+\_\+mng\+\_\+init}}
+\index{state\+\_\+mng\+\_\+init@{state\+\_\+mng\+\_\+init}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+init(struct device $\ast$dev)}{state_mng_init(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}void state\+\_\+mng\+\_\+init (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_ad3cde1fa185470108d73b735b4125b92}{}\label{state__manager_8c_ad3cde1fa185470108d73b735b4125b92}
+
+
+Initialize. Mainly set up irqt driver. 
+
+Call only after .configure(). Running is possible after init was done. 
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=324pt]{state__manager_8c_ad3cde1fa185470108d73b735b4125b92_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+is\+\_\+running@{state\+\_\+mng\+\_\+is\+\_\+running}}
+\index{state\+\_\+mng\+\_\+is\+\_\+running@{state\+\_\+mng\+\_\+is\+\_\+running}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+is\+\_\+running()}{state_mng_is_running()}}]{\setlength{\rightskip}{0pt plus 5cm}bool state\+\_\+mng\+\_\+is\+\_\+running (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_a6579e86bc3f3de2539796108bfc9a1be}{}\label{state__manager_8c_a6579e86bc3f3de2539796108bfc9a1be}
+
+
+Thread-\/safe getter whether state machine thread is running. 
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+print\+\_\+evt\+\_\+log@{state\+\_\+mng\+\_\+print\+\_\+evt\+\_\+log}}
+\index{state\+\_\+mng\+\_\+print\+\_\+evt\+\_\+log@{state\+\_\+mng\+\_\+print\+\_\+evt\+\_\+log}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+print\+\_\+evt\+\_\+log()}{state_mng_print_evt_log()}}]{\setlength{\rightskip}{0pt plus 5cm}void state\+\_\+mng\+\_\+print\+\_\+evt\+\_\+log (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_aa9929899641d509a7a471bca571fca5f}{}\label{state__manager_8c_aa9929899641d509a7a471bca571fca5f}
+
+
+Print logged switch, wait and performance mes. events. 
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+print\+\_\+state\+\_\+config@{state\+\_\+mng\+\_\+print\+\_\+state\+\_\+config}}
+\index{state\+\_\+mng\+\_\+print\+\_\+state\+\_\+config@{state\+\_\+mng\+\_\+print\+\_\+state\+\_\+config}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+print\+\_\+state\+\_\+config()}{state_mng_print_state_config()}}]{\setlength{\rightskip}{0pt plus 5cm}void state\+\_\+mng\+\_\+print\+\_\+state\+\_\+config (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_a744449dc98e12eb620477cb63fd52b28}{}\label{state__manager_8c_a744449dc98e12eb620477cb63fd52b28}
+
+
+Print info for all states configured to state\+\_\+manager. 
+
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{state__manager_8c_a744449dc98e12eb620477cb63fd52b28_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+print\+\_\+transition\+\_\+table\+\_\+config@{state\+\_\+mng\+\_\+print\+\_\+transition\+\_\+table\+\_\+config}}
+\index{state\+\_\+mng\+\_\+print\+\_\+transition\+\_\+table\+\_\+config@{state\+\_\+mng\+\_\+print\+\_\+transition\+\_\+table\+\_\+config}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+print\+\_\+transition\+\_\+table\+\_\+config()}{state_mng_print_transition_table_config()}}]{\setlength{\rightskip}{0pt plus 5cm}void state\+\_\+mng\+\_\+print\+\_\+transition\+\_\+table\+\_\+config (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_a9d289bc2158c8795288230cebd7fe9a0}{}\label{state__manager_8c_a9d289bc2158c8795288230cebd7fe9a0}
+
+
+Print transition table as configured to state\+\_\+manager. 
+
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=325pt]{state__manager_8c_a9d289bc2158c8795288230cebd7fe9a0_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+pull\+\_\+perf\+\_\+action@{state\+\_\+mng\+\_\+pull\+\_\+perf\+\_\+action}}
+\index{state\+\_\+mng\+\_\+pull\+\_\+perf\+\_\+action@{state\+\_\+mng\+\_\+pull\+\_\+perf\+\_\+action}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+pull\+\_\+perf\+\_\+action(int res\+\_\+buf[], int idx\+\_\+buf, int len)}{state_mng_pull_perf_action(int res_buf[], int idx_buf, int len)}}]{\setlength{\rightskip}{0pt plus 5cm}int state\+\_\+mng\+\_\+pull\+\_\+perf\+\_\+action (
+\begin{DoxyParamCaption}
+\item[{int}]{res\+\_\+buf\mbox{[}$\,$\mbox{]}, }
+\item[{int}]{idx\+\_\+buf, }
+\item[{int}]{len}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_a99bec7ac7a0920d28e9c6886c55d7f92}{}\label{state__manager_8c_a99bec7ac7a0920d28e9c6886c55d7f92}
+
+
+Debug function, likely to be removed. Get and delete all log events for certain id\+\_\+state. 
+
+\begin{DoxyReturn}{Returns}
+idx of buffer last written 
+\end{DoxyReturn}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+purge\+\_\+evt\+\_\+log@{state\+\_\+mng\+\_\+purge\+\_\+evt\+\_\+log}}
+\index{state\+\_\+mng\+\_\+purge\+\_\+evt\+\_\+log@{state\+\_\+mng\+\_\+purge\+\_\+evt\+\_\+log}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+purge\+\_\+evt\+\_\+log()}{state_mng_purge_evt_log()}}]{\setlength{\rightskip}{0pt plus 5cm}static void state\+\_\+mng\+\_\+purge\+\_\+evt\+\_\+log (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_aab6938ef1c817b368bcee3fc953dba0f}{}\label{state__manager_8c_aab6938ef1c817b368bcee3fc953dba0f}
+
+
+Empty event log. 
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+purge\+\_\+filter\+\_\+state@{state\+\_\+mng\+\_\+purge\+\_\+filter\+\_\+state}}
+\index{state\+\_\+mng\+\_\+purge\+\_\+filter\+\_\+state@{state\+\_\+mng\+\_\+purge\+\_\+filter\+\_\+state}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+purge\+\_\+filter\+\_\+state()}{state_mng_purge_filter_state()}}]{\setlength{\rightskip}{0pt plus 5cm}int state\+\_\+mng\+\_\+purge\+\_\+filter\+\_\+state (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_a03de15121808afb76055dcc4bcc39029}{}\label{state__manager_8c_a03de15121808afb76055dcc4bcc39029}
+
+
+Clear any set filter. Will log for every state after. 
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+purge\+\_\+registered\+\_\+actions@{state\+\_\+mng\+\_\+purge\+\_\+registered\+\_\+actions}}
+\index{state\+\_\+mng\+\_\+purge\+\_\+registered\+\_\+actions@{state\+\_\+mng\+\_\+purge\+\_\+registered\+\_\+actions}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+purge\+\_\+registered\+\_\+actions(cycle\+\_\+state\+\_\+id\+\_\+t state\+\_\+id)}{state_mng_purge_registered_actions(cycle_state_id_t state_id)}}]{\setlength{\rightskip}{0pt plus 5cm}int state\+\_\+mng\+\_\+purge\+\_\+registered\+\_\+actions (
+\begin{DoxyParamCaption}
+\item[{{\bf cycle\+\_\+state\+\_\+id\+\_\+t}}]{state\+\_\+id}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_a5b1fec6a6e513b0d9348268da99d51d8}{}\label{state__manager_8c_a5b1fec6a6e513b0d9348268da99d51d8}
+
+
+Clear callback array and reqvalue arrays for a state. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em state\+\_\+id} & id of state to clear \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success, != 0 otherwise. 
+\end{DoxyReturn}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{state__manager_8c_a5b1fec6a6e513b0d9348268da99d51d8_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+purge\+\_\+registered\+\_\+actions\+\_\+all@{state\+\_\+mng\+\_\+purge\+\_\+registered\+\_\+actions\+\_\+all}}
+\index{state\+\_\+mng\+\_\+purge\+\_\+registered\+\_\+actions\+\_\+all@{state\+\_\+mng\+\_\+purge\+\_\+registered\+\_\+actions\+\_\+all}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+purge\+\_\+registered\+\_\+actions\+\_\+all()}{state_mng_purge_registered_actions_all()}}]{\setlength{\rightskip}{0pt plus 5cm}int state\+\_\+mng\+\_\+purge\+\_\+registered\+\_\+actions\+\_\+all (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_a68c4469fd22c45a03b62e0c68261f65c}{}\label{state__manager_8c_a68c4469fd22c45a03b62e0c68261f65c}
+
+
+Clear callback array and reqvalue arrays for all states. 
+
+\begin{DoxyReturn}{Returns}
+0 on success, != 0 otherwise. 
+\end{DoxyReturn}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{state__manager_8c_a68c4469fd22c45a03b62e0c68261f65c_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+register\+\_\+action@{state\+\_\+mng\+\_\+register\+\_\+action}}
+\index{state\+\_\+mng\+\_\+register\+\_\+action@{state\+\_\+mng\+\_\+register\+\_\+action}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+register\+\_\+action(cycle\+\_\+state\+\_\+id\+\_\+t state\+\_\+id, void($\ast$func)(struct Action\+Arg const $\ast$), irqt\+\_\+val\+\_\+id\+\_\+t arr\+\_\+vals[], int len)}{state_mng_register_action(cycle_state_id_t state_id, void(*func)(struct ActionArg const *), irqt_val_id_t arr_vals[], int len)}}]{\setlength{\rightskip}{0pt plus 5cm}int state\+\_\+mng\+\_\+register\+\_\+action (
+\begin{DoxyParamCaption}
+\item[{{\bf cycle\+\_\+state\+\_\+id\+\_\+t}}]{state\+\_\+id, }
+\item[{void($\ast$)(struct {\bf Action\+Arg} const $\ast$)}]{func, }
+\item[{{\bf irqt\+\_\+val\+\_\+id\+\_\+t}}]{arr\+\_\+vals\mbox{[}$\,$\mbox{]}, }
+\item[{int}]{len}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_a23138a410f4f70b62e02f4d58aa111b6}{}\label{state__manager_8c_a23138a410f4f70b62e02f4d58aa111b6}
+
+
+Register an action to be executed in a certain state. Specify values this action will request from irqt driver. 
+
+Currently, it is checked and warned if requested values haven\textquotesingle{}t been flagged ready by the driver.
+
+
+\begin{DoxyParams}{Parameters}
+{\em state\+\_\+id} & target state of action \\
+\hline
+{\em func} & callback function pointer of action \\
+\hline
+{\em arr\+\_\+vals} & array of value ids to request from driver. \\
+\hline
+{\em len} & number of elements in arr\+\_\+vals. \\
+\hline
+\end{DoxyParams}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=329pt]{state__manager_8c_a23138a410f4f70b62e02f4d58aa111b6_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+reset@{state\+\_\+mng\+\_\+reset}}
+\index{state\+\_\+mng\+\_\+reset@{state\+\_\+mng\+\_\+reset}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+reset()}{state_mng_reset()}}]{\setlength{\rightskip}{0pt plus 5cm}int state\+\_\+mng\+\_\+reset (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_a531022257e3c5b92029ce2243847d049}{}\label{state__manager_8c_a531022257e3c5b92029ce2243847d049}
+
+
+Deconstructor. Clean up all internal data structs. 
+
+\begin{DoxyReturn}{Returns}
+0 on sucees, 1\+: failed; still running 
+\end{DoxyReturn}
+
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{state__manager_8c_a531022257e3c5b92029ce2243847d049_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+run@{state\+\_\+mng\+\_\+run}}
+\index{state\+\_\+mng\+\_\+run@{state\+\_\+mng\+\_\+run}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+run(void)}{state_mng_run(void)}}]{\setlength{\rightskip}{0pt plus 5cm}void state\+\_\+mng\+\_\+run (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_a325177709e375347f313b77ad1a2bf56}{}\label{state__manager_8c_a325177709e375347f313b77ad1a2bf56}
+
+
+Entry function for state machine (F\+SM) loop. Should be invoked as thread; do N\+OT call. 
+
+Notes\+:
+\begin{DoxyItemize}
+\item F\+E310\+: Freedom/\+With1\+Tiny\+Core sets btb = None -\/$>$ no dynamic branch prediction
+\item For static optimization, from I\+SA\+: Assume that backward branches will be predicted taken, forward branches as not taken.
+\item Attention\+: depending in gcc version likely() macros may not work as expected check assembly! (not properly working on riscv-\/gcc\+: 6.\+1.\+0 / 7.\+1.\+1)
+\item Implementation detail\+: Waiting on start time goals and vals ready could be related to transitions in the F\+SM. Here, included in state to keep transition table small and allow for more flexibility (-\/$>$ handler for missed time goals) 
+\end{DoxyItemize}
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{state__manager_8c_a325177709e375347f313b77ad1a2bf56_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+start@{state\+\_\+mng\+\_\+start}}
+\index{state\+\_\+mng\+\_\+start@{state\+\_\+mng\+\_\+start}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+start()}{state_mng_start()}}]{\setlength{\rightskip}{0pt plus 5cm}int state\+\_\+mng\+\_\+start (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_a639d174691e15c20411092f5f548b7fc}{}\label{state__manager_8c_a639d174691e15c20411092f5f548b7fc}
+
+
+Send signal to start running state machine. 
+
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=315pt]{state__manager_8c_a639d174691e15c20411092f5f548b7fc_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+wait\+\_\+fix@{state\+\_\+mng\+\_\+wait\+\_\+fix}}
+\index{state\+\_\+mng\+\_\+wait\+\_\+fix@{state\+\_\+mng\+\_\+wait\+\_\+fix}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+wait\+\_\+fix(struct State $\ast$state, u32\+\_\+t t\+\_\+fix\+\_\+cyc, sm\+\_\+wait\+\_\+reason\+\_\+t reason)}{state_mng_wait_fix(struct State *state, u32_t t_fix_cyc, sm_wait_reason_t reason)}}]{\setlength{\rightskip}{0pt plus 5cm}void state\+\_\+mng\+\_\+wait\+\_\+fix (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{state, }
+\item[{u32\+\_\+t}]{t\+\_\+fix\+\_\+cyc, }
+\item[{{\bf sm\+\_\+wait\+\_\+reason\+\_\+t}}]{reason}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_a078801207176f9646b9008c64a66354d}{}\label{state__manager_8c_a078801207176f9646b9008c64a66354d}
+
+
+Wait for a fixed amount of time. 
+
+Also logs using waiting events if defined.
+
+
+\begin{DoxyParams}{Parameters}
+{\em t\+\_\+fix\+\_\+cyc} & time to wait in cycles \\
+\hline
+{\em reason} & log the reason for waiting. Set 0 if no logging.\\
+\hline
+\end{DoxyParams}
+Todo\+: currently busy waiting. Replace. 
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{state__manager_8c_a078801207176f9646b9008c64a66354d_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+mng\+\_\+wait\+\_\+vals\+\_\+ready@{state\+\_\+mng\+\_\+wait\+\_\+vals\+\_\+ready}}
+\index{state\+\_\+mng\+\_\+wait\+\_\+vals\+\_\+ready@{state\+\_\+mng\+\_\+wait\+\_\+vals\+\_\+ready}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+mng\+\_\+wait\+\_\+vals\+\_\+ready(struct State $\ast$state)}{state_mng_wait_vals_ready(struct State *state)}}]{\setlength{\rightskip}{0pt plus 5cm}bool state\+\_\+mng\+\_\+wait\+\_\+vals\+\_\+ready (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{state}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_afea4cc94719670e69dcdce35b2ebbec7}{}\label{state__manager_8c_afea4cc94719670e69dcdce35b2ebbec7}
+
+
+Wait until all requested values for state become available. Timeout, if timing goal end of the state is hit. 
+
+Also logs using waiting events if defined.
+
+\begin{DoxyReturn}{Returns}
+0\+: all good. 1\+: timeout occured
+\end{DoxyReturn}
+Todo\+: currently busy waiting. Replace. 
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{state__manager_8c_afea4cc94719670e69dcdce35b2ebbec7_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+purge\+\_\+switch\+\_\+events@{state\+\_\+purge\+\_\+switch\+\_\+events}}
+\index{state\+\_\+purge\+\_\+switch\+\_\+events@{state\+\_\+purge\+\_\+switch\+\_\+events}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+purge\+\_\+switch\+\_\+events()}{state_purge_switch_events()}}]{\setlength{\rightskip}{0pt plus 5cm}int state\+\_\+purge\+\_\+switch\+\_\+events (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8c_a33ea26f18b26cb847715f96d8ad844d4}{}\label{state__manager_8c_a33ea26f18b26cb847715f96d8ad844d4}
+
+
+Clear logged switch events. 
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!switch\+\_\+state@{switch\+\_\+state}}
+\index{switch\+\_\+state@{switch\+\_\+state}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{switch\+\_\+state(struct State $\ast$current, struct S\+M\+Event $\ast$evt)}{switch_state(struct State *current, struct SMEvent *evt)}}]{\setlength{\rightskip}{0pt plus 5cm}static struct {\bf State} $\ast$ switch\+\_\+state (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{current, }
+\item[{struct {\bf S\+M\+Event} $\ast$}]{evt}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_a5652a05c3eb6723ac1867d712baec64d}{}\label{state__manager_8c_a5652a05c3eb6723ac1867d712baec64d}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{state__manager_8c_a5652a05c3eb6723ac1867d712baec64d_cgraph}
+\end{center}
+\end{figure}
+
+
+
+
+\subsection{Variable Documentation}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!\+\_\+cb\+\_\+funcs@{\+\_\+cb\+\_\+funcs}}
+\index{\+\_\+cb\+\_\+funcs@{\+\_\+cb\+\_\+funcs}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{\+\_\+cb\+\_\+funcs}{_cb_funcs}}]{\setlength{\rightskip}{0pt plus 5cm}void($\ast$  \+\_\+cb\+\_\+funcs\mbox{[}{\bf \+\_\+\+N\+U\+M\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+ES}\mbox{]}\mbox{[}{\bf S\+T\+A\+T\+E\+S\+\_\+\+C\+B\+S\+\_\+\+P\+E\+R\+\_\+\+A\+C\+T\+I\+O\+N\+\_\+\+M\+AX}\mbox{]})(struct {\bf Action\+Arg} const $\ast$)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_ac8f9d916638cc76be4a4a4fcfb2bb6eb}{}\label{state__manager_8c_ac8f9d916638cc76be4a4a4fcfb2bb6eb}
+Internal array storing callbacks. Get passed a read-\/only (const) \hyperlink{struct_action_arg}{Action\+Arg} on call. rows\+: each state columns\+: different registered callbacks \index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!\+\_\+state\+\_\+cur@{\+\_\+state\+\_\+cur}}
+\index{\+\_\+state\+\_\+cur@{\+\_\+state\+\_\+cur}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{\+\_\+state\+\_\+cur}{_state_cur}}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf State}$\ast$ \+\_\+state\+\_\+cur\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_a22ab5941b2917358e146e3c752409d5b}{}\label{state__manager_8c_a22ab5941b2917358e146e3c752409d5b}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!\+\_\+states@{\+\_\+states}}
+\index{\+\_\+states@{\+\_\+states}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{\+\_\+states}{_states}}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf State} \+\_\+states\mbox{[}{\bf \+\_\+\+N\+U\+M\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+ES}\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_a50cd14f72b74ea7ed5ac3c1f6f3e2171}{}\label{state__manager_8c_a50cd14f72b74ea7ed5ac3c1f6f3e2171}
+
+
+lists all available states, must match cycle\+\_\+state\+\_\+id\+\_\+t enum order 
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!flags@{flags}}
+\index{flags@{flags}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{flags}{flags}}]{\setlength{\rightskip}{0pt plus 5cm}atomic\+\_\+t {\bf flags}\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_a24df4b049b3573393c3e4a719ebbefd3}{}\label{state__manager_8c_a24df4b049b3573393c3e4a719ebbefd3}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!init\+\_\+done@{init\+\_\+done}}
+\index{init\+\_\+done@{init\+\_\+done}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{init\+\_\+done}{init_done}}]{\setlength{\rightskip}{0pt plus 5cm}bool init\+\_\+done = false\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_ac28675e9f599e4310cf860d8cd396cea}{}\label{state__manager_8c_ac28675e9f599e4310cf860d8cd396cea}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!irqt\+\_\+dev@{irqt\+\_\+dev}}
+\index{irqt\+\_\+dev@{irqt\+\_\+dev}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{irqt\+\_\+dev}{irqt_dev}}]{\setlength{\rightskip}{0pt plus 5cm}struct device$\ast$ irqt\+\_\+dev\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_ad2c3f19ad52119933f1f56d521002004}{}\label{state__manager_8c_ad2c3f19ad52119933f1f56d521002004}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!log\+\_\+filter@{log\+\_\+filter}}
+\index{log\+\_\+filter@{log\+\_\+filter}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{log\+\_\+filter}{log_filter}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf cycle\+\_\+state\+\_\+id\+\_\+t} log\+\_\+filter\mbox{[}$\,$\mbox{]} = \{\}\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_a1bc6bb01901f42a8260773aed8948623}{}\label{state__manager_8c_a1bc6bb01901f42a8260773aed8948623}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!log\+\_\+perf\+\_\+evts@{log\+\_\+perf\+\_\+evts}}
+\index{log\+\_\+perf\+\_\+evts@{log\+\_\+perf\+\_\+evts}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{log\+\_\+perf\+\_\+evts}{log_perf_evts}}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf Perf\+\_\+\+Event} log\+\_\+perf\+\_\+evts\mbox{[}{\bf S\+T\+A\+T\+E\+\_\+\+M\+N\+G\+\_\+\+L\+O\+G\+\_\+\+E\+V\+E\+N\+T\+S\+\_\+\+D\+E\+P\+TH}\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_a3119d733d906cb6752b3b4c7960b3519}{}\label{state__manager_8c_a3119d733d906cb6752b3b4c7960b3519}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!log\+\_\+switch\+\_\+evts@{log\+\_\+switch\+\_\+evts}}
+\index{log\+\_\+switch\+\_\+evts@{log\+\_\+switch\+\_\+evts}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{log\+\_\+switch\+\_\+evts}{log_switch_evts}}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf Switch\+\_\+\+Event} log\+\_\+switch\+\_\+evts\mbox{[}{\bf S\+T\+A\+T\+E\+\_\+\+M\+N\+G\+\_\+\+L\+O\+G\+\_\+\+E\+V\+E\+N\+T\+S\+\_\+\+D\+E\+P\+TH}\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_a294a5f8143b2099f097455b0387cf4bb}{}\label{state__manager_8c_a294a5f8143b2099f097455b0387cf4bb}
+
+
+for logging 
+
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!log\+\_\+wait\+\_\+evts@{log\+\_\+wait\+\_\+evts}}
+\index{log\+\_\+wait\+\_\+evts@{log\+\_\+wait\+\_\+evts}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{log\+\_\+wait\+\_\+evts}{log_wait_evts}}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf Wait\+\_\+\+Event} log\+\_\+wait\+\_\+evts\mbox{[}{\bf S\+T\+A\+T\+E\+\_\+\+M\+N\+G\+\_\+\+L\+O\+G\+\_\+\+E\+V\+E\+N\+T\+S\+\_\+\+D\+E\+P\+TH}\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_a16ece7f2e0a01c1918b08bad208afc04}{}\label{state__manager_8c_a16ece7f2e0a01c1918b08bad208afc04}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!state\+\_\+cur\+\_\+id@{state\+\_\+cur\+\_\+id}}
+\index{state\+\_\+cur\+\_\+id@{state\+\_\+cur\+\_\+id}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{state\+\_\+cur\+\_\+id}{state_cur_id}}]{\setlength{\rightskip}{0pt plus 5cm}atomic\+\_\+t state\+\_\+cur\+\_\+id\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_afc89deb1961ae1f51a8812f5033029bc}{}\label{state__manager_8c_afc89deb1961ae1f51a8812f5033029bc}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!timestamp\+\_\+reset@{timestamp\+\_\+reset}}
+\index{timestamp\+\_\+reset@{timestamp\+\_\+reset}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{timestamp\+\_\+reset}{timestamp_reset}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t timestamp\+\_\+reset\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_a088412b1bebf7d4730f72d41c47c4709}{}\label{state__manager_8c_a088412b1bebf7d4730f72d41c47c4709}
+\index{state\+\_\+manager.\+c@{state\+\_\+manager.\+c}!transition\+\_\+table@{transition\+\_\+table}}
+\index{transition\+\_\+table@{transition\+\_\+table}!state\+\_\+manager.\+c@{state\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{transition\+\_\+table}{transition_table}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf cycle\+\_\+state\+\_\+id\+\_\+t} transition\+\_\+table\mbox{[}{\bf \+\_\+\+N\+U\+M\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+S\+T\+A\+T\+ES}\mbox{]}\mbox{[}{\bf \+\_\+\+N\+U\+M\+\_\+\+C\+Y\+C\+L\+E\+\_\+\+E\+V\+E\+N\+TS}\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{state__manager_8c_a6c3f9ff327a0ce006ef0e4c32a777392}{}\label{state__manager_8c_a6c3f9ff327a0ce006ef0e4c32a777392}
+
+
+defines next state id\+\_\+name on event 
+

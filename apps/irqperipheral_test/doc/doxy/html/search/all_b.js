@@ -1,0 +1,20 @@
+var searchData=
+[
+  ['len_5farray',['LEN_ARRAY',['../irqtestperipheral_8c.html#ac85ffac15e6947e9fb5acf752fba7207',1,'LEN_ARRAY():&#160;irqtestperipheral.c'],['../state__manager_8c.html#ac85ffac15e6947e9fb5acf752fba7207',1,'LEN_ARRAY():&#160;state_manager.c']]],
+  ['load_5fdrivers',['load_drivers',['../main_8c.html#a7501a11f3b74b676df64fe525bae0ea3',1,'main.c']]],
+  ['log_5fbuff',['log_buff',['../log__perf_8c.html#a9ecad3c9f97c7b558242576693f7078c',1,'log_perf.c']]],
+  ['log_5ffilter',['log_filter',['../state__manager_8c.html#a1bc6bb01901f42a8260773aed8948623',1,'state_manager.c']]],
+  ['log_5fintbuff',['log_intbuff',['../log__perf_8c.html#ae9b413367247ccae77f63cfd851bbee4',1,'log_perf.c']]],
+  ['log_5fpc',['log_pc',['../profiler_8c.html#abde21e8cc7fd4f0116e65353b0c85361',1,'profiler.c']]],
+  ['log_5fperf',['LOG_PERF',['../log__perf_8h.html#adadd1d22d75966d54d9cbdaf73fbc7d9',1,'log_perf.h']]],
+  ['log_5fperf_2ec',['log_perf.c',['../log__perf_8c.html',1,'']]],
+  ['log_5fperf_2eh',['log_perf.h',['../log__perf_8h.html',1,'']]],
+  ['log_5fperf_5fbuffer_5fdepth',['LOG_PERF_BUFFER_DEPTH',['../log__perf_8h.html#a68c23c25c69aab4607f024e55ea8bdeb',1,'log_perf.h']]],
+  ['log_5fperf_5fevts',['log_perf_evts',['../state__manager_8c.html#a3119d733d906cb6752b3b4c7960b3519',1,'state_manager.c']]],
+  ['log_5fperf_5fint',['LOG_PERF_INT',['../log__perf_8h.html#ae4ae1cf8731657975201a0338432dcb8',1,'log_perf.h']]],
+  ['log_5fperf_5fstring_5flen',['LOG_PERF_STRING_LEN',['../log__perf_8h.html#a1ed85b75b065e540c678bfb5f50281d2',1,'log_perf.h']]],
+  ['log_5fswitch_5fevts',['log_switch_evts',['../state__manager_8c.html#a294a5f8143b2099f097455b0387cf4bb',1,'state_manager.c']]],
+  ['log_5fwait_5fevts',['log_wait_evts',['../state__manager_8c.html#a16ece7f2e0a01c1918b08bad208afc04',1,'state_manager.c']]],
+  ['logline',['logline',['../log__perf_8c.html#a4dfb3ef1ed91297e0d2c851870baeeda',1,'log_perf.c']]],
+  ['logline_5fint',['logline_int',['../log__perf_8c.html#a3855e7cc4e242f82d469795b7c24df2d',1,'log_perf.c']]]
+];

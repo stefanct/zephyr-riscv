@@ -1,0 +1,5 @@
+<map id="irq_handler_clear_and_check" name="irq_handler_clear_and_check">
+<area shape="rect" id="node2" href="$tests_8c.html#a71ee31ae5a14fe72b655606c57bbceb7" title="reg_read_uint" alt="" coords="230,5,330,32"/>
+<area shape="rect" id="node3" href="$irqtestperipheral_8c.html#a260bbaa36d21fbbf0441d4d15fe1a5e0" title="irqtester_fe310_clear_1" alt="" coords="201,56,359,83"/>
+<area shape="rect" id="node4" href="$tests_8c.html#a1b66895966dbe4f866074ac85e344bd7" title="reg_write_short" alt="" coords="407,56,517,83"/>
+</map>

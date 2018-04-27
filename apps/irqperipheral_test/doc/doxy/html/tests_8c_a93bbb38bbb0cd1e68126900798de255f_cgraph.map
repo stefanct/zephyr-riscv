@@ -1,0 +1,11 @@
+<map id="test_poll_throughput_1" name="test_poll_throughput_1">
+<area shape="rect" id="node2" href="$irqtestperipheral_8c.html#a508afd9a858251ac9dbd15fba94e4301" title="Thread safe, generic setter for device registers. Only works for regs which have a driver mem pool en..." alt="" coords="207,59,365,85"/>
+<area shape="rect" id="node8" href="$irqtestperipheral_8c.html#a0bd81b8a8b0a9eb85658ffcfe6c0a7e5" title="Need to set regs num_rep_1 and period_1 first. " alt="" coords="213,161,359,188"/>
+<area shape="rect" id="node9" href="$irqtestperipheral_8c.html#a987670a27b50999e651f384e6b04e582" title="Non&#45;thread safe, generic getter for device (output) registers. Only works for regs which are loaded t..." alt="" coords="413,115,572,141"/>
+<area shape="rect" id="node3" href="$irqtestperipheral_8c.html#a1356feef1a2dbd5af9d5f6c19e2d86a6" title="Non&#45;Thread safe, generic setter for device registers. Only works for regs which have a driver mem poo..." alt="" coords="426,49,559,90"/>
+<area shape="rect" id="node4" href="$irqtestperipheral_8c.html#aacd45cbca76d5cb252b111e2e064a3e0" title="id_2_type_fast" alt="" coords="623,56,730,83"/>
+<area shape="rect" id="node5" href="$irqtestperipheral_8c.html#a15420b03ab67124ddc6d1b4f63f32309" title="id_2_type" alt="" coords="637,107,716,133"/>
+<area shape="rect" id="node6" href="$irqtestperipheral_8c.html#aae36b616bf3ffc8134b83f3e168bdf0e" title="id_2_index_fast" alt="" coords="620,157,733,184"/>
+<area shape="rect" id="node7" href="$irqtestperipheral_8c.html#a3205d750d033a40f72392b0d638b9070" title="id_2_index" alt="" coords="635,5,719,32"/>
+<area shape="rect" id="node10" href="$cycles_8c.html#a6e9f891bc6d1b4849bd701cca50ef426" title="read lower 32 bits of cycle csr register " alt="" coords="627,208,726,235"/>
+</map>

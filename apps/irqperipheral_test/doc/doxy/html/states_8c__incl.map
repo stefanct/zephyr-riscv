@@ -1,0 +1,6 @@
+<map id="/home/timo/Software/zephyr&#45;riscv_dev/apps/irqperipheral_test/src/states.c" name="/home/timo/Software/zephyr&#45;riscv_dev/apps/irqperipheral_test/src/states.c">
+<area shape="rect" id="node2" href="$states_8h.html" title="define state machine &#39;state&#39; struct and configure to state_manager " alt="" coords="95,199,164,225"/>
+<area shape="rect" id="node6" href="$state__manager_8h.html" title="Logic for running a state machine. " alt="" coords="142,124,261,151"/>
+<area shape="rect" id="node7" href="$utils_8h.html" title="Useful print functions. " alt="" coords="13,199,70,225"/>
+<area shape="rect" id="node4" href="$irqtestperipheral_8h.html" title="low&#45;level driver functions to interact with hardware " alt="" coords="101,273,227,300"/>
+</map>

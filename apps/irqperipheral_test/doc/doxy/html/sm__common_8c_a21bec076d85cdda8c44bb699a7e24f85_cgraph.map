@@ -1,0 +1,4 @@
+<map id="sm_com_handle_timing_goal_end" name="sm_com_handle_timing_goal_end">
+<area shape="rect" id="node2" href="$state__manager_8c.html#a14b1648ed43b1f50b64c2618dc2f827e" title="Calcs the time since start state. " alt="" coords="212,5,352,47"/>
+<area shape="rect" id="node3" href="$cycles_8c.html#a6e9f891bc6d1b4849bd701cca50ef426" title="read lower 32 bits of cycle csr register " alt="" coords="400,13,499,39"/>
+</map>
