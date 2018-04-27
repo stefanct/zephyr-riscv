@@ -1,0 +1,238 @@
+\hypertarget{sm2_8c}{}\section{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/state\+\_\+machines/sm2.c File Reference}
+\label{sm2_8c}\index{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/state\+\_\+machines/sm2.\+c@{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/state\+\_\+machines/sm2.\+c}}
+{\ttfamily \#include \char`\"{}sm\+\_\+common.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}cycles.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}state\+\_\+manager.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}states.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}irqtestperipheral.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}utils.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}log\+\_\+perf.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}sm2\+\_\+tasks.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}globals.\+h\char`\"{}}\\*
+Include dependency graph for sm2.\+c\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{sm2_8c__incl}
+\end{center}
+\end{figure}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void \hyperlink{sm2_8c_a72974ecbef50d0204d10b2c928b3d8dc}{config\+\_\+handlers} (struct \hyperlink{struct_state}{State} sm\+\_\+arr\mbox{[}$\,$\mbox{]})
+\item 
+static void \hyperlink{sm2_8c_a331344281eb987b45d6474d76165ecac}{config\+\_\+timing\+\_\+goals} (struct \hyperlink{struct_state}{State} sm\+\_\+arr\mbox{[}$\,$\mbox{]}, int period\+\_\+irq1\+\_\+us, int period\+\_\+irq2\+\_\+us, int \hyperlink{sm2_8c_af2fd083d05fffd13451f34aba145c165}{num\+\_\+substates})
+\item 
+static void \hyperlink{sm2_8c_a15d090f4abc0c18382db3029dea1def0}{sm2\+\_\+appconfig} ()
+\item 
+void \hyperlink{sm2_8c_aa83f33e9c0793348d122b20a29d289db}{sm2\+\_\+config} (int users, int usr\+\_\+per\+\_\+batch, void($\ast$ul\+\_\+task)(struct \hyperlink{struct_action_arg}{Action\+Arg} const $\ast$), int param, int pos\+\_\+param)
+\item 
+void \hyperlink{sm2_8c_ae487d66203100f40b162686b2f7072fd}{sm2\+\_\+init} (struct device $\ast$dev, int period\+\_\+irq1\+\_\+us, int period\+\_\+irq2\+\_\+us)
+\item 
+void \hyperlink{sm2_8c_ad9623ac1e7081cf8bb5ee5ac2f697e39}{sm2\+\_\+run} ()
+\item 
+void \hyperlink{sm2_8c_a1ab5f3d5b8bb84cdba3cdbfa33cbac06}{sm2\+\_\+fire\+\_\+irqs} (int period\+\_\+irq1\+\_\+us, int period\+\_\+irq2\+\_\+us)
+\item 
+void \hyperlink{sm2_8c_a52a838da0dca730af949a83c861cfa31}{sm2\+\_\+print\+\_\+report} ()
+\item 
+void \hyperlink{sm2_8c_aa48c4b239800101a87bd9d7e809ade75}{sm2\+\_\+reset} ()
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static int \hyperlink{sm2_8c_af2fd083d05fffd13451f34aba145c165}{num\+\_\+substates}
+\item 
+static int \hyperlink{sm2_8c_a17c55b2085e3f343bc1dc55974ce00ec}{num\+\_\+user\+\_\+batch}
+\item 
+static int \hyperlink{sm2_8c_a443e412772221eceb9a426ff7fe9beca}{num\+\_\+users}
+\item 
+static void($\ast$ \hyperlink{sm2_8c_a823707a72010965e2fd189b7d6376f01}{ul\+\_\+action\+\_\+1} )(struct \hyperlink{struct_action_arg}{Action\+Arg} const $\ast$)
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\index{sm2.\+c@{sm2.\+c}!config\+\_\+handlers@{config\+\_\+handlers}}
+\index{config\+\_\+handlers@{config\+\_\+handlers}!sm2.\+c@{sm2.\+c}}
+\subsubsection[{\texorpdfstring{config\+\_\+handlers(struct State sm\+\_\+arr[])}{config_handlers(struct State sm_arr[])}}]{\setlength{\rightskip}{0pt plus 5cm}static void config\+\_\+handlers (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State}}]{sm\+\_\+arr\mbox{[}$\,$\mbox{]}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{sm2_8c_a72974ecbef50d0204d10b2c928b3d8dc}{}\label{sm2_8c_a72974ecbef50d0204d10b2c928b3d8dc}
+Define actions for S\+M2, are cbs called from \hyperlink{state__manager_8c_a325177709e375347f313b77ad1a2bf56}{state\+\_\+mng\+\_\+run()} \subsubsection*{see also \hyperlink{sm2__tasks_8h}{sm2\+\_\+tasks.\+h} }
+
+\subsubsection*{Helper config functions }
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{sm2_8c_a72974ecbef50d0204d10b2c928b3d8dc_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{sm2.\+c@{sm2.\+c}!config\+\_\+timing\+\_\+goals@{config\+\_\+timing\+\_\+goals}}
+\index{config\+\_\+timing\+\_\+goals@{config\+\_\+timing\+\_\+goals}!sm2.\+c@{sm2.\+c}}
+\subsubsection[{\texorpdfstring{config\+\_\+timing\+\_\+goals(struct State sm\+\_\+arr[], int period\+\_\+irq1\+\_\+us, int period\+\_\+irq2\+\_\+us, int num\+\_\+substates)}{config_timing_goals(struct State sm_arr[], int period_irq1_us, int period_irq2_us, int num_substates)}}]{\setlength{\rightskip}{0pt plus 5cm}static void config\+\_\+timing\+\_\+goals (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State}}]{sm\+\_\+arr\mbox{[}$\,$\mbox{]}, }
+\item[{int}]{period\+\_\+irq1\+\_\+us, }
+\item[{int}]{period\+\_\+irq2\+\_\+us, }
+\item[{int}]{num\+\_\+substates}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{sm2_8c_a331344281eb987b45d6474d76165ecac}{}\label{sm2_8c_a331344281eb987b45d6474d76165ecac}
+\index{sm2.\+c@{sm2.\+c}!sm2\+\_\+appconfig@{sm2\+\_\+appconfig}}
+\index{sm2\+\_\+appconfig@{sm2\+\_\+appconfig}!sm2.\+c@{sm2.\+c}}
+\subsubsection[{\texorpdfstring{sm2\+\_\+appconfig()}{sm2_appconfig()}}]{\setlength{\rightskip}{0pt plus 5cm}static void sm2\+\_\+appconfig (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{sm2_8c_a15d090f4abc0c18382db3029dea1def0}{}\label{sm2_8c_a15d090f4abc0c18382db3029dea1def0}
+
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{sm2_8c_a15d090f4abc0c18382db3029dea1def0_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{sm2.\+c@{sm2.\+c}!sm2\+\_\+config@{sm2\+\_\+config}}
+\index{sm2\+\_\+config@{sm2\+\_\+config}!sm2.\+c@{sm2.\+c}}
+\subsubsection[{\texorpdfstring{sm2\+\_\+config(int users, int usr\+\_\+per\+\_\+batch, void($\ast$ul\+\_\+task)(struct Action\+Arg const $\ast$), int param, int pos\+\_\+param)}{sm2_config(int users, int usr_per_batch, void(*ul_task)(struct ActionArg const *), int param, int pos_param)}}]{\setlength{\rightskip}{0pt plus 5cm}void sm2\+\_\+config (
+\begin{DoxyParamCaption}
+\item[{int}]{users, }
+\item[{int}]{usr\+\_\+per\+\_\+batch, }
+\item[{void($\ast$)(struct {\bf Action\+Arg} const $\ast$)}]{ul\+\_\+task, }
+\item[{int}]{param, }
+\item[{int}]{pos\+\_\+param}
+\end{DoxyParamCaption}
+)}\hypertarget{sm2_8c_aa83f33e9c0793348d122b20a29d289db}{}\label{sm2_8c_aa83f33e9c0793348d122b20a29d289db}
+\subsubsection*{Public functions\+: Set up, run S\+M2 and print diagnostics }
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{sm2_8c_aa83f33e9c0793348d122b20a29d289db_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{sm2.\+c@{sm2.\+c}!sm2\+\_\+fire\+\_\+irqs@{sm2\+\_\+fire\+\_\+irqs}}
+\index{sm2\+\_\+fire\+\_\+irqs@{sm2\+\_\+fire\+\_\+irqs}!sm2.\+c@{sm2.\+c}}
+\subsubsection[{\texorpdfstring{sm2\+\_\+fire\+\_\+irqs(int period\+\_\+irq1\+\_\+us, int period\+\_\+irq2\+\_\+us)}{sm2_fire_irqs(int period_irq1_us, int period_irq2_us)}}]{\setlength{\rightskip}{0pt plus 5cm}void sm2\+\_\+fire\+\_\+irqs (
+\begin{DoxyParamCaption}
+\item[{int}]{period\+\_\+irq1\+\_\+us, }
+\item[{int}]{period\+\_\+irq2\+\_\+us}
+\end{DoxyParamCaption}
+)}\hypertarget{sm2_8c_a1ab5f3d5b8bb84cdba3cdbfa33cbac06}{}\label{sm2_8c_a1ab5f3d5b8bb84cdba3cdbfa33cbac06}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{sm2_8c_a1ab5f3d5b8bb84cdba3cdbfa33cbac06_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{sm2.\+c@{sm2.\+c}!sm2\+\_\+init@{sm2\+\_\+init}}
+\index{sm2\+\_\+init@{sm2\+\_\+init}!sm2.\+c@{sm2.\+c}}
+\subsubsection[{\texorpdfstring{sm2\+\_\+init(struct device $\ast$dev, int period\+\_\+irq1\+\_\+us, int period\+\_\+irq2\+\_\+us)}{sm2_init(struct device *dev, int period_irq1_us, int period_irq2_us)}}]{\setlength{\rightskip}{0pt plus 5cm}void sm2\+\_\+init (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{int}]{period\+\_\+irq1\+\_\+us, }
+\item[{int}]{period\+\_\+irq2\+\_\+us}
+\end{DoxyParamCaption}
+)}\hypertarget{sm2_8c_ae487d66203100f40b162686b2f7072fd}{}\label{sm2_8c_ae487d66203100f40b162686b2f7072fd}
+Define states for S\+M2 Currently, this is tightly coupled to cycle\+\_\+state\+\_\+id\+\_\+t and cycle\+\_\+event\+\_\+id\+\_\+t \subsubsection*{declared in \hyperlink{states_8h}{states.\+h} }
+
+Define transition table for S\+M1 \subsubsection*{First column\+: default event, is set automatically }
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{sm2_8c_ae487d66203100f40b162686b2f7072fd_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{sm2.\+c@{sm2.\+c}!sm2\+\_\+print\+\_\+report@{sm2\+\_\+print\+\_\+report}}
+\index{sm2\+\_\+print\+\_\+report@{sm2\+\_\+print\+\_\+report}!sm2.\+c@{sm2.\+c}}
+\subsubsection[{\texorpdfstring{sm2\+\_\+print\+\_\+report()}{sm2_print_report()}}]{\setlength{\rightskip}{0pt plus 5cm}void sm2\+\_\+print\+\_\+report (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{sm2_8c_a52a838da0dca730af949a83c861cfa31}{}\label{sm2_8c_a52a838da0dca730af949a83c861cfa31}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=313pt]{sm2_8c_a52a838da0dca730af949a83c861cfa31_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{sm2.\+c@{sm2.\+c}!sm2\+\_\+reset@{sm2\+\_\+reset}}
+\index{sm2\+\_\+reset@{sm2\+\_\+reset}!sm2.\+c@{sm2.\+c}}
+\subsubsection[{\texorpdfstring{sm2\+\_\+reset()}{sm2_reset()}}]{\setlength{\rightskip}{0pt plus 5cm}void sm2\+\_\+reset (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{sm2_8c_aa48c4b239800101a87bd9d7e809ade75}{}\label{sm2_8c_aa48c4b239800101a87bd9d7e809ade75}
+
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{sm2_8c_aa48c4b239800101a87bd9d7e809ade75_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{sm2.\+c@{sm2.\+c}!sm2\+\_\+run@{sm2\+\_\+run}}
+\index{sm2\+\_\+run@{sm2\+\_\+run}!sm2.\+c@{sm2.\+c}}
+\subsubsection[{\texorpdfstring{sm2\+\_\+run()}{sm2_run()}}]{\setlength{\rightskip}{0pt plus 5cm}void sm2\+\_\+run (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{sm2_8c_ad9623ac1e7081cf8bb5ee5ac2f697e39}{}\label{sm2_8c_ad9623ac1e7081cf8bb5ee5ac2f697e39}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{sm2_8c_ad9623ac1e7081cf8bb5ee5ac2f697e39_cgraph}
+\end{center}
+\end{figure}
+
+
+
+
+\subsection{Variable Documentation}
+\index{sm2.\+c@{sm2.\+c}!num\+\_\+substates@{num\+\_\+substates}}
+\index{num\+\_\+substates@{num\+\_\+substates}!sm2.\+c@{sm2.\+c}}
+\subsubsection[{\texorpdfstring{num\+\_\+substates}{num_substates}}]{\setlength{\rightskip}{0pt plus 5cm}int num\+\_\+substates\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{sm2_8c_af2fd083d05fffd13451f34aba145c165}{}\label{sm2_8c_af2fd083d05fffd13451f34aba145c165}
+\index{sm2.\+c@{sm2.\+c}!num\+\_\+user\+\_\+batch@{num\+\_\+user\+\_\+batch}}
+\index{num\+\_\+user\+\_\+batch@{num\+\_\+user\+\_\+batch}!sm2.\+c@{sm2.\+c}}
+\subsubsection[{\texorpdfstring{num\+\_\+user\+\_\+batch}{num_user_batch}}]{\setlength{\rightskip}{0pt plus 5cm}int num\+\_\+user\+\_\+batch\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{sm2_8c_a17c55b2085e3f343bc1dc55974ce00ec}{}\label{sm2_8c_a17c55b2085e3f343bc1dc55974ce00ec}
+\index{sm2.\+c@{sm2.\+c}!num\+\_\+users@{num\+\_\+users}}
+\index{num\+\_\+users@{num\+\_\+users}!sm2.\+c@{sm2.\+c}}
+\subsubsection[{\texorpdfstring{num\+\_\+users}{num_users}}]{\setlength{\rightskip}{0pt plus 5cm}int num\+\_\+users\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{sm2_8c_a443e412772221eceb9a426ff7fe9beca}{}\label{sm2_8c_a443e412772221eceb9a426ff7fe9beca}
+\index{sm2.\+c@{sm2.\+c}!ul\+\_\+action\+\_\+1@{ul\+\_\+action\+\_\+1}}
+\index{ul\+\_\+action\+\_\+1@{ul\+\_\+action\+\_\+1}!sm2.\+c@{sm2.\+c}}
+\subsubsection[{\texorpdfstring{ul\+\_\+action\+\_\+1}{ul_action_1}}]{\setlength{\rightskip}{0pt plus 5cm}void($\ast$ ul\+\_\+action\+\_\+1) (struct {\bf Action\+Arg} const $\ast$)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{sm2_8c_a823707a72010965e2fd189b7d6376f01}{}\label{sm2_8c_a823707a72010965e2fd189b7d6376f01}

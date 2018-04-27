@@ -1,0 +1,4 @@
+<map id="irqtester_fe310_enable_fifo_rx" name="irqtester_fe310_enable_fifo_rx">
+<area shape="rect" id="node2" href="$irqtestperipheral_8c.html#a023df633a0cf154035fced51999c3f66" title="Test whether any flags for event sending are set. This excludes valflags, as they don&#39;t issue events..." alt="" coords="222,5,357,32"/>
+<area shape="rect" id="node3" href="$irqtestperipheral_8c.html#ab47c9b38275ed5cb45931e907725dc06" title="Reset all objects related to receiving data from this driver. " alt="" coords="207,56,372,83"/>
+</map>

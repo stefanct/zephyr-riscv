@@ -1,0 +1,6 @@
+<map id="print_time_banner" name="print_time_banner">
+<area shape="rect" id="node2" href="$utils_8c.html#a938b2809d318f940f04a5a4588b188f7" title="prints string in the center of console with | at beginning and end of line. " alt="" coords="336,5,437,32"/>
+<area shape="rect" id="node4" href="$utils_8c.html#ac145fb3e03aef9c2c79f781997444002" title="Print dash line. " alt="" coords="179,56,288,83"/>
+<area shape="rect" id="node3" href="$utils_8c.html#a8d7f34af292d60592b179a49baf3c54b" title="do_print" alt="" coords="485,31,553,57"/>
+<area shape="rect" id="node5" href="$utils_8c.html#a1ae3605bfc857c7511287b5b181c6c54" title=": printk if given verbosity &gt;= set verbosity threshold. " alt="" coords="356,56,417,83"/>
+</map>

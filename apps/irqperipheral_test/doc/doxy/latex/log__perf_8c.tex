@@ -1,0 +1,121 @@
+\hypertarget{log__perf_8c}{}\section{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/log\+\_\+perf.c File Reference}
+\label{log__perf_8c}\index{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/log\+\_\+perf.\+c@{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/log\+\_\+perf.\+c}}
+{\ttfamily \#include \char`\"{}log\+\_\+perf.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}utils.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$misc/printk.\+h$>$}\\*
+{\ttfamily \#include $<$logging/sys\+\_\+log.\+h$>$}\\*
+Include dependency graph for log\+\_\+perf.\+c\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{log__perf_8c__incl}
+\end{center}
+\end{figure}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{log__perf_8c_ac5b2cb2d6ae6b5526953a00f765a23e4}{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN}~\char`\"{}log\+\_\+perf\char`\"{}
+\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef char \hyperlink{log__perf_8c_a4dfb3ef1ed91297e0d2c851870baeeda}{logline}\mbox{[}\hyperlink{log__perf_8h_a1ed85b75b065e540c678bfb5f50281d2}{L\+O\+G\+\_\+\+P\+E\+R\+F\+\_\+\+S\+T\+R\+I\+N\+G\+\_\+\+L\+EN}\mbox{]}
+\item 
+typedef int \hyperlink{log__perf_8c_a3855e7cc4e242f82d469795b7c24df2d}{logline\+\_\+int}\mbox{[}2\mbox{]}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{log__perf_8c_a2a6400281dad9d8bd17be2df284e09d4}{print\+\_\+to\+\_\+buf} (const char $\ast$fmt,...)
+\item 
+void \hyperlink{log__perf_8c_ae38252f7ab338e696a16f41de17f6687}{save\+\_\+to\+\_\+intbuf} (int id, int msg)
+\item 
+static void \hyperlink{log__perf_8c_a23b5ab34256fa5d822471397e1828c44}{purge\+\_\+buff} ()
+\item 
+void \hyperlink{log__perf_8c_a2ddfb6a3d3ae406997d341363fde100a}{print\+\_\+buff} (int verb)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{log__perf_8c_a4dfb3ef1ed91297e0d2c851870baeeda}{logline} \hyperlink{log__perf_8c_a9ecad3c9f97c7b558242576693f7078c}{log\+\_\+buff} \mbox{[}\hyperlink{log__perf_8h_a68c23c25c69aab4607f024e55ea8bdeb}{L\+O\+G\+\_\+\+P\+E\+R\+F\+\_\+\+B\+U\+F\+F\+E\+R\+\_\+\+D\+E\+P\+TH}\mbox{]}
+\item 
+\hyperlink{log__perf_8c_a3855e7cc4e242f82d469795b7c24df2d}{logline\+\_\+int} \hyperlink{log__perf_8c_ae9b413367247ccae77f63cfd851bbee4}{log\+\_\+intbuff} \mbox{[}\hyperlink{log__perf_8h_a68c23c25c69aab4607f024e55ea8bdeb}{L\+O\+G\+\_\+\+P\+E\+R\+F\+\_\+\+B\+U\+F\+F\+E\+R\+\_\+\+D\+E\+P\+TH}\mbox{]}
+\item 
+static int \hyperlink{log__perf_8c_a91a96a5fe961a027c06e11ec9921deeb}{i\+\_\+log\+\_\+call}
+\item 
+static int \hyperlink{log__perf_8c_a5fb816f9ba8fb13965711154f27fd723}{i\+\_\+logint\+\_\+call}
+\end{DoxyCompactItemize}
+
+
+\subsection{Macro Definition Documentation}
+\index{log\+\_\+perf.\+c@{log\+\_\+perf.\+c}!S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN@{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN}}
+\index{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN@{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN}!log\+\_\+perf.\+c@{log\+\_\+perf.\+c}}
+\subsubsection[{\texorpdfstring{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN}{SYS_LOG_DOMAIN}}]{\setlength{\rightskip}{0pt plus 5cm}\#define S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN~\char`\"{}log\+\_\+perf\char`\"{}}\hypertarget{log__perf_8c_ac5b2cb2d6ae6b5526953a00f765a23e4}{}\label{log__perf_8c_ac5b2cb2d6ae6b5526953a00f765a23e4}
+
+
+\subsection{Typedef Documentation}
+\index{log\+\_\+perf.\+c@{log\+\_\+perf.\+c}!logline@{logline}}
+\index{logline@{logline}!log\+\_\+perf.\+c@{log\+\_\+perf.\+c}}
+\subsubsection[{\texorpdfstring{logline}{logline}}]{\setlength{\rightskip}{0pt plus 5cm}typedef char logline\mbox{[}{\bf L\+O\+G\+\_\+\+P\+E\+R\+F\+\_\+\+S\+T\+R\+I\+N\+G\+\_\+\+L\+EN}\mbox{]}}\hypertarget{log__perf_8c_a4dfb3ef1ed91297e0d2c851870baeeda}{}\label{log__perf_8c_a4dfb3ef1ed91297e0d2c851870baeeda}
+\index{log\+\_\+perf.\+c@{log\+\_\+perf.\+c}!logline\+\_\+int@{logline\+\_\+int}}
+\index{logline\+\_\+int@{logline\+\_\+int}!log\+\_\+perf.\+c@{log\+\_\+perf.\+c}}
+\subsubsection[{\texorpdfstring{logline\+\_\+int}{logline_int}}]{\setlength{\rightskip}{0pt plus 5cm}typedef int logline\+\_\+int\mbox{[}2\mbox{]}}\hypertarget{log__perf_8c_a3855e7cc4e242f82d469795b7c24df2d}{}\label{log__perf_8c_a3855e7cc4e242f82d469795b7c24df2d}
+
+
+\subsection{Function Documentation}
+\index{log\+\_\+perf.\+c@{log\+\_\+perf.\+c}!print\+\_\+buff@{print\+\_\+buff}}
+\index{print\+\_\+buff@{print\+\_\+buff}!log\+\_\+perf.\+c@{log\+\_\+perf.\+c}}
+\subsubsection[{\texorpdfstring{print\+\_\+buff(int verb)}{print_buff(int verb)}}]{\setlength{\rightskip}{0pt plus 5cm}void print\+\_\+buff (
+\begin{DoxyParamCaption}
+\item[{int}]{verb}
+\end{DoxyParamCaption}
+)}\hypertarget{log__perf_8c_a2ddfb6a3d3ae406997d341363fde100a}{}\label{log__perf_8c_a2ddfb6a3d3ae406997d341363fde100a}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=322pt]{log__perf_8c_a2ddfb6a3d3ae406997d341363fde100a_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{log\+\_\+perf.\+c@{log\+\_\+perf.\+c}!print\+\_\+to\+\_\+buf@{print\+\_\+to\+\_\+buf}}
+\index{print\+\_\+to\+\_\+buf@{print\+\_\+to\+\_\+buf}!log\+\_\+perf.\+c@{log\+\_\+perf.\+c}}
+\subsubsection[{\texorpdfstring{print\+\_\+to\+\_\+buf(const char $\ast$fmt,...)}{print_to_buf(const char *fmt,...)}}]{\setlength{\rightskip}{0pt plus 5cm}void print\+\_\+to\+\_\+buf (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{fmt, }
+\item[{}]{...}
+\end{DoxyParamCaption}
+)}\hypertarget{log__perf_8c_a2a6400281dad9d8bd17be2df284e09d4}{}\label{log__perf_8c_a2a6400281dad9d8bd17be2df284e09d4}
+\index{log\+\_\+perf.\+c@{log\+\_\+perf.\+c}!purge\+\_\+buff@{purge\+\_\+buff}}
+\index{purge\+\_\+buff@{purge\+\_\+buff}!log\+\_\+perf.\+c@{log\+\_\+perf.\+c}}
+\subsubsection[{\texorpdfstring{purge\+\_\+buff()}{purge_buff()}}]{\setlength{\rightskip}{0pt plus 5cm}static void purge\+\_\+buff (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{log__perf_8c_a23b5ab34256fa5d822471397e1828c44}{}\label{log__perf_8c_a23b5ab34256fa5d822471397e1828c44}
+\index{log\+\_\+perf.\+c@{log\+\_\+perf.\+c}!save\+\_\+to\+\_\+intbuf@{save\+\_\+to\+\_\+intbuf}}
+\index{save\+\_\+to\+\_\+intbuf@{save\+\_\+to\+\_\+intbuf}!log\+\_\+perf.\+c@{log\+\_\+perf.\+c}}
+\subsubsection[{\texorpdfstring{save\+\_\+to\+\_\+intbuf(int id, int msg)}{save_to_intbuf(int id, int msg)}}]{\setlength{\rightskip}{0pt plus 5cm}void save\+\_\+to\+\_\+intbuf (
+\begin{DoxyParamCaption}
+\item[{int}]{id, }
+\item[{int}]{msg}
+\end{DoxyParamCaption}
+)}\hypertarget{log__perf_8c_ae38252f7ab338e696a16f41de17f6687}{}\label{log__perf_8c_ae38252f7ab338e696a16f41de17f6687}
+
+
+\subsection{Variable Documentation}
+\index{log\+\_\+perf.\+c@{log\+\_\+perf.\+c}!i\+\_\+log\+\_\+call@{i\+\_\+log\+\_\+call}}
+\index{i\+\_\+log\+\_\+call@{i\+\_\+log\+\_\+call}!log\+\_\+perf.\+c@{log\+\_\+perf.\+c}}
+\subsubsection[{\texorpdfstring{i\+\_\+log\+\_\+call}{i_log_call}}]{\setlength{\rightskip}{0pt plus 5cm}int i\+\_\+log\+\_\+call\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{log__perf_8c_a91a96a5fe961a027c06e11ec9921deeb}{}\label{log__perf_8c_a91a96a5fe961a027c06e11ec9921deeb}
+\index{log\+\_\+perf.\+c@{log\+\_\+perf.\+c}!i\+\_\+logint\+\_\+call@{i\+\_\+logint\+\_\+call}}
+\index{i\+\_\+logint\+\_\+call@{i\+\_\+logint\+\_\+call}!log\+\_\+perf.\+c@{log\+\_\+perf.\+c}}
+\subsubsection[{\texorpdfstring{i\+\_\+logint\+\_\+call}{i_logint_call}}]{\setlength{\rightskip}{0pt plus 5cm}int i\+\_\+logint\+\_\+call\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{log__perf_8c_a5fb816f9ba8fb13965711154f27fd723}{}\label{log__perf_8c_a5fb816f9ba8fb13965711154f27fd723}
+\index{log\+\_\+perf.\+c@{log\+\_\+perf.\+c}!log\+\_\+buff@{log\+\_\+buff}}
+\index{log\+\_\+buff@{log\+\_\+buff}!log\+\_\+perf.\+c@{log\+\_\+perf.\+c}}
+\subsubsection[{\texorpdfstring{log\+\_\+buff}{log_buff}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf logline} log\+\_\+buff\mbox{[}{\bf L\+O\+G\+\_\+\+P\+E\+R\+F\+\_\+\+B\+U\+F\+F\+E\+R\+\_\+\+D\+E\+P\+TH}\mbox{]}}\hypertarget{log__perf_8c_a9ecad3c9f97c7b558242576693f7078c}{}\label{log__perf_8c_a9ecad3c9f97c7b558242576693f7078c}
+\index{log\+\_\+perf.\+c@{log\+\_\+perf.\+c}!log\+\_\+intbuff@{log\+\_\+intbuff}}
+\index{log\+\_\+intbuff@{log\+\_\+intbuff}!log\+\_\+perf.\+c@{log\+\_\+perf.\+c}}
+\subsubsection[{\texorpdfstring{log\+\_\+intbuff}{log_intbuff}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf logline\+\_\+int} log\+\_\+intbuff\mbox{[}{\bf L\+O\+G\+\_\+\+P\+E\+R\+F\+\_\+\+B\+U\+F\+F\+E\+R\+\_\+\+D\+E\+P\+TH}\mbox{]}}\hypertarget{log__perf_8c_ae9b413367247ccae77f63cfd851bbee4}{}\label{log__perf_8c_ae9b413367247ccae77f63cfd851bbee4}

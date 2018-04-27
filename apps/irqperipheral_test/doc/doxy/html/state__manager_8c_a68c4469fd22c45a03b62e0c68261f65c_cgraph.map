@@ -1,0 +1,5 @@
+<map id="state_mng_purge_registered_actions_all" name="state_mng_purge_registered_actions_all">
+<area shape="rect" id="node2" href="$state__manager_8c.html#a5b1fec6a6e513b0d9348268da99d51d8" title="Clear callback array and reqvalue arrays for a state. " alt="" coords="240,23,427,65"/>
+<area shape="rect" id="node3" href="$state__manager_8c.html#a6579e86bc3f3de2539796108bfc9a1be" title="Thread&#45;safe getter whether state machine thread is running. " alt="" coords="475,5,625,32"/>
+<area shape="rect" id="node4" href="$state__manager_8c.html#adfd529eaa40008fae50455147470e981" title="Non thread&#45;safe getter of state struct. Call ONLY from state_mng run loop. " alt="" coords="475,56,625,83"/>
+</map>

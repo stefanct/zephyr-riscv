@@ -1,0 +1,86 @@
+\hypertarget{struct_state}{}\section{State Struct Reference}
+\label{struct_state}\index{State@{State}}
+
+
+{\ttfamily \#include $<$states.\+h$>$}
+
+
+
+Collaboration diagram for State\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{struct_state__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} \hyperlink{struct_state_abb59b67712b25f52806b3a75d5ced8e1}{id\+\_\+name}
+\item 
+\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} \hyperlink{struct_state_af9d8ee1d5b2527603692e4e16a510dfc}{default\+\_\+next\+\_\+state}
+\item 
+u32\+\_\+t \hyperlink{struct_state_a460c2961861ad0bfe6b175e2d310fa5a}{timing\+\_\+goal\+\_\+start}
+\item 
+u32\+\_\+t \hyperlink{struct_state_af1c6f6dee4c21d85ddf7da3864d1cbee}{timing\+\_\+goal\+\_\+end}
+\item 
+\hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5}{irqt\+\_\+val\+\_\+id\+\_\+t} \hyperlink{struct_state_ab6d93aa56200181dd2b06e3eda4bc090}{val\+\_\+ids\+\_\+req} \mbox{[}\hyperlink{states_8h_ac7f2a6758dc88e00b49c5d4152ef468e}{S\+T\+A\+T\+E\+S\+\_\+\+R\+E\+Q\+\_\+\+V\+A\+L\+S\+\_\+\+M\+AX}\mbox{]}
+\item 
+void($\ast$ \hyperlink{struct_state_a55d5000db1bebc1ee6f6d6d5b3bb6673}{action} )(\hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t})
+\item 
+void($\ast$ \hyperlink{struct_state_a85025dd68c4035546894c6b14542e528}{handle\+\_\+t\+\_\+goal\+\_\+start} )(struct \hyperlink{struct_state}{State} $\ast$, int)
+\item 
+void($\ast$ \hyperlink{struct_state_ab347ebabf77bbde522554a8d663ec4a5}{handle\+\_\+t\+\_\+goal\+\_\+end} )(struct \hyperlink{struct_state}{State} $\ast$, int)
+\item 
+bool($\ast$ \hyperlink{struct_state_a840b9de3ab0a84eed21af071a716348b}{handle\+\_\+val\+\_\+rfail} )(struct \hyperlink{struct_state}{State} $\ast$)
+\item 
+u8\+\_\+t \hyperlink{struct_state_a06b41367cc51f722ce294c92dc341e93}{cur\+\_\+subs\+\_\+idx}
+\item 
+u8\+\_\+t \hyperlink{struct_state_a73f7b81a54eb23206152bb815a0de136}{max\+\_\+subs\+\_\+idx}
+\item 
+u32\+\_\+t \hyperlink{struct_state_ad775f6c08e398dddae5d7fbcd8487b6d}{timing\+\_\+summand}
+\end{DoxyCompactItemize}
+
+
+\subsection{Field Documentation}
+\index{State@{State}!action@{action}}
+\index{action@{action}!State@{State}}
+\subsubsection[{\texorpdfstring{action}{action}}]{\setlength{\rightskip}{0pt plus 5cm}void($\ast$ action) ({\bf cycle\+\_\+state\+\_\+id\+\_\+t})}\hypertarget{struct_state_a55d5000db1bebc1ee6f6d6d5b3bb6673}{}\label{struct_state_a55d5000db1bebc1ee6f6d6d5b3bb6673}
+\index{State@{State}!cur\+\_\+subs\+\_\+idx@{cur\+\_\+subs\+\_\+idx}}
+\index{cur\+\_\+subs\+\_\+idx@{cur\+\_\+subs\+\_\+idx}!State@{State}}
+\subsubsection[{\texorpdfstring{cur\+\_\+subs\+\_\+idx}{cur_subs_idx}}]{\setlength{\rightskip}{0pt plus 5cm}u8\+\_\+t cur\+\_\+subs\+\_\+idx}\hypertarget{struct_state_a06b41367cc51f722ce294c92dc341e93}{}\label{struct_state_a06b41367cc51f722ce294c92dc341e93}
+\index{State@{State}!default\+\_\+next\+\_\+state@{default\+\_\+next\+\_\+state}}
+\index{default\+\_\+next\+\_\+state@{default\+\_\+next\+\_\+state}!State@{State}}
+\subsubsection[{\texorpdfstring{default\+\_\+next\+\_\+state}{default_next_state}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf cycle\+\_\+state\+\_\+id\+\_\+t} default\+\_\+next\+\_\+state}\hypertarget{struct_state_af9d8ee1d5b2527603692e4e16a510dfc}{}\label{struct_state_af9d8ee1d5b2527603692e4e16a510dfc}
+\index{State@{State}!handle\+\_\+t\+\_\+goal\+\_\+end@{handle\+\_\+t\+\_\+goal\+\_\+end}}
+\index{handle\+\_\+t\+\_\+goal\+\_\+end@{handle\+\_\+t\+\_\+goal\+\_\+end}!State@{State}}
+\subsubsection[{\texorpdfstring{handle\+\_\+t\+\_\+goal\+\_\+end}{handle_t_goal_end}}]{\setlength{\rightskip}{0pt plus 5cm}void($\ast$ handle\+\_\+t\+\_\+goal\+\_\+end) (struct {\bf State} $\ast$, int)}\hypertarget{struct_state_ab347ebabf77bbde522554a8d663ec4a5}{}\label{struct_state_ab347ebabf77bbde522554a8d663ec4a5}
+\index{State@{State}!handle\+\_\+t\+\_\+goal\+\_\+start@{handle\+\_\+t\+\_\+goal\+\_\+start}}
+\index{handle\+\_\+t\+\_\+goal\+\_\+start@{handle\+\_\+t\+\_\+goal\+\_\+start}!State@{State}}
+\subsubsection[{\texorpdfstring{handle\+\_\+t\+\_\+goal\+\_\+start}{handle_t_goal_start}}]{\setlength{\rightskip}{0pt plus 5cm}void($\ast$ handle\+\_\+t\+\_\+goal\+\_\+start) (struct {\bf State} $\ast$, int)}\hypertarget{struct_state_a85025dd68c4035546894c6b14542e528}{}\label{struct_state_a85025dd68c4035546894c6b14542e528}
+\index{State@{State}!handle\+\_\+val\+\_\+rfail@{handle\+\_\+val\+\_\+rfail}}
+\index{handle\+\_\+val\+\_\+rfail@{handle\+\_\+val\+\_\+rfail}!State@{State}}
+\subsubsection[{\texorpdfstring{handle\+\_\+val\+\_\+rfail}{handle_val_rfail}}]{\setlength{\rightskip}{0pt plus 5cm}bool($\ast$ handle\+\_\+val\+\_\+rfail) (struct {\bf State} $\ast$)}\hypertarget{struct_state_a840b9de3ab0a84eed21af071a716348b}{}\label{struct_state_a840b9de3ab0a84eed21af071a716348b}
+\index{State@{State}!id\+\_\+name@{id\+\_\+name}}
+\index{id\+\_\+name@{id\+\_\+name}!State@{State}}
+\subsubsection[{\texorpdfstring{id\+\_\+name}{id_name}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf cycle\+\_\+state\+\_\+id\+\_\+t} id\+\_\+name}\hypertarget{struct_state_abb59b67712b25f52806b3a75d5ced8e1}{}\label{struct_state_abb59b67712b25f52806b3a75d5ced8e1}
+\index{State@{State}!max\+\_\+subs\+\_\+idx@{max\+\_\+subs\+\_\+idx}}
+\index{max\+\_\+subs\+\_\+idx@{max\+\_\+subs\+\_\+idx}!State@{State}}
+\subsubsection[{\texorpdfstring{max\+\_\+subs\+\_\+idx}{max_subs_idx}}]{\setlength{\rightskip}{0pt plus 5cm}u8\+\_\+t max\+\_\+subs\+\_\+idx}\hypertarget{struct_state_a73f7b81a54eb23206152bb815a0de136}{}\label{struct_state_a73f7b81a54eb23206152bb815a0de136}
+\index{State@{State}!timing\+\_\+goal\+\_\+end@{timing\+\_\+goal\+\_\+end}}
+\index{timing\+\_\+goal\+\_\+end@{timing\+\_\+goal\+\_\+end}!State@{State}}
+\subsubsection[{\texorpdfstring{timing\+\_\+goal\+\_\+end}{timing_goal_end}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t timing\+\_\+goal\+\_\+end}\hypertarget{struct_state_af1c6f6dee4c21d85ddf7da3864d1cbee}{}\label{struct_state_af1c6f6dee4c21d85ddf7da3864d1cbee}
+\index{State@{State}!timing\+\_\+goal\+\_\+start@{timing\+\_\+goal\+\_\+start}}
+\index{timing\+\_\+goal\+\_\+start@{timing\+\_\+goal\+\_\+start}!State@{State}}
+\subsubsection[{\texorpdfstring{timing\+\_\+goal\+\_\+start}{timing_goal_start}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t timing\+\_\+goal\+\_\+start}\hypertarget{struct_state_a460c2961861ad0bfe6b175e2d310fa5a}{}\label{struct_state_a460c2961861ad0bfe6b175e2d310fa5a}
+\index{State@{State}!timing\+\_\+summand@{timing\+\_\+summand}}
+\index{timing\+\_\+summand@{timing\+\_\+summand}!State@{State}}
+\subsubsection[{\texorpdfstring{timing\+\_\+summand}{timing_summand}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t timing\+\_\+summand}\hypertarget{struct_state_ad775f6c08e398dddae5d7fbcd8487b6d}{}\label{struct_state_ad775f6c08e398dddae5d7fbcd8487b6d}
+\index{State@{State}!val\+\_\+ids\+\_\+req@{val\+\_\+ids\+\_\+req}}
+\index{val\+\_\+ids\+\_\+req@{val\+\_\+ids\+\_\+req}!State@{State}}
+\subsubsection[{\texorpdfstring{val\+\_\+ids\+\_\+req}{val_ids_req}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf irqt\+\_\+val\+\_\+id\+\_\+t} val\+\_\+ids\+\_\+req\mbox{[}{\bf S\+T\+A\+T\+E\+S\+\_\+\+R\+E\+Q\+\_\+\+V\+A\+L\+S\+\_\+\+M\+AX}\mbox{]}}\hypertarget{struct_state_ab6d93aa56200181dd2b06e3eda4bc090}{}\label{struct_state_ab6d93aa56200181dd2b06e3eda4bc090}
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/\hyperlink{states_8h}{states.\+h}\end{DoxyCompactItemize}

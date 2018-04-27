@@ -1,0 +1,112 @@
+\hypertarget{profiler_8h}{}\section{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/profiler.h File Reference}
+\label{profiler_8h}\index{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/profiler.\+h@{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/profiler.\+h}}
+
+
+Simple statistical profiler employing periodic I\+RQ of irqtestperipheral hardware.  
+
+
+{\ttfamily \#include \char`\"{}zephyr.\+h\char`\"{}}\\*
+Include dependency graph for profiler.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=198pt]{profiler_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=334pt]{profiler_8h__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{profiler_8h_a5ff822eb47b352382a5b1e5088e41222}{P\+R\+O\+F\+I\+L\+E\+R\+\_\+\+B\+U\+F\+\_\+\+D\+E\+P\+TH}~C\+O\+N\+F\+I\+G\+\_\+\+A\+P\+P\+\_\+\+P\+R\+O\+F\+I\+L\+E\+R\+\_\+\+B\+U\+F\+\_\+\+D\+E\+P\+TH
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{profiler_8h_af19ef3900727740ce6b8f7e8328bdb69}{profiler\+\_\+enable} (u32\+\_\+t period\+\_\+cyc)
+\begin{DoxyCompactList}\small\item\em \+: Enable sampling of program counter via a irq.. Call \+\_\+start() afterwards. \end{DoxyCompactList}\item 
+void \hyperlink{profiler_8h_aea8877a0ebbece214b9149436e89bdd4}{profiler\+\_\+start} ()
+\item 
+void \hyperlink{profiler_8h_a345c89d73448557fb03da787932a4ee4}{profiler\+\_\+stop} ()
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Simple statistical profiler employing periodic I\+RQ of irqtestperipheral hardware. 
+
+
+
+\subsection{Macro Definition Documentation}
+\index{profiler.\+h@{profiler.\+h}!P\+R\+O\+F\+I\+L\+E\+R\+\_\+\+B\+U\+F\+\_\+\+D\+E\+P\+TH@{P\+R\+O\+F\+I\+L\+E\+R\+\_\+\+B\+U\+F\+\_\+\+D\+E\+P\+TH}}
+\index{P\+R\+O\+F\+I\+L\+E\+R\+\_\+\+B\+U\+F\+\_\+\+D\+E\+P\+TH@{P\+R\+O\+F\+I\+L\+E\+R\+\_\+\+B\+U\+F\+\_\+\+D\+E\+P\+TH}!profiler.\+h@{profiler.\+h}}
+\subsubsection[{\texorpdfstring{P\+R\+O\+F\+I\+L\+E\+R\+\_\+\+B\+U\+F\+\_\+\+D\+E\+P\+TH}{PROFILER_BUF_DEPTH}}]{\setlength{\rightskip}{0pt plus 5cm}\#define P\+R\+O\+F\+I\+L\+E\+R\+\_\+\+B\+U\+F\+\_\+\+D\+E\+P\+TH~C\+O\+N\+F\+I\+G\+\_\+\+A\+P\+P\+\_\+\+P\+R\+O\+F\+I\+L\+E\+R\+\_\+\+B\+U\+F\+\_\+\+D\+E\+P\+TH}\hypertarget{profiler_8h_a5ff822eb47b352382a5b1e5088e41222}{}\label{profiler_8h_a5ff822eb47b352382a5b1e5088e41222}
+
+
+\subsection{Function Documentation}
+\index{profiler.\+h@{profiler.\+h}!profiler\+\_\+enable@{profiler\+\_\+enable}}
+\index{profiler\+\_\+enable@{profiler\+\_\+enable}!profiler.\+h@{profiler.\+h}}
+\subsubsection[{\texorpdfstring{profiler\+\_\+enable(u32\+\_\+t period\+\_\+cyc)}{profiler_enable(u32_t period_cyc)}}]{\setlength{\rightskip}{0pt plus 5cm}void profiler\+\_\+enable (
+\begin{DoxyParamCaption}
+\item[{u32\+\_\+t}]{period\+\_\+cyc}
+\end{DoxyParamCaption}
+)}\hypertarget{profiler_8h_af19ef3900727740ce6b8f7e8328bdb69}{}\label{profiler_8h_af19ef3900727740ce6b8f7e8328bdb69}
+
+
+\+: Enable sampling of program counter via a irq.. Call \+\_\+start() afterwards. 
+
+
+\begin{DoxyItemize}
+\item I\+RQ is registered on irqtestperipheral/\+I\+R\+Q2. Make this hw is not used otherwise
+\item Automatically dumps output to console. Avoid other output 
+\end{DoxyItemize}
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{profiler_8h_af19ef3900727740ce6b8f7e8328bdb69_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{profiler.\+h@{profiler.\+h}!profiler\+\_\+start@{profiler\+\_\+start}}
+\index{profiler\+\_\+start@{profiler\+\_\+start}!profiler.\+h@{profiler.\+h}}
+\subsubsection[{\texorpdfstring{profiler\+\_\+start()}{profiler_start()}}]{\setlength{\rightskip}{0pt plus 5cm}void profiler\+\_\+start (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{profiler_8h_aea8877a0ebbece214b9149436e89bdd4}{}\label{profiler_8h_aea8877a0ebbece214b9149436e89bdd4}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=297pt]{profiler_8h_aea8877a0ebbece214b9149436e89bdd4_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{profiler.\+h@{profiler.\+h}!profiler\+\_\+stop@{profiler\+\_\+stop}}
+\index{profiler\+\_\+stop@{profiler\+\_\+stop}!profiler.\+h@{profiler.\+h}}
+\subsubsection[{\texorpdfstring{profiler\+\_\+stop()}{profiler_stop()}}]{\setlength{\rightskip}{0pt plus 5cm}void profiler\+\_\+stop (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{profiler_8h_a345c89d73448557fb03da787932a4ee4}{}\label{profiler_8h_a345c89d73448557fb03da787932a4ee4}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{profiler_8h_a345c89d73448557fb03da787932a4ee4_cgraph}
+\end{center}
+\end{figure}
+
+

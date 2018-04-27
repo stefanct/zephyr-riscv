@@ -1,0 +1,357 @@
+\hypertarget{utils_8c}{}\section{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/utils.c File Reference}
+\label{utils_8c}\index{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/utils.\+c@{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/utils.\+c}}
+{\ttfamily \#include $<$zephyr.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}utils.\+h\char`\"{}}\\*
+Include dependency graph for utils.\+c\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=198pt]{utils_8c__incl}
+\end{center}
+\end{figure}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{utils_8c_af36dba4eccdbae5ab5fd15efded7b473}{print\+\_\+set\+\_\+verbosity} (int verb)
+\item 
+int \hyperlink{utils_8c_a1874e5dd974c6f85928e5da4437b8516}{print\+\_\+get\+\_\+verbosity} ()
+\item 
+static bool \hyperlink{utils_8c_a8d7f34af292d60592b179a49baf3c54b}{do\+\_\+print} (int verbosity, bool exact)
+\item 
+void \hyperlink{utils_8c_a1ae3605bfc857c7511287b5b181c6c54}{printkv} (int verbosity, const char $\ast$fmt,...)
+\begin{DoxyCompactList}\small\item\em \+: printk if given verbosity $>$= set verbosity threshold. \end{DoxyCompactList}\item 
+void \hyperlink{utils_8c_ab5d5ac1dae731b4024e720c468a1ab8a}{printkve} (int verbosity, const char $\ast$fmt,...)
+\begin{DoxyCompactList}\small\item\em \+: printk if given verbosity exactly == set verbosity threshold. \end{DoxyCompactList}\item 
+void \hyperlink{utils_8c_ac145fb3e03aef9c2c79f781997444002}{print\+\_\+dash\+\_\+line} (int verbosity)
+\begin{DoxyCompactList}\small\item\em Print dash line. \end{DoxyCompactList}\item 
+void \hyperlink{utils_8c_a8762a947e398a29fe5da2ff7ff212779}{print\+\_\+report} (int verbosity, int err\+\_\+count)
+\item 
+void \hyperlink{utils_8c_afb6b42fdc372ed9111bbce693b4a2088}{print\+\_\+end\+\_\+banner} (int verbosity)
+\item 
+void \hyperlink{utils_8c_a86caec4831219d5525827df3243ca2bc}{print\+\_\+banner} (int verbosity)
+\item 
+void \hyperlink{utils_8c_a837767c06145c9dc0d34b536813c36c1}{print\+\_\+time\+\_\+banner} (int verbosity)
+\item 
+void \hyperlink{utils_8c_a73ed33718fd90a4216f0df6dff371471}{printk\+\_\+centered} (int verbosity, const char $\ast$fmt,...)
+\begin{DoxyCompactList}\small\item\em prints string in the center of console \end{DoxyCompactList}\item 
+void \hyperlink{utils_8c_a938b2809d318f940f04a5a4588b188f7}{printk\+\_\+framed} (int verbosity, const char $\ast$fmt,...)
+\begin{DoxyCompactList}\small\item\em prints string in the center of console with $\vert$ at beginning and end of line. \end{DoxyCompactList}\item 
+void \hyperlink{utils_8c_adc85b9db1b97d79f6c677e711bd9ceac}{print\+\_\+arr\+\_\+int} (int verbosity, int arr\mbox{[}$\,$\mbox{]}, int len)
+\item 
+void \hyperlink{utils_8c_ad3d79b19f82a1184b79834cb05280f9f}{snprint\+\_\+arr\+\_\+int} (char $\ast$str, int len\+\_\+str, int arr\mbox{[}$\,$\mbox{]}, int len)
+\item 
+void \hyperlink{utils_8c_a9c579c5181974bc7ee38e8a16ba66a63}{snprint\+\_\+arr\+\_\+p} (char $\ast$str, int len\+\_\+str, void $\ast$arr\mbox{[}$\,$\mbox{]}, int len)
+\item 
+void \hyperlink{utils_8c_abdfe8b5d9499c1957d04f84fade8f4a1}{print\+\_\+arr\+\_\+uint} (int verbosity, u32\+\_\+t arr\mbox{[}$\,$\mbox{]}, int len)
+\item 
+u32\+\_\+t \hyperlink{utils_8c_a84fa4ad5c3c2228f5c828212c8610382}{dbg\+\_\+read\+\_\+mem} (u32\+\_\+t $\ast$p\+\_\+mem)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static int \hyperlink{utils_8c_a74493e8983c67244db6a2f4b0b6ef7d5}{verbosity\+\_\+thresh} = -\/1
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\index{utils.\+c@{utils.\+c}!dbg\+\_\+read\+\_\+mem@{dbg\+\_\+read\+\_\+mem}}
+\index{dbg\+\_\+read\+\_\+mem@{dbg\+\_\+read\+\_\+mem}!utils.\+c@{utils.\+c}}
+\subsubsection[{\texorpdfstring{dbg\+\_\+read\+\_\+mem(u32\+\_\+t $\ast$p\+\_\+mem)}{dbg_read_mem(u32_t *p_mem)}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t dbg\+\_\+read\+\_\+mem (
+\begin{DoxyParamCaption}
+\item[{u32\+\_\+t $\ast$}]{p\+\_\+mem}
+\end{DoxyParamCaption}
+)}\hypertarget{utils_8c_a84fa4ad5c3c2228f5c828212c8610382}{}\label{utils_8c_a84fa4ad5c3c2228f5c828212c8610382}
+\index{utils.\+c@{utils.\+c}!do\+\_\+print@{do\+\_\+print}}
+\index{do\+\_\+print@{do\+\_\+print}!utils.\+c@{utils.\+c}}
+\subsubsection[{\texorpdfstring{do\+\_\+print(int verbosity, bool exact)}{do_print(int verbosity, bool exact)}}]{\setlength{\rightskip}{0pt plus 5cm}static bool do\+\_\+print (
+\begin{DoxyParamCaption}
+\item[{int}]{verbosity, }
+\item[{bool}]{exact}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{utils_8c_a8d7f34af292d60592b179a49baf3c54b}{}\label{utils_8c_a8d7f34af292d60592b179a49baf3c54b}
+\index{utils.\+c@{utils.\+c}!print\+\_\+arr\+\_\+int@{print\+\_\+arr\+\_\+int}}
+\index{print\+\_\+arr\+\_\+int@{print\+\_\+arr\+\_\+int}!utils.\+c@{utils.\+c}}
+\subsubsection[{\texorpdfstring{print\+\_\+arr\+\_\+int(int verbosity, int arr[], int len)}{print_arr_int(int verbosity, int arr[], int len)}}]{\setlength{\rightskip}{0pt plus 5cm}void print\+\_\+arr\+\_\+int (
+\begin{DoxyParamCaption}
+\item[{int}]{verbosity, }
+\item[{int}]{arr\mbox{[}$\,$\mbox{]}, }
+\item[{int}]{len}
+\end{DoxyParamCaption}
+)}\hypertarget{utils_8c_adc85b9db1b97d79f6c677e711bd9ceac}{}\label{utils_8c_adc85b9db1b97d79f6c677e711bd9ceac}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=317pt]{utils_8c_adc85b9db1b97d79f6c677e711bd9ceac_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{utils.\+c@{utils.\+c}!print\+\_\+arr\+\_\+uint@{print\+\_\+arr\+\_\+uint}}
+\index{print\+\_\+arr\+\_\+uint@{print\+\_\+arr\+\_\+uint}!utils.\+c@{utils.\+c}}
+\subsubsection[{\texorpdfstring{print\+\_\+arr\+\_\+uint(int verbosity, u32\+\_\+t arr[], int len)}{print_arr_uint(int verbosity, u32_t arr[], int len)}}]{\setlength{\rightskip}{0pt plus 5cm}void print\+\_\+arr\+\_\+uint (
+\begin{DoxyParamCaption}
+\item[{int}]{verbosity, }
+\item[{u32\+\_\+t}]{arr\mbox{[}$\,$\mbox{]}, }
+\item[{int}]{len}
+\end{DoxyParamCaption}
+)}\hypertarget{utils_8c_abdfe8b5d9499c1957d04f84fade8f4a1}{}\label{utils_8c_abdfe8b5d9499c1957d04f84fade8f4a1}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=322pt]{utils_8c_abdfe8b5d9499c1957d04f84fade8f4a1_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{utils.\+c@{utils.\+c}!print\+\_\+banner@{print\+\_\+banner}}
+\index{print\+\_\+banner@{print\+\_\+banner}!utils.\+c@{utils.\+c}}
+\subsubsection[{\texorpdfstring{print\+\_\+banner(int verbosity)}{print_banner(int verbosity)}}]{\setlength{\rightskip}{0pt plus 5cm}void print\+\_\+banner (
+\begin{DoxyParamCaption}
+\item[{int}]{verbosity}
+\end{DoxyParamCaption}
+)}\hypertarget{utils_8c_a86caec4831219d5525827df3243ca2bc}{}\label{utils_8c_a86caec4831219d5525827df3243ca2bc}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{utils_8c_a86caec4831219d5525827df3243ca2bc_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{utils.\+c@{utils.\+c}!print\+\_\+dash\+\_\+line@{print\+\_\+dash\+\_\+line}}
+\index{print\+\_\+dash\+\_\+line@{print\+\_\+dash\+\_\+line}!utils.\+c@{utils.\+c}}
+\subsubsection[{\texorpdfstring{print\+\_\+dash\+\_\+line(int verbosity)}{print_dash_line(int verbosity)}}]{\setlength{\rightskip}{0pt plus 5cm}void print\+\_\+dash\+\_\+line (
+\begin{DoxyParamCaption}
+\item[{int}]{verbosity}
+\end{DoxyParamCaption}
+)}\hypertarget{utils_8c_ac145fb3e03aef9c2c79f781997444002}{}\label{utils_8c_ac145fb3e03aef9c2c79f781997444002}
+
+
+Print dash line. 
+
+\begin{DoxyReturn}{Returns}
+N/A 
+\end{DoxyReturn}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=331pt]{utils_8c_ac145fb3e03aef9c2c79f781997444002_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{utils.\+c@{utils.\+c}!print\+\_\+end\+\_\+banner@{print\+\_\+end\+\_\+banner}}
+\index{print\+\_\+end\+\_\+banner@{print\+\_\+end\+\_\+banner}!utils.\+c@{utils.\+c}}
+\subsubsection[{\texorpdfstring{print\+\_\+end\+\_\+banner(int verbosity)}{print_end_banner(int verbosity)}}]{\setlength{\rightskip}{0pt plus 5cm}void print\+\_\+end\+\_\+banner (
+\begin{DoxyParamCaption}
+\item[{int}]{verbosity}
+\end{DoxyParamCaption}
+)}\hypertarget{utils_8c_afb6b42fdc372ed9111bbce693b4a2088}{}\label{utils_8c_afb6b42fdc372ed9111bbce693b4a2088}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{utils_8c_afb6b42fdc372ed9111bbce693b4a2088_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{utils.\+c@{utils.\+c}!print\+\_\+get\+\_\+verbosity@{print\+\_\+get\+\_\+verbosity}}
+\index{print\+\_\+get\+\_\+verbosity@{print\+\_\+get\+\_\+verbosity}!utils.\+c@{utils.\+c}}
+\subsubsection[{\texorpdfstring{print\+\_\+get\+\_\+verbosity()}{print_get_verbosity()}}]{\setlength{\rightskip}{0pt plus 5cm}int print\+\_\+get\+\_\+verbosity (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{utils_8c_a1874e5dd974c6f85928e5da4437b8516}{}\label{utils_8c_a1874e5dd974c6f85928e5da4437b8516}
+\index{utils.\+c@{utils.\+c}!print\+\_\+report@{print\+\_\+report}}
+\index{print\+\_\+report@{print\+\_\+report}!utils.\+c@{utils.\+c}}
+\subsubsection[{\texorpdfstring{print\+\_\+report(int verbosity, int err\+\_\+count)}{print_report(int verbosity, int err_count)}}]{\setlength{\rightskip}{0pt plus 5cm}void print\+\_\+report (
+\begin{DoxyParamCaption}
+\item[{int}]{verbosity, }
+\item[{int}]{err\+\_\+count}
+\end{DoxyParamCaption}
+)}\hypertarget{utils_8c_a8762a947e398a29fe5da2ff7ff212779}{}\label{utils_8c_a8762a947e398a29fe5da2ff7ff212779}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{utils_8c_a8762a947e398a29fe5da2ff7ff212779_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{utils.\+c@{utils.\+c}!print\+\_\+set\+\_\+verbosity@{print\+\_\+set\+\_\+verbosity}}
+\index{print\+\_\+set\+\_\+verbosity@{print\+\_\+set\+\_\+verbosity}!utils.\+c@{utils.\+c}}
+\subsubsection[{\texorpdfstring{print\+\_\+set\+\_\+verbosity(int verb)}{print_set_verbosity(int verb)}}]{\setlength{\rightskip}{0pt plus 5cm}void print\+\_\+set\+\_\+verbosity (
+\begin{DoxyParamCaption}
+\item[{int}]{verb}
+\end{DoxyParamCaption}
+)}\hypertarget{utils_8c_af36dba4eccdbae5ab5fd15efded7b473}{}\label{utils_8c_af36dba4eccdbae5ab5fd15efded7b473}
+\index{utils.\+c@{utils.\+c}!print\+\_\+time\+\_\+banner@{print\+\_\+time\+\_\+banner}}
+\index{print\+\_\+time\+\_\+banner@{print\+\_\+time\+\_\+banner}!utils.\+c@{utils.\+c}}
+\subsubsection[{\texorpdfstring{print\+\_\+time\+\_\+banner(int verbosity)}{print_time_banner(int verbosity)}}]{\setlength{\rightskip}{0pt plus 5cm}void print\+\_\+time\+\_\+banner (
+\begin{DoxyParamCaption}
+\item[{int}]{verbosity}
+\end{DoxyParamCaption}
+)}\hypertarget{utils_8c_a837767c06145c9dc0d34b536813c36c1}{}\label{utils_8c_a837767c06145c9dc0d34b536813c36c1}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{utils_8c_a837767c06145c9dc0d34b536813c36c1_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{utils.\+c@{utils.\+c}!printk\+\_\+centered@{printk\+\_\+centered}}
+\index{printk\+\_\+centered@{printk\+\_\+centered}!utils.\+c@{utils.\+c}}
+\subsubsection[{\texorpdfstring{printk\+\_\+centered(int verbosity, const char $\ast$fmt,...)}{printk_centered(int verbosity, const char *fmt,...)}}]{\setlength{\rightskip}{0pt plus 5cm}void printk\+\_\+centered (
+\begin{DoxyParamCaption}
+\item[{int}]{verbosity, }
+\item[{const char $\ast$}]{fmt, }
+\item[{}]{...}
+\end{DoxyParamCaption}
+)}\hypertarget{utils_8c_a73ed33718fd90a4216f0df6dff371471}{}\label{utils_8c_a73ed33718fd90a4216f0df6dff371471}
+
+
+prints string in the center of console 
+
+Automatically adds ~\newline
+ identifier for end of line. Uses standard width value of 80 for console. 
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=250pt]{utils_8c_a73ed33718fd90a4216f0df6dff371471_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{utils.\+c@{utils.\+c}!printk\+\_\+framed@{printk\+\_\+framed}}
+\index{printk\+\_\+framed@{printk\+\_\+framed}!utils.\+c@{utils.\+c}}
+\subsubsection[{\texorpdfstring{printk\+\_\+framed(int verbosity, const char $\ast$fmt,...)}{printk_framed(int verbosity, const char *fmt,...)}}]{\setlength{\rightskip}{0pt plus 5cm}void printk\+\_\+framed (
+\begin{DoxyParamCaption}
+\item[{int}]{verbosity, }
+\item[{const char $\ast$}]{fmt, }
+\item[{}]{...}
+\end{DoxyParamCaption}
+)}\hypertarget{utils_8c_a938b2809d318f940f04a5a4588b188f7}{}\label{utils_8c_a938b2809d318f940f04a5a4588b188f7}
+
+
+prints string in the center of console with $\vert$ at beginning and end of line. 
+
+Automatically adds ~\newline
+ identifier for end of line. Uses standard width value of 80 for console. 
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=243pt]{utils_8c_a938b2809d318f940f04a5a4588b188f7_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{utils.\+c@{utils.\+c}!printkv@{printkv}}
+\index{printkv@{printkv}!utils.\+c@{utils.\+c}}
+\subsubsection[{\texorpdfstring{printkv(int verbosity, const char $\ast$fmt,...)}{printkv(int verbosity, const char *fmt,...)}}]{\setlength{\rightskip}{0pt plus 5cm}void printkv (
+\begin{DoxyParamCaption}
+\item[{int}]{verbosity, }
+\item[{const char $\ast$}]{fmt, }
+\item[{}]{...}
+\end{DoxyParamCaption}
+)}\hypertarget{utils_8c_a1ae3605bfc857c7511287b5b181c6c54}{}\label{utils_8c_a1ae3605bfc857c7511287b5b181c6c54}
+
+
+\+: printk if given verbosity $>$= set verbosity threshold. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em verbosity} & print always if 0 \\
+\hline
+\end{DoxyParams}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=213pt]{utils_8c_a1ae3605bfc857c7511287b5b181c6c54_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{utils.\+c@{utils.\+c}!printkve@{printkve}}
+\index{printkve@{printkve}!utils.\+c@{utils.\+c}}
+\subsubsection[{\texorpdfstring{printkve(int verbosity, const char $\ast$fmt,...)}{printkve(int verbosity, const char *fmt,...)}}]{\setlength{\rightskip}{0pt plus 5cm}void printkve (
+\begin{DoxyParamCaption}
+\item[{int}]{verbosity, }
+\item[{const char $\ast$}]{fmt, }
+\item[{}]{...}
+\end{DoxyParamCaption}
+)}\hypertarget{utils_8c_ab5d5ac1dae731b4024e720c468a1ab8a}{}\label{utils_8c_ab5d5ac1dae731b4024e720c468a1ab8a}
+
+
+\+: printk if given verbosity exactly == set verbosity threshold. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em verbosity} & print always if 0 \\
+\hline
+\end{DoxyParams}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=218pt]{utils_8c_ab5d5ac1dae731b4024e720c468a1ab8a_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{utils.\+c@{utils.\+c}!snprint\+\_\+arr\+\_\+int@{snprint\+\_\+arr\+\_\+int}}
+\index{snprint\+\_\+arr\+\_\+int@{snprint\+\_\+arr\+\_\+int}!utils.\+c@{utils.\+c}}
+\subsubsection[{\texorpdfstring{snprint\+\_\+arr\+\_\+int(char $\ast$str, int len\+\_\+str, int arr[], int len)}{snprint_arr_int(char *str, int len_str, int arr[], int len)}}]{\setlength{\rightskip}{0pt plus 5cm}void snprint\+\_\+arr\+\_\+int (
+\begin{DoxyParamCaption}
+\item[{char $\ast$}]{str, }
+\item[{int}]{len\+\_\+str, }
+\item[{int}]{arr\mbox{[}$\,$\mbox{]}, }
+\item[{int}]{len}
+\end{DoxyParamCaption}
+)}\hypertarget{utils_8c_ad3d79b19f82a1184b79834cb05280f9f}{}\label{utils_8c_ad3d79b19f82a1184b79834cb05280f9f}
+\index{utils.\+c@{utils.\+c}!snprint\+\_\+arr\+\_\+p@{snprint\+\_\+arr\+\_\+p}}
+\index{snprint\+\_\+arr\+\_\+p@{snprint\+\_\+arr\+\_\+p}!utils.\+c@{utils.\+c}}
+\subsubsection[{\texorpdfstring{snprint\+\_\+arr\+\_\+p(char $\ast$str, int len\+\_\+str, void $\ast$arr[], int len)}{snprint_arr_p(char *str, int len_str, void *arr[], int len)}}]{\setlength{\rightskip}{0pt plus 5cm}void snprint\+\_\+arr\+\_\+p (
+\begin{DoxyParamCaption}
+\item[{char $\ast$}]{str, }
+\item[{int}]{len\+\_\+str, }
+\item[{void $\ast$}]{arr\mbox{[}$\,$\mbox{]}, }
+\item[{int}]{len}
+\end{DoxyParamCaption}
+)}\hypertarget{utils_8c_a9c579c5181974bc7ee38e8a16ba66a63}{}\label{utils_8c_a9c579c5181974bc7ee38e8a16ba66a63}
+
+
+\subsection{Variable Documentation}
+\index{utils.\+c@{utils.\+c}!verbosity\+\_\+thresh@{verbosity\+\_\+thresh}}
+\index{verbosity\+\_\+thresh@{verbosity\+\_\+thresh}!utils.\+c@{utils.\+c}}
+\subsubsection[{\texorpdfstring{verbosity\+\_\+thresh}{verbosity_thresh}}]{\setlength{\rightskip}{0pt plus 5cm}int verbosity\+\_\+thresh = -\/1\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{utils_8c_a74493e8983c67244db6a2f4b0b6ef7d5}{}\label{utils_8c_a74493e8983c67244db6a2f4b0b6ef7d5}

@@ -1,0 +1,5 @@
+<map id="print_end_banner" name="print_end_banner">
+<area shape="rect" id="node2" href="$utils_8c.html#a1ae3605bfc857c7511287b5b181c6c54" title=": printk if given verbosity &gt;= set verbosity threshold. " alt="" coords="332,5,393,32"/>
+<area shape="rect" id="node4" href="$utils_8c.html#ac145fb3e03aef9c2c79f781997444002" title="Print dash line. " alt="" coords="175,31,284,57"/>
+<area shape="rect" id="node3" href="$utils_8c.html#a8d7f34af292d60592b179a49baf3c54b" title="do_print" alt="" coords="441,5,509,32"/>
+</map>

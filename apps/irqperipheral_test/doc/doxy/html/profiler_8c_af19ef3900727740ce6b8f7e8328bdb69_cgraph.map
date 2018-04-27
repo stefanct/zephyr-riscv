@@ -1,0 +1,18 @@
+<map id="profiler_enable" name="profiler_enable">
+<area shape="rect" id="node2" href="$irqtestperipheral_8c.html#a508afd9a858251ac9dbd15fba94e4301" title="Thread safe, generic setter for device registers. Only works for regs which have a driver mem pool en..." alt="" coords="367,35,525,61"/>
+<area shape="rect" id="node8" href="$irqtestperipheral_8h.html#a614e7ce299e6946db0551c3e393093ce" title="irqtester_fe310_register\l_callback" alt="" coords="160,174,319,215"/>
+<area shape="rect" id="node9" href="$profiler_8c.html#af0eb92221695ae6b265eafcea9d40f90" title="irq_handler_profiler_1" alt="" coords="167,123,312,149"/>
+<area shape="rect" id="node3" href="$irqtestperipheral_8c.html#a1356feef1a2dbd5af9d5f6c19e2d86a6" title="Non&#45;Thread safe, generic setter for device registers. Only works for regs which have a driver mem poo..." alt="" coords="586,49,719,90"/>
+<area shape="rect" id="node4" href="$irqtestperipheral_8c.html#aacd45cbca76d5cb252b111e2e064a3e0" title="id_2_type_fast" alt="" coords="783,5,890,32"/>
+<area shape="rect" id="node5" href="$irqtestperipheral_8c.html#a15420b03ab67124ddc6d1b4f63f32309" title="id_2_type" alt="" coords="797,56,876,83"/>
+<area shape="rect" id="node6" href="$irqtestperipheral_8c.html#aae36b616bf3ffc8134b83f3e168bdf0e" title="id_2_index_fast" alt="" coords="780,107,893,133"/>
+<area shape="rect" id="node7" href="$irqtestperipheral_8c.html#a3205d750d033a40f72392b0d638b9070" title="id_2_index" alt="" coords="795,157,879,184"/>
+<area shape="rect" id="node10" href="$irqtestperipheral_8c.html#a987670a27b50999e651f384e6b04e582" title="Non&#45;thread safe, generic getter for device (output) registers. Only works for regs which are loaded t..." alt="" coords="573,125,732,152"/>
+<area shape="rect" id="node12" href="$profiler_8c.html#a0853551b9051cca934c58748ec90cc53" title="dump_2_console" alt="" coords="386,85,506,112"/>
+<area shape="rect" id="node13" href="$irqtestperipheral_8c.html#ac28383949304b588aecac37c6d6ea538" title="irqtester_fe310_clear_2" alt="" coords="367,237,525,264"/>
+<area shape="rect" id="node17" href="$irqtestperipheral_8c.html#a3f0daddddbc00ed4d3195cd85ba1acae" title="Need to set regs num_rep_2 and period_2 first. " alt="" coords="373,187,519,213"/>
+<area shape="rect" id="node11" href="$cycles_8c.html#a6e9f891bc6d1b4849bd701cca50ef426" title="read lower 32 bits of cycle csr register " alt="" coords="787,208,886,235"/>
+<area shape="rect" id="node14" href="$tests_8c.html#a1b66895966dbe4f866074ac85e344bd7" title="reg_write_short" alt="" coords="597,219,708,245"/>
+<area shape="rect" id="node15" href="$irqtestperipheral_8c.html#ab157fe508c290d5e05fc878db1c936f0" title="irqtester_fe310_irq\l_handler" alt="" coords="588,270,717,311"/>
+<area shape="rect" id="node16" href="$irqtestperipheral_8c.html#abda9b87261994cc7417d4db872faa8f2" title="_get_irq_id" alt="" coords="794,277,879,304"/>
+</map>

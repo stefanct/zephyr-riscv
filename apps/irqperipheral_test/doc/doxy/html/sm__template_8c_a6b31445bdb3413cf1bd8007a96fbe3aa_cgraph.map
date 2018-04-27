@@ -1,0 +1,9 @@
+<map id="sm_t_fire_irqs" name="sm_t_fire_irqs">
+<area shape="rect" id="node2" href="$irqtestperipheral_8c.html#a508afd9a858251ac9dbd15fba94e4301" title="Thread safe, generic setter for device registers. Only works for regs which have a driver mem pool en..." alt="" coords="157,81,316,108"/>
+<area shape="rect" id="node8" href="$irqtestperipheral_8c.html#a0bd81b8a8b0a9eb85658ffcfe6c0a7e5" title="Need to set regs num_rep_1 and period_1 first. " alt="" coords="163,132,310,159"/>
+<area shape="rect" id="node3" href="$irqtestperipheral_8c.html#a1356feef1a2dbd5af9d5f6c19e2d86a6" title="Non&#45;Thread safe, generic setter for device registers. Only works for regs which have a driver mem poo..." alt="" coords="364,74,497,115"/>
+<area shape="rect" id="node4" href="$irqtestperipheral_8c.html#aacd45cbca76d5cb252b111e2e064a3e0" title="id_2_type_fast" alt="" coords="549,5,655,32"/>
+<area shape="rect" id="node5" href="$irqtestperipheral_8c.html#a15420b03ab67124ddc6d1b4f63f32309" title="id_2_type" alt="" coords="563,56,641,83"/>
+<area shape="rect" id="node6" href="$irqtestperipheral_8c.html#aae36b616bf3ffc8134b83f3e168bdf0e" title="id_2_index_fast" alt="" coords="545,107,659,133"/>
+<area shape="rect" id="node7" href="$irqtestperipheral_8c.html#a3205d750d033a40f72392b0d638b9070" title="id_2_index" alt="" coords="560,157,644,184"/>
+</map>

@@ -1,0 +1,266 @@
+\hypertarget{states_8c}{}\section{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/states.c File Reference}
+\label{states_8c}\index{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/states.\+c@{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/states.\+c}}
+{\ttfamily \#include \char`\"{}states.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}state\+\_\+manager.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}utils.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$logging/sys\+\_\+log.\+h$>$}\\*
+{\ttfamily \#include $<$string.\+h$>$}\\*
+Include dependency graph for states.\+c\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{states_8c__incl}
+\end{center}
+\end{figure}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{states_8c_ac5b2cb2d6ae6b5526953a00f765a23e4}{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN}~\char`\"{}States\char`\"{}
+\item 
+\#define \hyperlink{states_8c_a7e98264d6527b989d179c54a96034c88}{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+EL}~S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+E\+L\+\_\+\+D\+E\+B\+UG
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{states_8c_aa82cad408bf1ac59990bc6d57ff3c754}{states\+\_\+configure\+\_\+auto} (struct \hyperlink{struct_state}{State} $\ast$states, \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} $\ast$\hyperlink{state__manager_8c_a6c3f9ff327a0ce006ef0e4c32a777392}{transition\+\_\+table}, void $\ast$action)
+\begin{DoxyCompactList}\small\item\em \+: Set up state array and transition table automatically. \end{DoxyCompactList}\item 
+void \hyperlink{states_8c_ab91bddfe86c489fa92acdb50882b265c}{states\+\_\+configure\+\_\+custom} (struct \hyperlink{struct_state}{State} $\ast$states, \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} $\ast$\hyperlink{state__manager_8c_a6c3f9ff327a0ce006ef0e4c32a777392}{transition\+\_\+table}, void $\ast$action, struct \hyperlink{struct_state}{State} cust\+\_\+states\mbox{[}$\,$\mbox{]}, \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} $\ast$cust\+\_\+tt, int len\+\_\+states, int len\+\_\+events)
+\begin{DoxyCompactList}\small\item\em \+: Set up state array and transition table of state manager by customnly deployed arrays. \end{DoxyCompactList}\item 
+void \hyperlink{states_8c_a01408135407e1ba1e5a0c0d1fa1aa690}{states\+\_\+configure\+\_\+substates} (struct \hyperlink{struct_state}{State} $\ast$state, u8\+\_\+t \hyperlink{sm2_8c_af2fd083d05fffd13451f34aba145c165}{num\+\_\+substates}, u8\+\_\+t timing\+\_\+summand)
+\begin{DoxyCompactList}\small\item\em \+: Configure given state with serial substates. todo\+: make safe while sm running \end{DoxyCompactList}\item 
+void \hyperlink{states_8c_afa641d1990cd8152c94a2c44a50635e1}{states\+\_\+print\+\_\+state} (struct \hyperlink{struct_state}{State} $\ast$state)
+\item 
+int \hyperlink{states_8c_a929b4a51a89985cc96784e74126c2183}{states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+start} (struct \hyperlink{struct_state}{State} $\ast$state, u8\+\_\+t substate)
+\item 
+int \hyperlink{states_8c_a361b2485c761518f8667f9f1a055e47c}{states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+end} (struct \hyperlink{struct_state}{State} $\ast$state, u8\+\_\+t substate)
+\item 
+int \hyperlink{states_8c_aea1268d1f1934c140cfff0e7316e963b}{states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+start} (struct \hyperlink{struct_state}{State} state\+\_\+arr\mbox{[}$\,$\mbox{]}, \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} id, void($\ast$handler)(struct \hyperlink{struct_state}{State} $\ast$, int))
+\item 
+int \hyperlink{states_8c_ae5df354b700722ddcd0e02f20c75fe7f}{states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+end} (struct \hyperlink{struct_state}{State} state\+\_\+arr\mbox{[}$\,$\mbox{]}, \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} id, void($\ast$handler)(struct \hyperlink{struct_state}{State} $\ast$, int))
+\item 
+int \hyperlink{states_8c_a21840ee4cc20b4ebdef96b9946340736}{states\+\_\+set\+\_\+handler\+\_\+reqval} (struct \hyperlink{struct_state}{State} state\+\_\+arr\mbox{[}$\,$\mbox{]}, \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} id, bool($\ast$handler)(struct \hyperlink{struct_state}{State} $\ast$))
+\item 
+struct \hyperlink{struct_state}{State} $\ast$ \hyperlink{states_8c_a80390a0004562d1df0d2fcc943272c01}{states\+\_\+get} (struct \hyperlink{struct_state}{State} state\+\_\+arr\mbox{[}$\,$\mbox{]}, \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252}{cycle\+\_\+state\+\_\+id\+\_\+t} id)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static struct \hyperlink{struct_state}{State} \hyperlink{states_8c_af28c24319afb3779927a943456d03658}{s\+\_\+idle}
+\item 
+static struct \hyperlink{struct_state}{State} \hyperlink{states_8c_aa2c109aa72eb7793796de31c157a7209}{s\+\_\+start}
+\item 
+static struct \hyperlink{struct_state}{State} \hyperlink{states_8c_a8515e01059b3e1fde53d31d516a0e2f7}{s\+\_\+end}
+\end{DoxyCompactItemize}
+
+
+\subsection{Macro Definition Documentation}
+\index{states.\+c@{states.\+c}!S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN@{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN}}
+\index{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN@{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN}!states.\+c@{states.\+c}}
+\subsubsection[{\texorpdfstring{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN}{SYS_LOG_DOMAIN}}]{\setlength{\rightskip}{0pt plus 5cm}\#define S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN~\char`\"{}States\char`\"{}}\hypertarget{states_8c_ac5b2cb2d6ae6b5526953a00f765a23e4}{}\label{states_8c_ac5b2cb2d6ae6b5526953a00f765a23e4}
+\index{states.\+c@{states.\+c}!S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+EL@{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+EL}}
+\index{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+EL@{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+EL}!states.\+c@{states.\+c}}
+\subsubsection[{\texorpdfstring{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+EL}{SYS_LOG_LEVEL}}]{\setlength{\rightskip}{0pt plus 5cm}\#define S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+EL~S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+E\+L\+\_\+\+D\+E\+B\+UG}\hypertarget{states_8c_a7e98264d6527b989d179c54a96034c88}{}\label{states_8c_a7e98264d6527b989d179c54a96034c88}
+
+
+\subsection{Function Documentation}
+\index{states.\+c@{states.\+c}!states\+\_\+configure\+\_\+auto@{states\+\_\+configure\+\_\+auto}}
+\index{states\+\_\+configure\+\_\+auto@{states\+\_\+configure\+\_\+auto}!states.\+c@{states.\+c}}
+\subsubsection[{\texorpdfstring{states\+\_\+configure\+\_\+auto(struct State $\ast$states, cycle\+\_\+state\+\_\+id\+\_\+t $\ast$transition\+\_\+table, void $\ast$action)}{states_configure_auto(struct State *states, cycle_state_id_t *transition_table, void *action)}}]{\setlength{\rightskip}{0pt plus 5cm}void states\+\_\+configure\+\_\+auto (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{states, }
+\item[{{\bf cycle\+\_\+state\+\_\+id\+\_\+t} $\ast$}]{transition\+\_\+table, }
+\item[{void $\ast$}]{action}
+\end{DoxyParamCaption}
+)}\hypertarget{states_8c_aa82cad408bf1ac59990bc6d57ff3c754}{}\label{states_8c_aa82cad408bf1ac59990bc6d57ff3c754}
+
+
+\+: Set up state array and transition table automatically. 
+
+Uses auto SM states hard-\/coded in \hyperlink{states_8c}{states.\+c}. Is used for tests/benchs with a minimal critical loop. Registers a (default) action handler to every state, which is a function that is responsible to fire all registered callbacks. \index{states.\+c@{states.\+c}!states\+\_\+configure\+\_\+custom@{states\+\_\+configure\+\_\+custom}}
+\index{states\+\_\+configure\+\_\+custom@{states\+\_\+configure\+\_\+custom}!states.\+c@{states.\+c}}
+\subsubsection[{\texorpdfstring{states\+\_\+configure\+\_\+custom(struct State $\ast$states, cycle\+\_\+state\+\_\+id\+\_\+t $\ast$transition\+\_\+table, void $\ast$action, struct State cust\+\_\+states[], cycle\+\_\+state\+\_\+id\+\_\+t $\ast$cust\+\_\+tt, int len\+\_\+states, int len\+\_\+events)}{states_configure_custom(struct State *states, cycle_state_id_t *transition_table, void *action, struct State cust_states[], cycle_state_id_t *cust_tt, int len_states, int len_events)}}]{\setlength{\rightskip}{0pt plus 5cm}void states\+\_\+configure\+\_\+custom (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{states, }
+\item[{{\bf cycle\+\_\+state\+\_\+id\+\_\+t} $\ast$}]{transition\+\_\+table, }
+\item[{void $\ast$}]{action, }
+\item[{struct {\bf State}}]{cust\+\_\+states\mbox{[}$\,$\mbox{]}, }
+\item[{{\bf cycle\+\_\+state\+\_\+id\+\_\+t} $\ast$}]{cust\+\_\+tt, }
+\item[{int}]{len\+\_\+states, }
+\item[{int}]{len\+\_\+events}
+\end{DoxyParamCaption}
+)}\hypertarget{states_8c_ab91bddfe86c489fa92acdb50882b265c}{}\label{states_8c_ab91bddfe86c489fa92acdb50882b265c}
+
+
+\+: Set up state array and transition table of state manager by customnly deployed arrays. 
+
+Registers a default action handler to every state, which is a function that is responsible to fire all registered callbacks. Non thread safe, never call if sm running
+
+
+\begin{DoxyParams}{Parameters}
+{\em states} & Pointer to state\+\_\+manager state array. \\
+\hline
+{\em transition\+\_\+table} & Pointer to state\+\_\+manager transition\+\_\+table. \\
+\hline
+{\em action} & Function pointer (void-\/2-\/void) to default action, usually state manager action dispatcher. \\
+\hline
+{\em cust\+\_\+states\mbox{[}$\,$\mbox{]}} & All states to be configured to state machine. Must be static var. todo\+: really? Copying into sm? \\
+\hline
+{\em cust\+\_\+tt\mbox{[}$\,$\mbox{]}} & Transition table to be configure to state machine. Must be static var. \\
+\hline
+\end{DoxyParams}
+\index{states.\+c@{states.\+c}!states\+\_\+configure\+\_\+substates@{states\+\_\+configure\+\_\+substates}}
+\index{states\+\_\+configure\+\_\+substates@{states\+\_\+configure\+\_\+substates}!states.\+c@{states.\+c}}
+\subsubsection[{\texorpdfstring{states\+\_\+configure\+\_\+substates(struct State $\ast$state, u8\+\_\+t num\+\_\+substates, u8\+\_\+t timing\+\_\+summand)}{states_configure_substates(struct State *state, u8_t num_substates, u8_t timing_summand)}}]{\setlength{\rightskip}{0pt plus 5cm}void states\+\_\+configure\+\_\+substates (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{state, }
+\item[{u8\+\_\+t}]{num\+\_\+substates, }
+\item[{u8\+\_\+t}]{timing\+\_\+summand}
+\end{DoxyParamCaption}
+)}\hypertarget{states_8c_a01408135407e1ba1e5a0c0d1fa1aa690}{}\label{states_8c_a01408135407e1ba1e5a0c0d1fa1aa690}
+
+
+\+: Configure given state with serial substates. todo\+: make safe while sm running 
+
+
+\begin{DoxyParams}{Parameters}
+{\em num\+\_\+substates} & number of times the state is repeated \\
+\hline
+{\em timing\+\_\+summand} & usually 0 \\
+\hline
+\end{DoxyParams}
+\index{states.\+c@{states.\+c}!states\+\_\+get@{states\+\_\+get}}
+\index{states\+\_\+get@{states\+\_\+get}!states.\+c@{states.\+c}}
+\subsubsection[{\texorpdfstring{states\+\_\+get(struct State state\+\_\+arr[], cycle\+\_\+state\+\_\+id\+\_\+t id)}{states_get(struct State state_arr[], cycle_state_id_t id)}}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf State}$\ast$ states\+\_\+get (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State}}]{state\+\_\+arr\mbox{[}$\,$\mbox{]}, }
+\item[{{\bf cycle\+\_\+state\+\_\+id\+\_\+t}}]{id}
+\end{DoxyParamCaption}
+)}\hypertarget{states_8c_a80390a0004562d1df0d2fcc943272c01}{}\label{states_8c_a80390a0004562d1df0d2fcc943272c01}
+\index{states.\+c@{states.\+c}!states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+end@{states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+end}}
+\index{states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+end@{states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+end}!states.\+c@{states.\+c}}
+\subsubsection[{\texorpdfstring{states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+end(struct State $\ast$state, u8\+\_\+t substate)}{states_get_timing_goal_end(struct State *state, u8_t substate)}}]{\setlength{\rightskip}{0pt plus 5cm}int states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+end (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{state, }
+\item[{u8\+\_\+t}]{substate}
+\end{DoxyParamCaption}
+)}\hypertarget{states_8c_a361b2485c761518f8667f9f1a055e47c}{}\label{states_8c_a361b2485c761518f8667f9f1a055e47c}
+\index{states.\+c@{states.\+c}!states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+start@{states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+start}}
+\index{states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+start@{states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+start}!states.\+c@{states.\+c}}
+\subsubsection[{\texorpdfstring{states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+start(struct State $\ast$state, u8\+\_\+t substate)}{states_get_timing_goal_start(struct State *state, u8_t substate)}}]{\setlength{\rightskip}{0pt plus 5cm}int states\+\_\+get\+\_\+timing\+\_\+goal\+\_\+start (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{state, }
+\item[{u8\+\_\+t}]{substate}
+\end{DoxyParamCaption}
+)}\hypertarget{states_8c_a929b4a51a89985cc96784e74126c2183}{}\label{states_8c_a929b4a51a89985cc96784e74126c2183}
+\index{states.\+c@{states.\+c}!states\+\_\+print\+\_\+state@{states\+\_\+print\+\_\+state}}
+\index{states\+\_\+print\+\_\+state@{states\+\_\+print\+\_\+state}!states.\+c@{states.\+c}}
+\subsubsection[{\texorpdfstring{states\+\_\+print\+\_\+state(struct State $\ast$state)}{states_print_state(struct State *state)}}]{\setlength{\rightskip}{0pt plus 5cm}void states\+\_\+print\+\_\+state (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{state}
+\end{DoxyParamCaption}
+)}\hypertarget{states_8c_afa641d1990cd8152c94a2c44a50635e1}{}\label{states_8c_afa641d1990cd8152c94a2c44a50635e1}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{states_8c_afa641d1990cd8152c94a2c44a50635e1_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{states.\+c@{states.\+c}!states\+\_\+set\+\_\+handler\+\_\+reqval@{states\+\_\+set\+\_\+handler\+\_\+reqval}}
+\index{states\+\_\+set\+\_\+handler\+\_\+reqval@{states\+\_\+set\+\_\+handler\+\_\+reqval}!states.\+c@{states.\+c}}
+\subsubsection[{\texorpdfstring{states\+\_\+set\+\_\+handler\+\_\+reqval(struct State state\+\_\+arr[], cycle\+\_\+state\+\_\+id\+\_\+t id, bool($\ast$handler)(struct State $\ast$))}{states_set_handler_reqval(struct State state_arr[], cycle_state_id_t id, bool(*handler)(struct State *))}}]{\setlength{\rightskip}{0pt plus 5cm}int states\+\_\+set\+\_\+handler\+\_\+reqval (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State}}]{state\+\_\+arr\mbox{[}$\,$\mbox{]}, }
+\item[{{\bf cycle\+\_\+state\+\_\+id\+\_\+t}}]{id, }
+\item[{bool($\ast$)(struct {\bf State} $\ast$)}]{handler}
+\end{DoxyParamCaption}
+)}\hypertarget{states_8c_a21840ee4cc20b4ebdef96b9946340736}{}\label{states_8c_a21840ee4cc20b4ebdef96b9946340736}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=277pt]{states_8c_a21840ee4cc20b4ebdef96b9946340736_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{states.\+c@{states.\+c}!states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+end@{states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+end}}
+\index{states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+end@{states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+end}!states.\+c@{states.\+c}}
+\subsubsection[{\texorpdfstring{states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+end(struct State state\+\_\+arr[], cycle\+\_\+state\+\_\+id\+\_\+t id, void($\ast$handler)(struct State $\ast$, int))}{states_set_handler_timing_goal_end(struct State state_arr[], cycle_state_id_t id, void(*handler)(struct State *, int))}}]{\setlength{\rightskip}{0pt plus 5cm}int states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+end (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State}}]{state\+\_\+arr\mbox{[}$\,$\mbox{]}, }
+\item[{{\bf cycle\+\_\+state\+\_\+id\+\_\+t}}]{id, }
+\item[{void($\ast$)(struct {\bf State} $\ast$, int)}]{handler}
+\end{DoxyParamCaption}
+)}\hypertarget{states_8c_ae5df354b700722ddcd0e02f20c75fe7f}{}\label{states_8c_ae5df354b700722ddcd0e02f20c75fe7f}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=277pt]{states_8c_ae5df354b700722ddcd0e02f20c75fe7f_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{states.\+c@{states.\+c}!states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+start@{states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+start}}
+\index{states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+start@{states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+start}!states.\+c@{states.\+c}}
+\subsubsection[{\texorpdfstring{states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+start(struct State state\+\_\+arr[], cycle\+\_\+state\+\_\+id\+\_\+t id, void($\ast$handler)(struct State $\ast$, int))}{states_set_handler_timing_goal_start(struct State state_arr[], cycle_state_id_t id, void(*handler)(struct State *, int))}}]{\setlength{\rightskip}{0pt plus 5cm}int states\+\_\+set\+\_\+handler\+\_\+timing\+\_\+goal\+\_\+start (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State}}]{state\+\_\+arr\mbox{[}$\,$\mbox{]}, }
+\item[{{\bf cycle\+\_\+state\+\_\+id\+\_\+t}}]{id, }
+\item[{void($\ast$)(struct {\bf State} $\ast$, int)}]{handler}
+\end{DoxyParamCaption}
+)}\hypertarget{states_8c_aea1268d1f1934c140cfff0e7316e963b}{}\label{states_8c_aea1268d1f1934c140cfff0e7316e963b}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=277pt]{states_8c_aea1268d1f1934c140cfff0e7316e963b_cgraph}
+\end{center}
+\end{figure}
+
+
+
+
+\subsection{Variable Documentation}
+\index{states.\+c@{states.\+c}!s\+\_\+end@{s\+\_\+end}}
+\index{s\+\_\+end@{s\+\_\+end}!states.\+c@{states.\+c}}
+\subsubsection[{\texorpdfstring{s\+\_\+end}{s_end}}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf State} s\+\_\+end\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{states_8c_a8515e01059b3e1fde53d31d516a0e2f7}{}\label{states_8c_a8515e01059b3e1fde53d31d516a0e2f7}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+= \{.id\_name = \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252af4b0570a7974917db137e591c1876bf7}{CYCLE\_STATE\_END}, .default\_next\_state = 
+      \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252a67062d628f2116e8bad738c83c02f713}{CYCLE\_STATE\_IDLE},
+        .timing\_goal\_start = 0, .timing\_goal\_end = 0, 
+        \}
+\end{DoxyCode}
+\index{states.\+c@{states.\+c}!s\+\_\+idle@{s\+\_\+idle}}
+\index{s\+\_\+idle@{s\+\_\+idle}!states.\+c@{states.\+c}}
+\subsubsection[{\texorpdfstring{s\+\_\+idle}{s_idle}}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf State} s\+\_\+idle\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{states_8c_af28c24319afb3779927a943456d03658}{}\label{states_8c_af28c24319afb3779927a943456d03658}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+= \{.id\_name = \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252a67062d628f2116e8bad738c83c02f713}{CYCLE\_STATE\_IDLE}, .default\_next\_state = 
+      \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252a67062d628f2116e8bad738c83c02f713}{CYCLE\_STATE\_IDLE},
+        .timing\_goal\_start = 0, .timing\_goal\_end = 0,  
+        \}
+\end{DoxyCode}
+Defines a minimal set of states Use state\+\_\+manager\+::register\+\_\+action() to set state actions and required values. \subsubsection*{C\+H\+A\+N\+G\+ES may make benchmarks based on SM auto uncomparable! }\index{states.\+c@{states.\+c}!s\+\_\+start@{s\+\_\+start}}
+\index{s\+\_\+start@{s\+\_\+start}!states.\+c@{states.\+c}}
+\subsubsection[{\texorpdfstring{s\+\_\+start}{s_start}}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf State} s\+\_\+start\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{states_8c_aa2c109aa72eb7793796de31c157a7209}{}\label{states_8c_aa2c109aa72eb7793796de31c157a7209}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+= \{.id\_name = \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252ad97049c2f2d67bd40610b61c02dcc3be}{CYCLE\_STATE\_START}, .default\_next\_state = 
+      \hyperlink{states_8h_a9e0ef0bc98a491d55216d9485e562252af4b0570a7974917db137e591c1876bf7}{CYCLE\_STATE\_END},
+        .timing\_goal\_start = 0, .timing\_goal\_end = 0,  
+        \}
+\end{DoxyCode}

@@ -1,0 +1,6 @@
+<map id="vprintfmt" name="vprintfmt">
+<area shape="rect" id="node2" href="$syscalls_8c.html#a7bd978e4981a80586c5b3a0dac22f0f2" title="strnlen" alt="" coords="132,5,193,32"/>
+<area shape="rect" id="node3" href="$syscalls_8c.html#a7b1e12e09f757ca234758afb4d704db8" title="getint" alt="" coords="135,56,190,83"/>
+<area shape="rect" id="node4" href="$syscalls_8c.html#a934736e8473edc7ac3a20c613ae5f732" title="getuint" alt="" coords="132,107,193,133"/>
+<area shape="rect" id="node5" href="$syscalls_8c.html#ad321bdb456d9be4ac65a8d5aba299be7" title="printnum" alt="" coords="127,157,199,184"/>
+</map>

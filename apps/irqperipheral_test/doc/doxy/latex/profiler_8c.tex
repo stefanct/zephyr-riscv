@@ -1,0 +1,131 @@
+\hypertarget{profiler_8c}{}\section{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/profiler.c File Reference}
+\label{profiler_8c}\index{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/profiler.\+c@{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/profiler.\+c}}
+{\ttfamily \#include \char`\"{}profiler.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}irqtestperipheral.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}globals.\+h\char`\"{}}\\*
+Include dependency graph for profiler.\+c\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=320pt]{profiler_8c__incl}
+\end{center}
+\end{figure}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void \hyperlink{profiler_8c_a0853551b9051cca934c58748ec90cc53}{dump\+\_\+2\+\_\+console} ()
+\item 
+static void \hyperlink{profiler_8c_af0eb92221695ae6b265eafcea9d40f90}{irq\+\_\+handler\+\_\+profiler\+\_\+1} ()
+\item 
+void \hyperlink{profiler_8c_af19ef3900727740ce6b8f7e8328bdb69}{profiler\+\_\+enable} (u32\+\_\+t period\+\_\+cyc)
+\begin{DoxyCompactList}\small\item\em \+: Enable sampling of program counter via a irq.. Call \+\_\+start() afterwards. \end{DoxyCompactList}\item 
+void \hyperlink{profiler_8c_aea8877a0ebbece214b9149436e89bdd4}{profiler\+\_\+start} ()
+\item 
+void \hyperlink{profiler_8c_a345c89d73448557fb03da787932a4ee4}{profiler\+\_\+stop} ()
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static u32\+\_\+t \hyperlink{profiler_8c_abde21e8cc7fd4f0116e65353b0c85361}{log\+\_\+pc} \mbox{[}\hyperlink{profiler_8h_a5ff822eb47b352382a5b1e5088e41222}{P\+R\+O\+F\+I\+L\+E\+R\+\_\+\+B\+U\+F\+\_\+\+D\+E\+P\+TH}\mbox{]}
+\item 
+static u32\+\_\+t \hyperlink{profiler_8c_abbf1e92bb644a3b8a40487cfe4b2f340}{i\+\_\+call\+\_\+isr}
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\index{profiler.\+c@{profiler.\+c}!dump\+\_\+2\+\_\+console@{dump\+\_\+2\+\_\+console}}
+\index{dump\+\_\+2\+\_\+console@{dump\+\_\+2\+\_\+console}!profiler.\+c@{profiler.\+c}}
+\subsubsection[{\texorpdfstring{dump\+\_\+2\+\_\+console()}{dump_2_console()}}]{\setlength{\rightskip}{0pt plus 5cm}static void dump\+\_\+2\+\_\+console (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{profiler_8c_a0853551b9051cca934c58748ec90cc53}{}\label{profiler_8c_a0853551b9051cca934c58748ec90cc53}
+\index{profiler.\+c@{profiler.\+c}!irq\+\_\+handler\+\_\+profiler\+\_\+1@{irq\+\_\+handler\+\_\+profiler\+\_\+1}}
+\index{irq\+\_\+handler\+\_\+profiler\+\_\+1@{irq\+\_\+handler\+\_\+profiler\+\_\+1}!profiler.\+c@{profiler.\+c}}
+\subsubsection[{\texorpdfstring{irq\+\_\+handler\+\_\+profiler\+\_\+1()}{irq_handler_profiler_1()}}]{\setlength{\rightskip}{0pt plus 5cm}static void irq\+\_\+handler\+\_\+profiler\+\_\+1 (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{profiler_8c_af0eb92221695ae6b265eafcea9d40f90}{}\label{profiler_8c_af0eb92221695ae6b265eafcea9d40f90}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{profiler_8c_af0eb92221695ae6b265eafcea9d40f90_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{profiler.\+c@{profiler.\+c}!profiler\+\_\+enable@{profiler\+\_\+enable}}
+\index{profiler\+\_\+enable@{profiler\+\_\+enable}!profiler.\+c@{profiler.\+c}}
+\subsubsection[{\texorpdfstring{profiler\+\_\+enable(u32\+\_\+t period\+\_\+cyc)}{profiler_enable(u32_t period_cyc)}}]{\setlength{\rightskip}{0pt plus 5cm}void profiler\+\_\+enable (
+\begin{DoxyParamCaption}
+\item[{u32\+\_\+t}]{period\+\_\+cyc}
+\end{DoxyParamCaption}
+)}\hypertarget{profiler_8c_af19ef3900727740ce6b8f7e8328bdb69}{}\label{profiler_8c_af19ef3900727740ce6b8f7e8328bdb69}
+
+
+\+: Enable sampling of program counter via a irq.. Call \+\_\+start() afterwards. 
+
+
+\begin{DoxyItemize}
+\item I\+RQ is registered on irqtestperipheral/\+I\+R\+Q2. Make this hw is not used otherwise
+\item Automatically dumps output to console. Avoid other output 
+\end{DoxyItemize}
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{profiler_8c_af19ef3900727740ce6b8f7e8328bdb69_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{profiler.\+c@{profiler.\+c}!profiler\+\_\+start@{profiler\+\_\+start}}
+\index{profiler\+\_\+start@{profiler\+\_\+start}!profiler.\+c@{profiler.\+c}}
+\subsubsection[{\texorpdfstring{profiler\+\_\+start()}{profiler_start()}}]{\setlength{\rightskip}{0pt plus 5cm}void profiler\+\_\+start (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{profiler_8c_aea8877a0ebbece214b9149436e89bdd4}{}\label{profiler_8c_aea8877a0ebbece214b9149436e89bdd4}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=297pt]{profiler_8c_aea8877a0ebbece214b9149436e89bdd4_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{profiler.\+c@{profiler.\+c}!profiler\+\_\+stop@{profiler\+\_\+stop}}
+\index{profiler\+\_\+stop@{profiler\+\_\+stop}!profiler.\+c@{profiler.\+c}}
+\subsubsection[{\texorpdfstring{profiler\+\_\+stop()}{profiler_stop()}}]{\setlength{\rightskip}{0pt plus 5cm}void profiler\+\_\+stop (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{profiler_8c_a345c89d73448557fb03da787932a4ee4}{}\label{profiler_8c_a345c89d73448557fb03da787932a4ee4}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{profiler_8c_a345c89d73448557fb03da787932a4ee4_cgraph}
+\end{center}
+\end{figure}
+
+
+
+
+\subsection{Variable Documentation}
+\index{profiler.\+c@{profiler.\+c}!i\+\_\+call\+\_\+isr@{i\+\_\+call\+\_\+isr}}
+\index{i\+\_\+call\+\_\+isr@{i\+\_\+call\+\_\+isr}!profiler.\+c@{profiler.\+c}}
+\subsubsection[{\texorpdfstring{i\+\_\+call\+\_\+isr}{i_call_isr}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t i\+\_\+call\+\_\+isr\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{profiler_8c_abbf1e92bb644a3b8a40487cfe4b2f340}{}\label{profiler_8c_abbf1e92bb644a3b8a40487cfe4b2f340}
+\index{profiler.\+c@{profiler.\+c}!log\+\_\+pc@{log\+\_\+pc}}
+\index{log\+\_\+pc@{log\+\_\+pc}!profiler.\+c@{profiler.\+c}}
+\subsubsection[{\texorpdfstring{log\+\_\+pc}{log_pc}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t log\+\_\+pc\mbox{[}{\bf P\+R\+O\+F\+I\+L\+E\+R\+\_\+\+B\+U\+F\+\_\+\+D\+E\+P\+TH}\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{profiler_8c_abde21e8cc7fd4f0116e65353b0c85361}{}\label{profiler_8c_abde21e8cc7fd4f0116e65353b0c85361}

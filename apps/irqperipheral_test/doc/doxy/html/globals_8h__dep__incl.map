@@ -1,0 +1,9 @@
+<map id="/home/timo/Software/zephyr&#45;riscv_dev/apps/irqperipheral_test/src/globals.h" name="/home/timo/Software/zephyr&#45;riscv_dev/apps/irqperipheral_test/src/globals.h">
+<area shape="rect" id="node2" href="$main_8c.html" title="/home/timo/Software\l/zephyr&#45;riscv_dev/apps\l/irqperipheral_test/src\l/main.c" alt="" coords="5,124,163,195"/>
+<area shape="rect" id="node3" href="$profiler_8c.html" title="/home/timo/Software\l/zephyr&#45;riscv_dev/apps\l/irqperipheral_test/src\l/profiler.c" alt="" coords="187,124,344,195"/>
+<area shape="rect" id="node4" href="$sm1_8c.html" title="/home/timo/Software\l/zephyr&#45;riscv_dev/apps\l/irqperipheral_test/src\l/state_machines/sm1.c" alt="" coords="369,124,527,195"/>
+<area shape="rect" id="node5" href="$sm2_8c.html" title="/home/timo/Software\l/zephyr&#45;riscv_dev/apps\l/irqperipheral_test/src\l/state_machines/sm2.c" alt="" coords="551,124,710,195"/>
+<area shape="rect" id="node6" href="$sm2__tasks_8c.html" title="/home/timo/Software\l/zephyr&#45;riscv_dev/apps\l/irqperipheral_test/src\l/state_machines/sm2_tasks.c" alt="" coords="735,124,932,195"/>
+<area shape="rect" id="node7" href="$sm__common_8c.html" title="/home/timo/Software\l/zephyr&#45;riscv_dev/apps\l/irqperipheral_test/src\l/state_machines/sm_common.c" alt="" coords="956,124,1164,195"/>
+<area shape="rect" id="node8" href="$state__manager_8c.html" title="/home/timo/Software\l/zephyr&#45;riscv_dev/apps\l/irqperipheral_test/src\l/state_manager.c" alt="" coords="1188,124,1345,195"/>
+</map>

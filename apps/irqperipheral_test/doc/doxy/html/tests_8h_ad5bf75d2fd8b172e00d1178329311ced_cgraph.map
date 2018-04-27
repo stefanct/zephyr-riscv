@@ -1,0 +1,7 @@
+<map id="print_analyze_timing" name="print_analyze_timing">
+<area shape="rect" id="node2" href="$tests_8c.html#ae0f81cb71fa2e2bd0869c42b0657d758" title="find_min_in_arr" alt="" coords="197,5,307,32"/>
+<area shape="rect" id="node3" href="$tests_8c.html#aa28251c7ce4a84d803f0ee6dba140ffa" title="find_max_in_arr" alt="" coords="195,56,309,83"/>
+<area shape="rect" id="node4" href="$tests_8c.html#a0aa63d7999ee787179cde8e168146489" title="calc_avg_arr" alt="" coords="204,107,300,133"/>
+<area shape="rect" id="node5" href="$utils_8c.html#a1ae3605bfc857c7511287b5b181c6c54" title=": printk if given verbosity &gt;= set verbosity threshold. " alt="" coords="221,157,283,184"/>
+<area shape="rect" id="node6" href="$utils_8c.html#a8d7f34af292d60592b179a49baf3c54b" title="do_print" alt="" coords="357,157,425,184"/>
+</map>

@@ -1,0 +1,1006 @@
+\hypertarget{irqtestperipheral_8c}{}\section{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/drivers/irqtestperipheral/src/irqtestperipheral.c File Reference}
+\label{irqtestperipheral_8c}\index{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/drivers/irqtestperipheral/src/irqtestperipheral.\+c@{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/drivers/irqtestperipheral/src/irqtestperipheral.\+c}}
+{\ttfamily \#include \char`\"{}irqtestperipheral.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$soc.\+h$>$}\\*
+{\ttfamily \#include $<$atomic.\+h$>$}\\*
+{\ttfamily \#include $<$misc/printk.\+h$>$}\\*
+{\ttfamily \#include $<$logging/sys\+\_\+log.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}cycles.\+h\char`\"{}}\\*
+Include dependency graph for irqtestperipheral.\+c\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{irqtestperipheral_8c__incl}
+\end{center}
+\end{figure}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{irqtestperipheral_8c_ac5b2cb2d6ae6b5526953a00f765a23e4}{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN}~\char`\"{}Irq\+Test\+Peripheral\char`\"{}
+\item 
+\#define \hyperlink{irqtestperipheral_8c_a7e98264d6527b989d179c54a96034c88}{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+EL}~S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+E\+L\+\_\+\+D\+E\+B\+UG
+\item 
+\#define \hyperlink{irqtestperipheral_8c_a618b1de4e1abb0efbf19ba5540d0aacc}{I\+R\+Q\+T\+\_\+\+I\+R\+Q\+\_\+0\+\_\+\+P\+IN}~-\/1
+\item 
+\#define \hyperlink{irqtestperipheral_8c_ae7640b78e59842b45e5b9707d6d05cd9}{I\+R\+Q\+T\+\_\+0\+\_\+\+I\+R\+Q\+\_\+0}~(R\+I\+S\+C\+V\+\_\+\+M\+A\+X\+\_\+\+G\+E\+N\+E\+R\+I\+C\+\_\+\+I\+RQ + \hyperlink{irqtestperipheral_8c_a618b1de4e1abb0efbf19ba5540d0aacc}{I\+R\+Q\+T\+\_\+\+I\+R\+Q\+\_\+0\+\_\+\+P\+IN})
+\item 
+\#define \hyperlink{irqtestperipheral_8c_a2c8e712612ca973426dc8fe11391be05}{I\+R\+Q\+T\+\_\+0\+\_\+\+I\+R\+Q\+\_\+1}~(R\+I\+S\+C\+V\+\_\+\+M\+A\+X\+\_\+\+G\+E\+N\+E\+R\+I\+C\+\_\+\+I\+RQ + \hyperlink{irqtestperipheral_8c_a618b1de4e1abb0efbf19ba5540d0aacc}{I\+R\+Q\+T\+\_\+\+I\+R\+Q\+\_\+0\+\_\+\+P\+IN} + 1)
+\item 
+\#define \hyperlink{irqtestperipheral_8c_a09b6f19186ade569c46edbde504cbde6}{I\+R\+Q\+T\+\_\+0\+\_\+\+I\+R\+Q\+\_\+2}~(R\+I\+S\+C\+V\+\_\+\+M\+A\+X\+\_\+\+G\+E\+N\+E\+R\+I\+C\+\_\+\+I\+RQ + \hyperlink{irqtestperipheral_8c_a618b1de4e1abb0efbf19ba5540d0aacc}{I\+R\+Q\+T\+\_\+\+I\+R\+Q\+\_\+0\+\_\+\+P\+IN} + 2)
+\item 
+\#define \hyperlink{irqtestperipheral_8c_aed4e1df2d3b72d111dbc36ebe9f1a051}{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+0\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR}~0x2000
+\item 
+\#define \hyperlink{irqtestperipheral_8c_a0046372ce9a45a3e7584dca75eccf0b0}{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+1\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR}~0x2010
+\item 
+\#define \hyperlink{irqtestperipheral_8c_aa4ad37e77a217e2fe72bbee0c6cd7a0f}{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+2\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR}~0x2020
+\item 
+\#define \hyperlink{irqtestperipheral_8c_a7330739b08f329f98d123eb0b39fcffd}{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+3\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR}~0x2030
+\item 
+\#define \hyperlink{irqtestperipheral_8c_aac3f21e92bb84a33fb3512aa09c96a8f}{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+0\+\_\+\+S\+T\+A\+T\+U\+S\+\_\+\+B\+L\+O\+C\+K\+ED}~2
+\item 
+\#define \hyperlink{irqtestperipheral_8c_a533d9fd4806fede95f0776295c8b7bfc}{C\+O\+N\+F\+I\+G\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+\+F\+E310\+\_\+0\+\_\+\+P\+R\+I\+O\+R\+I\+TY}~F\+E310\+\_\+\+P\+L\+I\+C\+\_\+\+M\+A\+X\+\_\+\+P\+R\+I\+O\+R\+I\+TY
+\item 
+\#define \hyperlink{irqtestperipheral_8c_ab5c3864067257693d9bef98c3fe8fc2b}{D\+E\+V\+\_\+\+C\+FG}(dev)~((const struct irqtester\+\_\+fe310\+\_\+config $\ast$ const)(dev)-\/$>$config-\/$>$config\+\_\+info)
+\item 
+\#define \hyperlink{irqtestperipheral_8c_ad5e999d5c89dc4c9a66ac43626f9c5d5}{D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+0}(dev)~((volatile struct irqtester\+\_\+fe310\+\_\+0\+\_\+t $\ast$)(\hyperlink{irqtestperipheral_8c_ab5c3864067257693d9bef98c3fe8fc2b}{D\+E\+V\+\_\+\+C\+FG}(dev))-\/$>$irqtester\+\_\+base\+\_\+addr\mbox{[}0\mbox{]})
+\item 
+\#define \hyperlink{irqtestperipheral_8c_a26f3776ec680c056ccb1377773d84acf}{D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+1}(dev)~((volatile struct irqtester\+\_\+fe310\+\_\+1\+\_\+t $\ast$)(\hyperlink{irqtestperipheral_8c_ab5c3864067257693d9bef98c3fe8fc2b}{D\+E\+V\+\_\+\+C\+FG}(dev))-\/$>$irqtester\+\_\+base\+\_\+addr\mbox{[}1\mbox{]})
+\item 
+\#define \hyperlink{irqtestperipheral_8c_a745df4fe3648b54e304b8588aba922e8}{D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+2}(dev)~((volatile struct irqtester\+\_\+fe310\+\_\+2\+\_\+t $\ast$)(\hyperlink{irqtestperipheral_8c_ab5c3864067257693d9bef98c3fe8fc2b}{D\+E\+V\+\_\+\+C\+FG}(dev))-\/$>$irqtester\+\_\+base\+\_\+addr\mbox{[}2\mbox{]})
+\item 
+\#define \hyperlink{irqtestperipheral_8c_af181f6a8bfa50e654f744031f5111a6c}{D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+3}(dev)~((volatile struct irqtester\+\_\+fe310\+\_\+3\+\_\+t $\ast$)(\hyperlink{irqtestperipheral_8c_ab5c3864067257693d9bef98c3fe8fc2b}{D\+E\+V\+\_\+\+C\+FG}(dev))-\/$>$irqtester\+\_\+base\+\_\+addr\mbox{[}3\mbox{]})
+\item 
+\#define \hyperlink{irqtestperipheral_8c_aa90b045b0cf3a7fe70c69ba16eb135cc}{D\+E\+V\+\_\+\+D\+A\+TA}(dev)~((struct irqtester\+\_\+fe310\+\_\+data $\ast$)(dev)-\/$>$driver\+\_\+data)
+\item 
+\#define \hyperlink{irqtestperipheral_8c_a01901b6f13f37b6c03cd37a0e75eadd4}{D\+EV}()~irqtester\+\_\+fe310\+\_\+data0.\+\_\+drv\+\_\+handle
+\item 
+\#define \hyperlink{irqtestperipheral_8c_ac85ffac15e6947e9fb5acf752fba7207}{L\+E\+N\+\_\+\+A\+R\+R\+AY}(x)~((sizeof(x)/sizeof(0\mbox{[}x\mbox{]})) / ((size\+\_\+t)(!(sizeof(x) \% sizeof(0\mbox{[}x\mbox{]})))))
+\item 
+\#define \hyperlink{irqtestperipheral_8c_a3172e049ce29531f493508355528ffab}{N\+U\+M\+\_\+\+V\+A\+LS}()~(\hyperlink{state__manager_8c_ac85ffac15e6947e9fb5acf752fba7207}{L\+E\+N\+\_\+\+A\+R\+R\+AY}(\hyperlink{irqtestperipheral_8c_a425ae3473e646745e0d280c10af20d7f}{\+\_\+values\+\_\+uint}) + \hyperlink{state__manager_8c_ac85ffac15e6947e9fb5acf752fba7207}{L\+E\+N\+\_\+\+A\+R\+R\+AY}(\hyperlink{irqtestperipheral_8c_a23fe4b9972f3fd20c5606617960f5230}{\+\_\+values\+\_\+int}) +  \hyperlink{state__manager_8c_ac85ffac15e6947e9fb5acf752fba7207}{L\+E\+N\+\_\+\+A\+R\+R\+AY}(\hyperlink{irqtestperipheral_8c_a7b19da922c8e92d1fc4e69ba9050c7e6}{\+\_\+values\+\_\+bool}))
+\item 
+\#define \hyperlink{irqtestperipheral_8c_a4dd6c593e20015ba9025dbe37f8f94a2}{I\+R\+Q1\+\_\+\+C\+L\+E\+AR}~0x201C
+\item 
+\#define \hyperlink{irqtestperipheral_8c_ac4578ab4bc743e3ec3bcbec63cfd60df}{I\+R\+Q2\+\_\+\+C\+L\+E\+AR}~0x202C
+\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{irqtestperipheral_8c_ab6b306ef981f5e21bb41ea2c2dbe8cd9}{flags} \{ \\*
+\hyperlink{irqtestperipheral_8c_ab6b306ef981f5e21bb41ea2c2dbe8cd9a0a09fd9d2fea0ac766896b4cb3e96803}{I\+R\+Q\+T\+\_\+\+Q\+U\+E\+U\+E\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED}, 
+\hyperlink{irqtestperipheral_8c_ab6b306ef981f5e21bb41ea2c2dbe8cd9a233cfd37e793f2693b9c42cd7cb3cd0a}{I\+R\+Q\+T\+\_\+\+F\+I\+F\+O\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED}, 
+\hyperlink{irqtestperipheral_8c_ab6b306ef981f5e21bb41ea2c2dbe8cd9aba03d680731db9d7d4c71411e5b9d417}{I\+R\+Q\+T\+\_\+\+S\+E\+M\+A\+R\+R\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED}, 
+\hyperlink{irqtestperipheral_8c_ab6b306ef981f5e21bb41ea2c2dbe8cd9aa1208dd5c4755e40f3d93161f3eaf52e}{I\+R\+Q\+T\+\_\+\+V\+A\+L\+F\+L\+A\+G\+S\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED}, 
+\\*
+\hyperlink{irqtestperipheral_8c_ab6b306ef981f5e21bb41ea2c2dbe8cd9a48a03cb0b3da425f8d3a80891524cf83}{\+\_\+\+I\+R\+Q\+T\+\_\+\+N\+U\+M\+\_\+\+F\+L\+A\+GS}
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \hyperlink{irqtestperipheral_8h_a6354e3cbd47a9004937a59f50ede5080}{irqt\+\_\+val\+\_\+type\+\_\+t} \hyperlink{irqtestperipheral_8c_a15420b03ab67124ddc6d1b4f63f32309}{id\+\_\+2\+\_\+type} (\hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5}{irqt\+\_\+val\+\_\+id\+\_\+t} id)
+\item 
+static \hyperlink{irqtestperipheral_8h_a6354e3cbd47a9004937a59f50ede5080}{irqt\+\_\+val\+\_\+type\+\_\+t} \hyperlink{irqtestperipheral_8c_aacd45cbca76d5cb252b111e2e064a3e0}{id\+\_\+2\+\_\+type\+\_\+fast} (\hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5}{irqt\+\_\+val\+\_\+id\+\_\+t} id)
+\item 
+static int \hyperlink{irqtestperipheral_8c_a3205d750d033a40f72392b0d638b9070}{id\+\_\+2\+\_\+index} (\hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5}{irqt\+\_\+val\+\_\+id\+\_\+t} id)
+\item 
+static int \hyperlink{irqtestperipheral_8c_aae36b616bf3ffc8134b83f3e168bdf0e}{id\+\_\+2\+\_\+index\+\_\+fast} (\hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5}{irqt\+\_\+val\+\_\+id\+\_\+t} id, \hyperlink{irqtestperipheral_8h_a6354e3cbd47a9004937a59f50ede5080}{irqt\+\_\+val\+\_\+type\+\_\+t} type)
+\item 
+static \hyperlink{irqtestperipheral_8h_a53f93f474fe7c9fa2072c6e9cea3d6ef}{irqt\+\_\+irq\+\_\+id\+\_\+t} \hyperlink{irqtestperipheral_8c_abda9b87261994cc7417d4db872faa8f2}{\+\_\+get\+\_\+irq\+\_\+id} ()
+\item 
+static bool \hyperlink{irqtestperipheral_8c_a4f458d7df910b1501b2afc15c685dfe2}{test\+\_\+flag} (struct device $\ast$dev, int drv\+\_\+flag)
+\item 
+static bool \hyperlink{irqtestperipheral_8c_a023df633a0cf154035fced51999c3f66}{test\+\_\+any\+\_\+send\+\_\+flag} (struct device $\ast$dev)
+\begin{DoxyCompactList}\small\item\em Test whether any flags for event sending are set. This excludes valflags, as they don\textquotesingle{}t issue events. \end{DoxyCompactList}\item 
+static void \hyperlink{irqtestperipheral_8c_ab157fe508c290d5e05fc878db1c936f0}{irqtester\+\_\+fe310\+\_\+irq\+\_\+handler} (void $\ast$arg)
+\item 
+static void \hyperlink{irqtestperipheral_8c_aea8fe973b67fd1364c333f4ba595b6db}{send\+\_\+event\+\_\+rx} (struct device $\ast$dev, struct \hyperlink{struct_drv_event}{Drv\+Event} $\ast$evt)
+\item 
+static void \hyperlink{irqtestperipheral_8c_a95991437cd831bd6ad077bc6382059ee}{flag\+\_\+event\+\_\+rx} (struct device $\ast$dev, struct \hyperlink{struct_drv_event}{Drv\+Event} $\ast$evt)
+\begin{DoxyCompactList}\small\item\em Sets the (atomic) flag to indicate to higher level applications that event occured. \end{DoxyCompactList}\item 
+static void \hyperlink{irqtestperipheral_8c_a8b6a6dc9fd115e8c6346549531d43199}{\+\_\+irq\+\_\+gen\+\_\+handler} (void)
+\begin{DoxyCompactList}\small\item\em Default I\+SR set up in driver init. Serves all I\+R\+Qs of irqtester. \end{DoxyCompactList}\item 
+int \hyperlink{irqtestperipheral_8c_a1d2af0fa1a30580646c700e462bf063f}{irqtester\+\_\+fe310\+\_\+reset\+\_\+hw} (struct device $\ast$dev)
+\begin{DoxyCompactList}\small\item\em Reset all hw regs but \textquotesingle{}enable\textquotesingle{} to 0. Doesn\textquotesingle{}t reset internal and output regs! \end{DoxyCompactList}\item 
+int \hyperlink{irqtestperipheral_8c_a46f10c3e9b63404c15f52ab375a28977}{irqtester\+\_\+fe310\+\_\+get\+\_\+val} (\hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5}{irqt\+\_\+val\+\_\+id\+\_\+t} id, void $\ast$res\+\_\+value)
+\begin{DoxyCompactList}\small\item\em Thread safe generic (by id) getter for values of generic type from driver memory pools. \end{DoxyCompactList}\item 
+int \hyperlink{irqtestperipheral_8c_a4e987f34af28aea872408b2412339ad7}{irqtester\+\_\+fe310\+\_\+get\+\_\+val\+\_\+uint} (\hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5}{irqt\+\_\+val\+\_\+id\+\_\+t} id, void $\ast$res\+\_\+value)
+\begin{DoxyCompactList}\small\item\em Thread safe generic (by id) getter for values of uint type from driver memory pools. \end{DoxyCompactList}\item 
+u32\+\_\+t \hyperlink{irqtestperipheral_8c_a2033394f5344ffe1c16f65be91851217}{irqtester\+\_\+fe310\+\_\+get\+\_\+val\+\_\+uint\+\_\+raw} (\hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5}{irqt\+\_\+val\+\_\+id\+\_\+t} id)
+\begin{DoxyCompactList}\small\item\em Thread safe generic (by id) getter for values of uint type from driver memory pools. For perforamnce reasons, use return value instread a passed container for result. \end{DoxyCompactList}\item 
+int \hyperlink{irqtestperipheral_8c_a1356feef1a2dbd5af9d5f6c19e2d86a6}{irqtester\+\_\+fe310\+\_\+set\+\_\+reg\+\_\+fast} (struct device $\ast$dev, \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5}{irqt\+\_\+val\+\_\+id\+\_\+t} id, void $\ast$set\+\_\+val)
+\begin{DoxyCompactList}\small\item\em Non-\/\+Thread safe, generic setter for device registers. Only works for regs which have a driver mem pool entry. \end{DoxyCompactList}\item 
+int \hyperlink{irqtestperipheral_8c_ace3058eeacfe748758334352a992716e}{irqtester\+\_\+fe310\+\_\+set\+\_\+reg\+\_\+uint\+\_\+fast} (struct device $\ast$dev, \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5}{irqt\+\_\+val\+\_\+id\+\_\+t} id, void $\ast$set\+\_\+val)
+\begin{DoxyCompactList}\small\item\em Thread un-\/safe generic (by id) setter for hw regs of uint type. \end{DoxyCompactList}\item 
+int \hyperlink{irqtestperipheral_8c_a508afd9a858251ac9dbd15fba94e4301}{irqtester\+\_\+fe310\+\_\+set\+\_\+reg} (struct device $\ast$dev, \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5}{irqt\+\_\+val\+\_\+id\+\_\+t} id, void $\ast$set\+\_\+val)
+\begin{DoxyCompactList}\small\item\em Thread safe, generic setter for device registers. Only works for regs which have a driver mem pool entry. \end{DoxyCompactList}\item 
+int \hyperlink{irqtestperipheral_8c_a987670a27b50999e651f384e6b04e582}{irqtester\+\_\+fe310\+\_\+get\+\_\+reg} (struct device $\ast$dev, \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5}{irqt\+\_\+val\+\_\+id\+\_\+t} id, void $\ast$res\+\_\+val)
+\begin{DoxyCompactList}\small\item\em Non-\/thread safe, generic getter for device (output) registers. Only works for regs which are loaded to driver mem pools. \end{DoxyCompactList}\item 
+bool \hyperlink{irqtestperipheral_8c_ae593bcc753fee4064e23b3e290e5f27d}{irqtester\+\_\+fe310\+\_\+test\+\_\+valflag} (struct device $\ast$dev, \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5}{irqt\+\_\+val\+\_\+id\+\_\+t} id)
+\begin{DoxyCompactList}\small\item\em Test whether a value was flagged ready to get\+\_\+val() from driver memory. \end{DoxyCompactList}\item 
+void \hyperlink{irqtestperipheral_8c_a997c5939bc6f47d246540c69ff49733d}{irqtester\+\_\+fe310\+\_\+clear\+\_\+all\+\_\+valflags} (struct device $\ast$dev)
+\begin{DoxyCompactList}\small\item\em Clear all flags. \end{DoxyCompactList}\item 
+int \hyperlink{irqtestperipheral_8c_a8b03f7c9aff5996a16845f0e2d1e6937}{irqtester\+\_\+fe310\+\_\+register\+\_\+queue\+\_\+rx} (struct device $\ast$dev, struct k\+\_\+msgq $\ast$queue)
+\begin{DoxyCompactList}\small\item\em Provide a handle to a queue to receive msgs from the driver there. \end{DoxyCompactList}\item 
+int \hyperlink{irqtestperipheral_8c_ace3a40543bbebb04e1324fbfa9f60275}{irqtester\+\_\+fe310\+\_\+register\+\_\+fifo\+\_\+rx} (struct device $\ast$dev, struct k\+\_\+fifo $\ast$queue)
+\begin{DoxyCompactList}\small\item\em Provide a handle to a fifo to receive msgs from the driver there. \end{DoxyCompactList}\item 
+int \hyperlink{irqtestperipheral_8c_ae82ab1a2ea6ec7bd8f6b43530d1419a5}{irqtester\+\_\+fe310\+\_\+register\+\_\+sem\+\_\+arr\+\_\+rx} (struct device $\ast$dev, struct k\+\_\+sem $\ast$sem, struct \hyperlink{struct_drv_event}{Drv\+Event} evt\+\_\+arr\mbox{[}$\,$\mbox{]}, int len)
+\begin{DoxyCompactList}\small\item\em Provide a handle to a semaphore and an even array to receive msgs from the driver there. \end{DoxyCompactList}\item 
+int \hyperlink{irqtestperipheral_8c_a9c8c75c9c4603bdccd5bdcf3038d3c49}{irqtester\+\_\+fe310\+\_\+enable\+\_\+queue\+\_\+rx} (struct device $\ast$dev)
+\begin{DoxyCompactList}\small\item\em Enable previously registered queue\+\_\+rx for sending driver events to. \end{DoxyCompactList}\item 
+int \hyperlink{irqtestperipheral_8c_aff89ef81c09b5a1c7631fc236b671e7d}{irqtester\+\_\+fe310\+\_\+enable\+\_\+fifo\+\_\+rx} (struct device $\ast$dev)
+\begin{DoxyCompactList}\small\item\em Enable previously registered fifo\+\_\+rx for sending driver events to. \end{DoxyCompactList}\item 
+int \hyperlink{irqtestperipheral_8c_acc15d23902deee0d82e20e237a526275}{irqtester\+\_\+fe310\+\_\+enable\+\_\+sem\+\_\+arr\+\_\+rx} (struct device $\ast$dev)
+\begin{DoxyCompactList}\small\item\em Enable previously registered semaphore plus event array for sending driver events to. \end{DoxyCompactList}\item 
+int \hyperlink{irqtestperipheral_8c_ace5f0827eb25f735e652ab09f4cbe3b2}{irqtester\+\_\+fe310\+\_\+enable\+\_\+valflags\+\_\+rx} (struct device $\ast$dev)
+\begin{DoxyCompactList}\small\item\em Enables flags for indicating load of harware values to driver memory. \end{DoxyCompactList}\item 
+int \hyperlink{irqtestperipheral_8c_a254eae890ba510e5e473a046407ba618}{irqtester\+\_\+fe310\+\_\+receive\+\_\+evt\+\_\+from\+\_\+arr} (struct device $\ast$dev, struct \hyperlink{struct_drv_event}{Drv\+Event} $\ast$res, s32\+\_\+t timeout)
+\begin{DoxyCompactList}\small\item\em If using semaphore plus event array, call this to wait and receive an event. \end{DoxyCompactList}\item 
+int \hyperlink{irqtestperipheral_8c_ab47c9b38275ed5cb45931e907725dc06}{irqtester\+\_\+fe310\+\_\+purge\+\_\+rx} (struct device $\ast$dev)
+\begin{DoxyCompactList}\small\item\em Reset all objects related to receiving data from this driver. \end{DoxyCompactList}\item 
+void \hyperlink{irqtestperipheral_8c_ae5817f51846271d1228fa02cc0e1726e}{irqtester\+\_\+fe310\+\_\+dbgprint\+\_\+event} (struct device $\ast$dev, struct \hyperlink{struct_drv_event}{Drv\+Event} $\ast$evt)
+\begin{DoxyCompactList}\small\item\em Print information about an event as a debug log message. \end{DoxyCompactList}\item 
+int \hyperlink{irqtestperipheral_8c_ac1e81dcf0faf4348a6121675f46553ff}{irqtester\+\_\+fe310\+\_\+fire} (struct device $\ast$dev)
+\item 
+void \hyperlink{irqtestperipheral_8c_a0bd81b8a8b0a9eb85658ffcfe6c0a7e5}{irqtester\+\_\+fe310\+\_\+fire\+\_\+1} (struct device $\ast$dev)
+\begin{DoxyCompactList}\small\item\em Need to set regs num\+\_\+rep\+\_\+1 and period\+\_\+1 first. \end{DoxyCompactList}\item 
+int \hyperlink{irqtestperipheral_8c_a3f0daddddbc00ed4d3195cd85ba1acae}{irqtester\+\_\+fe310\+\_\+fire\+\_\+2} (struct device $\ast$dev)
+\begin{DoxyCompactList}\small\item\em Need to set regs num\+\_\+rep\+\_\+2 and period\+\_\+2 first. \end{DoxyCompactList}\item 
+void \hyperlink{irqtestperipheral_8c_a260bbaa36d21fbbf0441d4d15fe1a5e0}{irqtester\+\_\+fe310\+\_\+clear\+\_\+1} (struct device $\ast$dev)
+\item 
+void \hyperlink{irqtestperipheral_8c_ac28383949304b588aecac37c6d6ea538}{irqtester\+\_\+fe310\+\_\+clear\+\_\+2} (struct device $\ast$dev)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static struct \hyperlink{struct_drv_value__uint}{Drv\+Value\+\_\+uint} \hyperlink{irqtestperipheral_8c_a425ae3473e646745e0d280c10af20d7f}{\+\_\+values\+\_\+uint} \mbox{[}$\,$\mbox{]}
+\item 
+static struct \hyperlink{struct_drv_value__int}{Drv\+Value\+\_\+int} \hyperlink{irqtestperipheral_8c_a23fe4b9972f3fd20c5606617960f5230}{\+\_\+values\+\_\+int} \mbox{[}$\,$\mbox{]}
+\item 
+static struct \hyperlink{struct_drv_value__bool}{Drv\+Value\+\_\+bool} \hyperlink{irqtestperipheral_8c_a7b19da922c8e92d1fc4e69ba9050c7e6}{\+\_\+values\+\_\+bool} \mbox{[}$\,$\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Driver for Irq\+Test\+Peripheral hw revision 3. Singleton, only register one instance with kernel! 
+
+\subsection{Macro Definition Documentation}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!C\+O\+N\+F\+I\+G\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+\+F\+E310\+\_\+0\+\_\+\+P\+R\+I\+O\+R\+I\+TY@{C\+O\+N\+F\+I\+G\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+\+F\+E310\+\_\+0\+\_\+\+P\+R\+I\+O\+R\+I\+TY}}
+\index{C\+O\+N\+F\+I\+G\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+\+F\+E310\+\_\+0\+\_\+\+P\+R\+I\+O\+R\+I\+TY@{C\+O\+N\+F\+I\+G\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+\+F\+E310\+\_\+0\+\_\+\+P\+R\+I\+O\+R\+I\+TY}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{C\+O\+N\+F\+I\+G\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+\+F\+E310\+\_\+0\+\_\+\+P\+R\+I\+O\+R\+I\+TY}{CONFIG_IRQTESTER_FE310_0_PRIORITY}}]{\setlength{\rightskip}{0pt plus 5cm}\#define C\+O\+N\+F\+I\+G\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+\+F\+E310\+\_\+0\+\_\+\+P\+R\+I\+O\+R\+I\+TY~F\+E310\+\_\+\+P\+L\+I\+C\+\_\+\+M\+A\+X\+\_\+\+P\+R\+I\+O\+R\+I\+TY}\hypertarget{irqtestperipheral_8c_a533d9fd4806fede95f0776295c8b7bfc}{}\label{irqtestperipheral_8c_a533d9fd4806fede95f0776295c8b7bfc}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!D\+EV@{D\+EV}}
+\index{D\+EV@{D\+EV}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{D\+EV}{DEV}}]{\setlength{\rightskip}{0pt plus 5cm}\#define D\+EV(
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)~irqtester\+\_\+fe310\+\_\+data0.\+\_\+drv\+\_\+handle}\hypertarget{irqtestperipheral_8c_a01901b6f13f37b6c03cd37a0e75eadd4}{}\label{irqtestperipheral_8c_a01901b6f13f37b6c03cd37a0e75eadd4}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!D\+E\+V\+\_\+\+C\+FG@{D\+E\+V\+\_\+\+C\+FG}}
+\index{D\+E\+V\+\_\+\+C\+FG@{D\+E\+V\+\_\+\+C\+FG}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{D\+E\+V\+\_\+\+C\+FG}{DEV_CFG}}]{\setlength{\rightskip}{0pt plus 5cm}\#define D\+E\+V\+\_\+\+C\+FG(
+\begin{DoxyParamCaption}
+\item[{}]{dev}
+\end{DoxyParamCaption}
+)~((const struct irqtester\+\_\+fe310\+\_\+config $\ast$ const)(dev)-\/$>$config-\/$>$config\+\_\+info)}\hypertarget{irqtestperipheral_8c_ab5c3864067257693d9bef98c3fe8fc2b}{}\label{irqtestperipheral_8c_ab5c3864067257693d9bef98c3fe8fc2b}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!D\+E\+V\+\_\+\+D\+A\+TA@{D\+E\+V\+\_\+\+D\+A\+TA}}
+\index{D\+E\+V\+\_\+\+D\+A\+TA@{D\+E\+V\+\_\+\+D\+A\+TA}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{D\+E\+V\+\_\+\+D\+A\+TA}{DEV_DATA}}]{\setlength{\rightskip}{0pt plus 5cm}\#define D\+E\+V\+\_\+\+D\+A\+TA(
+\begin{DoxyParamCaption}
+\item[{}]{dev}
+\end{DoxyParamCaption}
+)~((struct irqtester\+\_\+fe310\+\_\+data $\ast$)(dev)-\/$>$driver\+\_\+data)}\hypertarget{irqtestperipheral_8c_aa90b045b0cf3a7fe70c69ba16eb135cc}{}\label{irqtestperipheral_8c_aa90b045b0cf3a7fe70c69ba16eb135cc}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+0@{D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+0}}
+\index{D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+0@{D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+0}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+0}{DEV_REGS_0}}]{\setlength{\rightskip}{0pt plus 5cm}\#define D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+0(
+\begin{DoxyParamCaption}
+\item[{}]{dev}
+\end{DoxyParamCaption}
+)~((volatile struct irqtester\+\_\+fe310\+\_\+0\+\_\+t $\ast$)({\bf D\+E\+V\+\_\+\+C\+FG}(dev))-\/$>$irqtester\+\_\+base\+\_\+addr\mbox{[}0\mbox{]})}\hypertarget{irqtestperipheral_8c_ad5e999d5c89dc4c9a66ac43626f9c5d5}{}\label{irqtestperipheral_8c_ad5e999d5c89dc4c9a66ac43626f9c5d5}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+1@{D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+1}}
+\index{D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+1@{D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+1}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+1}{DEV_REGS_1}}]{\setlength{\rightskip}{0pt plus 5cm}\#define D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+1(
+\begin{DoxyParamCaption}
+\item[{}]{dev}
+\end{DoxyParamCaption}
+)~((volatile struct irqtester\+\_\+fe310\+\_\+1\+\_\+t $\ast$)({\bf D\+E\+V\+\_\+\+C\+FG}(dev))-\/$>$irqtester\+\_\+base\+\_\+addr\mbox{[}1\mbox{]})}\hypertarget{irqtestperipheral_8c_a26f3776ec680c056ccb1377773d84acf}{}\label{irqtestperipheral_8c_a26f3776ec680c056ccb1377773d84acf}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+2@{D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+2}}
+\index{D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+2@{D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+2}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+2}{DEV_REGS_2}}]{\setlength{\rightskip}{0pt plus 5cm}\#define D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+2(
+\begin{DoxyParamCaption}
+\item[{}]{dev}
+\end{DoxyParamCaption}
+)~((volatile struct irqtester\+\_\+fe310\+\_\+2\+\_\+t $\ast$)({\bf D\+E\+V\+\_\+\+C\+FG}(dev))-\/$>$irqtester\+\_\+base\+\_\+addr\mbox{[}2\mbox{]})}\hypertarget{irqtestperipheral_8c_a745df4fe3648b54e304b8588aba922e8}{}\label{irqtestperipheral_8c_a745df4fe3648b54e304b8588aba922e8}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+3@{D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+3}}
+\index{D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+3@{D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+3}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+3}{DEV_REGS_3}}]{\setlength{\rightskip}{0pt plus 5cm}\#define D\+E\+V\+\_\+\+R\+E\+G\+S\+\_\+3(
+\begin{DoxyParamCaption}
+\item[{}]{dev}
+\end{DoxyParamCaption}
+)~((volatile struct irqtester\+\_\+fe310\+\_\+3\+\_\+t $\ast$)({\bf D\+E\+V\+\_\+\+C\+FG}(dev))-\/$>$irqtester\+\_\+base\+\_\+addr\mbox{[}3\mbox{]})}\hypertarget{irqtestperipheral_8c_af181f6a8bfa50e654f744031f5111a6c}{}\label{irqtestperipheral_8c_af181f6a8bfa50e654f744031f5111a6c}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+0\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR@{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+0\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR}}
+\index{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+0\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR@{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+0\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+0\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR}{FE310_IRQTESTER_0_DSP_0_BASE_ADDR}}]{\setlength{\rightskip}{0pt plus 5cm}\#define F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+0\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR~0x2000}\hypertarget{irqtestperipheral_8c_aed4e1df2d3b72d111dbc36ebe9f1a051}{}\label{irqtestperipheral_8c_aed4e1df2d3b72d111dbc36ebe9f1a051}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+0\+\_\+\+S\+T\+A\+T\+U\+S\+\_\+\+B\+L\+O\+C\+K\+ED@{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+0\+\_\+\+S\+T\+A\+T\+U\+S\+\_\+\+B\+L\+O\+C\+K\+ED}}
+\index{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+0\+\_\+\+S\+T\+A\+T\+U\+S\+\_\+\+B\+L\+O\+C\+K\+ED@{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+0\+\_\+\+S\+T\+A\+T\+U\+S\+\_\+\+B\+L\+O\+C\+K\+ED}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+0\+\_\+\+S\+T\+A\+T\+U\+S\+\_\+\+B\+L\+O\+C\+K\+ED}{FE310_IRQTESTER_0_DSP_0_STATUS_BLOCKED}}]{\setlength{\rightskip}{0pt plus 5cm}\#define F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+0\+\_\+\+S\+T\+A\+T\+U\+S\+\_\+\+B\+L\+O\+C\+K\+ED~2}\hypertarget{irqtestperipheral_8c_aac3f21e92bb84a33fb3512aa09c96a8f}{}\label{irqtestperipheral_8c_aac3f21e92bb84a33fb3512aa09c96a8f}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+1\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR@{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+1\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR}}
+\index{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+1\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR@{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+1\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+1\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR}{FE310_IRQTESTER_0_DSP_1_BASE_ADDR}}]{\setlength{\rightskip}{0pt plus 5cm}\#define F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+1\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR~0x2010}\hypertarget{irqtestperipheral_8c_a0046372ce9a45a3e7584dca75eccf0b0}{}\label{irqtestperipheral_8c_a0046372ce9a45a3e7584dca75eccf0b0}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+2\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR@{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+2\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR}}
+\index{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+2\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR@{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+2\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+2\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR}{FE310_IRQTESTER_0_DSP_2_BASE_ADDR}}]{\setlength{\rightskip}{0pt plus 5cm}\#define F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+2\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR~0x2020}\hypertarget{irqtestperipheral_8c_aa4ad37e77a217e2fe72bbee0c6cd7a0f}{}\label{irqtestperipheral_8c_aa4ad37e77a217e2fe72bbee0c6cd7a0f}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+3\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR@{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+3\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR}}
+\index{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+3\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR@{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+3\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+3\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR}{FE310_IRQTESTER_0_DSP_3_BASE_ADDR}}]{\setlength{\rightskip}{0pt plus 5cm}\#define F\+E310\+\_\+\+I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+0\+\_\+\+D\+S\+P\+\_\+3\+\_\+\+B\+A\+S\+E\+\_\+\+A\+D\+DR~0x2030}\hypertarget{irqtestperipheral_8c_a7330739b08f329f98d123eb0b39fcffd}{}\label{irqtestperipheral_8c_a7330739b08f329f98d123eb0b39fcffd}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!I\+R\+Q1\+\_\+\+C\+L\+E\+AR@{I\+R\+Q1\+\_\+\+C\+L\+E\+AR}}
+\index{I\+R\+Q1\+\_\+\+C\+L\+E\+AR@{I\+R\+Q1\+\_\+\+C\+L\+E\+AR}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{I\+R\+Q1\+\_\+\+C\+L\+E\+AR}{IRQ1_CLEAR}}]{\setlength{\rightskip}{0pt plus 5cm}\#define I\+R\+Q1\+\_\+\+C\+L\+E\+AR~0x201C}\hypertarget{irqtestperipheral_8c_a4dd6c593e20015ba9025dbe37f8f94a2}{}\label{irqtestperipheral_8c_a4dd6c593e20015ba9025dbe37f8f94a2}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!I\+R\+Q2\+\_\+\+C\+L\+E\+AR@{I\+R\+Q2\+\_\+\+C\+L\+E\+AR}}
+\index{I\+R\+Q2\+\_\+\+C\+L\+E\+AR@{I\+R\+Q2\+\_\+\+C\+L\+E\+AR}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{I\+R\+Q2\+\_\+\+C\+L\+E\+AR}{IRQ2_CLEAR}}]{\setlength{\rightskip}{0pt plus 5cm}\#define I\+R\+Q2\+\_\+\+C\+L\+E\+AR~0x202C}\hypertarget{irqtestperipheral_8c_ac4578ab4bc743e3ec3bcbec63cfd60df}{}\label{irqtestperipheral_8c_ac4578ab4bc743e3ec3bcbec63cfd60df}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!I\+R\+Q\+T\+\_\+0\+\_\+\+I\+R\+Q\+\_\+0@{I\+R\+Q\+T\+\_\+0\+\_\+\+I\+R\+Q\+\_\+0}}
+\index{I\+R\+Q\+T\+\_\+0\+\_\+\+I\+R\+Q\+\_\+0@{I\+R\+Q\+T\+\_\+0\+\_\+\+I\+R\+Q\+\_\+0}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{I\+R\+Q\+T\+\_\+0\+\_\+\+I\+R\+Q\+\_\+0}{IRQT_0_IRQ_0}}]{\setlength{\rightskip}{0pt plus 5cm}\#define I\+R\+Q\+T\+\_\+0\+\_\+\+I\+R\+Q\+\_\+0~(R\+I\+S\+C\+V\+\_\+\+M\+A\+X\+\_\+\+G\+E\+N\+E\+R\+I\+C\+\_\+\+I\+RQ + {\bf I\+R\+Q\+T\+\_\+\+I\+R\+Q\+\_\+0\+\_\+\+P\+IN})}\hypertarget{irqtestperipheral_8c_ae7640b78e59842b45e5b9707d6d05cd9}{}\label{irqtestperipheral_8c_ae7640b78e59842b45e5b9707d6d05cd9}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!I\+R\+Q\+T\+\_\+0\+\_\+\+I\+R\+Q\+\_\+1@{I\+R\+Q\+T\+\_\+0\+\_\+\+I\+R\+Q\+\_\+1}}
+\index{I\+R\+Q\+T\+\_\+0\+\_\+\+I\+R\+Q\+\_\+1@{I\+R\+Q\+T\+\_\+0\+\_\+\+I\+R\+Q\+\_\+1}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{I\+R\+Q\+T\+\_\+0\+\_\+\+I\+R\+Q\+\_\+1}{IRQT_0_IRQ_1}}]{\setlength{\rightskip}{0pt plus 5cm}\#define I\+R\+Q\+T\+\_\+0\+\_\+\+I\+R\+Q\+\_\+1~(R\+I\+S\+C\+V\+\_\+\+M\+A\+X\+\_\+\+G\+E\+N\+E\+R\+I\+C\+\_\+\+I\+RQ + {\bf I\+R\+Q\+T\+\_\+\+I\+R\+Q\+\_\+0\+\_\+\+P\+IN} + 1)}\hypertarget{irqtestperipheral_8c_a2c8e712612ca973426dc8fe11391be05}{}\label{irqtestperipheral_8c_a2c8e712612ca973426dc8fe11391be05}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!I\+R\+Q\+T\+\_\+0\+\_\+\+I\+R\+Q\+\_\+2@{I\+R\+Q\+T\+\_\+0\+\_\+\+I\+R\+Q\+\_\+2}}
+\index{I\+R\+Q\+T\+\_\+0\+\_\+\+I\+R\+Q\+\_\+2@{I\+R\+Q\+T\+\_\+0\+\_\+\+I\+R\+Q\+\_\+2}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{I\+R\+Q\+T\+\_\+0\+\_\+\+I\+R\+Q\+\_\+2}{IRQT_0_IRQ_2}}]{\setlength{\rightskip}{0pt plus 5cm}\#define I\+R\+Q\+T\+\_\+0\+\_\+\+I\+R\+Q\+\_\+2~(R\+I\+S\+C\+V\+\_\+\+M\+A\+X\+\_\+\+G\+E\+N\+E\+R\+I\+C\+\_\+\+I\+RQ + {\bf I\+R\+Q\+T\+\_\+\+I\+R\+Q\+\_\+0\+\_\+\+P\+IN} + 2)}\hypertarget{irqtestperipheral_8c_a09b6f19186ade569c46edbde504cbde6}{}\label{irqtestperipheral_8c_a09b6f19186ade569c46edbde504cbde6}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!I\+R\+Q\+T\+\_\+\+I\+R\+Q\+\_\+0\+\_\+\+P\+IN@{I\+R\+Q\+T\+\_\+\+I\+R\+Q\+\_\+0\+\_\+\+P\+IN}}
+\index{I\+R\+Q\+T\+\_\+\+I\+R\+Q\+\_\+0\+\_\+\+P\+IN@{I\+R\+Q\+T\+\_\+\+I\+R\+Q\+\_\+0\+\_\+\+P\+IN}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{I\+R\+Q\+T\+\_\+\+I\+R\+Q\+\_\+0\+\_\+\+P\+IN}{IRQT_IRQ_0_PIN}}]{\setlength{\rightskip}{0pt plus 5cm}\#define I\+R\+Q\+T\+\_\+\+I\+R\+Q\+\_\+0\+\_\+\+P\+IN~-\/1}\hypertarget{irqtestperipheral_8c_a618b1de4e1abb0efbf19ba5540d0aacc}{}\label{irqtestperipheral_8c_a618b1de4e1abb0efbf19ba5540d0aacc}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!L\+E\+N\+\_\+\+A\+R\+R\+AY@{L\+E\+N\+\_\+\+A\+R\+R\+AY}}
+\index{L\+E\+N\+\_\+\+A\+R\+R\+AY@{L\+E\+N\+\_\+\+A\+R\+R\+AY}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{L\+E\+N\+\_\+\+A\+R\+R\+AY}{LEN_ARRAY}}]{\setlength{\rightskip}{0pt plus 5cm}\#define L\+E\+N\+\_\+\+A\+R\+R\+AY(
+\begin{DoxyParamCaption}
+\item[{}]{x}
+\end{DoxyParamCaption}
+)~((sizeof(x)/sizeof(0\mbox{[}x\mbox{]})) / ((size\+\_\+t)(!(sizeof(x) \% sizeof(0\mbox{[}x\mbox{]})))))}\hypertarget{irqtestperipheral_8c_ac85ffac15e6947e9fb5acf752fba7207}{}\label{irqtestperipheral_8c_ac85ffac15e6947e9fb5acf752fba7207}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!N\+U\+M\+\_\+\+V\+A\+LS@{N\+U\+M\+\_\+\+V\+A\+LS}}
+\index{N\+U\+M\+\_\+\+V\+A\+LS@{N\+U\+M\+\_\+\+V\+A\+LS}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{N\+U\+M\+\_\+\+V\+A\+LS}{NUM_VALS}}]{\setlength{\rightskip}{0pt plus 5cm}\#define N\+U\+M\+\_\+\+V\+A\+LS(
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)~({\bf L\+E\+N\+\_\+\+A\+R\+R\+AY}({\bf \+\_\+values\+\_\+uint}) + {\bf L\+E\+N\+\_\+\+A\+R\+R\+AY}({\bf \+\_\+values\+\_\+int}) +  {\bf L\+E\+N\+\_\+\+A\+R\+R\+AY}({\bf \+\_\+values\+\_\+bool}))}\hypertarget{irqtestperipheral_8c_a3172e049ce29531f493508355528ffab}{}\label{irqtestperipheral_8c_a3172e049ce29531f493508355528ffab}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN@{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN}}
+\index{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN@{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN}{SYS_LOG_DOMAIN}}]{\setlength{\rightskip}{0pt plus 5cm}\#define S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+D\+O\+M\+A\+IN~\char`\"{}Irq\+Test\+Peripheral\char`\"{}}\hypertarget{irqtestperipheral_8c_ac5b2cb2d6ae6b5526953a00f765a23e4}{}\label{irqtestperipheral_8c_ac5b2cb2d6ae6b5526953a00f765a23e4}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+EL@{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+EL}}
+\index{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+EL@{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+EL}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+EL}{SYS_LOG_LEVEL}}]{\setlength{\rightskip}{0pt plus 5cm}\#define S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+EL~S\+Y\+S\+\_\+\+L\+O\+G\+\_\+\+L\+E\+V\+E\+L\+\_\+\+D\+E\+B\+UG}\hypertarget{irqtestperipheral_8c_a7e98264d6527b989d179c54a96034c88}{}\label{irqtestperipheral_8c_a7e98264d6527b989d179c54a96034c88}
+
+
+\subsection{Enumeration Type Documentation}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!flags@{flags}}
+\index{flags@{flags}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{flags}{flags}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf flags}}\hypertarget{irqtestperipheral_8c_ab6b306ef981f5e21bb41ea2c2dbe8cd9}{}\label{irqtestperipheral_8c_ab6b306ef981f5e21bb41ea2c2dbe8cd9}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{I\+R\+Q\+T\+\_\+\+Q\+U\+E\+U\+E\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED@{I\+R\+Q\+T\+\_\+\+Q\+U\+E\+U\+E\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!I\+R\+Q\+T\+\_\+\+Q\+U\+E\+U\+E\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED@{I\+R\+Q\+T\+\_\+\+Q\+U\+E\+U\+E\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED}}\item[{\em 
+I\+R\+Q\+T\+\_\+\+Q\+U\+E\+U\+E\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED\hypertarget{irqtestperipheral_8c_ab6b306ef981f5e21bb41ea2c2dbe8cd9a0a09fd9d2fea0ac766896b4cb3e96803}{}\label{irqtestperipheral_8c_ab6b306ef981f5e21bb41ea2c2dbe8cd9a0a09fd9d2fea0ac766896b4cb3e96803}
+}]\index{I\+R\+Q\+T\+\_\+\+F\+I\+F\+O\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED@{I\+R\+Q\+T\+\_\+\+F\+I\+F\+O\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!I\+R\+Q\+T\+\_\+\+F\+I\+F\+O\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED@{I\+R\+Q\+T\+\_\+\+F\+I\+F\+O\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED}}\item[{\em 
+I\+R\+Q\+T\+\_\+\+F\+I\+F\+O\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED\hypertarget{irqtestperipheral_8c_ab6b306ef981f5e21bb41ea2c2dbe8cd9a233cfd37e793f2693b9c42cd7cb3cd0a}{}\label{irqtestperipheral_8c_ab6b306ef981f5e21bb41ea2c2dbe8cd9a233cfd37e793f2693b9c42cd7cb3cd0a}
+}]\index{I\+R\+Q\+T\+\_\+\+S\+E\+M\+A\+R\+R\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED@{I\+R\+Q\+T\+\_\+\+S\+E\+M\+A\+R\+R\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!I\+R\+Q\+T\+\_\+\+S\+E\+M\+A\+R\+R\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED@{I\+R\+Q\+T\+\_\+\+S\+E\+M\+A\+R\+R\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED}}\item[{\em 
+I\+R\+Q\+T\+\_\+\+S\+E\+M\+A\+R\+R\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED\hypertarget{irqtestperipheral_8c_ab6b306ef981f5e21bb41ea2c2dbe8cd9aba03d680731db9d7d4c71411e5b9d417}{}\label{irqtestperipheral_8c_ab6b306ef981f5e21bb41ea2c2dbe8cd9aba03d680731db9d7d4c71411e5b9d417}
+}]\index{I\+R\+Q\+T\+\_\+\+V\+A\+L\+F\+L\+A\+G\+S\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED@{I\+R\+Q\+T\+\_\+\+V\+A\+L\+F\+L\+A\+G\+S\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!I\+R\+Q\+T\+\_\+\+V\+A\+L\+F\+L\+A\+G\+S\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED@{I\+R\+Q\+T\+\_\+\+V\+A\+L\+F\+L\+A\+G\+S\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED}}\item[{\em 
+I\+R\+Q\+T\+\_\+\+V\+A\+L\+F\+L\+A\+G\+S\+\_\+\+R\+X\+\_\+\+E\+N\+A\+B\+L\+ED\hypertarget{irqtestperipheral_8c_ab6b306ef981f5e21bb41ea2c2dbe8cd9aa1208dd5c4755e40f3d93161f3eaf52e}{}\label{irqtestperipheral_8c_ab6b306ef981f5e21bb41ea2c2dbe8cd9aa1208dd5c4755e40f3d93161f3eaf52e}
+}]\index{\+\_\+\+I\+R\+Q\+T\+\_\+\+N\+U\+M\+\_\+\+F\+L\+A\+GS@{\+\_\+\+I\+R\+Q\+T\+\_\+\+N\+U\+M\+\_\+\+F\+L\+A\+GS}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!\+\_\+\+I\+R\+Q\+T\+\_\+\+N\+U\+M\+\_\+\+F\+L\+A\+GS@{\+\_\+\+I\+R\+Q\+T\+\_\+\+N\+U\+M\+\_\+\+F\+L\+A\+GS}}\item[{\em 
+\+\_\+\+I\+R\+Q\+T\+\_\+\+N\+U\+M\+\_\+\+F\+L\+A\+GS\hypertarget{irqtestperipheral_8c_ab6b306ef981f5e21bb41ea2c2dbe8cd9a48a03cb0b3da425f8d3a80891524cf83}{}\label{irqtestperipheral_8c_ab6b306ef981f5e21bb41ea2c2dbe8cd9a48a03cb0b3da425f8d3a80891524cf83}
+}]\end{description}
+\end{Desc}
+
+
+\subsection{Function Documentation}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!\+\_\+get\+\_\+irq\+\_\+id@{\+\_\+get\+\_\+irq\+\_\+id}}
+\index{\+\_\+get\+\_\+irq\+\_\+id@{\+\_\+get\+\_\+irq\+\_\+id}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{\+\_\+get\+\_\+irq\+\_\+id()}{_get_irq_id()}}]{\setlength{\rightskip}{0pt plus 5cm}static {\bf irqt\+\_\+irq\+\_\+id\+\_\+t} \+\_\+get\+\_\+irq\+\_\+id (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{irqtestperipheral_8c_abda9b87261994cc7417d4db872faa8f2}{}\label{irqtestperipheral_8c_abda9b87261994cc7417d4db872faa8f2}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!\+\_\+irq\+\_\+gen\+\_\+handler@{\+\_\+irq\+\_\+gen\+\_\+handler}}
+\index{\+\_\+irq\+\_\+gen\+\_\+handler@{\+\_\+irq\+\_\+gen\+\_\+handler}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{\+\_\+irq\+\_\+gen\+\_\+handler(void)}{_irq_gen_handler(void)}}]{\setlength{\rightskip}{0pt plus 5cm}static void \+\_\+irq\+\_\+gen\+\_\+handler (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{irqtestperipheral_8c_a8b6a6dc9fd115e8c6346549531d43199}{}\label{irqtestperipheral_8c_a8b6a6dc9fd115e8c6346549531d43199}
+
+
+Default I\+SR set up in driver init. Serves all I\+R\+Qs of irqtester. 
+
+Uses generic getters and conditional logic (potentially slow).
+
+Notes\+:
+\begin{DoxyItemize}
+\item Handling all D\+P\+Ss in one I\+SR is suboptimal and should be done only for testing purposes. Better\+: register seperate handlers for every I\+RQ.
+\item In zephyr all I\+S\+Rs have same priority by default. I\+SR can\textquotesingle{}t be preempted by other I\+SR. 
+\end{DoxyItemize}
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{irqtestperipheral_8c_a8b6a6dc9fd115e8c6346549531d43199_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!flag\+\_\+event\+\_\+rx@{flag\+\_\+event\+\_\+rx}}
+\index{flag\+\_\+event\+\_\+rx@{flag\+\_\+event\+\_\+rx}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{flag\+\_\+event\+\_\+rx(struct device $\ast$dev, struct Drv\+Event $\ast$evt)}{flag_event_rx(struct device *dev, struct DrvEvent *evt)}}]{\setlength{\rightskip}{0pt plus 5cm}static void flag\+\_\+event\+\_\+rx (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{struct {\bf Drv\+Event} $\ast$}]{evt}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{irqtestperipheral_8c_a95991437cd831bd6ad077bc6382059ee}{}\label{irqtestperipheral_8c_a95991437cd831bd6ad077bc6382059ee}
+
+
+Sets the (atomic) flag to indicate to higher level applications that event occured. 
+
+Differs from \hyperlink{irqtestperipheral_8c_aea8fe973b67fd1364c333f4ba595b6db}{send\+\_\+event\+\_\+rx()}. No usage of kernel object for synchronization (eg. queue, semaphore) 
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=245pt]{irqtestperipheral_8c_a95991437cd831bd6ad077bc6382059ee_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!id\+\_\+2\+\_\+index@{id\+\_\+2\+\_\+index}}
+\index{id\+\_\+2\+\_\+index@{id\+\_\+2\+\_\+index}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{id\+\_\+2\+\_\+index(irqt\+\_\+val\+\_\+id\+\_\+t id)}{id_2_index(irqt_val_id_t id)}}]{\setlength{\rightskip}{0pt plus 5cm}static int id\+\_\+2\+\_\+index (
+\begin{DoxyParamCaption}
+\item[{{\bf irqt\+\_\+val\+\_\+id\+\_\+t}}]{id}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{irqtestperipheral_8c_a3205d750d033a40f72392b0d638b9070}{}\label{irqtestperipheral_8c_a3205d750d033a40f72392b0d638b9070}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!id\+\_\+2\+\_\+index\+\_\+fast@{id\+\_\+2\+\_\+index\+\_\+fast}}
+\index{id\+\_\+2\+\_\+index\+\_\+fast@{id\+\_\+2\+\_\+index\+\_\+fast}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{id\+\_\+2\+\_\+index\+\_\+fast(irqt\+\_\+val\+\_\+id\+\_\+t id, irqt\+\_\+val\+\_\+type\+\_\+t type)}{id_2_index_fast(irqt_val_id_t id, irqt_val_type_t type)}}]{\setlength{\rightskip}{0pt plus 5cm}static int id\+\_\+2\+\_\+index\+\_\+fast (
+\begin{DoxyParamCaption}
+\item[{{\bf irqt\+\_\+val\+\_\+id\+\_\+t}}]{id, }
+\item[{{\bf irqt\+\_\+val\+\_\+type\+\_\+t}}]{type}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{irqtestperipheral_8c_aae36b616bf3ffc8134b83f3e168bdf0e}{}\label{irqtestperipheral_8c_aae36b616bf3ffc8134b83f3e168bdf0e}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!id\+\_\+2\+\_\+type@{id\+\_\+2\+\_\+type}}
+\index{id\+\_\+2\+\_\+type@{id\+\_\+2\+\_\+type}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{id\+\_\+2\+\_\+type(irqt\+\_\+val\+\_\+id\+\_\+t id)}{id_2_type(irqt_val_id_t id)}}]{\setlength{\rightskip}{0pt plus 5cm}static {\bf irqt\+\_\+val\+\_\+type\+\_\+t} id\+\_\+2\+\_\+type (
+\begin{DoxyParamCaption}
+\item[{{\bf irqt\+\_\+val\+\_\+id\+\_\+t}}]{id}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{irqtestperipheral_8c_a15420b03ab67124ddc6d1b4f63f32309}{}\label{irqtestperipheral_8c_a15420b03ab67124ddc6d1b4f63f32309}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!id\+\_\+2\+\_\+type\+\_\+fast@{id\+\_\+2\+\_\+type\+\_\+fast}}
+\index{id\+\_\+2\+\_\+type\+\_\+fast@{id\+\_\+2\+\_\+type\+\_\+fast}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{id\+\_\+2\+\_\+type\+\_\+fast(irqt\+\_\+val\+\_\+id\+\_\+t id)}{id_2_type_fast(irqt_val_id_t id)}}]{\setlength{\rightskip}{0pt plus 5cm}static {\bf irqt\+\_\+val\+\_\+type\+\_\+t} id\+\_\+2\+\_\+type\+\_\+fast (
+\begin{DoxyParamCaption}
+\item[{{\bf irqt\+\_\+val\+\_\+id\+\_\+t}}]{id}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{irqtestperipheral_8c_aacd45cbca76d5cb252b111e2e064a3e0}{}\label{irqtestperipheral_8c_aacd45cbca76d5cb252b111e2e064a3e0}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+clear\+\_\+1@{irqtester\+\_\+fe310\+\_\+clear\+\_\+1}}
+\index{irqtester\+\_\+fe310\+\_\+clear\+\_\+1@{irqtester\+\_\+fe310\+\_\+clear\+\_\+1}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+clear\+\_\+1(struct device $\ast$dev)}{irqtester_fe310_clear_1(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}void irqtester\+\_\+fe310\+\_\+clear\+\_\+1 (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_a260bbaa36d21fbbf0441d4d15fe1a5e0}{}\label{irqtestperipheral_8c_a260bbaa36d21fbbf0441d4d15fe1a5e0}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=317pt]{irqtestperipheral_8c_a260bbaa36d21fbbf0441d4d15fe1a5e0_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+clear\+\_\+2@{irqtester\+\_\+fe310\+\_\+clear\+\_\+2}}
+\index{irqtester\+\_\+fe310\+\_\+clear\+\_\+2@{irqtester\+\_\+fe310\+\_\+clear\+\_\+2}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+clear\+\_\+2(struct device $\ast$dev)}{irqtester_fe310_clear_2(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}void irqtester\+\_\+fe310\+\_\+clear\+\_\+2 (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_ac28383949304b588aecac37c6d6ea538}{}\label{irqtestperipheral_8c_ac28383949304b588aecac37c6d6ea538}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{irqtestperipheral_8c_ac28383949304b588aecac37c6d6ea538_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+clear\+\_\+all\+\_\+valflags@{irqtester\+\_\+fe310\+\_\+clear\+\_\+all\+\_\+valflags}}
+\index{irqtester\+\_\+fe310\+\_\+clear\+\_\+all\+\_\+valflags@{irqtester\+\_\+fe310\+\_\+clear\+\_\+all\+\_\+valflags}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+clear\+\_\+all\+\_\+valflags(struct device $\ast$dev)}{irqtester_fe310_clear_all_valflags(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}void irqtester\+\_\+fe310\+\_\+clear\+\_\+all\+\_\+valflags (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_a997c5939bc6f47d246540c69ff49733d}{}\label{irqtestperipheral_8c_a997c5939bc6f47d246540c69ff49733d}
+
+
+Clear all flags. 
+
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+dbgprint\+\_\+event@{irqtester\+\_\+fe310\+\_\+dbgprint\+\_\+event}}
+\index{irqtester\+\_\+fe310\+\_\+dbgprint\+\_\+event@{irqtester\+\_\+fe310\+\_\+dbgprint\+\_\+event}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+dbgprint\+\_\+event(struct device $\ast$dev, struct Drv\+Event $\ast$evt)}{irqtester_fe310_dbgprint_event(struct device *dev, struct DrvEvent *evt)}}]{\setlength{\rightskip}{0pt plus 5cm}void irqtester\+\_\+fe310\+\_\+dbgprint\+\_\+event (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{struct {\bf Drv\+Event} $\ast$}]{evt}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_ae5817f51846271d1228fa02cc0e1726e}{}\label{irqtestperipheral_8c_ae5817f51846271d1228fa02cc0e1726e}
+
+
+Print information about an event as a debug log message. 
+
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{irqtestperipheral_8c_ae5817f51846271d1228fa02cc0e1726e_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+enable\+\_\+fifo\+\_\+rx@{irqtester\+\_\+fe310\+\_\+enable\+\_\+fifo\+\_\+rx}}
+\index{irqtester\+\_\+fe310\+\_\+enable\+\_\+fifo\+\_\+rx@{irqtester\+\_\+fe310\+\_\+enable\+\_\+fifo\+\_\+rx}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+enable\+\_\+fifo\+\_\+rx(struct device $\ast$dev)}{irqtester_fe310_enable_fifo_rx(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}int irqtester\+\_\+fe310\+\_\+enable\+\_\+fifo\+\_\+rx (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_aff89ef81c09b5a1c7631fc236b671e7d}{}\label{irqtestperipheral_8c_aff89ef81c09b5a1c7631fc236b671e7d}
+
+
+Enable previously registered fifo\+\_\+rx for sending driver events to. 
+
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{irqtestperipheral_8c_aff89ef81c09b5a1c7631fc236b671e7d_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+enable\+\_\+queue\+\_\+rx@{irqtester\+\_\+fe310\+\_\+enable\+\_\+queue\+\_\+rx}}
+\index{irqtester\+\_\+fe310\+\_\+enable\+\_\+queue\+\_\+rx@{irqtester\+\_\+fe310\+\_\+enable\+\_\+queue\+\_\+rx}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+enable\+\_\+queue\+\_\+rx(struct device $\ast$dev)}{irqtester_fe310_enable_queue_rx(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}int irqtester\+\_\+fe310\+\_\+enable\+\_\+queue\+\_\+rx (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_a9c8c75c9c4603bdccd5bdcf3038d3c49}{}\label{irqtestperipheral_8c_a9c8c75c9c4603bdccd5bdcf3038d3c49}
+
+
+Enable previously registered queue\+\_\+rx for sending driver events to. 
+
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{irqtestperipheral_8c_a9c8c75c9c4603bdccd5bdcf3038d3c49_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+enable\+\_\+sem\+\_\+arr\+\_\+rx@{irqtester\+\_\+fe310\+\_\+enable\+\_\+sem\+\_\+arr\+\_\+rx}}
+\index{irqtester\+\_\+fe310\+\_\+enable\+\_\+sem\+\_\+arr\+\_\+rx@{irqtester\+\_\+fe310\+\_\+enable\+\_\+sem\+\_\+arr\+\_\+rx}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+enable\+\_\+sem\+\_\+arr\+\_\+rx(struct device $\ast$dev)}{irqtester_fe310_enable_sem_arr_rx(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}int irqtester\+\_\+fe310\+\_\+enable\+\_\+sem\+\_\+arr\+\_\+rx (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_acc15d23902deee0d82e20e237a526275}{}\label{irqtestperipheral_8c_acc15d23902deee0d82e20e237a526275}
+
+
+Enable previously registered semaphore plus event array for sending driver events to. 
+
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{irqtestperipheral_8c_acc15d23902deee0d82e20e237a526275_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+enable\+\_\+valflags\+\_\+rx@{irqtester\+\_\+fe310\+\_\+enable\+\_\+valflags\+\_\+rx}}
+\index{irqtester\+\_\+fe310\+\_\+enable\+\_\+valflags\+\_\+rx@{irqtester\+\_\+fe310\+\_\+enable\+\_\+valflags\+\_\+rx}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+enable\+\_\+valflags\+\_\+rx(struct device $\ast$dev)}{irqtester_fe310_enable_valflags_rx(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}int irqtester\+\_\+fe310\+\_\+enable\+\_\+valflags\+\_\+rx (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_ace5f0827eb25f735e652ab09f4cbe3b2}{}\label{irqtestperipheral_8c_ace5f0827eb25f735e652ab09f4cbe3b2}
+
+
+Enables flags for indicating load of harware values to driver memory. 
+
+Since they don\textquotesingle{}t issue events, valflags can be enabled in parallel to other sending flags which do issue events. \index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+fire@{irqtester\+\_\+fe310\+\_\+fire}}
+\index{irqtester\+\_\+fe310\+\_\+fire@{irqtester\+\_\+fe310\+\_\+fire}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+fire(struct device $\ast$dev)}{irqtester_fe310_fire(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}int irqtester\+\_\+fe310\+\_\+fire (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_ac1e81dcf0faf4348a6121675f46553ff}{}\label{irqtestperipheral_8c_ac1e81dcf0faf4348a6121675f46553ff}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+fire\+\_\+1@{irqtester\+\_\+fe310\+\_\+fire\+\_\+1}}
+\index{irqtester\+\_\+fe310\+\_\+fire\+\_\+1@{irqtester\+\_\+fe310\+\_\+fire\+\_\+1}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+fire\+\_\+1(struct device $\ast$dev)}{irqtester_fe310_fire_1(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}void irqtester\+\_\+fe310\+\_\+fire\+\_\+1 (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_a0bd81b8a8b0a9eb85658ffcfe6c0a7e5}{}\label{irqtestperipheral_8c_a0bd81b8a8b0a9eb85658ffcfe6c0a7e5}
+
+
+Need to set regs num\+\_\+rep\+\_\+1 and period\+\_\+1 first. 
+
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+fire\+\_\+2@{irqtester\+\_\+fe310\+\_\+fire\+\_\+2}}
+\index{irqtester\+\_\+fe310\+\_\+fire\+\_\+2@{irqtester\+\_\+fe310\+\_\+fire\+\_\+2}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+fire\+\_\+2(struct device $\ast$dev)}{irqtester_fe310_fire_2(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}int irqtester\+\_\+fe310\+\_\+fire\+\_\+2 (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_a3f0daddddbc00ed4d3195cd85ba1acae}{}\label{irqtestperipheral_8c_a3f0daddddbc00ed4d3195cd85ba1acae}
+
+
+Need to set regs num\+\_\+rep\+\_\+2 and period\+\_\+2 first. 
+
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+get\+\_\+reg@{irqtester\+\_\+fe310\+\_\+get\+\_\+reg}}
+\index{irqtester\+\_\+fe310\+\_\+get\+\_\+reg@{irqtester\+\_\+fe310\+\_\+get\+\_\+reg}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+get\+\_\+reg(struct device $\ast$dev, irqt\+\_\+val\+\_\+id\+\_\+t id, void $\ast$res\+\_\+val)}{irqtester_fe310_get_reg(struct device *dev, irqt_val_id_t id, void *res_val)}}]{\setlength{\rightskip}{0pt plus 5cm}int irqtester\+\_\+fe310\+\_\+get\+\_\+reg (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{{\bf irqt\+\_\+val\+\_\+id\+\_\+t}}]{id, }
+\item[{void $\ast$}]{res\+\_\+val}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_a987670a27b50999e651f384e6b04e582}{}\label{irqtestperipheral_8c_a987670a27b50999e651f384e6b04e582}
+
+
+Non-\/thread safe, generic getter for device (output) registers. Only works for regs which are loaded to driver mem pools. 
+
+Might be called from an I\+SR, but potentially slower than direct getters. For an reg to be available, \+\_\+store\+\_\+reg\+\_\+addr() has to be called in driver init. 
+\begin{DoxyParams}{Parameters}
+{\em id} & id of value to set \\
+\hline
+{\em set\+\_\+value} & pointer to a Drv\+Value\+\_\+X struct of correct type. \\
+\hline
+\end{DoxyParams}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=320pt]{irqtestperipheral_8c_a987670a27b50999e651f384e6b04e582_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+get\+\_\+val@{irqtester\+\_\+fe310\+\_\+get\+\_\+val}}
+\index{irqtester\+\_\+fe310\+\_\+get\+\_\+val@{irqtester\+\_\+fe310\+\_\+get\+\_\+val}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+get\+\_\+val(irqt\+\_\+val\+\_\+id\+\_\+t id, void $\ast$res\+\_\+value)}{irqtester_fe310_get_val(irqt_val_id_t id, void *res_value)}}]{\setlength{\rightskip}{0pt plus 5cm}int irqtester\+\_\+fe310\+\_\+get\+\_\+val (
+\begin{DoxyParamCaption}
+\item[{{\bf irqt\+\_\+val\+\_\+id\+\_\+t}}]{id, }
+\item[{void $\ast$}]{res\+\_\+value}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_a46f10c3e9b63404c15f52ab375a28977}{}\label{irqtestperipheral_8c_a46f10c3e9b63404c15f52ab375a28977}
+
+
+Thread safe generic (by id) getter for values of generic type from driver memory pools. 
+
+Doesn\textquotesingle{}t read from registers; an irq is needed to load regs into driver mem. 
+\begin{DoxyParams}{Parameters}
+{\em id} & id of value to get \\
+\hline
+{\em res\+\_\+value} & pointer to a Drv\+Value\+\_\+X struct of correct type. \\
+\hline
+{\em success} & 0, 1 on unknown val\+\_\+type\+\_\+id \\
+\hline
+\end{DoxyParams}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=319pt]{irqtestperipheral_8c_a46f10c3e9b63404c15f52ab375a28977_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+get\+\_\+val\+\_\+uint@{irqtester\+\_\+fe310\+\_\+get\+\_\+val\+\_\+uint}}
+\index{irqtester\+\_\+fe310\+\_\+get\+\_\+val\+\_\+uint@{irqtester\+\_\+fe310\+\_\+get\+\_\+val\+\_\+uint}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+get\+\_\+val\+\_\+uint(irqt\+\_\+val\+\_\+id\+\_\+t id, void $\ast$res\+\_\+value)}{irqtester_fe310_get_val_uint(irqt_val_id_t id, void *res_value)}}]{\setlength{\rightskip}{0pt plus 5cm}int irqtester\+\_\+fe310\+\_\+get\+\_\+val\+\_\+uint (
+\begin{DoxyParamCaption}
+\item[{{\bf irqt\+\_\+val\+\_\+id\+\_\+t}}]{id, }
+\item[{void $\ast$}]{res\+\_\+value}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_a4e987f34af28aea872408b2412339ad7}{}\label{irqtestperipheral_8c_a4e987f34af28aea872408b2412339ad7}
+
+
+Thread safe generic (by id) getter for values of uint type from driver memory pools. 
+
+Doesn\textquotesingle{}t read from registers; an irq is needed to load regs into driver mem.
+
+
+\begin{DoxyParams}{Parameters}
+{\em id} & id of value to get \\
+\hline
+{\em res\+\_\+value} & pointer to a \hyperlink{struct_drv_value__uint}{Drv\+Value\+\_\+uint} struct. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+always 0 
+\end{DoxyReturn}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=301pt]{irqtestperipheral_8c_a4e987f34af28aea872408b2412339ad7_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+get\+\_\+val\+\_\+uint\+\_\+raw@{irqtester\+\_\+fe310\+\_\+get\+\_\+val\+\_\+uint\+\_\+raw}}
+\index{irqtester\+\_\+fe310\+\_\+get\+\_\+val\+\_\+uint\+\_\+raw@{irqtester\+\_\+fe310\+\_\+get\+\_\+val\+\_\+uint\+\_\+raw}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+get\+\_\+val\+\_\+uint\+\_\+raw(irqt\+\_\+val\+\_\+id\+\_\+t id)}{irqtester_fe310_get_val_uint_raw(irqt_val_id_t id)}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t irqtester\+\_\+fe310\+\_\+get\+\_\+val\+\_\+uint\+\_\+raw (
+\begin{DoxyParamCaption}
+\item[{{\bf irqt\+\_\+val\+\_\+id\+\_\+t}}]{id}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_a2033394f5344ffe1c16f65be91851217}{}\label{irqtestperipheral_8c_a2033394f5344ffe1c16f65be91851217}
+
+
+Thread safe generic (by id) getter for values of uint type from driver memory pools. For perforamnce reasons, use return value instread a passed container for result. 
+
+Doesn\textquotesingle{}t read from registers; an irq is needed to load regs into driver mem. 
+\begin{DoxyParams}{Parameters}
+{\em id} & id of value to get \\
+\hline
+{\em res\+\_\+value} & pointer to a \hyperlink{struct_drv_value__uint}{Drv\+Value\+\_\+uint} struct. \\
+\hline
+{\em always} & 0 \\
+\hline
+\end{DoxyParams}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=301pt]{irqtestperipheral_8c_a2033394f5344ffe1c16f65be91851217_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+irq\+\_\+handler@{irqtester\+\_\+fe310\+\_\+irq\+\_\+handler}}
+\index{irqtester\+\_\+fe310\+\_\+irq\+\_\+handler@{irqtester\+\_\+fe310\+\_\+irq\+\_\+handler}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+irq\+\_\+handler(void $\ast$arg)}{irqtester_fe310_irq_handler(void *arg)}}]{\setlength{\rightskip}{0pt plus 5cm}static void irqtester\+\_\+fe310\+\_\+irq\+\_\+handler (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{arg}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{irqtestperipheral_8c_ab157fe508c290d5e05fc878db1c936f0}{}\label{irqtestperipheral_8c_ab157fe508c290d5e05fc878db1c936f0}
+I\+RQ Handler registered to the kernel, just calls a callback.
+
+
+\begin{DoxyParams}{Parameters}
+{\em arg} & When kernel calls, this is a handle to the device. \\
+\hline
+\end{DoxyParams}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=277pt]{irqtestperipheral_8c_ab157fe508c290d5e05fc878db1c936f0_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+purge\+\_\+rx@{irqtester\+\_\+fe310\+\_\+purge\+\_\+rx}}
+\index{irqtester\+\_\+fe310\+\_\+purge\+\_\+rx@{irqtester\+\_\+fe310\+\_\+purge\+\_\+rx}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+purge\+\_\+rx(struct device $\ast$dev)}{irqtester_fe310_purge_rx(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}int irqtester\+\_\+fe310\+\_\+purge\+\_\+rx (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_ab47c9b38275ed5cb45931e907725dc06}{}\label{irqtestperipheral_8c_ab47c9b38275ed5cb45931e907725dc06}
+
+
+Reset all objects related to receiving data from this driver. 
+
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+receive\+\_\+evt\+\_\+from\+\_\+arr@{irqtester\+\_\+fe310\+\_\+receive\+\_\+evt\+\_\+from\+\_\+arr}}
+\index{irqtester\+\_\+fe310\+\_\+receive\+\_\+evt\+\_\+from\+\_\+arr@{irqtester\+\_\+fe310\+\_\+receive\+\_\+evt\+\_\+from\+\_\+arr}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+receive\+\_\+evt\+\_\+from\+\_\+arr(struct device $\ast$dev, struct Drv\+Event $\ast$res, s32\+\_\+t timeout)}{irqtester_fe310_receive_evt_from_arr(struct device *dev, struct DrvEvent *res, s32_t timeout)}}]{\setlength{\rightskip}{0pt plus 5cm}int irqtester\+\_\+fe310\+\_\+receive\+\_\+evt\+\_\+from\+\_\+arr (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{struct {\bf Drv\+Event} $\ast$}]{res, }
+\item[{s32\+\_\+t}]{timeout}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_a254eae890ba510e5e473a046407ba618}{}\label{irqtestperipheral_8c_a254eae890ba510e5e473a046407ba618}
+
+
+If using semaphore plus event array, call this to wait and receive an event. 
+
+Should be called from a single thread only. Todo\+: add example for usage \index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+register\+\_\+fifo\+\_\+rx@{irqtester\+\_\+fe310\+\_\+register\+\_\+fifo\+\_\+rx}}
+\index{irqtester\+\_\+fe310\+\_\+register\+\_\+fifo\+\_\+rx@{irqtester\+\_\+fe310\+\_\+register\+\_\+fifo\+\_\+rx}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+register\+\_\+fifo\+\_\+rx(struct device $\ast$dev, struct k\+\_\+fifo $\ast$queue)}{irqtester_fe310_register_fifo_rx(struct device *dev, struct k_fifo *queue)}}]{\setlength{\rightskip}{0pt plus 5cm}int irqtester\+\_\+fe310\+\_\+register\+\_\+fifo\+\_\+rx (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{struct k\+\_\+fifo $\ast$}]{queue}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_ace3a40543bbebb04e1324fbfa9f60275}{}\label{irqtestperipheral_8c_ace3a40543bbebb04e1324fbfa9f60275}
+
+
+Provide a handle to a fifo to receive msgs from the driver there. 
+
+Remember to enable\+\_\+fifo\+\_\+rx() and to empty it in the consuming thread. Attention\+: Using a fifo is not recommended, as it is not necessarily faster and prone to causing overflows (unlimited size!). \index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+register\+\_\+queue\+\_\+rx@{irqtester\+\_\+fe310\+\_\+register\+\_\+queue\+\_\+rx}}
+\index{irqtester\+\_\+fe310\+\_\+register\+\_\+queue\+\_\+rx@{irqtester\+\_\+fe310\+\_\+register\+\_\+queue\+\_\+rx}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+register\+\_\+queue\+\_\+rx(struct device $\ast$dev, struct k\+\_\+msgq $\ast$queue)}{irqtester_fe310_register_queue_rx(struct device *dev, struct k_msgq *queue)}}]{\setlength{\rightskip}{0pt plus 5cm}int irqtester\+\_\+fe310\+\_\+register\+\_\+queue\+\_\+rx (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{struct k\+\_\+msgq $\ast$}]{queue}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_a8b03f7c9aff5996a16845f0e2d1e6937}{}\label{irqtestperipheral_8c_a8b03f7c9aff5996a16845f0e2d1e6937}
+
+
+Provide a handle to a queue to receive msgs from the driver there. 
+
+Remember to enable\+\_\+queue\+\_\+rx() and to empty it in the consuming thread. 
+\begin{DoxyParams}{Parameters}
+{\em k\+\_\+msgsq} & pointer to queue \\
+\hline
+\end{DoxyParams}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+register\+\_\+sem\+\_\+arr\+\_\+rx@{irqtester\+\_\+fe310\+\_\+register\+\_\+sem\+\_\+arr\+\_\+rx}}
+\index{irqtester\+\_\+fe310\+\_\+register\+\_\+sem\+\_\+arr\+\_\+rx@{irqtester\+\_\+fe310\+\_\+register\+\_\+sem\+\_\+arr\+\_\+rx}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+register\+\_\+sem\+\_\+arr\+\_\+rx(struct device $\ast$dev, struct k\+\_\+sem $\ast$sem, struct Drv\+Event evt\+\_\+arr[], int len)}{irqtester_fe310_register_sem_arr_rx(struct device *dev, struct k_sem *sem, struct DrvEvent evt_arr[], int len)}}]{\setlength{\rightskip}{0pt plus 5cm}int irqtester\+\_\+fe310\+\_\+register\+\_\+sem\+\_\+arr\+\_\+rx (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{struct k\+\_\+sem $\ast$}]{sem, }
+\item[{struct {\bf Drv\+Event}}]{evt\+\_\+arr\mbox{[}$\,$\mbox{]}, }
+\item[{int}]{len}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_ae82ab1a2ea6ec7bd8f6b43530d1419a5}{}\label{irqtestperipheral_8c_ae82ab1a2ea6ec7bd8f6b43530d1419a5}
+
+
+Provide a handle to a semaphore and an even array to receive msgs from the driver there. 
+
+Remember to enable\+\_\+fifo\+\_\+rx() and to empty it in the consuming thread. \index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+reset\+\_\+hw@{irqtester\+\_\+fe310\+\_\+reset\+\_\+hw}}
+\index{irqtester\+\_\+fe310\+\_\+reset\+\_\+hw@{irqtester\+\_\+fe310\+\_\+reset\+\_\+hw}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+reset\+\_\+hw(struct device $\ast$dev)}{irqtester_fe310_reset_hw(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}int irqtester\+\_\+fe310\+\_\+reset\+\_\+hw (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_a1d2af0fa1a30580646c700e462bf063f}{}\label{irqtestperipheral_8c_a1d2af0fa1a30580646c700e462bf063f}
+
+
+Reset all hw regs but \textquotesingle{}enable\textquotesingle{} to 0. Doesn\textquotesingle{}t reset internal and output regs! 
+
+
+\begin{DoxyParams}{Parameters}
+{\em dev} & I\+R\+Q\+Tester device struct\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 
+\end{DoxyReturn}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{irqtestperipheral_8c_a1d2af0fa1a30580646c700e462bf063f_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+set\+\_\+reg@{irqtester\+\_\+fe310\+\_\+set\+\_\+reg}}
+\index{irqtester\+\_\+fe310\+\_\+set\+\_\+reg@{irqtester\+\_\+fe310\+\_\+set\+\_\+reg}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+set\+\_\+reg(struct device $\ast$dev, irqt\+\_\+val\+\_\+id\+\_\+t id, void $\ast$set\+\_\+val)}{irqtester_fe310_set_reg(struct device *dev, irqt_val_id_t id, void *set_val)}}]{\setlength{\rightskip}{0pt plus 5cm}int irqtester\+\_\+fe310\+\_\+set\+\_\+reg (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{{\bf irqt\+\_\+val\+\_\+id\+\_\+t}}]{id, }
+\item[{void $\ast$}]{set\+\_\+val}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_a508afd9a858251ac9dbd15fba94e4301}{}\label{irqtestperipheral_8c_a508afd9a858251ac9dbd15fba94e4301}
+
+
+Thread safe, generic setter for device registers. Only works for regs which have a driver mem pool entry. 
+
+Must not be called by an I\+SR (mutex). 
+\begin{DoxyParams}{Parameters}
+{\em id} & id of value to set \\
+\hline
+{\em set\+\_\+value} & pointer to a Drv\+Value\+\_\+X struct of correct type. \\
+\hline
+\end{DoxyParams}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{irqtestperipheral_8c_a508afd9a858251ac9dbd15fba94e4301_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+set\+\_\+reg\+\_\+fast@{irqtester\+\_\+fe310\+\_\+set\+\_\+reg\+\_\+fast}}
+\index{irqtester\+\_\+fe310\+\_\+set\+\_\+reg\+\_\+fast@{irqtester\+\_\+fe310\+\_\+set\+\_\+reg\+\_\+fast}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+set\+\_\+reg\+\_\+fast(struct device $\ast$dev, irqt\+\_\+val\+\_\+id\+\_\+t id, void $\ast$set\+\_\+val)}{irqtester_fe310_set_reg_fast(struct device *dev, irqt_val_id_t id, void *set_val)}}]{\setlength{\rightskip}{0pt plus 5cm}int irqtester\+\_\+fe310\+\_\+set\+\_\+reg\+\_\+fast (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{{\bf irqt\+\_\+val\+\_\+id\+\_\+t}}]{id, }
+\item[{void $\ast$}]{set\+\_\+val}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_a1356feef1a2dbd5af9d5f6c19e2d86a6}{}\label{irqtestperipheral_8c_a1356feef1a2dbd5af9d5f6c19e2d86a6}
+
+
+Non-\/\+Thread safe, generic setter for device registers. Only works for regs which have a driver mem pool entry. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em id} & id of value to set \\
+\hline
+{\em set\+\_\+value} & pointer to a Drv\+Value\+\_\+X struct of correct type. \\
+\hline
+{\em 0} & on success, != 0 on fail \\
+\hline
+\end{DoxyParams}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=301pt]{irqtestperipheral_8c_a1356feef1a2dbd5af9d5f6c19e2d86a6_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+set\+\_\+reg\+\_\+uint\+\_\+fast@{irqtester\+\_\+fe310\+\_\+set\+\_\+reg\+\_\+uint\+\_\+fast}}
+\index{irqtester\+\_\+fe310\+\_\+set\+\_\+reg\+\_\+uint\+\_\+fast@{irqtester\+\_\+fe310\+\_\+set\+\_\+reg\+\_\+uint\+\_\+fast}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+set\+\_\+reg\+\_\+uint\+\_\+fast(struct device $\ast$dev, irqt\+\_\+val\+\_\+id\+\_\+t id, void $\ast$set\+\_\+val)}{irqtester_fe310_set_reg_uint_fast(struct device *dev, irqt_val_id_t id, void *set_val)}}]{\setlength{\rightskip}{0pt plus 5cm}int irqtester\+\_\+fe310\+\_\+set\+\_\+reg\+\_\+uint\+\_\+fast (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{{\bf irqt\+\_\+val\+\_\+id\+\_\+t}}]{id, }
+\item[{void $\ast$}]{set\+\_\+val}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_ace3058eeacfe748758334352a992716e}{}\label{irqtestperipheral_8c_ace3058eeacfe748758334352a992716e}
+
+
+Thread un-\/safe generic (by id) setter for hw regs of uint type. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em id} & id of reg to set \\
+\hline
+{\em res\+\_\+value} & pointer to a \hyperlink{struct_drv_value__uint}{Drv\+Value\+\_\+uint} struct for result \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success. 2\+: Address for given reg id unkown 
+\end{DoxyReturn}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=301pt]{irqtestperipheral_8c_ace3058eeacfe748758334352a992716e_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!irqtester\+\_\+fe310\+\_\+test\+\_\+valflag@{irqtester\+\_\+fe310\+\_\+test\+\_\+valflag}}
+\index{irqtester\+\_\+fe310\+\_\+test\+\_\+valflag@{irqtester\+\_\+fe310\+\_\+test\+\_\+valflag}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{irqtester\+\_\+fe310\+\_\+test\+\_\+valflag(struct device $\ast$dev, irqt\+\_\+val\+\_\+id\+\_\+t id)}{irqtester_fe310_test_valflag(struct device *dev, irqt_val_id_t id)}}]{\setlength{\rightskip}{0pt plus 5cm}bool irqtester\+\_\+fe310\+\_\+test\+\_\+valflag (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{{\bf irqt\+\_\+val\+\_\+id\+\_\+t}}]{id}
+\end{DoxyParamCaption}
+)}\hypertarget{irqtestperipheral_8c_ae593bcc753fee4064e23b3e290e5f27d}{}\label{irqtestperipheral_8c_ae593bcc753fee4064e23b3e290e5f27d}
+
+
+Test whether a value was flagged ready to get\+\_\+val() from driver memory. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em id} & id\+\_\+name of value \\
+\hline
+\end{DoxyParams}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!send\+\_\+event\+\_\+rx@{send\+\_\+event\+\_\+rx}}
+\index{send\+\_\+event\+\_\+rx@{send\+\_\+event\+\_\+rx}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{send\+\_\+event\+\_\+rx(struct device $\ast$dev, struct Drv\+Event $\ast$evt)}{send_event_rx(struct device *dev, struct DrvEvent *evt)}}]{\setlength{\rightskip}{0pt plus 5cm}static void send\+\_\+event\+\_\+rx (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{struct {\bf Drv\+Event} $\ast$}]{evt}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{irqtestperipheral_8c_aea8fe973b67fd1364c333f4ba595b6db}{}\label{irqtestperipheral_8c_aea8fe973b67fd1364c333f4ba595b6db}
+I\+S\+Rs to pass data upwards. 
+
+ \index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!test\+\_\+any\+\_\+send\+\_\+flag@{test\+\_\+any\+\_\+send\+\_\+flag}}
+\index{test\+\_\+any\+\_\+send\+\_\+flag@{test\+\_\+any\+\_\+send\+\_\+flag}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{test\+\_\+any\+\_\+send\+\_\+flag(struct device $\ast$dev)}{test_any_send_flag(struct device *dev)}}]{\setlength{\rightskip}{0pt plus 5cm}static bool test\+\_\+any\+\_\+send\+\_\+flag (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{irqtestperipheral_8c_a023df633a0cf154035fced51999c3f66}{}\label{irqtestperipheral_8c_a023df633a0cf154035fced51999c3f66}
+
+
+Test whether any flags for event sending are set. This excludes valflags, as they don\textquotesingle{}t issue events. 
+
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!test\+\_\+flag@{test\+\_\+flag}}
+\index{test\+\_\+flag@{test\+\_\+flag}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{test\+\_\+flag(struct device $\ast$dev, int drv\+\_\+flag)}{test_flag(struct device *dev, int drv_flag)}}]{\setlength{\rightskip}{0pt plus 5cm}static bool test\+\_\+flag (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{int}]{drv\+\_\+flag}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{irqtestperipheral_8c_a4f458d7df910b1501b2afc15c685dfe2}{}\label{irqtestperipheral_8c_a4f458d7df910b1501b2afc15c685dfe2}
+
+
+\subsection{Variable Documentation}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!\+\_\+values\+\_\+bool@{\+\_\+values\+\_\+bool}}
+\index{\+\_\+values\+\_\+bool@{\+\_\+values\+\_\+bool}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{\+\_\+values\+\_\+bool}{_values_bool}}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf Drv\+Value\+\_\+bool} \+\_\+values\+\_\+bool\mbox{[}$\,$\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{irqtestperipheral_8c_a7b19da922c8e92d1fc4e69ba9050c7e6}{}\label{irqtestperipheral_8c_a7b19da922c8e92d1fc4e69ba9050c7e6}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+= \{
+    \{.\_super.id\_name = \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5a47b3c7abeac3b159ce25858e005c5fb4}{VAL\_IRQ\_0\_ENABLE}\},
+    \{.\_super.id\_name = \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5a67b5d9d964d945d8ad05ac9af593c52d}{VAL\_IRQ\_1\_CLEAR}\},
+    \{.\_super.id\_name = \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5a7d11d88b9d25e3da43fa6269a439c330}{VAL\_IRQ\_2\_CLEAR}\},
+    \{.\_super.id\_name = \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5a6be5260382cc21f0b57a7ab317c6ba19}{VAL\_DSP\_3\_READY}\},
+    \{.\_super.id\_name = \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5ac55b0588e2d95f0bb3a3a73573e398c1}{VAL\_DSP\_3\_RESET}\},
+\}
+\end{DoxyCode}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!\+\_\+values\+\_\+int@{\+\_\+values\+\_\+int}}
+\index{\+\_\+values\+\_\+int@{\+\_\+values\+\_\+int}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{\+\_\+values\+\_\+int}{_values_int}}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf Drv\+Value\+\_\+int} \+\_\+values\+\_\+int\mbox{[}$\,$\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{irqtestperipheral_8c_a23fe4b9972f3fd20c5606617960f5230}{}\label{irqtestperipheral_8c_a23fe4b9972f3fd20c5606617960f5230}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+= \{
+    
+\}
+\end{DoxyCode}
+\index{irqtestperipheral.\+c@{irqtestperipheral.\+c}!\+\_\+values\+\_\+uint@{\+\_\+values\+\_\+uint}}
+\index{\+\_\+values\+\_\+uint@{\+\_\+values\+\_\+uint}!irqtestperipheral.\+c@{irqtestperipheral.\+c}}
+\subsubsection[{\texorpdfstring{\+\_\+values\+\_\+uint}{_values_uint}}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf Drv\+Value\+\_\+uint} \+\_\+values\+\_\+uint\mbox{[}$\,$\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{irqtestperipheral_8c_a425ae3473e646745e0d280c10af20d7f}{}\label{irqtestperipheral_8c_a425ae3473e646745e0d280c10af20d7f}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+= \{
+    \{.\_super.id\_name = \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5ad5cbdb0d5fb3e8d193dc4e464f40a250}{VAL\_IRQ\_0\_PERVAL}\},
+    \{.\_super.id\_name = \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5a06cc192150df7d3f6c869565a9dcce6c}{VAL\_IRQ\_0\_VALUE}\},
+    \{.\_super.id\_name = \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5ab78ed43f0a2f1452a4d7278456b0fde8}{VAL\_IRQ\_0\_STATUS}\},
+
+    \{.\_super.id\_name = \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5aebcab2740332dedaed56ab6899907210}{VAL\_IRQ\_1\_STATUS}\},
+    \{.\_super.id\_name = \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5acc3f2b52d11a72db34e1f43e1e833264}{VAL\_IRQ\_1\_PERIOD}\},
+    \{.\_super.id\_name = \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5a4f207d5fcbfa7203476e734677be18d6}{VAL\_IRQ\_1\_NUM\_REP}\},
+    \{.\_super.id\_name = \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5a64c9ae753cd6bf13dffaff0e1e224af8}{VAL\_IRQ\_2\_STATUS}\},
+    \{.\_super.id\_name = \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5a9dd76675b977fc6ec065d2356200e57e}{VAL\_IRQ\_2\_PERIOD}\},
+    \{.\_super.id\_name = \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5acfe0b06a29c10555ce3403029f65cd69}{VAL\_IRQ\_2\_NUM\_REP}\},
+    \{.\_super.id\_name = \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5a1008bee4f027f35206c5a2ba7227a3c9}{VAL\_DSP\_3\_STATUS}\},
+    \{.\_super.id\_name = \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5a79294ebcb1a611ec5f7a338a2d655b57}{VAL\_DSP\_3\_PERVAL}\},
+    \{.\_super.id\_name = \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5aadef85391aa46629976fd64c3cb1d6f0}{VAL\_DSP\_3\_ID\_COUNTER}\},
+    \{.\_super.id\_name = \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5aead6bf9ce899418ce66dd99ed48e9011}{VAL\_DSP\_3\_VALUE}\},
+    \{.\_super.id\_name = \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5aaef69bac5c78370b8576d974293f531f}{VAL\_DSP\_3\_PERIOD}\},
+    \{.\_super.id\_name = \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5a10e4f5a2be934efda152f08971056538}{VAL\_DSP\_3\_DUTY}\},
+    \{.\_super.id\_name = \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5a02479e848adb6b7442e73ab8320eaea6}{VAL\_DSP\_3\_NUM\_REP}\},
+    \{.\_super.id\_name = \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5a43e42584f7739b4b1b191b81c4f11617}{VAL\_DSP\_3\_DELAY}\},
+    \{.\_super.id\_name = \hyperlink{irqtestperipheral_8h_a3485d29696b63704b7a6454519c3d0c5a9db0b4ef139b50b77c3db32787cda6d1}{VAL\_DSP\_3\_CLEAR\_ID}\},
+
+\}
+\end{DoxyCode}

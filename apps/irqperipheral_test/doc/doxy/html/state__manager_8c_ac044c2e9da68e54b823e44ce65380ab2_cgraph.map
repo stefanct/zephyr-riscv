@@ -1,0 +1,6 @@
+<map id="check_time_goal_start" name="check_time_goal_start">
+<area shape="rect" id="node2" href="$states_8c.html#a929b4a51a89985cc96784e74126c2183" title="states_get_timing_goal\l_start" alt="" coords="207,5,363,47"/>
+<area shape="rect" id="node3" href="$state__manager_8c.html#a2b68abe1d98d63ac5f06e71df7f4ebe3" title="Helper to be called from check_time_goal_start() or _end() " alt="" coords="230,71,339,98"/>
+<area shape="rect" id="node4" href="$state__manager_8c.html#a14b1648ed43b1f50b64c2618dc2f827e" title="Calcs the time since start state. " alt="" coords="411,64,551,105"/>
+<area shape="rect" id="node5" href="$cycles_8c.html#a6e9f891bc6d1b4849bd701cca50ef426" title="read lower 32 bits of cycle csr register " alt="" coords="599,71,697,98"/>
+</map>

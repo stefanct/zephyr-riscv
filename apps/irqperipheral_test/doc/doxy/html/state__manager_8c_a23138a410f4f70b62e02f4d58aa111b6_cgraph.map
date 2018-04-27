@@ -1,0 +1,5 @@
+<map id="state_mng_register_action" name="state_mng_register_action">
+<area shape="rect" id="node2" href="$state__manager_8c.html#a6579e86bc3f3de2539796108bfc9a1be" title="Thread&#45;safe getter whether state machine thread is running. " alt="" coords="187,5,337,32"/>
+<area shape="rect" id="node3" href="$state__manager_8c.html#a6c0124042835015818d50d9130c2db76" title="Search whether val_id is in array. " alt="" coords="207,56,317,83"/>
+<area shape="rect" id="node4" href="$state__manager_8c.html#adfd529eaa40008fae50455147470e981" title="Non thread&#45;safe getter of state struct. Call ONLY from state_mng run loop. " alt="" coords="187,107,337,133"/>
+</map>

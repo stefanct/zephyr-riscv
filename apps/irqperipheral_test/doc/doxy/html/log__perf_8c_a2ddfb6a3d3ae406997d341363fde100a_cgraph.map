@@ -1,0 +1,5 @@
+<map id="print_buff" name="print_buff">
+<area shape="rect" id="node2" href="$utils_8c.html#a1ae3605bfc857c7511287b5b181c6c54" title=": printk if given verbosity &gt;= set verbosity threshold. " alt="" coords="140,5,201,32"/>
+<area shape="rect" id="node4" href="$log__perf_8c.html#a23b5ab34256fa5d822471397e1828c44" title="purge_buff" alt="" coords="129,56,212,83"/>
+<area shape="rect" id="node3" href="$utils_8c.html#a8d7f34af292d60592b179a49baf3c54b" title="do_print" alt="" coords="260,5,328,32"/>
+</map>

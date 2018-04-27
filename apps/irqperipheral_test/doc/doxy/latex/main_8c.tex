@@ -1,0 +1,186 @@
+\hypertarget{main_8c}{}\section{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/main.c File Reference}
+\label{main_8c}\index{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/main.\+c@{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/main.\+c}}
+{\ttfamily \#include $<$zephyr.\+h$>$}\\*
+{\ttfamily \#include $<$misc/printk.\+h$>$}\\*
+{\ttfamily \#include $<$device.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}globals.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}irqtestperipheral.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}tests/test\+\_\+runners.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}tests/tests.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}cycles.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}log\+\_\+perf.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}utils.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}state\+\_\+manager.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$string.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}state\+\_\+machines/sm1.\+h\char`\"{}}\\*
+Include dependency graph for main.\+c\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{main_8c__incl}
+\end{center}
+\end{figure}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{main_8c_a419f922595dbc9aca2ef54b5f93589a1}{I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+\+D\+R\+V\+\_\+\+N\+A\+ME}~\char`\"{}irqtester0\char`\"{}
+\item 
+\#define \hyperlink{main_8c_ad6830a9220bb2e0fb16a65c3b06faa5c}{U\+A\+R\+T1\+\_\+\+D\+R\+V\+\_\+\+N\+A\+ME}~\char`\"{}uart0\char`\"{}
+\item 
+\#define \hyperlink{main_8c_a3ac7f953c5a4ecb2a9f1b744d7067b0d}{U\+A\+R\+T2\+\_\+\+D\+R\+V\+\_\+\+N\+A\+ME}~\char`\"{}uart1\char`\"{}
+\item 
+\#define \hyperlink{main_8c_a3774232a16e17a4f482137e335c5d28b}{I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+\+H\+W\+\_\+\+R\+EV}~3
+\item 
+\#define \hyperlink{main_8c_a355c43652842bcfa57fc2f00ed0da701}{P\+R\+I\+N\+T\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+P\+R\+E\+E\+M\+P\+T\+\_\+\+E\+N\+A\+B\+L\+ED}~0
+\item 
+\#define \hyperlink{main_8c_a8d5c74db9f2b8d759bbffb1c5f08a1c6}{P\+R\+I\+N\+T\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+T\+I\+M\+E\+S\+L\+I\+C\+I\+NG}~0
+\item 
+\#define \hyperlink{main_8c_a86a8c56755769823c3b901fbc06de384}{P\+R\+I\+N\+T\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+I\+R\+Q\+\_\+\+O\+F\+F\+L\+O\+AD}~0
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{main_8c_a42ee756b94eb5db2d5cd4d4c4bd73cee}{device\+\_\+list\+\_\+get} (struct device $\ast$$\ast$device\+\_\+list, int $\ast$device\+\_\+count)
+\item 
+void \hyperlink{main_8c_addac945d30228d08bf924de4f324d15e}{print\+\_\+device\+\_\+drivers} ()
+\item 
+void \hyperlink{main_8c_ab108687134898bcfd0bd23956e74fe9d}{print\+\_\+kernel\+\_\+info} ()
+\item 
+void \hyperlink{main_8c_a7501a11f3b74b676df64fe525bae0ea3}{load\+\_\+drivers} ()
+\item 
+void \hyperlink{main_8c_a6288eba0f8e8ad3ab1544ad731eb7667}{main} (void)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+int \hyperlink{main_8c_a19a71ebf8c414c631d6f29e7609e59cd}{global\+\_\+max\+\_\+cyc}
+\item 
+struct device \hyperlink{main_8c_a3e123ce49c4fb9e881fba80d46192933}{\+\_\+\+\_\+device\+\_\+init\+\_\+end} \mbox{[}$\,$\mbox{]}
+\item 
+struct device \hyperlink{main_8c_a287af280f14417dcbc1d27a65f12bc61}{\+\_\+\+\_\+device\+\_\+init\+\_\+start} \mbox{[}$\,$\mbox{]}
+\item 
+struct device $\ast$ \hyperlink{main_8c_abb59223368d7d7abf03bdd70c67d82a7}{g\+\_\+dev\+\_\+irqt}
+\item 
+struct device $\ast$ \hyperlink{main_8c_a4f93c31b6e082e5daf292aeac312ebf1}{g\+\_\+dev\+\_\+uart0}
+\item 
+struct device $\ast$ \hyperlink{main_8c_accc7e2dfa8f4bc5f10985ffa6aea9f78}{g\+\_\+dev\+\_\+uart1}
+\end{DoxyCompactItemize}
+
+
+\subsection{Macro Definition Documentation}
+\index{main.\+c@{main.\+c}!I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+\+D\+R\+V\+\_\+\+N\+A\+ME@{I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+\+D\+R\+V\+\_\+\+N\+A\+ME}}
+\index{I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+\+D\+R\+V\+\_\+\+N\+A\+ME@{I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+\+D\+R\+V\+\_\+\+N\+A\+ME}!main.\+c@{main.\+c}}
+\subsubsection[{\texorpdfstring{I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+\+D\+R\+V\+\_\+\+N\+A\+ME}{IRQTESTER_DRV_NAME}}]{\setlength{\rightskip}{0pt plus 5cm}\#define I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+\+D\+R\+V\+\_\+\+N\+A\+ME~\char`\"{}irqtester0\char`\"{}}\hypertarget{main_8c_a419f922595dbc9aca2ef54b5f93589a1}{}\label{main_8c_a419f922595dbc9aca2ef54b5f93589a1}
+\index{main.\+c@{main.\+c}!I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+\+H\+W\+\_\+\+R\+EV@{I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+\+H\+W\+\_\+\+R\+EV}}
+\index{I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+\+H\+W\+\_\+\+R\+EV@{I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+\+H\+W\+\_\+\+R\+EV}!main.\+c@{main.\+c}}
+\subsubsection[{\texorpdfstring{I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+\+H\+W\+\_\+\+R\+EV}{IRQTESTER_HW_REV}}]{\setlength{\rightskip}{0pt plus 5cm}\#define I\+R\+Q\+T\+E\+S\+T\+E\+R\+\_\+\+H\+W\+\_\+\+R\+EV~3}\hypertarget{main_8c_a3774232a16e17a4f482137e335c5d28b}{}\label{main_8c_a3774232a16e17a4f482137e335c5d28b}
+\index{main.\+c@{main.\+c}!P\+R\+I\+N\+T\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+I\+R\+Q\+\_\+\+O\+F\+F\+L\+O\+AD@{P\+R\+I\+N\+T\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+I\+R\+Q\+\_\+\+O\+F\+F\+L\+O\+AD}}
+\index{P\+R\+I\+N\+T\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+I\+R\+Q\+\_\+\+O\+F\+F\+L\+O\+AD@{P\+R\+I\+N\+T\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+I\+R\+Q\+\_\+\+O\+F\+F\+L\+O\+AD}!main.\+c@{main.\+c}}
+\subsubsection[{\texorpdfstring{P\+R\+I\+N\+T\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+I\+R\+Q\+\_\+\+O\+F\+F\+L\+O\+AD}{PRINT_CONFIG_IRQ_OFFLOAD}}]{\setlength{\rightskip}{0pt plus 5cm}\#define P\+R\+I\+N\+T\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+I\+R\+Q\+\_\+\+O\+F\+F\+L\+O\+AD~0}\hypertarget{main_8c_a86a8c56755769823c3b901fbc06de384}{}\label{main_8c_a86a8c56755769823c3b901fbc06de384}
+\index{main.\+c@{main.\+c}!P\+R\+I\+N\+T\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+P\+R\+E\+E\+M\+P\+T\+\_\+\+E\+N\+A\+B\+L\+ED@{P\+R\+I\+N\+T\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+P\+R\+E\+E\+M\+P\+T\+\_\+\+E\+N\+A\+B\+L\+ED}}
+\index{P\+R\+I\+N\+T\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+P\+R\+E\+E\+M\+P\+T\+\_\+\+E\+N\+A\+B\+L\+ED@{P\+R\+I\+N\+T\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+P\+R\+E\+E\+M\+P\+T\+\_\+\+E\+N\+A\+B\+L\+ED}!main.\+c@{main.\+c}}
+\subsubsection[{\texorpdfstring{P\+R\+I\+N\+T\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+P\+R\+E\+E\+M\+P\+T\+\_\+\+E\+N\+A\+B\+L\+ED}{PRINT_CONFIG_PREEMPT_ENABLED}}]{\setlength{\rightskip}{0pt plus 5cm}\#define P\+R\+I\+N\+T\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+P\+R\+E\+E\+M\+P\+T\+\_\+\+E\+N\+A\+B\+L\+ED~0}\hypertarget{main_8c_a355c43652842bcfa57fc2f00ed0da701}{}\label{main_8c_a355c43652842bcfa57fc2f00ed0da701}
+\index{main.\+c@{main.\+c}!P\+R\+I\+N\+T\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+T\+I\+M\+E\+S\+L\+I\+C\+I\+NG@{P\+R\+I\+N\+T\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+T\+I\+M\+E\+S\+L\+I\+C\+I\+NG}}
+\index{P\+R\+I\+N\+T\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+T\+I\+M\+E\+S\+L\+I\+C\+I\+NG@{P\+R\+I\+N\+T\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+T\+I\+M\+E\+S\+L\+I\+C\+I\+NG}!main.\+c@{main.\+c}}
+\subsubsection[{\texorpdfstring{P\+R\+I\+N\+T\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+T\+I\+M\+E\+S\+L\+I\+C\+I\+NG}{PRINT_CONFIG_TIMESLICING}}]{\setlength{\rightskip}{0pt plus 5cm}\#define P\+R\+I\+N\+T\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+T\+I\+M\+E\+S\+L\+I\+C\+I\+NG~0}\hypertarget{main_8c_a8d5c74db9f2b8d759bbffb1c5f08a1c6}{}\label{main_8c_a8d5c74db9f2b8d759bbffb1c5f08a1c6}
+\index{main.\+c@{main.\+c}!U\+A\+R\+T1\+\_\+\+D\+R\+V\+\_\+\+N\+A\+ME@{U\+A\+R\+T1\+\_\+\+D\+R\+V\+\_\+\+N\+A\+ME}}
+\index{U\+A\+R\+T1\+\_\+\+D\+R\+V\+\_\+\+N\+A\+ME@{U\+A\+R\+T1\+\_\+\+D\+R\+V\+\_\+\+N\+A\+ME}!main.\+c@{main.\+c}}
+\subsubsection[{\texorpdfstring{U\+A\+R\+T1\+\_\+\+D\+R\+V\+\_\+\+N\+A\+ME}{UART1_DRV_NAME}}]{\setlength{\rightskip}{0pt plus 5cm}\#define U\+A\+R\+T1\+\_\+\+D\+R\+V\+\_\+\+N\+A\+ME~\char`\"{}uart0\char`\"{}}\hypertarget{main_8c_ad6830a9220bb2e0fb16a65c3b06faa5c}{}\label{main_8c_ad6830a9220bb2e0fb16a65c3b06faa5c}
+\index{main.\+c@{main.\+c}!U\+A\+R\+T2\+\_\+\+D\+R\+V\+\_\+\+N\+A\+ME@{U\+A\+R\+T2\+\_\+\+D\+R\+V\+\_\+\+N\+A\+ME}}
+\index{U\+A\+R\+T2\+\_\+\+D\+R\+V\+\_\+\+N\+A\+ME@{U\+A\+R\+T2\+\_\+\+D\+R\+V\+\_\+\+N\+A\+ME}!main.\+c@{main.\+c}}
+\subsubsection[{\texorpdfstring{U\+A\+R\+T2\+\_\+\+D\+R\+V\+\_\+\+N\+A\+ME}{UART2_DRV_NAME}}]{\setlength{\rightskip}{0pt plus 5cm}\#define U\+A\+R\+T2\+\_\+\+D\+R\+V\+\_\+\+N\+A\+ME~\char`\"{}uart1\char`\"{}}\hypertarget{main_8c_a3ac7f953c5a4ecb2a9f1b744d7067b0d}{}\label{main_8c_a3ac7f953c5a4ecb2a9f1b744d7067b0d}
+
+
+\subsection{Function Documentation}
+\index{main.\+c@{main.\+c}!device\+\_\+list\+\_\+get@{device\+\_\+list\+\_\+get}}
+\index{device\+\_\+list\+\_\+get@{device\+\_\+list\+\_\+get}!main.\+c@{main.\+c}}
+\subsubsection[{\texorpdfstring{device\+\_\+list\+\_\+get(struct device $\ast$$\ast$device\+\_\+list, int $\ast$device\+\_\+count)}{device_list_get(struct device **device_list, int *device_count)}}]{\setlength{\rightskip}{0pt plus 5cm}void device\+\_\+list\+\_\+get (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$$\ast$}]{device\+\_\+list, }
+\item[{int $\ast$}]{device\+\_\+count}
+\end{DoxyParamCaption}
+)}\hypertarget{main_8c_a42ee756b94eb5db2d5cd4d4c4bd73cee}{}\label{main_8c_a42ee756b94eb5db2d5cd4d4c4bd73cee}
+\index{main.\+c@{main.\+c}!load\+\_\+drivers@{load\+\_\+drivers}}
+\index{load\+\_\+drivers@{load\+\_\+drivers}!main.\+c@{main.\+c}}
+\subsubsection[{\texorpdfstring{load\+\_\+drivers()}{load_drivers()}}]{\setlength{\rightskip}{0pt plus 5cm}void load\+\_\+drivers (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{main_8c_a7501a11f3b74b676df64fe525bae0ea3}{}\label{main_8c_a7501a11f3b74b676df64fe525bae0ea3}
+\index{main.\+c@{main.\+c}!main@{main}}
+\index{main@{main}!main.\+c@{main.\+c}}
+\subsubsection[{\texorpdfstring{main(void)}{main(void)}}]{\setlength{\rightskip}{0pt plus 5cm}void main (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{main_8c_a6288eba0f8e8ad3ab1544ad731eb7667}{}\label{main_8c_a6288eba0f8e8ad3ab1544ad731eb7667}
+Printing policy a) logging (S\+Y\+S\+\_\+\+L\+O\+G\+\_\+$<$$>$) stuff that should vanish in time-\/critical builds -\/$>$ can be thrown out of code by Kconfig/logging b) (verbsoity controlled) printkv stuff in tests that is not time critical -\/$>$ can control via print\+\_\+set\+\_\+verbosity -\/$>$ stays in binary, even when vebosity set to not show -\/$>$ productive code should avoid compiling test code anyway c) buffered L\+O\+G\+\_\+\+P\+E\+RF stuff inside time-\/critical code that needs to be printed for debug -\/$>$ logs to buffer and prints after run -\/$>$ still slower than not printing, better than serial out -\/$>$ set C\+O\+N\+F\+I\+G\+\_\+\+A\+P\+P\+\_\+\+L\+O\+G\+\_\+\+P\+E\+R\+F\+\_\+\+B\+U\+F\+F\+E\+R\+\_\+\+D\+E\+P\+TH=0 to deactivate
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=550pt]{main_8c_a6288eba0f8e8ad3ab1544ad731eb7667_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{main.\+c@{main.\+c}!print\+\_\+device\+\_\+drivers@{print\+\_\+device\+\_\+drivers}}
+\index{print\+\_\+device\+\_\+drivers@{print\+\_\+device\+\_\+drivers}!main.\+c@{main.\+c}}
+\subsubsection[{\texorpdfstring{print\+\_\+device\+\_\+drivers()}{print_device_drivers()}}]{\setlength{\rightskip}{0pt plus 5cm}void print\+\_\+device\+\_\+drivers (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{main_8c_addac945d30228d08bf924de4f324d15e}{}\label{main_8c_addac945d30228d08bf924de4f324d15e}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=302pt]{main_8c_addac945d30228d08bf924de4f324d15e_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{main.\+c@{main.\+c}!print\+\_\+kernel\+\_\+info@{print\+\_\+kernel\+\_\+info}}
+\index{print\+\_\+kernel\+\_\+info@{print\+\_\+kernel\+\_\+info}!main.\+c@{main.\+c}}
+\subsubsection[{\texorpdfstring{print\+\_\+kernel\+\_\+info()}{print_kernel_info()}}]{\setlength{\rightskip}{0pt plus 5cm}void print\+\_\+kernel\+\_\+info (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{main_8c_ab108687134898bcfd0bd23956e74fe9d}{}\label{main_8c_ab108687134898bcfd0bd23956e74fe9d}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=278pt]{main_8c_ab108687134898bcfd0bd23956e74fe9d_cgraph}
+\end{center}
+\end{figure}
+
+
+
+
+\subsection{Variable Documentation}
+\index{main.\+c@{main.\+c}!\+\_\+\+\_\+device\+\_\+init\+\_\+end@{\+\_\+\+\_\+device\+\_\+init\+\_\+end}}
+\index{\+\_\+\+\_\+device\+\_\+init\+\_\+end@{\+\_\+\+\_\+device\+\_\+init\+\_\+end}!main.\+c@{main.\+c}}
+\subsubsection[{\texorpdfstring{\+\_\+\+\_\+device\+\_\+init\+\_\+end}{__device_init_end}}]{\setlength{\rightskip}{0pt plus 5cm}struct device \+\_\+\+\_\+device\+\_\+init\+\_\+end\mbox{[}$\,$\mbox{]}}\hypertarget{main_8c_a3e123ce49c4fb9e881fba80d46192933}{}\label{main_8c_a3e123ce49c4fb9e881fba80d46192933}
+\index{main.\+c@{main.\+c}!\+\_\+\+\_\+device\+\_\+init\+\_\+start@{\+\_\+\+\_\+device\+\_\+init\+\_\+start}}
+\index{\+\_\+\+\_\+device\+\_\+init\+\_\+start@{\+\_\+\+\_\+device\+\_\+init\+\_\+start}!main.\+c@{main.\+c}}
+\subsubsection[{\texorpdfstring{\+\_\+\+\_\+device\+\_\+init\+\_\+start}{__device_init_start}}]{\setlength{\rightskip}{0pt plus 5cm}struct device \+\_\+\+\_\+device\+\_\+init\+\_\+start\mbox{[}$\,$\mbox{]}}\hypertarget{main_8c_a287af280f14417dcbc1d27a65f12bc61}{}\label{main_8c_a287af280f14417dcbc1d27a65f12bc61}
+\index{main.\+c@{main.\+c}!g\+\_\+dev\+\_\+irqt@{g\+\_\+dev\+\_\+irqt}}
+\index{g\+\_\+dev\+\_\+irqt@{g\+\_\+dev\+\_\+irqt}!main.\+c@{main.\+c}}
+\subsubsection[{\texorpdfstring{g\+\_\+dev\+\_\+irqt}{g_dev_irqt}}]{\setlength{\rightskip}{0pt plus 5cm}struct device$\ast$ g\+\_\+dev\+\_\+irqt}\hypertarget{main_8c_abb59223368d7d7abf03bdd70c67d82a7}{}\label{main_8c_abb59223368d7d7abf03bdd70c67d82a7}
+\index{main.\+c@{main.\+c}!g\+\_\+dev\+\_\+uart0@{g\+\_\+dev\+\_\+uart0}}
+\index{g\+\_\+dev\+\_\+uart0@{g\+\_\+dev\+\_\+uart0}!main.\+c@{main.\+c}}
+\subsubsection[{\texorpdfstring{g\+\_\+dev\+\_\+uart0}{g_dev_uart0}}]{\setlength{\rightskip}{0pt plus 5cm}struct device$\ast$ g\+\_\+dev\+\_\+uart0}\hypertarget{main_8c_a4f93c31b6e082e5daf292aeac312ebf1}{}\label{main_8c_a4f93c31b6e082e5daf292aeac312ebf1}
+\index{main.\+c@{main.\+c}!g\+\_\+dev\+\_\+uart1@{g\+\_\+dev\+\_\+uart1}}
+\index{g\+\_\+dev\+\_\+uart1@{g\+\_\+dev\+\_\+uart1}!main.\+c@{main.\+c}}
+\subsubsection[{\texorpdfstring{g\+\_\+dev\+\_\+uart1}{g_dev_uart1}}]{\setlength{\rightskip}{0pt plus 5cm}struct device$\ast$ g\+\_\+dev\+\_\+uart1}\hypertarget{main_8c_accc7e2dfa8f4bc5f10985ffa6aea9f78}{}\label{main_8c_accc7e2dfa8f4bc5f10985ffa6aea9f78}
+\index{main.\+c@{main.\+c}!global\+\_\+max\+\_\+cyc@{global\+\_\+max\+\_\+cyc}}
+\index{global\+\_\+max\+\_\+cyc@{global\+\_\+max\+\_\+cyc}!main.\+c@{main.\+c}}
+\subsubsection[{\texorpdfstring{global\+\_\+max\+\_\+cyc}{global_max_cyc}}]{\setlength{\rightskip}{0pt plus 5cm}int global\+\_\+max\+\_\+cyc}\hypertarget{main_8c_a19a71ebf8c414c631d6f29e7609e59cd}{}\label{main_8c_a19a71ebf8c414c631d6f29e7609e59cd}

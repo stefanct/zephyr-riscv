@@ -1,0 +1,16 @@
+<map id="irq_handler_profiler_1" name="irq_handler_profiler_1">
+<area shape="rect" id="node2" href="$irqtestperipheral_8c.html#a987670a27b50999e651f384e6b04e582" title="Non&#45;thread safe, generic getter for device (output) registers. Only works for regs which are loaded t..." alt="" coords="405,115,564,141"/>
+<area shape="rect" id="node8" href="$profiler_8c.html#a0853551b9051cca934c58748ec90cc53" title="dump_2_console" alt="" coords="218,164,338,191"/>
+<area shape="rect" id="node9" href="$irqtestperipheral_8c.html#a508afd9a858251ac9dbd15fba94e4301" title="Thread safe, generic setter for device registers. Only works for regs which have a driver mem pool en..." alt="" coords="199,59,357,85"/>
+<area shape="rect" id="node11" href="$irqtestperipheral_8c.html#ac28383949304b588aecac37c6d6ea538" title="irqtester_fe310_clear_2" alt="" coords="199,215,357,241"/>
+<area shape="rect" id="node15" href="$irqtestperipheral_8c.html#a3f0daddddbc00ed4d3195cd85ba1acae" title="Need to set regs num_rep_2 and period_2 first. " alt="" coords="205,265,351,292"/>
+<area shape="rect" id="node3" href="$irqtestperipheral_8c.html#aacd45cbca76d5cb252b111e2e064a3e0" title="id_2_type_fast" alt="" coords="615,5,722,32"/>
+<area shape="rect" id="node4" href="$irqtestperipheral_8c.html#a15420b03ab67124ddc6d1b4f63f32309" title="id_2_type" alt="" coords="629,56,708,83"/>
+<area shape="rect" id="node5" href="$cycles_8c.html#a6e9f891bc6d1b4849bd701cca50ef426" title="read lower 32 bits of cycle csr register " alt="" coords="619,208,718,235"/>
+<area shape="rect" id="node6" href="$irqtestperipheral_8c.html#aae36b616bf3ffc8134b83f3e168bdf0e" title="id_2_index_fast" alt="" coords="612,107,725,133"/>
+<area shape="rect" id="node7" href="$irqtestperipheral_8c.html#a3205d750d033a40f72392b0d638b9070" title="id_2_index" alt="" coords="627,157,711,184"/>
+<area shape="rect" id="node10" href="$irqtestperipheral_8c.html#a1356feef1a2dbd5af9d5f6c19e2d86a6" title="Non&#45;Thread safe, generic setter for device registers. Only works for regs which have a driver mem poo..." alt="" coords="418,49,551,90"/>
+<area shape="rect" id="node12" href="$tests_8c.html#a1b66895966dbe4f866074ac85e344bd7" title="reg_write_short" alt="" coords="429,207,540,233"/>
+<area shape="rect" id="node13" href="$irqtestperipheral_8c.html#ab157fe508c290d5e05fc878db1c936f0" title="irqtester_fe310_irq\l_handler" alt="" coords="420,258,549,299"/>
+<area shape="rect" id="node14" href="$irqtestperipheral_8c.html#abda9b87261994cc7417d4db872faa8f2" title="_get_irq_id" alt="" coords="626,265,711,292"/>
+</map>

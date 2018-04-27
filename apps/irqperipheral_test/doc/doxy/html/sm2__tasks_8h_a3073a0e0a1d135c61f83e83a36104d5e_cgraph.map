@@ -1,0 +1,6 @@
+<map id="sm2_task_bench_basic_ops" name="sm2_task_bench_basic_ops">
+<area shape="rect" id="node2" href="$irqtestperipheral_8c.html#a4e987f34af28aea872408b2412339ad7" title="Thread safe generic (by id) getter for values of uint type from driver memory pools. " alt="" coords="240,5,373,47"/>
+<area shape="rect" id="node5" href="$irqtestperipheral_8c.html#ace3058eeacfe748758334352a992716e" title="Thread un&#45;safe generic (by id) setter for hw regs of uint type. " alt="" coords="240,71,373,112"/>
+<area shape="rect" id="node3" href="$irqtestperipheral_8c.html#aae36b616bf3ffc8134b83f3e168bdf0e" title="id_2_index_fast" alt="" coords="421,17,535,43"/>
+<area shape="rect" id="node4" href="$irqtestperipheral_8c.html#a3205d750d033a40f72392b0d638b9070" title="id_2_index" alt="" coords="436,71,520,98"/>
+</map>

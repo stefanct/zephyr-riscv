@@ -1,0 +1,153 @@
+\hypertarget{sm2_8h}{}\section{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/state\+\_\+machines/sm2.h File Reference}
+\label{sm2_8h}\index{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/state\+\_\+machines/sm2.\+h@{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/state\+\_\+machines/sm2.\+h}}
+
+
+Implementation of \hyperlink{struct_state}{State} Machine S\+M2. Used for tests simulating running the cow wirless protocol.  
+
+
+{\ttfamily \#include $<$device.\+h$>$}\\*
+Include dependency graph for sm2.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=199pt]{sm2_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=199pt]{sm2_8h__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{sm2_8h_abe0dc53244bcd7a31c5a2291dffe75a2}{sm2\+\_\+config} (int users, int usr\+\_\+per\+\_\+batch, void($\ast$ul\+\_\+task)(void), int param, int pos\+\_\+param)
+\item 
+void \hyperlink{sm2_8h_ae487d66203100f40b162686b2f7072fd}{sm2\+\_\+init} (struct device $\ast$dev, int period\+\_\+irq1\+\_\+us, int period\+\_\+irq2\+\_\+us)
+\item 
+void \hyperlink{sm2_8h_ad9623ac1e7081cf8bb5ee5ac2f697e39}{sm2\+\_\+run} ()
+\item 
+void \hyperlink{sm2_8h_a1ab5f3d5b8bb84cdba3cdbfa33cbac06}{sm2\+\_\+fire\+\_\+irqs} (int period\+\_\+irq1\+\_\+us, int period\+\_\+irq2\+\_\+us)
+\item 
+void \hyperlink{sm2_8h_a52a838da0dca730af949a83c861cfa31}{sm2\+\_\+print\+\_\+report} ()
+\item 
+void \hyperlink{sm2_8h_aa48c4b239800101a87bd9d7e809ade75}{sm2\+\_\+reset} ()
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Implementation of \hyperlink{struct_state}{State} Machine S\+M2. Used for tests simulating running the cow wirless protocol. 
+
+
+
+\subsection{Function Documentation}
+\index{sm2.\+h@{sm2.\+h}!sm2\+\_\+config@{sm2\+\_\+config}}
+\index{sm2\+\_\+config@{sm2\+\_\+config}!sm2.\+h@{sm2.\+h}}
+\subsubsection[{\texorpdfstring{sm2\+\_\+config(int users, int usr\+\_\+per\+\_\+batch, void($\ast$ul\+\_\+task)(void), int param, int pos\+\_\+param)}{sm2_config(int users, int usr_per_batch, void(*ul_task)(void), int param, int pos_param)}}]{\setlength{\rightskip}{0pt plus 5cm}void sm2\+\_\+config (
+\begin{DoxyParamCaption}
+\item[{int}]{users, }
+\item[{int}]{usr\+\_\+per\+\_\+batch, }
+\item[{void($\ast$)(void)}]{ul\+\_\+task, }
+\item[{int}]{param, }
+\item[{int}]{pos\+\_\+param}
+\end{DoxyParamCaption}
+)}\hypertarget{sm2_8h_abe0dc53244bcd7a31c5a2291dffe75a2}{}\label{sm2_8h_abe0dc53244bcd7a31c5a2291dffe75a2}
+\index{sm2.\+h@{sm2.\+h}!sm2\+\_\+fire\+\_\+irqs@{sm2\+\_\+fire\+\_\+irqs}}
+\index{sm2\+\_\+fire\+\_\+irqs@{sm2\+\_\+fire\+\_\+irqs}!sm2.\+h@{sm2.\+h}}
+\subsubsection[{\texorpdfstring{sm2\+\_\+fire\+\_\+irqs(int period\+\_\+irq1\+\_\+us, int period\+\_\+irq2\+\_\+us)}{sm2_fire_irqs(int period_irq1_us, int period_irq2_us)}}]{\setlength{\rightskip}{0pt plus 5cm}void sm2\+\_\+fire\+\_\+irqs (
+\begin{DoxyParamCaption}
+\item[{int}]{period\+\_\+irq1\+\_\+us, }
+\item[{int}]{period\+\_\+irq2\+\_\+us}
+\end{DoxyParamCaption}
+)}\hypertarget{sm2_8h_a1ab5f3d5b8bb84cdba3cdbfa33cbac06}{}\label{sm2_8h_a1ab5f3d5b8bb84cdba3cdbfa33cbac06}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{sm2_8h_a1ab5f3d5b8bb84cdba3cdbfa33cbac06_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{sm2.\+h@{sm2.\+h}!sm2\+\_\+init@{sm2\+\_\+init}}
+\index{sm2\+\_\+init@{sm2\+\_\+init}!sm2.\+h@{sm2.\+h}}
+\subsubsection[{\texorpdfstring{sm2\+\_\+init(struct device $\ast$dev, int period\+\_\+irq1\+\_\+us, int period\+\_\+irq2\+\_\+us)}{sm2_init(struct device *dev, int period_irq1_us, int period_irq2_us)}}]{\setlength{\rightskip}{0pt plus 5cm}void sm2\+\_\+init (
+\begin{DoxyParamCaption}
+\item[{struct device $\ast$}]{dev, }
+\item[{int}]{period\+\_\+irq1\+\_\+us, }
+\item[{int}]{period\+\_\+irq2\+\_\+us}
+\end{DoxyParamCaption}
+)}\hypertarget{sm2_8h_ae487d66203100f40b162686b2f7072fd}{}\label{sm2_8h_ae487d66203100f40b162686b2f7072fd}
+Define states for S\+M2 Currently, this is tightly coupled to cycle\+\_\+state\+\_\+id\+\_\+t and cycle\+\_\+event\+\_\+id\+\_\+t \subsubsection*{declared in \hyperlink{states_8h}{states.\+h} }
+
+Define transition table for S\+M1 \subsubsection*{First column\+: default event, is set automatically }
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{sm2_8h_ae487d66203100f40b162686b2f7072fd_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{sm2.\+h@{sm2.\+h}!sm2\+\_\+print\+\_\+report@{sm2\+\_\+print\+\_\+report}}
+\index{sm2\+\_\+print\+\_\+report@{sm2\+\_\+print\+\_\+report}!sm2.\+h@{sm2.\+h}}
+\subsubsection[{\texorpdfstring{sm2\+\_\+print\+\_\+report()}{sm2_print_report()}}]{\setlength{\rightskip}{0pt plus 5cm}void sm2\+\_\+print\+\_\+report (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{sm2_8h_a52a838da0dca730af949a83c861cfa31}{}\label{sm2_8h_a52a838da0dca730af949a83c861cfa31}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=313pt]{sm2_8h_a52a838da0dca730af949a83c861cfa31_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{sm2.\+h@{sm2.\+h}!sm2\+\_\+reset@{sm2\+\_\+reset}}
+\index{sm2\+\_\+reset@{sm2\+\_\+reset}!sm2.\+h@{sm2.\+h}}
+\subsubsection[{\texorpdfstring{sm2\+\_\+reset()}{sm2_reset()}}]{\setlength{\rightskip}{0pt plus 5cm}void sm2\+\_\+reset (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{sm2_8h_aa48c4b239800101a87bd9d7e809ade75}{}\label{sm2_8h_aa48c4b239800101a87bd9d7e809ade75}
+
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{sm2_8h_aa48c4b239800101a87bd9d7e809ade75_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{sm2.\+h@{sm2.\+h}!sm2\+\_\+run@{sm2\+\_\+run}}
+\index{sm2\+\_\+run@{sm2\+\_\+run}!sm2.\+h@{sm2.\+h}}
+\subsubsection[{\texorpdfstring{sm2\+\_\+run()}{sm2_run()}}]{\setlength{\rightskip}{0pt plus 5cm}void sm2\+\_\+run (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{sm2_8h_ad9623ac1e7081cf8bb5ee5ac2f697e39}{}\label{sm2_8h_ad9623ac1e7081cf8bb5ee5ac2f697e39}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{sm2_8h_ad9623ac1e7081cf8bb5ee5ac2f697e39_cgraph}
+\end{center}
+\end{figure}
+
+

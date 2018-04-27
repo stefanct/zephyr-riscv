@@ -1,0 +1,10 @@
+<map id="printfsvr" name="printfsvr">
+<area shape="rect" id="node2" href="$syscalls_8c.html#a9dee5275dde68dd7e6546e93aa5ad639" title="vprintfmt" alt="" coords="125,107,199,133"/>
+<area shape="rect" id="node7" href="$syscalls_8c.html#a96309354255db4e97ae7aea3a9874b91" title="putchar_2" alt="" coords="123,183,201,209"/>
+<area shape="rect" id="node3" href="$syscalls_8c.html#a7bd978e4981a80586c5b3a0dac22f0f2" title="strnlen" alt="" coords="255,5,316,32"/>
+<area shape="rect" id="node4" href="$syscalls_8c.html#a7b1e12e09f757ca234758afb4d704db8" title="getint" alt="" coords="258,56,313,83"/>
+<area shape="rect" id="node5" href="$syscalls_8c.html#a934736e8473edc7ac3a20c613ae5f732" title="getuint" alt="" coords="255,107,316,133"/>
+<area shape="rect" id="node6" href="$syscalls_8c.html#ad321bdb456d9be4ac65a8d5aba299be7" title="printnum" alt="" coords="249,157,321,184"/>
+<area shape="rect" id="node8" href="$syscalls_8c.html#ae77bdb2f6ff0addff487d9829635999f" title="syscall" alt="" coords="254,208,317,235"/>
+<area shape="rect" id="node9" href="$syscalls_8c.html#a93b9cf91f7623d6d8b100a3693d6d5e4" title="__attribute__" alt="" coords="369,208,467,235"/>
+</map>

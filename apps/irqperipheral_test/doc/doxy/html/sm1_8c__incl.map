@@ -1,0 +1,11 @@
+<map id="/home/timo/Software/zephyr&#45;riscv_dev/apps/irqperipheral_test/src/state_machines/sm1.c" name="/home/timo/Software/zephyr&#45;riscv_dev/apps/irqperipheral_test/src/state_machines/sm1.c">
+<area shape="rect" id="node2" href="$sm1_8h.html" title="Implementation of State Machine SM1. Deprecated, mainly for old tests and benchmarking (no workload)..." alt="" coords="637,199,695,225"/>
+<area shape="rect" id="node4" href="$cycles_8h.html" title="Deal with riscv32 hardware cpu cycles. " alt="" coords="369,199,440,225"/>
+<area shape="rect" id="node6" href="$state__manager_8h.html" title="Logic for running a state machine. " alt="" coords="29,124,148,151"/>
+<area shape="rect" id="node7" href="$states_8h.html" title="define state machine &#39;state&#39; struct and configure to state_manager " alt="" coords="143,199,213,225"/>
+<area shape="rect" id="node8" href="$irqtestperipheral_8h.html" title="low&#45;level driver functions to interact with hardware " alt="" coords="87,273,213,300"/>
+<area shape="rect" id="node9" href="$utils_8h.html" title="Useful print functions. " alt="" coords="288,199,345,225"/>
+<area shape="rect" id="node10" href="$log__perf_8h.html" title="Implements a performance logging method which prints to a fifo string buffer instead of uart..." alt="" coords="461,124,540,151"/>
+<area shape="rect" id="node12" href="$sm__common_8h.html" title="Common functions shared for by different state machine implementations. " alt="" coords="224,124,332,151"/>
+<area shape="rect" id="node13" href="$globals_8h.html" title="Global shared variables, mainly devices handles. " alt="" coords="469,273,543,300"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="irqtester_fe310_get_reg" name="irqtester_fe310_get_reg">
+<area shape="rect" id="node2" href="$irqtestperipheral_8c.html#aacd45cbca76d5cb252b111e2e064a3e0" title="id_2_type_fast" alt="" coords="215,5,322,32"/>
+<area shape="rect" id="node3" href="$irqtestperipheral_8c.html#a15420b03ab67124ddc6d1b4f63f32309" title="id_2_type" alt="" coords="229,56,308,83"/>
+<area shape="rect" id="node4" href="$cycles_8c.html#a6e9f891bc6d1b4849bd701cca50ef426" title="read lower 32 bits of cycle csr register " alt="" coords="219,107,318,133"/>
+<area shape="rect" id="node5" href="$irqtestperipheral_8c.html#aae36b616bf3ffc8134b83f3e168bdf0e" title="id_2_index_fast" alt="" coords="212,157,325,184"/>
+<area shape="rect" id="node6" href="$irqtestperipheral_8c.html#a3205d750d033a40f72392b0d638b9070" title="id_2_index" alt="" coords="227,208,311,235"/>
+</map>

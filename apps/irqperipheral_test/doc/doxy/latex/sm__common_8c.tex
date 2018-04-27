@@ -1,0 +1,375 @@
+\hypertarget{sm__common_8c}{}\section{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/state\+\_\+machines/sm\+\_\+common.c File Reference}
+\label{sm__common_8c}\index{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/state\+\_\+machines/sm\+\_\+common.\+c@{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/state\+\_\+machines/sm\+\_\+common.\+c}}
+{\ttfamily \#include \char`\"{}sm\+\_\+common.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$zephyr.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}cycles.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}state\+\_\+manager.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}states.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}irqtestperipheral.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}utils.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}log\+\_\+perf.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}globals.\+h\char`\"{}}\\*
+Include dependency graph for sm\+\_\+common.\+c\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{sm__common_8c__incl}
+\end{center}
+\end{figure}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{sm__common_8c_aa1b8951911fda990a79830a25169ebff}{buf\+\_\+len}~100
+\item 
+\#define \hyperlink{sm__common_8c_ab68bbc2dd747e962c17eb0f4a75537b3}{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+C\+L\+A\+S\+S\+\_\+\+M\+I\+C\+E\+VT}~1
+\item 
+\#define \hyperlink{sm__common_8c_ac9cb33299e7dbe53d1a78320f58e3d43}{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+C\+L\+A\+S\+S\+\_\+\+M\+E\+M\+E\+VT}~2
+\item 
+\#define \hyperlink{sm__common_8c_a37ff72f5d43950785700860be5351a2e}{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+B\+I\+T\+M\+A\+S\+K\+\_\+\+I\+C\+A\+C\+H\+E\+\_\+\+M\+I\+SS}~(1 $<$$<$ 8)
+\item 
+\#define \hyperlink{sm__common_8c_af1bfd2d2343f08e58af126f27d3a2902}{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+B\+I\+T\+M\+A\+S\+K\+\_\+\+B\+R\+A\+N\+C\+H\+\_\+\+M\+I\+SP}~(1 $<$$<$ 13)
+\item 
+\#define \hyperlink{sm__common_8c_ae7f87c3c1773776b5d52dc99e7517990}{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+B\+I\+T\+M\+A\+S\+K\+\_\+\+B\+R\+J\+M\+P\+\_\+\+M\+I\+SP}~(1 $<$$<$ 14)
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+u32\+\_\+t \hyperlink{sm__common_8c_a08baf483808291e244e0d0eb8942b6d6}{sm\+\_\+com\+\_\+get\+\_\+i\+\_\+run} ()
+\begin{DoxyCompactList}\small\item\em thread-\/safe \end{DoxyCompactList}\item 
+void \hyperlink{sm__common_8c_aaee351d5d52792a6d7000a9fbaf5d7ca}{sm\+\_\+com\+\_\+set\+\_\+val\+\_\+uptd\+\_\+per\+\_\+cycle} (int val)
+\item 
+void \hyperlink{sm__common_8c_a343eb7ee8a6a0600f150fa504c51d96c}{sm\+\_\+com\+\_\+print\+\_\+state} ()
+\item 
+void \hyperlink{sm__common_8c_ab8383b7d103d200f920cec584344659f}{sm\+\_\+com\+\_\+clear\+\_\+valflags} ()
+\item 
+void \hyperlink{sm__common_8c_a2d00cd984a475c4df80da9329bb7b550}{sm\+\_\+com\+\_\+update\+\_\+counter} ()
+\item 
+void \hyperlink{sm__common_8c_a90da654de0fa5c2dc777704bae58b718}{sm\+\_\+com\+\_\+check\+\_\+val\+\_\+updates} ()
+\item 
+void \hyperlink{sm__common_8c_ab654403e8b7731f077a3c4a13a0c72a4}{sm\+\_\+com\+\_\+check\+\_\+last\+\_\+state} ()
+\item 
+void \hyperlink{sm__common_8c_ad807b56301004a669202a722facaddd6}{sm\+\_\+com\+\_\+check\+\_\+clear\+\_\+status} ()
+\item 
+void \hyperlink{sm__common_8c_a356a7c5cfeabaae21c69f107e2d9e56c}{sm\+\_\+com\+\_\+handle\+\_\+timing\+\_\+goal\+\_\+start} (struct \hyperlink{struct_state}{State} $\ast$state, int t\+\_\+left)
+\begin{DoxyCompactList}\small\item\em wait until start and warn on miss \end{DoxyCompactList}\item 
+void \hyperlink{sm__common_8c_a21bec076d85cdda8c44bb699a7e24f85}{sm\+\_\+com\+\_\+handle\+\_\+timing\+\_\+goal\+\_\+end} (struct \hyperlink{struct_state}{State} $\ast$state, int t\+\_\+left)
+\begin{DoxyCompactList}\small\item\em warn on miss end \end{DoxyCompactList}\item 
+bool \hyperlink{sm__common_8c_ac2a5d118afe323c6ad5ffb7e1de5af77}{sm\+\_\+com\+\_\+handle\+\_\+fail\+\_\+rval\+\_\+ul} (struct \hyperlink{struct_state}{State} $\ast$state\+\_\+cur)
+\item 
+void \hyperlink{sm__common_8c_a37c131a683dadd7b0b1546ee17b737ae}{sm\+\_\+com\+\_\+print\+\_\+perf\+\_\+log} ()
+\item 
+void \hyperlink{sm__common_8c_a0e9b0500e276c80fbce77bfffe1cd829}{sm\+\_\+com\+\_\+mes\+\_\+mperf} ()
+\item 
+void \hyperlink{sm__common_8c_a8ec75295896041e84cd206141ff3e5ab}{sm\+\_\+com\+\_\+reset} ()
+\item 
+void \hyperlink{sm__common_8c_abfd9cc78109615585d64034fda984941}{sm\+\_\+com\+\_\+print\+\_\+report} ()
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static u32\+\_\+t \hyperlink{sm__common_8c_af0e978a4f5ce7f99f093c59cdab25d4f}{num\+\_\+val\+\_\+updt\+\_\+per\+\_\+cycle}
+\item 
+static u32\+\_\+t \hyperlink{sm__common_8c_a1bafb4c4ea8fdfbb35f9df2bcbca6cce}{num\+\_\+val\+\_\+updt}
+\item 
+static atomic\+\_\+t \hyperlink{sm__common_8c_aa91accb36e2216fd5a27cc1bdb58b38d}{\+\_\+i\+\_\+sm\+\_\+run}
+\item 
+static u32\+\_\+t \hyperlink{sm__common_8c_ad89bafddfa12d30fc8d966cb7c4d638d}{num\+\_\+fail\+\_\+valupdt}
+\item 
+static u32\+\_\+t \hyperlink{sm__common_8c_ac4de8e370e23e96a7d85b68ce6f50fce}{num\+\_\+fail\+\_\+status\+\_\+1}
+\item 
+static u32\+\_\+t \hyperlink{sm__common_8c_a29c0554067ebbec88e2390c199fd5b8a}{num\+\_\+fail\+\_\+status\+\_\+2}
+\item 
+static u32\+\_\+t \hyperlink{sm__common_8c_a91980a42ee802feb7fb374ebec103eb5}{num\+\_\+fail\+\_\+reset}
+\item 
+static u32\+\_\+t \hyperlink{sm__common_8c_a2ac14cc5753d90829251399280cb6feb}{num\+\_\+fail\+\_\+reqval}
+\item 
+static u32\+\_\+t \hyperlink{sm__common_8c_a834f72e510cbcd2129f7e978508f6357}{num\+\_\+fail\+\_\+timing}
+\item 
+static u32\+\_\+t \hyperlink{sm__common_8c_a686468c871a9a253416cbc6aee5f2e1c}{stamp\+\_\+perf\+\_\+cache} = 0
+\item 
+static u32\+\_\+t \hyperlink{sm__common_8c_a25a2b41d7d0742263a8575bf9a06300e}{stamp\+\_\+perf\+\_\+branch} = 0
+\item 
+static short \hyperlink{sm__common_8c_abcce5a7ee76882c0360b1b11ea21821c}{i\+\_\+mes\+\_\+perf} = 0
+\end{DoxyCompactItemize}
+
+
+\subsection{Macro Definition Documentation}
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!buf\+\_\+len@{buf\+\_\+len}}
+\index{buf\+\_\+len@{buf\+\_\+len}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{buf\+\_\+len}{buf_len}}]{\setlength{\rightskip}{0pt plus 5cm}\#define buf\+\_\+len~100}\hypertarget{sm__common_8c_aa1b8951911fda990a79830a25169ebff}{}\label{sm__common_8c_aa1b8951911fda990a79830a25169ebff}
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+B\+I\+T\+M\+A\+S\+K\+\_\+\+B\+R\+A\+N\+C\+H\+\_\+\+M\+I\+SP@{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+B\+I\+T\+M\+A\+S\+K\+\_\+\+B\+R\+A\+N\+C\+H\+\_\+\+M\+I\+SP}}
+\index{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+B\+I\+T\+M\+A\+S\+K\+\_\+\+B\+R\+A\+N\+C\+H\+\_\+\+M\+I\+SP@{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+B\+I\+T\+M\+A\+S\+K\+\_\+\+B\+R\+A\+N\+C\+H\+\_\+\+M\+I\+SP}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+B\+I\+T\+M\+A\+S\+K\+\_\+\+B\+R\+A\+N\+C\+H\+\_\+\+M\+I\+SP}{FE310_PERF_BITMASK_BRANCH_MISP}}]{\setlength{\rightskip}{0pt plus 5cm}\#define F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+B\+I\+T\+M\+A\+S\+K\+\_\+\+B\+R\+A\+N\+C\+H\+\_\+\+M\+I\+SP~(1 $<$$<$ 13)}\hypertarget{sm__common_8c_af1bfd2d2343f08e58af126f27d3a2902}{}\label{sm__common_8c_af1bfd2d2343f08e58af126f27d3a2902}
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+B\+I\+T\+M\+A\+S\+K\+\_\+\+B\+R\+J\+M\+P\+\_\+\+M\+I\+SP@{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+B\+I\+T\+M\+A\+S\+K\+\_\+\+B\+R\+J\+M\+P\+\_\+\+M\+I\+SP}}
+\index{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+B\+I\+T\+M\+A\+S\+K\+\_\+\+B\+R\+J\+M\+P\+\_\+\+M\+I\+SP@{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+B\+I\+T\+M\+A\+S\+K\+\_\+\+B\+R\+J\+M\+P\+\_\+\+M\+I\+SP}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+B\+I\+T\+M\+A\+S\+K\+\_\+\+B\+R\+J\+M\+P\+\_\+\+M\+I\+SP}{FE310_PERF_BITMASK_BRJMP_MISP}}]{\setlength{\rightskip}{0pt plus 5cm}\#define F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+B\+I\+T\+M\+A\+S\+K\+\_\+\+B\+R\+J\+M\+P\+\_\+\+M\+I\+SP~(1 $<$$<$ 14)}\hypertarget{sm__common_8c_ae7f87c3c1773776b5d52dc99e7517990}{}\label{sm__common_8c_ae7f87c3c1773776b5d52dc99e7517990}
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+B\+I\+T\+M\+A\+S\+K\+\_\+\+I\+C\+A\+C\+H\+E\+\_\+\+M\+I\+SS@{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+B\+I\+T\+M\+A\+S\+K\+\_\+\+I\+C\+A\+C\+H\+E\+\_\+\+M\+I\+SS}}
+\index{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+B\+I\+T\+M\+A\+S\+K\+\_\+\+I\+C\+A\+C\+H\+E\+\_\+\+M\+I\+SS@{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+B\+I\+T\+M\+A\+S\+K\+\_\+\+I\+C\+A\+C\+H\+E\+\_\+\+M\+I\+SS}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+B\+I\+T\+M\+A\+S\+K\+\_\+\+I\+C\+A\+C\+H\+E\+\_\+\+M\+I\+SS}{FE310_PERF_BITMASK_ICACHE_MISS}}]{\setlength{\rightskip}{0pt plus 5cm}\#define F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+B\+I\+T\+M\+A\+S\+K\+\_\+\+I\+C\+A\+C\+H\+E\+\_\+\+M\+I\+SS~(1 $<$$<$ 8)}\hypertarget{sm__common_8c_a37ff72f5d43950785700860be5351a2e}{}\label{sm__common_8c_a37ff72f5d43950785700860be5351a2e}
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+C\+L\+A\+S\+S\+\_\+\+M\+E\+M\+E\+VT@{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+C\+L\+A\+S\+S\+\_\+\+M\+E\+M\+E\+VT}}
+\index{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+C\+L\+A\+S\+S\+\_\+\+M\+E\+M\+E\+VT@{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+C\+L\+A\+S\+S\+\_\+\+M\+E\+M\+E\+VT}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+C\+L\+A\+S\+S\+\_\+\+M\+E\+M\+E\+VT}{FE310_PERF_CLASS_MEMEVT}}]{\setlength{\rightskip}{0pt plus 5cm}\#define F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+C\+L\+A\+S\+S\+\_\+\+M\+E\+M\+E\+VT~2}\hypertarget{sm__common_8c_ac9cb33299e7dbe53d1a78320f58e3d43}{}\label{sm__common_8c_ac9cb33299e7dbe53d1a78320f58e3d43}
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+C\+L\+A\+S\+S\+\_\+\+M\+I\+C\+E\+VT@{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+C\+L\+A\+S\+S\+\_\+\+M\+I\+C\+E\+VT}}
+\index{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+C\+L\+A\+S\+S\+\_\+\+M\+I\+C\+E\+VT@{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+C\+L\+A\+S\+S\+\_\+\+M\+I\+C\+E\+VT}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+C\+L\+A\+S\+S\+\_\+\+M\+I\+C\+E\+VT}{FE310_PERF_CLASS_MICEVT}}]{\setlength{\rightskip}{0pt plus 5cm}\#define F\+E310\+\_\+\+P\+E\+R\+F\+\_\+\+C\+L\+A\+S\+S\+\_\+\+M\+I\+C\+E\+VT~1}\hypertarget{sm__common_8c_ab68bbc2dd747e962c17eb0f4a75537b3}{}\label{sm__common_8c_ab68bbc2dd747e962c17eb0f4a75537b3}
+
+
+\subsection{Function Documentation}
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!sm\+\_\+com\+\_\+check\+\_\+clear\+\_\+status@{sm\+\_\+com\+\_\+check\+\_\+clear\+\_\+status}}
+\index{sm\+\_\+com\+\_\+check\+\_\+clear\+\_\+status@{sm\+\_\+com\+\_\+check\+\_\+clear\+\_\+status}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{sm\+\_\+com\+\_\+check\+\_\+clear\+\_\+status()}{sm_com_check_clear_status()}}]{\setlength{\rightskip}{0pt plus 5cm}void sm\+\_\+com\+\_\+check\+\_\+clear\+\_\+status (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{sm__common_8c_ad807b56301004a669202a722facaddd6}{}\label{sm__common_8c_ad807b56301004a669202a722facaddd6}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{sm__common_8c_ad807b56301004a669202a722facaddd6_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!sm\+\_\+com\+\_\+check\+\_\+last\+\_\+state@{sm\+\_\+com\+\_\+check\+\_\+last\+\_\+state}}
+\index{sm\+\_\+com\+\_\+check\+\_\+last\+\_\+state@{sm\+\_\+com\+\_\+check\+\_\+last\+\_\+state}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{sm\+\_\+com\+\_\+check\+\_\+last\+\_\+state()}{sm_com_check_last_state()}}]{\setlength{\rightskip}{0pt plus 5cm}void sm\+\_\+com\+\_\+check\+\_\+last\+\_\+state (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{sm__common_8c_ab654403e8b7731f077a3c4a13a0c72a4}{}\label{sm__common_8c_ab654403e8b7731f077a3c4a13a0c72a4}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{sm__common_8c_ab654403e8b7731f077a3c4a13a0c72a4_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!sm\+\_\+com\+\_\+check\+\_\+val\+\_\+updates@{sm\+\_\+com\+\_\+check\+\_\+val\+\_\+updates}}
+\index{sm\+\_\+com\+\_\+check\+\_\+val\+\_\+updates@{sm\+\_\+com\+\_\+check\+\_\+val\+\_\+updates}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{sm\+\_\+com\+\_\+check\+\_\+val\+\_\+updates()}{sm_com_check_val_updates()}}]{\setlength{\rightskip}{0pt plus 5cm}void sm\+\_\+com\+\_\+check\+\_\+val\+\_\+updates (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{sm__common_8c_a90da654de0fa5c2dc777704bae58b718}{}\label{sm__common_8c_a90da654de0fa5c2dc777704bae58b718}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{sm__common_8c_a90da654de0fa5c2dc777704bae58b718_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!sm\+\_\+com\+\_\+clear\+\_\+valflags@{sm\+\_\+com\+\_\+clear\+\_\+valflags}}
+\index{sm\+\_\+com\+\_\+clear\+\_\+valflags@{sm\+\_\+com\+\_\+clear\+\_\+valflags}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{sm\+\_\+com\+\_\+clear\+\_\+valflags()}{sm_com_clear_valflags()}}]{\setlength{\rightskip}{0pt plus 5cm}void sm\+\_\+com\+\_\+clear\+\_\+valflags (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{sm__common_8c_ab8383b7d103d200f920cec584344659f}{}\label{sm__common_8c_ab8383b7d103d200f920cec584344659f}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{sm__common_8c_ab8383b7d103d200f920cec584344659f_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!sm\+\_\+com\+\_\+get\+\_\+i\+\_\+run@{sm\+\_\+com\+\_\+get\+\_\+i\+\_\+run}}
+\index{sm\+\_\+com\+\_\+get\+\_\+i\+\_\+run@{sm\+\_\+com\+\_\+get\+\_\+i\+\_\+run}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{sm\+\_\+com\+\_\+get\+\_\+i\+\_\+run()}{sm_com_get_i_run()}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t sm\+\_\+com\+\_\+get\+\_\+i\+\_\+run (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{sm__common_8c_a08baf483808291e244e0d0eb8942b6d6}{}\label{sm__common_8c_a08baf483808291e244e0d0eb8942b6d6}
+
+
+thread-\/safe 
+
+\subsubsection*{Getters, setters }\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!sm\+\_\+com\+\_\+handle\+\_\+fail\+\_\+rval\+\_\+ul@{sm\+\_\+com\+\_\+handle\+\_\+fail\+\_\+rval\+\_\+ul}}
+\index{sm\+\_\+com\+\_\+handle\+\_\+fail\+\_\+rval\+\_\+ul@{sm\+\_\+com\+\_\+handle\+\_\+fail\+\_\+rval\+\_\+ul}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{sm\+\_\+com\+\_\+handle\+\_\+fail\+\_\+rval\+\_\+ul(struct State $\ast$state\+\_\+cur)}{sm_com_handle_fail_rval_ul(struct State *state_cur)}}]{\setlength{\rightskip}{0pt plus 5cm}bool sm\+\_\+com\+\_\+handle\+\_\+fail\+\_\+rval\+\_\+ul (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{state\+\_\+cur}
+\end{DoxyParamCaption}
+)}\hypertarget{sm__common_8c_ac2a5d118afe323c6ad5ffb7e1de5af77}{}\label{sm__common_8c_ac2a5d118afe323c6ad5ffb7e1de5af77}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{sm__common_8c_ac2a5d118afe323c6ad5ffb7e1de5af77_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!sm\+\_\+com\+\_\+handle\+\_\+timing\+\_\+goal\+\_\+end@{sm\+\_\+com\+\_\+handle\+\_\+timing\+\_\+goal\+\_\+end}}
+\index{sm\+\_\+com\+\_\+handle\+\_\+timing\+\_\+goal\+\_\+end@{sm\+\_\+com\+\_\+handle\+\_\+timing\+\_\+goal\+\_\+end}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{sm\+\_\+com\+\_\+handle\+\_\+timing\+\_\+goal\+\_\+end(struct State $\ast$state, int t\+\_\+left)}{sm_com_handle_timing_goal_end(struct State *state, int t_left)}}]{\setlength{\rightskip}{0pt plus 5cm}void sm\+\_\+com\+\_\+handle\+\_\+timing\+\_\+goal\+\_\+end (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{state, }
+\item[{int}]{t\+\_\+left}
+\end{DoxyParamCaption}
+)}\hypertarget{sm__common_8c_a21bec076d85cdda8c44bb699a7e24f85}{}\label{sm__common_8c_a21bec076d85cdda8c44bb699a7e24f85}
+
+
+warn on miss end 
+
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{sm__common_8c_a21bec076d85cdda8c44bb699a7e24f85_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!sm\+\_\+com\+\_\+handle\+\_\+timing\+\_\+goal\+\_\+start@{sm\+\_\+com\+\_\+handle\+\_\+timing\+\_\+goal\+\_\+start}}
+\index{sm\+\_\+com\+\_\+handle\+\_\+timing\+\_\+goal\+\_\+start@{sm\+\_\+com\+\_\+handle\+\_\+timing\+\_\+goal\+\_\+start}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{sm\+\_\+com\+\_\+handle\+\_\+timing\+\_\+goal\+\_\+start(struct State $\ast$state, int t\+\_\+left)}{sm_com_handle_timing_goal_start(struct State *state, int t_left)}}]{\setlength{\rightskip}{0pt plus 5cm}void sm\+\_\+com\+\_\+handle\+\_\+timing\+\_\+goal\+\_\+start (
+\begin{DoxyParamCaption}
+\item[{struct {\bf State} $\ast$}]{state, }
+\item[{int}]{t\+\_\+left}
+\end{DoxyParamCaption}
+)}\hypertarget{sm__common_8c_a356a7c5cfeabaae21c69f107e2d9e56c}{}\label{sm__common_8c_a356a7c5cfeabaae21c69f107e2d9e56c}
+
+
+wait until start and warn on miss 
+
+\subsubsection*{Handling callbacks unique to single states }\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!sm\+\_\+com\+\_\+mes\+\_\+mperf@{sm\+\_\+com\+\_\+mes\+\_\+mperf}}
+\index{sm\+\_\+com\+\_\+mes\+\_\+mperf@{sm\+\_\+com\+\_\+mes\+\_\+mperf}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{sm\+\_\+com\+\_\+mes\+\_\+mperf()}{sm_com_mes_mperf()}}]{\setlength{\rightskip}{0pt plus 5cm}void sm\+\_\+com\+\_\+mes\+\_\+mperf (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{sm__common_8c_a0e9b0500e276c80fbce77bfffe1cd829}{}\label{sm__common_8c_a0e9b0500e276c80fbce77bfffe1cd829}
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!sm\+\_\+com\+\_\+print\+\_\+perf\+\_\+log@{sm\+\_\+com\+\_\+print\+\_\+perf\+\_\+log}}
+\index{sm\+\_\+com\+\_\+print\+\_\+perf\+\_\+log@{sm\+\_\+com\+\_\+print\+\_\+perf\+\_\+log}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{sm\+\_\+com\+\_\+print\+\_\+perf\+\_\+log()}{sm_com_print_perf_log()}}]{\setlength{\rightskip}{0pt plus 5cm}void sm\+\_\+com\+\_\+print\+\_\+perf\+\_\+log (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{sm__common_8c_a37c131a683dadd7b0b1546ee17b737ae}{}\label{sm__common_8c_a37c131a683dadd7b0b1546ee17b737ae}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{sm__common_8c_a37c131a683dadd7b0b1546ee17b737ae_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!sm\+\_\+com\+\_\+print\+\_\+report@{sm\+\_\+com\+\_\+print\+\_\+report}}
+\index{sm\+\_\+com\+\_\+print\+\_\+report@{sm\+\_\+com\+\_\+print\+\_\+report}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{sm\+\_\+com\+\_\+print\+\_\+report()}{sm_com_print_report()}}]{\setlength{\rightskip}{0pt plus 5cm}void sm\+\_\+com\+\_\+print\+\_\+report (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{sm__common_8c_abfd9cc78109615585d64034fda984941}{}\label{sm__common_8c_abfd9cc78109615585d64034fda984941}
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!sm\+\_\+com\+\_\+print\+\_\+state@{sm\+\_\+com\+\_\+print\+\_\+state}}
+\index{sm\+\_\+com\+\_\+print\+\_\+state@{sm\+\_\+com\+\_\+print\+\_\+state}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{sm\+\_\+com\+\_\+print\+\_\+state()}{sm_com_print_state()}}]{\setlength{\rightskip}{0pt plus 5cm}void sm\+\_\+com\+\_\+print\+\_\+state (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{sm__common_8c_a343eb7ee8a6a0600f150fa504c51d96c}{}\label{sm__common_8c_a343eb7ee8a6a0600f150fa504c51d96c}
+Define actions used by multiple S\+Ms \subsubsection*{Mostly for diagnostics }
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{sm__common_8c_a343eb7ee8a6a0600f150fa504c51d96c_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!sm\+\_\+com\+\_\+reset@{sm\+\_\+com\+\_\+reset}}
+\index{sm\+\_\+com\+\_\+reset@{sm\+\_\+com\+\_\+reset}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{sm\+\_\+com\+\_\+reset()}{sm_com_reset()}}]{\setlength{\rightskip}{0pt plus 5cm}void sm\+\_\+com\+\_\+reset (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{sm__common_8c_a8ec75295896041e84cd206141ff3e5ab}{}\label{sm__common_8c_a8ec75295896041e84cd206141ff3e5ab}
+\subsubsection*{Others }\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!sm\+\_\+com\+\_\+set\+\_\+val\+\_\+uptd\+\_\+per\+\_\+cycle@{sm\+\_\+com\+\_\+set\+\_\+val\+\_\+uptd\+\_\+per\+\_\+cycle}}
+\index{sm\+\_\+com\+\_\+set\+\_\+val\+\_\+uptd\+\_\+per\+\_\+cycle@{sm\+\_\+com\+\_\+set\+\_\+val\+\_\+uptd\+\_\+per\+\_\+cycle}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{sm\+\_\+com\+\_\+set\+\_\+val\+\_\+uptd\+\_\+per\+\_\+cycle(int val)}{sm_com_set_val_uptd_per_cycle(int val)}}]{\setlength{\rightskip}{0pt plus 5cm}void sm\+\_\+com\+\_\+set\+\_\+val\+\_\+uptd\+\_\+per\+\_\+cycle (
+\begin{DoxyParamCaption}
+\item[{int}]{val}
+\end{DoxyParamCaption}
+)}\hypertarget{sm__common_8c_aaee351d5d52792a6d7000a9fbaf5d7ca}{}\label{sm__common_8c_aaee351d5d52792a6d7000a9fbaf5d7ca}
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!sm\+\_\+com\+\_\+update\+\_\+counter@{sm\+\_\+com\+\_\+update\+\_\+counter}}
+\index{sm\+\_\+com\+\_\+update\+\_\+counter@{sm\+\_\+com\+\_\+update\+\_\+counter}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{sm\+\_\+com\+\_\+update\+\_\+counter()}{sm_com_update_counter()}}]{\setlength{\rightskip}{0pt plus 5cm}void sm\+\_\+com\+\_\+update\+\_\+counter (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{sm__common_8c_a2d00cd984a475c4df80da9329bb7b550}{}\label{sm__common_8c_a2d00cd984a475c4df80da9329bb7b550}
+
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{sm__common_8c_a2d00cd984a475c4df80da9329bb7b550_cgraph}
+\end{center}
+\end{figure}
+
+
+
+
+\subsection{Variable Documentation}
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!\+\_\+i\+\_\+sm\+\_\+run@{\+\_\+i\+\_\+sm\+\_\+run}}
+\index{\+\_\+i\+\_\+sm\+\_\+run@{\+\_\+i\+\_\+sm\+\_\+run}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{\+\_\+i\+\_\+sm\+\_\+run}{_i_sm_run}}]{\setlength{\rightskip}{0pt plus 5cm}atomic\+\_\+t \+\_\+i\+\_\+sm\+\_\+run\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{sm__common_8c_aa91accb36e2216fd5a27cc1bdb58b38d}{}\label{sm__common_8c_aa91accb36e2216fd5a27cc1bdb58b38d}
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!i\+\_\+mes\+\_\+perf@{i\+\_\+mes\+\_\+perf}}
+\index{i\+\_\+mes\+\_\+perf@{i\+\_\+mes\+\_\+perf}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{i\+\_\+mes\+\_\+perf}{i_mes_perf}}]{\setlength{\rightskip}{0pt plus 5cm}short i\+\_\+mes\+\_\+perf = 0\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{sm__common_8c_abcce5a7ee76882c0360b1b11ea21821c}{}\label{sm__common_8c_abcce5a7ee76882c0360b1b11ea21821c}
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!num\+\_\+fail\+\_\+reqval@{num\+\_\+fail\+\_\+reqval}}
+\index{num\+\_\+fail\+\_\+reqval@{num\+\_\+fail\+\_\+reqval}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{num\+\_\+fail\+\_\+reqval}{num_fail_reqval}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t num\+\_\+fail\+\_\+reqval\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{sm__common_8c_a2ac14cc5753d90829251399280cb6feb}{}\label{sm__common_8c_a2ac14cc5753d90829251399280cb6feb}
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!num\+\_\+fail\+\_\+reset@{num\+\_\+fail\+\_\+reset}}
+\index{num\+\_\+fail\+\_\+reset@{num\+\_\+fail\+\_\+reset}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{num\+\_\+fail\+\_\+reset}{num_fail_reset}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t num\+\_\+fail\+\_\+reset\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{sm__common_8c_a91980a42ee802feb7fb374ebec103eb5}{}\label{sm__common_8c_a91980a42ee802feb7fb374ebec103eb5}
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!num\+\_\+fail\+\_\+status\+\_\+1@{num\+\_\+fail\+\_\+status\+\_\+1}}
+\index{num\+\_\+fail\+\_\+status\+\_\+1@{num\+\_\+fail\+\_\+status\+\_\+1}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{num\+\_\+fail\+\_\+status\+\_\+1}{num_fail_status_1}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t num\+\_\+fail\+\_\+status\+\_\+1\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{sm__common_8c_ac4de8e370e23e96a7d85b68ce6f50fce}{}\label{sm__common_8c_ac4de8e370e23e96a7d85b68ce6f50fce}
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!num\+\_\+fail\+\_\+status\+\_\+2@{num\+\_\+fail\+\_\+status\+\_\+2}}
+\index{num\+\_\+fail\+\_\+status\+\_\+2@{num\+\_\+fail\+\_\+status\+\_\+2}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{num\+\_\+fail\+\_\+status\+\_\+2}{num_fail_status_2}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t num\+\_\+fail\+\_\+status\+\_\+2\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{sm__common_8c_a29c0554067ebbec88e2390c199fd5b8a}{}\label{sm__common_8c_a29c0554067ebbec88e2390c199fd5b8a}
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!num\+\_\+fail\+\_\+timing@{num\+\_\+fail\+\_\+timing}}
+\index{num\+\_\+fail\+\_\+timing@{num\+\_\+fail\+\_\+timing}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{num\+\_\+fail\+\_\+timing}{num_fail_timing}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t num\+\_\+fail\+\_\+timing\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{sm__common_8c_a834f72e510cbcd2129f7e978508f6357}{}\label{sm__common_8c_a834f72e510cbcd2129f7e978508f6357}
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!num\+\_\+fail\+\_\+valupdt@{num\+\_\+fail\+\_\+valupdt}}
+\index{num\+\_\+fail\+\_\+valupdt@{num\+\_\+fail\+\_\+valupdt}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{num\+\_\+fail\+\_\+valupdt}{num_fail_valupdt}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t num\+\_\+fail\+\_\+valupdt\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{sm__common_8c_ad89bafddfa12d30fc8d966cb7c4d638d}{}\label{sm__common_8c_ad89bafddfa12d30fc8d966cb7c4d638d}
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!num\+\_\+val\+\_\+updt@{num\+\_\+val\+\_\+updt}}
+\index{num\+\_\+val\+\_\+updt@{num\+\_\+val\+\_\+updt}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{num\+\_\+val\+\_\+updt}{num_val_updt}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t num\+\_\+val\+\_\+updt\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{sm__common_8c_a1bafb4c4ea8fdfbb35f9df2bcbca6cce}{}\label{sm__common_8c_a1bafb4c4ea8fdfbb35f9df2bcbca6cce}
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!num\+\_\+val\+\_\+updt\+\_\+per\+\_\+cycle@{num\+\_\+val\+\_\+updt\+\_\+per\+\_\+cycle}}
+\index{num\+\_\+val\+\_\+updt\+\_\+per\+\_\+cycle@{num\+\_\+val\+\_\+updt\+\_\+per\+\_\+cycle}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{num\+\_\+val\+\_\+updt\+\_\+per\+\_\+cycle}{num_val_updt_per_cycle}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t num\+\_\+val\+\_\+updt\+\_\+per\+\_\+cycle\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{sm__common_8c_af0e978a4f5ce7f99f093c59cdab25d4f}{}\label{sm__common_8c_af0e978a4f5ce7f99f093c59cdab25d4f}
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!stamp\+\_\+perf\+\_\+branch@{stamp\+\_\+perf\+\_\+branch}}
+\index{stamp\+\_\+perf\+\_\+branch@{stamp\+\_\+perf\+\_\+branch}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{stamp\+\_\+perf\+\_\+branch}{stamp_perf_branch}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t stamp\+\_\+perf\+\_\+branch = 0\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{sm__common_8c_a25a2b41d7d0742263a8575bf9a06300e}{}\label{sm__common_8c_a25a2b41d7d0742263a8575bf9a06300e}
+\index{sm\+\_\+common.\+c@{sm\+\_\+common.\+c}!stamp\+\_\+perf\+\_\+cache@{stamp\+\_\+perf\+\_\+cache}}
+\index{stamp\+\_\+perf\+\_\+cache@{stamp\+\_\+perf\+\_\+cache}!sm\+\_\+common.\+c@{sm\+\_\+common.\+c}}
+\subsubsection[{\texorpdfstring{stamp\+\_\+perf\+\_\+cache}{stamp_perf_cache}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t stamp\+\_\+perf\+\_\+cache = 0\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{sm__common_8c_a686468c871a9a253416cbc6aee5f2e1c}{}\label{sm__common_8c_a686468c871a9a253416cbc6aee5f2e1c}

@@ -1,0 +1,51 @@
+<map id="sm2_init" name="sm2_init">
+<area shape="rect" id="node2" href="$sm2_8c.html#a331344281eb987b45d6474d76165ecac" title="config_timing_goals" alt="" coords="147,134,284,161"/>
+<area shape="rect" id="node3" href="$states_8c.html#a01408135407e1ba1e5a0c0d1fa1aa690" title=": Configure given state with serial substates. todo: make safe while sm running " alt="" coords="124,185,307,211"/>
+<area shape="rect" id="node4" href="$sm2_8c.html#a72974ecbef50d0204d10b2c928b3d8dc" title="config_handlers" alt="" coords="159,235,272,262"/>
+<area shape="rect" id="node15" href="$state__manager_8c.html#aaf434b7fdff6d2b471af6385d8572dd4" title="Either use default config of states and transition table or set custom one. " alt="" coords="144,497,287,523"/>
+<area shape="rect" id="node21" href="$sm2_8c.html#a15d090f4abc0c18382db3029dea1def0" title="sm2_appconfig" alt="" coords="160,682,271,709"/>
+<area shape="rect" id="node36" href="$state__manager_8c.html#a744449dc98e12eb620477cb63fd52b28" title="Print info for all states configured to state_manager. " alt="" coords="140,345,291,387"/>
+<area shape="rect" id="node39" href="$state__manager_8c.html#a9d289bc2158c8795288230cebd7fe9a0" title="Print transition table as configured to state_manager. " alt="" coords="128,424,303,465"/>
+<area shape="rect" id="node40" href="$irqtestperipheral_8h.html#a614e7ce299e6946db0551c3e393093ce" title="irqtester_fe310_register\l_callback" alt="" coords="136,733,295,775"/>
+<area shape="rect" id="node41" href="$test__handlers_8c.html#a7b95ef2d0e0116f13685d1d5b284484a" title="_irq_1_handler_0" alt="" coords="155,833,275,859"/>
+<area shape="rect" id="node44" href="$test__handlers_8c.html#ab47529b204cbfcd3e820fed028501cb4" title="_irq_2_handler_0" alt="" coords="155,951,275,978"/>
+<area shape="rect" id="node48" href="$state__manager_8c.html#ad3cde1fa185470108d73b735b4125b92" title="Initialize. Mainly set up irqt driver. " alt="" coords="162,1027,269,1054"/>
+<area shape="rect" id="node5" href="$states_8c.html#a21840ee4cc20b4ebdef96b9946340736" title="states_set_handler\l_reqval" alt="" coords="384,5,516,47"/>
+<area shape="rect" id="node7" href="$sm__common_8c.html#ac2a5d118afe323c6ad5ffb7e1de5af77" title="sm_com_handle_fail\l_rval_ul" alt="" coords="379,164,521,205"/>
+<area shape="rect" id="node13" href="$states_8c.html#ae5df354b700722ddcd0e02f20c75fe7f" title="states_set_handler\l_timing_goal_end" alt="" coords="384,80,516,121"/>
+<area shape="rect" id="node14" href="$sm__common_8c.html#a21bec076d85cdda8c44bb699a7e24f85" title="warn on miss end " alt="" coords="593,228,752,269"/>
+<area shape="rect" id="node6" href="$states_8c.html#a80390a0004562d1df0d2fcc943272c01" title="states_get" alt="" coords="631,9,714,35"/>
+<area shape="rect" id="node8" href="$state__manager_8c.html#afea4cc94719670e69dcdce35b2ebbec7" title="Wait until all requested values for state become available. Timeout, if timing goal end of the state ..." alt="" coords="600,111,745,152"/>
+<area shape="rect" id="node10" href="$cycles_8c.html#a6e9f891bc6d1b4849bd701cca50ef426" title="read lower 32 bits of cycle csr register " alt="" coords="1029,177,1128,203"/>
+<area shape="rect" id="node11" href="$state__manager_8c.html#a14b1648ed43b1f50b64c2618dc2f827e" title="Calcs the time since start state. " alt="" coords="821,228,961,269"/>
+<area shape="rect" id="node9" href="$state__manager_8c.html#a219369c437a02377c0728e698a231dac" title="state_mng_check_vals\l_ready" alt="" coords="813,111,969,152"/>
+<area shape="rect" id="node12" href="$state__manager_8c.html#a42cf6cb1b0318ed9f9c1a1bbcbcf4db3" title="Deprecated, use explicit _start, _end methods. " alt="" coords="800,294,981,321"/>
+<area shape="rect" id="node16" href="$states_8c.html#aa82cad408bf1ac59990bc6d57ff3c754" title=": Set up state array and transition table automatically. " alt="" coords="375,446,525,473"/>
+<area shape="rect" id="node17" href="$state__manager_8c.html#ace9fdd2cfc6f7910283ab2fb0ecbcc80" title="Fires all callbacks stored in internal array. " alt="" coords="361,497,539,523"/>
+<area shape="rect" id="node20" href="$states_8c.html#ab91bddfe86c489fa92acdb50882b265c" title=": Set up state array and transition table of state manager by customnly deployed arrays. " alt="" coords="366,547,534,574"/>
+<area shape="rect" id="node18" href="$state__manager_8c.html#adfd529eaa40008fae50455147470e981" title="Non thread&#45;safe getter of state struct. Call ONLY from state_mng run loop. " alt="" coords="597,526,748,553"/>
+<area shape="rect" id="node19" href="$state__manager_8c.html#a202929756c8c3b71de406e0b407db9c1" title="Thread&#45;safe getter of current state id. " alt="" coords="595,697,750,723"/>
+<area shape="rect" id="node22" href="$state__manager_8c.html#a23138a410f4f70b62e02f4d58aa111b6" title="Register an action to be executed in a certain state. Specify values this action will request from ir..." alt="" coords="383,599,517,640"/>
+<area shape="rect" id="node25" href="$sm__common_8c.html#ab654403e8b7731f077a3c4a13a0c72a4" title="sm_com_check_last_state" alt="" coords="361,665,539,691"/>
+<area shape="rect" id="node26" href="$sm__common_8c.html#ab8383b7d103d200f920cec584344659f" title="sm_com_clear_valflags" alt="" coords="371,817,529,843"/>
+<area shape="rect" id="node33" href="$sm__common_8c.html#a90da654de0fa5c2dc777704bae58b718" title="sm_com_check_val_updates" alt="" coords="355,766,545,793"/>
+<area shape="rect" id="node34" href="$sm__common_8c.html#a2d00cd984a475c4df80da9329bb7b550" title="sm_com_update_counter" alt="" coords="366,715,534,742"/>
+<area shape="rect" id="node35" href="$sm__common_8c.html#a0e9b0500e276c80fbce77bfffe1cd829" title="sm_com_mes_mperf" alt="" coords="378,867,522,894"/>
+<area shape="rect" id="node23" href="$state__manager_8c.html#a6579e86bc3f3de2539796108bfc9a1be" title="Thread&#45;safe getter whether state machine thread is running. " alt="" coords="598,591,747,618"/>
+<area shape="rect" id="node24" href="$state__manager_8c.html#a6c0124042835015818d50d9130c2db76" title="Search whether val_id is in array. " alt="" coords="618,642,727,669"/>
+<area shape="rect" id="node27" href="$irqtestperipheral_8c.html#a46f10c3e9b63404c15f52ab375a28977" title="Thread safe generic (by id) getter for values of generic type from driver memory pools. " alt="" coords="594,766,751,793"/>
+<area shape="rect" id="node32" href="$irqtestperipheral_8c.html#a997c5939bc6f47d246540c69ff49733d" title="Clear all flags. " alt="" coords="601,817,744,859"/>
+<area shape="rect" id="node28" href="$irqtestperipheral_8c.html#aacd45cbca76d5cb252b111e2e064a3e0" title="id_2_type_fast" alt="" coords="837,690,944,717"/>
+<area shape="rect" id="node29" href="$irqtestperipheral_8c.html#a15420b03ab67124ddc6d1b4f63f32309" title="id_2_type" alt="" coords="851,741,930,767"/>
+<area shape="rect" id="node30" href="$irqtestperipheral_8c.html#aae36b616bf3ffc8134b83f3e168bdf0e" title="id_2_index_fast" alt="" coords="834,791,947,818"/>
+<area shape="rect" id="node31" href="$irqtestperipheral_8c.html#a3205d750d033a40f72392b0d638b9070" title="id_2_index" alt="" coords="849,842,933,869"/>
+<area shape="rect" id="node37" href="$utils_8c.html#ad3d79b19f82a1184b79834cb05280f9f" title="snprint_arr_int" alt="" coords="398,395,502,422"/>
+<area shape="rect" id="node38" href="$utils_8c.html#a9c579c5181974bc7ee38e8a16ba66a63" title="snprint_arr_p" alt="" coords="401,345,499,371"/>
+<area shape="rect" id="node42" href="$irqtestperipheral_8c.html#a260bbaa36d21fbbf0441d4d15fe1a5e0" title="irqtester_fe310_clear_1" alt="" coords="371,918,529,945"/>
+<area shape="rect" id="node43" href="$tests_8c.html#a1b66895966dbe4f866074ac85e344bd7" title="reg_write_short" alt="" coords="617,918,728,945"/>
+<area shape="rect" id="node45" href="$irqtestperipheral_8c.html#ac28383949304b588aecac37c6d6ea538" title="irqtester_fe310_clear_2" alt="" coords="371,969,529,995"/>
+<area shape="rect" id="node46" href="$irqtestperipheral_8c.html#ab157fe508c290d5e05fc878db1c936f0" title="irqtester_fe310_irq\l_handler" alt="" coords="608,969,737,1011"/>
+<area shape="rect" id="node47" href="$irqtestperipheral_8c.html#abda9b87261994cc7417d4db872faa8f2" title="_get_irq_id" alt="" coords="848,977,933,1003"/>
+<area shape="rect" id="node49" href="$irqtestperipheral_8c.html#a8b03f7c9aff5996a16845f0e2d1e6937" title="Provide a handle to a queue to receive msgs from the driver there. " alt="" coords="371,1020,529,1061"/>
+<area shape="rect" id="node50" href="$state__manager_8c.html#aab6938ef1c817b368bcee3fc953dba0f" title="Empty event log. " alt="" coords="365,1086,535,1113"/>
+</map>

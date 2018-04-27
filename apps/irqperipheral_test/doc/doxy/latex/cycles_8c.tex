@@ -1,0 +1,110 @@
+\hypertarget{cycles_8c}{}\section{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/drivers/common/cycles.c File Reference}
+\label{cycles_8c}\index{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/drivers/common/cycles.\+c@{/home/timo/\+Software/zephyr-\/riscv\+\_\+dev/apps/irqperipheral\+\_\+test/src/drivers/common/cycles.\+c}}
+{\ttfamily \#include \char`\"{}cycles.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$stdio.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}encoding.\+h\char`\"{}}\\*
+Include dependency graph for cycles.\+c\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=280pt]{cycles_8c__incl}
+\end{center}
+\end{figure}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{cycles_8c_aac84bff3e1706bfb386438251534a5ac}{C\+Y\+C\+L\+E\+S\+\_\+\+C\+P\+U\+C\+Y\+C\+\_\+\+P\+E\+R\+\_\+\+US}~C\+O\+N\+F\+I\+G\+\_\+\+A\+P\+P\+\_\+\+R\+I\+S\+C\+V\+\_\+\+C\+O\+R\+E\+\_\+\+F\+R\+E\+Q\+\_\+\+M\+HZ
+\item 
+\#define \hyperlink{cycles_8c_a178bb1b90da326048e8c83b4515768be}{rdmcycle}(x)
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+u32\+\_\+t \hyperlink{cycles_8c_a6e9f891bc6d1b4849bd701cca50ef426}{get\+\_\+cycle\+\_\+32} ()
+\begin{DoxyCompactList}\small\item\em read lower 32 bits of cycle csr register \end{DoxyCompactList}\item 
+void \hyperlink{cycles_8c_a8bf6852b90b5cdddf4be52c673ddd590}{cycle\+\_\+busy\+\_\+wait} (u32\+\_\+t t\+\_\+cyc)
+\begin{DoxyCompactList}\small\item\em Wait for at least t\+\_\+cyc cpu cycles. \end{DoxyCompactList}\item 
+u32\+\_\+t \hyperlink{cycles_8c_af94426e16139d6b6dd6b7c7f1aad5180}{cycle\+\_\+us\+\_\+2\+\_\+cyc} (u32\+\_\+t t\+\_\+us)
+\item 
+u32\+\_\+t \hyperlink{cycles_8c_a373d9d4b93bfff07d053e7cfaf17b42d}{cycle\+\_\+cyc\+\_\+2\+\_\+us} (u32\+\_\+t t\+\_\+cyc)
+\begin{DoxyCompactList}\small\item\em Attention\+: result is rounded. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Macro Definition Documentation}
+\index{cycles.\+c@{cycles.\+c}!C\+Y\+C\+L\+E\+S\+\_\+\+C\+P\+U\+C\+Y\+C\+\_\+\+P\+E\+R\+\_\+\+US@{C\+Y\+C\+L\+E\+S\+\_\+\+C\+P\+U\+C\+Y\+C\+\_\+\+P\+E\+R\+\_\+\+US}}
+\index{C\+Y\+C\+L\+E\+S\+\_\+\+C\+P\+U\+C\+Y\+C\+\_\+\+P\+E\+R\+\_\+\+US@{C\+Y\+C\+L\+E\+S\+\_\+\+C\+P\+U\+C\+Y\+C\+\_\+\+P\+E\+R\+\_\+\+US}!cycles.\+c@{cycles.\+c}}
+\subsubsection[{\texorpdfstring{C\+Y\+C\+L\+E\+S\+\_\+\+C\+P\+U\+C\+Y\+C\+\_\+\+P\+E\+R\+\_\+\+US}{CYCLES_CPUCYC_PER_US}}]{\setlength{\rightskip}{0pt plus 5cm}\#define C\+Y\+C\+L\+E\+S\+\_\+\+C\+P\+U\+C\+Y\+C\+\_\+\+P\+E\+R\+\_\+\+US~C\+O\+N\+F\+I\+G\+\_\+\+A\+P\+P\+\_\+\+R\+I\+S\+C\+V\+\_\+\+C\+O\+R\+E\+\_\+\+F\+R\+E\+Q\+\_\+\+M\+HZ}\hypertarget{cycles_8c_aac84bff3e1706bfb386438251534a5ac}{}\label{cycles_8c_aac84bff3e1706bfb386438251534a5ac}
+\index{cycles.\+c@{cycles.\+c}!rdmcycle@{rdmcycle}}
+\index{rdmcycle@{rdmcycle}!cycles.\+c@{cycles.\+c}}
+\subsubsection[{\texorpdfstring{rdmcycle}{rdmcycle}}]{\setlength{\rightskip}{0pt plus 5cm}\#define rdmcycle(
+\begin{DoxyParamCaption}
+\item[{}]{x}
+\end{DoxyParamCaption}
+)}\hypertarget{cycles_8c_a178bb1b90da326048e8c83b4515768be}{}\label{cycles_8c_a178bb1b90da326048e8c83b4515768be}
+{\bfseries Value\+:}
+\begin{DoxyCode}
+(\{                     \(\backslash\)
+    uint32\_t lo, hi, hi2;                  \(\backslash\)
+    \_\_asm\_\_ \_\_volatile\_\_ (\textcolor{stringliteral}{"1:\(\backslash\)n\(\backslash\)t"}             \(\backslash\)
+              \textcolor{stringliteral}{"csrr %0, mcycleh\(\backslash\)n\(\backslash\)t"}       \(\backslash\)
+              \textcolor{stringliteral}{"csrr %1, mcycle\(\backslash\)n\(\backslash\)t"}        \(\backslash\)
+              \textcolor{stringliteral}{"csrr %2, mcycleh\(\backslash\)n\(\backslash\)t"}       \(\backslash\)
+              \textcolor{stringliteral}{"bne  %0, %2, 1b\(\backslash\)n\(\backslash\)t"}         \(\backslash\)
+              : \textcolor{stringliteral}{"=r"} (hi), \textcolor{stringliteral}{"=r"} (lo), \textcolor{stringliteral}{"=r"} (hi2)) ; \(\backslash\)
+    *(x) = lo | ((uint64\_t) hi << 32);              \(\backslash\)
+\})
+\end{DoxyCode}
+
+
+\subsection{Function Documentation}
+\index{cycles.\+c@{cycles.\+c}!cycle\+\_\+busy\+\_\+wait@{cycle\+\_\+busy\+\_\+wait}}
+\index{cycle\+\_\+busy\+\_\+wait@{cycle\+\_\+busy\+\_\+wait}!cycles.\+c@{cycles.\+c}}
+\subsubsection[{\texorpdfstring{cycle\+\_\+busy\+\_\+wait(u32\+\_\+t t\+\_\+cyc)}{cycle_busy_wait(u32_t t_cyc)}}]{\setlength{\rightskip}{0pt plus 5cm}void cycle\+\_\+busy\+\_\+wait (
+\begin{DoxyParamCaption}
+\item[{u32\+\_\+t}]{t\+\_\+cyc}
+\end{DoxyParamCaption}
+)}\hypertarget{cycles_8c_a8bf6852b90b5cdddf4be52c673ddd590}{}\label{cycles_8c_a8bf6852b90b5cdddf4be52c673ddd590}
+
+
+Wait for at least t\+\_\+cyc cpu cycles. 
+
+No upper limit of waiting time guaranteed! Busy waiting currently, since no hw timers implemented yet. 
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=279pt]{cycles_8c_a8bf6852b90b5cdddf4be52c673ddd590_cgraph}
+\end{center}
+\end{figure}
+
+
+\index{cycles.\+c@{cycles.\+c}!cycle\+\_\+cyc\+\_\+2\+\_\+us@{cycle\+\_\+cyc\+\_\+2\+\_\+us}}
+\index{cycle\+\_\+cyc\+\_\+2\+\_\+us@{cycle\+\_\+cyc\+\_\+2\+\_\+us}!cycles.\+c@{cycles.\+c}}
+\subsubsection[{\texorpdfstring{cycle\+\_\+cyc\+\_\+2\+\_\+us(u32\+\_\+t t\+\_\+cyc)}{cycle_cyc_2_us(u32_t t_cyc)}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t cycle\+\_\+cyc\+\_\+2\+\_\+us (
+\begin{DoxyParamCaption}
+\item[{u32\+\_\+t}]{t\+\_\+cyc}
+\end{DoxyParamCaption}
+)}\hypertarget{cycles_8c_a373d9d4b93bfff07d053e7cfaf17b42d}{}\label{cycles_8c_a373d9d4b93bfff07d053e7cfaf17b42d}
+
+
+Attention\+: result is rounded. 
+
+\index{cycles.\+c@{cycles.\+c}!cycle\+\_\+us\+\_\+2\+\_\+cyc@{cycle\+\_\+us\+\_\+2\+\_\+cyc}}
+\index{cycle\+\_\+us\+\_\+2\+\_\+cyc@{cycle\+\_\+us\+\_\+2\+\_\+cyc}!cycles.\+c@{cycles.\+c}}
+\subsubsection[{\texorpdfstring{cycle\+\_\+us\+\_\+2\+\_\+cyc(u32\+\_\+t t\+\_\+us)}{cycle_us_2_cyc(u32_t t_us)}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t cycle\+\_\+us\+\_\+2\+\_\+cyc (
+\begin{DoxyParamCaption}
+\item[{u32\+\_\+t}]{t\+\_\+us}
+\end{DoxyParamCaption}
+)}\hypertarget{cycles_8c_af94426e16139d6b6dd6b7c7f1aad5180}{}\label{cycles_8c_af94426e16139d6b6dd6b7c7f1aad5180}
+\index{cycles.\+c@{cycles.\+c}!get\+\_\+cycle\+\_\+32@{get\+\_\+cycle\+\_\+32}}
+\index{get\+\_\+cycle\+\_\+32@{get\+\_\+cycle\+\_\+32}!cycles.\+c@{cycles.\+c}}
+\subsubsection[{\texorpdfstring{get\+\_\+cycle\+\_\+32()}{get_cycle_32()}}]{\setlength{\rightskip}{0pt plus 5cm}u32\+\_\+t get\+\_\+cycle\+\_\+32 (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{cycles_8c_a6e9f891bc6d1b4849bd701cca50ef426}{}\label{cycles_8c_a6e9f891bc6d1b4849bd701cca50ef426}
+
+
+read lower 32 bits of cycle csr register 
+
